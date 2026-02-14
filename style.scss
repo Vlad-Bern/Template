@@ -1,0 +1,465 @@
+// --- VARIABLES ---
+$celeste-color: #b19cd9;
+$blood-red: rgba(150, 0, 0, 0.6);
+$dark-bg: #050505;
+$glass-bg: linear-gradient(
+  135deg,
+  rgba(25, 25, 25, 0.85) 0%,
+  rgba(10, 10, 10, 0.95) 100%
+);
+
+// --- MIXINS ---
+@mixin glass {
+  background: $glass-bg;
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba($celeste-color, 0.3);
+}
+
+// --- FONTS ---
+@font-face {
+  font-family: "Lora";
+  src: url("/fonts/Lora-Regular.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/Inter24pt-Regular.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+// --- RESET ---
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  user-select: none;
+  outline: none;
+}
+
+body,
+html {
+  width: 100%;
+  height: 100%;
+  background-color: $dark-bg;
+  color: #ffffff;
+  font-family: "Inter", sans-serif;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// --- MAIN WRAPPER ---
+#app {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  max-width: 177.78vh; // 16:9 Aspect Ratio
+  max-height: 56.25vw;
+  background: #000;
+  overflow: hidden;
+
+  // КРОВАВАЯ ВИНЬЕТКА
+  &::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: radial-gradient(
+      circle,
+      transparent 40%,
+      rgba(0, 0, 0, 0.4) 70%,
+      $blood-red 100%
+    );
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out;
+  }
+
+  // СОСТОЯНИЯ ПОДЧИНЕНИЯ (СТРЕССА)
+  &.stress-med::after {
+    opacity: 0.5;
+  }
+  &.stress-high {
+    &::after {
+      opacity: 1;
+      animation: heart-beat 1.5s infinite ease-in-out;
+    }
+
+    // РАЗДЕЛЬНАЯ ТРЯСКА ПРИ ВЫСОКОМ СТРЕССЕ
+    #name-tag {
+      animation: jitter-fast 0.1s infinite;
+      border-color: rgba(255, 0, 0, 0.6);
+    }
+
+    #dialog-box-container {
+      animation: heavy-shiver 0.2s infinite;
+      border-left-color: #ff4d4d;
+    }
+
+    #dialog-box {
+      text-shadow:
+        2px 0 rgba(255, 0, 0, 0.5),
+        -2px 0 rgba(0, 0, 255, 0.5);
+    }
+  }
+}
+
+// --- LAYERS ---
+#bg-layer,
+#character-layer,
+#fx-layer,
+#game-ui {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#bg-layer {
+  z-index: 1;
+}
+#character-layer {
+  z-index: 5;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+  transition: filter 0.5s ease-out;
+}
+#game-ui {
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 40px;
+}
+
+// --- CHARACTERS ---
+.character-sprite {
+  position: absolute;
+  bottom: 0;
+  height: 95vh;
+  width: auto;
+  object-fit: contain;
+  transition: all 0.5s ease;
+  &.pos-center {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+
+// --- DIALOGUE UI ---
+#dialog-wrapper {
+  width: 85%;
+  max-width: 1200px;
+  margin: 0 auto 40px auto;
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+}
+
+#name-tag {
+  display: inline-block;
+  padding: 8px 40px;
+  background: rgba(15, 15, 15, 0.95);
+  border: 1px solid rgba($celeste-color, 0.4);
+  border-bottom: none;
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  color: $celeste-color;
+  clip-path: polygon(0 0, 92% 0, 100% 100%, 0% 100%);
+}
+
+#dialog-box-container {
+  @include glass;
+  position: relative;
+  padding: 40px 60px;
+  min-height: 180px;
+  border-left: 6px solid $celeste-color;
+}
+
+#dialog-box {
+  font-family: "Lora", serif;
+  font-size: 26px;
+  color: #fdfdfd;
+  line-height: 1.6;
+
+  // Мигающий курсор ожидания
+  &.waiting::after {
+    content: " ▼";
+    font-size: 20px;
+    color: $celeste-color;
+    display: inline-block;
+    margin-left: 12px;
+    animation: blink-arrow 1s infinite;
+  }
+}
+
+// --- CHOICE BUTTONS ---
+#choice-container {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  z-index: 100;
+  width: 100%;
+  align-items: center;
+  pointer-events: none;
+
+  .choice-btn {
+    pointer-events: auto;
+    width: 80%;
+    max-width: 650px;
+    padding: 22px 45px;
+    @include glass;
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-align: center;
+
+    &:hover {
+      background: rgba($celeste-color, 0.15);
+      border-color: $celeste-color;
+      transform: scale(1.03) translateX(15px);
+      box-shadow: 0 0 30px rgba($celeste-color, 0.2);
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+}
+
+// --- ANIMATIONS ---
+
+@keyframes heart-beat {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: brightness(100%);
+  }
+  50% {
+    transform: scale(1.015);
+    filter: brightness(125%);
+  }
+}
+
+// Мелкая паническая дрожь для имени
+@keyframes jitter-fast {
+  0% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(-1px, 1px);
+  }
+  50% {
+    transform: translate(1px, -1px);
+  }
+  75% {
+    transform: translate(-1.5px, -0.5px);
+  }
+  100% {
+    transform: translate(1.5px, 0.5px);
+  }
+}
+
+// Тяжелая прерывистая тряска для окна
+@keyframes heavy-shiver {
+  0% {
+    transform: translate(0, 0) rotate(0);
+  }
+  20% {
+    transform: translate(-3px, 2px) rotate(-0.2deg);
+  }
+  40% {
+    transform: translate(3px, -2px) rotate(0.2deg);
+  }
+  60% {
+    transform: translate(-2px, -3px) rotate(-0.1deg);
+  }
+  80% {
+    transform: translate(2px, 3px) rotate(0.1deg);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes blink-arrow {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(5px);
+  }
+}
+
+// --- КНОПКИ ВЫБОРА ---
+#choice-container {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  z-index: 100;
+  width: 100%;
+  max-width: 650px;
+  align-items: center;
+  pointer-events: none; // Контейнер прозрачен для кликов
+}
+
+button,
+.choice-btn {
+  pointer-events: auto; // А кнопки ловят клики
+  width: 100%;
+  padding: 22px 40px;
+  background: rgba(15, 15, 15, 0.85);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(177, 156, 217, 0.3);
+  color: #fff;
+  font-family: "Inter", sans-serif;
+  font-size: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+
+  // Блик при наведении
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.1),
+      transparent
+    );
+    transition: left 0.5s;
+  }
+
+  &:hover {
+    background: rgba(177, 156, 217, 0.15);
+    border-color: #b19cd9;
+    transform: scale(1.02) translateX(10px);
+    box-shadow: 0 0 25px rgba(177, 156, 217, 0.2);
+
+    &::before {
+      left: 150%; // Блик уезжает вправо
+    }
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  // Заблокированные выборы (если стата не хватает)
+  &:disabled,
+  &.locked {
+    opacity: 0.4;
+    cursor: not-allowed;
+    filter: grayscale(1);
+    border-color: #444;
+
+    &:hover {
+      transform: none;
+      background: rgba(15, 15, 15, 0.85);
+      box-shadow: none;
+    }
+  }
+}
+
+// При высоком стрессе кнопки тоже "ломаются"
+.stress-high {
+  button,
+  .choice-btn {
+    border-color: rgba(255, 0, 0, 0.4);
+    animation: button-pulse 2s infinite;
+
+    &:hover {
+      box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+    }
+  }
+}
+
+@keyframes button-pulse {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50% {
+    transform: translateX(-1px);
+  }
+  20%,
+  40% {
+    transform: translateX(1px);
+  }
+}
+
+#notification-container {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.toast {
+  background: rgba(15, 15, 15, 0.95);
+  border-left: 4px solid;
+  padding: 15px 25px;
+  color: #fff;
+  font-family: "Inter", sans-serif;
+  font-size: 16px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  &.show {
+    transform: translateX(0);
+  }
+
+  // Типы уведомлений
+  &.error {
+    border-color: #ff4d4d;
+  } // Не хватает статов
+  &.info {
+    border-color: #b19cd9;
+  } // Сюжетное
+  &.success {
+    border-color: #4dff4d;
+  } // Успех
+}
