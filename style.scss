@@ -1,0 +1,821 @@
+// --- VARIABLES ---
+$celeste-color: #b19cd9;
+$blood-red: rgba(150, 0, 0, 0.6);
+$dark-bg: #050505;
+$glass-bg: linear-gradient(
+  135deg,
+  rgba(25, 25, 25, 0.85) 0%,
+  rgba(10, 10, 10, 0.95) 100%
+);
+
+// --- MIXINS ---
+@mixin glass {
+  background: $glass-bg;
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba($celeste-color, 0.3);
+}
+
+// --- FONTS ---
+@font-face {
+  font-family: "Lora";
+  src: url("/fonts/Lora-Regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/Inter24pt-Regular.woff2") format("woff2");
+}
+
+// --- RESET ---
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  user-select: none;
+  outline: none;
+}
+
+body,
+html {
+  width: 100%;
+  height: 100%;
+  background-color: $dark-bg;
+  color: #ffffff;
+  font-family: "Inter", sans-serif;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// --- MAIN WRAPPER ---
+#app {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  overflow: hidden;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+  justify-content: center;
+
+  // КРОВАВАЯ ВИНЬЕТКА
+  &::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(
+      circle,
+      transparent 40%,
+      rgba(0, 0, 0, 0.4) 70%,
+      $blood-red 100%
+    );
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out;
+  }
+
+  // ЭФФЕКТЫ ПСИХА
+  &.stress-med::after {
+    opacity: 0.5;
+  }
+
+  &.stress-high {
+    &::after {
+      opacity: 1;
+      animation: heart-beat 1.5s infinite ease-in-out;
+    }
+
+    &.stress-high {
+      #dialog-box-container::before {
+        opacity: calc(var(--stress-val) * 0.7); // Плавное нарастание трещин
+      }
+    }
+
+    &.stress-high {
+      #dialog-box-container {
+        animation: border-chaos 3s infinite ease-in-out;
+      }
+    }
+
+    #ultra-wide-blur-layer {
+      position: absolute;
+      top: -5%; // Чуть больше 100%, чтобы края блюра не были темными
+      left: -5%;
+      width: 110%;
+      height: 110%;
+      background-size: cover;
+      background-position: center;
+      filter: blur(20px) brightness(0.4); // Сильный блюр и затемнение, чтобы не отвлекало
+      z-index: 0; // В самом низу
+    }
+
+    // Новая анимация:
+    @keyframes border-chaos {
+      0%,
+      100% {
+        border-radius: 0;
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+      }
+      25% {
+        border-radius: 8px 0 8px 0;
+        clip-path: polygon(0 0, 98% 2%, 100% 100%, 2% 98%);
+      }
+      50% {
+        border-radius: 0 12px 0 12px;
+        clip-path: polygon(2% 0, 100% 0, 98% 100%, 0 98%);
+      }
+      75% {
+        border-radius: 6px;
+        clip-path: polygon(0 2%, 100% 0, 100% 98%, 0 100%);
+      }
+    }
+
+    #name-tag {
+      animation: name-pulse 2s infinite ease-in-out;
+      border-color: rgba(255, 0, 0, 0.6);
+      box-shadow: 0 0 10px rgba(255, 0, 0, 0.4);
+    }
+
+    @keyframes name-pulse {
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.02);
+        opacity: 0.85;
+      }
+    }
+
+    // УБЕРИ infinite, класс будет добавляться/убираться из JS
+    #dialog-box-container.shaking {
+      animation: heavy-shiver 0.15s ease-in-out; // Одиночный прогон
+      border-left-color: #ff4d4d;
+    }
+
+    #dialog-box {
+      text-shadow:
+        2px 0 rgba(255, 0, 0, 0.5),
+        -2px 0 rgba(0, 0, 255, 0.5);
+    }
+
+    .choice-btn {
+      border-color: rgba(255, 0, 0, 0.4);
+      animation: button-pulse 2s infinite;
+    }
+  }
+}
+
+// --- GLOBAL BLURRED BACKGROUND (Для широких экранов) ---
+#global-bg {
+  position: fixed;
+  inset: -20px; // Чуть больше экрана, чтобы не было краев
+  z-index: -1;
+  background-size: cover;
+  background-position: center;
+  filter: blur(20px) brightness(0.4); // Размытый фон на весь экран
+  transform: scale(1.1);
+}
+
+// --- GAME CONTAINER (Соблюдаем 16:9, но без черных полос) ---
+// Весь контент игры живет внутри этого контейнера
+#bg-layer,
+#noise-layer,
+#character-layer,
+#fx-layer,
+#interaction-layer,
+#game-ui {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  max-width: 177.78vh; // Ограничение по ширине (16:9)
+  margin: 0 auto; // Центрируем контент
+  left: 50%;
+  transform: translateX(-50%); // Фикс центровки абсолютных элементов
+}
+
+#bg-layer {
+  z-index: 1;
+  background-size: cover;
+  background-position: center;
+}
+#character-layer {
+  z-index: 5;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+}
+#interaction-layer {
+  z-index: 50;
+  pointer-events: none;
+}
+
+#game-ui {
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 50px;
+  pointer-events: none;
+}
+
+// --- DIALOGUE UI ---
+#dialog-wrapper {
+  position: relative;
+  width: 90%;
+  max-width: 1100px;
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+  margin-bottom: 20px;
+  margin-top: 40px;
+  z-index: 110;
+  height: 260px; // Жесткая высота!
+  min-height: 250px;
+  max-height: 260px;
+  overflow: hidden;
+}
+
+#dialog-bg-color {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1; // Лежит ПОД текстом
+
+  // Дефолтный цвет (мысли)
+  background: rgba(10, 10, 10, 0.85);
+
+  // Плавное перетекание цвета (длительность можно менять)
+  transition: background-color 0.5s ease;
+}
+
+#name-tag {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  height: 40px;
+  width: 40%;
+  min-width: 300px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  padding: 0 40px;
+  background: rgba(15, 15, 15, 0.95);
+  border: 1px solid rgba($celeste-color, 0.4);
+  border-bottom: none;
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  color: $celeste-color;
+  clip-path: polygon(0 0, 92% 0, 100% 100%, 0% 100%);
+
+  // === МАГИЯ АНИМАЦИИ ЗДЕСЬ ===
+  opacity: 0; // По умолчанию спрятан
+  transform: translateY(10px); // Чуть опущен вниз
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
+  pointer-events: none; // Чтобы клики проходили сквозь него, когда он невидим
+}
+
+// Класс, который JS будет вешать для показа
+#name-tag.active {
+  opacity: 1;
+  transform: translateY(0); // Встает на место
+}
+
+#dialog-box-container {
+  @include glass;
+  position: relative;
+  padding: 40px 60px;
+  min-height: 180px;
+  border-left: 6px solid $celeste-color;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  // Растягиваем контейнер на всю высоту wrapper'а
+  height: 100%;
+  justify-content: space-between;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(
+        45deg,
+        transparent 48%,
+        rgba(255, 255, 255, 0.05) 49%,
+        rgba(255, 255, 255, 0.05) 51%,
+        transparent 52%
+      ),
+      linear-gradient(
+        -70deg,
+        transparent 30%,
+        rgba(255, 0, 0, 0.1) 31%,
+        rgba(255, 0, 0, 0.1) 33%,
+        transparent 34%
+      ),
+      linear-gradient(
+        120deg,
+        transparent 60%,
+        rgba(255, 255, 255, 0.08) 61%,
+        transparent 62%
+      );
+    background-size:
+      200px 200px,
+      150px 300px,
+      180px 250px;
+    background-position:
+      20% 30%,
+      70% 10%,
+      50% 80%;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1;
+    transition: opacity 0.5s ease;
+  }
+}
+
+#dialog-box {
+  font-family: "Lora", serif;
+  font-size: 26px;
+  color: #fdfdfd;
+  line-height: 1.6;
+
+  word-break: normal; // Запрещает рвать слова посередине!
+  overflow-wrap: normal; // Никаких break-word. Слово переносится только целиком.
+  white-space: pre-wrap; // Сохраняет твои абзацы (Enter) из текста
+
+  flex-grow: 1;
+  overflow: hidden;
+  margin-bottom: 15px;
+
+  // === ИНДИКАТОР В КОНЦЕ ТЕКСТА ===
+  // Создаем невидимый элемент в конце текста
+  &::after {
+    content: "▼";
+    display: inline-block;
+    margin-left: 10px; // Отступ от последней буквы
+    color: $celeste-color; // Или белый, как хочешь
+    font-size: 20px;
+    opacity: 0; // Прячем по умолчанию
+    transition: opacity 0.2s ease;
+  }
+
+  // Когда JS добавит класс "waiting", стрелочка появится и начнет пульсировать
+  &.waiting::after {
+    opacity: 1;
+    animation: pulse-ctc-inline 1s infinite alternate ease-in-out;
+  }
+}
+
+// Анимация пульсации (теперь только прозрачность, чтобы строка не дергалась)
+@keyframes pulse-ctc-inline {
+  0% {
+    opacity: 0.3;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+// --- CHOICE BUTTONS ---
+#choice-container {
+  // Оставляем fixed, но смещаем центр масс ВВЕРХ
+  position: fixed;
+  top: 40%; // Поднимаем с 50% до 40%, чтобы освободить место снизу
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center; // Центрируем кнопки
+  gap: 15px;
+  width: 100%;
+  max-width: 600px;
+  z-index: 120; // Оставляем z-index высоким на всякий случай
+  pointer-events: auto;
+}
+
+.choice-wrapper {
+  width: 100%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0;
+
+  .choice-btn {
+    width: 100%;
+    padding: 22px 30px;
+    @include glass;
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+
+    &:hover {
+      background: rgba($celeste-color, 0.2);
+      border-color: #fff;
+      transform: scale(1.03);
+    }
+    &.invalid-click {
+      animation: invalid-shake 0.4s ease;
+      border-color: $blood-red !important;
+    }
+  }
+
+  .choice-info {
+    position: absolute;
+    left: 105%;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    background: rgba(15, 15, 15, 0.95);
+    border: 1px solid #444;
+    padding: 8px 15px;
+    font-size: 13px;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    &.met {
+      border-color: #4caf50;
+      color: #4caf50;
+    }
+    &.unmet {
+      border-color: $blood-red;
+      color: $blood-red;
+    }
+  }
+
+  &:hover .choice-info {
+    opacity: 1;
+    transform: translateY(-50%) translateX(10px);
+  }
+}
+
+// --- INTERACTION POINTS ---
+.interact-point {
+  position: absolute;
+  pointer-events: auto;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  .icon {
+    font-size: 32px;
+    transition: transform 0.2s ease;
+    filter: drop-shadow(0 0 5px black);
+  }
+  .label {
+    margin-top: 5px;
+    opacity: 0;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 2px 10px;
+    font-size: 12px;
+    transition: 0.2s;
+    border-left: 2px solid $celeste-color;
+  }
+  &:hover {
+    .icon {
+      transform: scale(1.2) translateY(-5px);
+    }
+    .label {
+      opacity: 1;
+    }
+  }
+}
+
+// --- NOTIFICATIONS ---
+#notification-container {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 9999;
+}
+.toast {
+  background: rgba(15, 15, 15, 0.95);
+  border-left: 4px solid;
+  padding: 15px 25px;
+  color: #fff;
+  transform: translateX(100%);
+  transition: 0.3s;
+  &.show {
+    transform: translateX(0);
+  }
+  &.error {
+    border-color: $blood-red;
+  }
+  &.success {
+    border-color: #4dff4d;
+  }
+  &.info {
+    border-color: $celeste-color;
+  }
+}
+
+// --- ANIMATIONS ---
+@keyframes heart-beat {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: scale(1.05);
+    filter: brightness(1.3);
+  } // Увеличил масштаб
+}
+
+@keyframes jitter-fast {
+  0% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(-3px, 3px);
+  } // Было 1px -> стало 3px
+  50% {
+    transform: translate(3px, -3px);
+  }
+  75% {
+    transform: translate(-2px, 2px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes heavy-shiver {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  20% {
+    transform: translate(-5px, 5px) rotate(-1deg);
+  } // Добавил поворот!
+  40% {
+    transform: translate(5px, -5px) rotate(1deg);
+  }
+  60% {
+    transform: translate(-3px, 3px) rotate(0deg);
+  }
+  80% {
+    transform: translate(3px, -3px) rotate(0deg);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes button-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    border-color: rgba(255, 0, 0, 0.4);
+  }
+  50% {
+    transform: scale(1.02);
+    border-color: rgba(255, 0, 0, 1);
+    box-shadow: 0 0 15px red;
+  }
+}
+
+// ТЕСТОВЫЙ БЛОК ДЛЯ ПРОВЕРКИ
+#app.stress-high {
+  border: 5px solid red !important; // Если появится красная рамка — класс работает!
+  filter: sepia(1) hue-rotate(-50deg) !important; // Экран должен стать красным
+}
+
+@keyframes micro-glitch {
+  0%,
+  100% {
+    transform: translate(0, 0);
+    opacity: 1;
+  }
+  20% {
+    transform: translate(-2px, 1px);
+    opacity: 0.7;
+  }
+  40% {
+    transform: translate(2px, -1px);
+    color: rgba(255, 0, 0, 0.8);
+  }
+  60% {
+    transform: translate(-1px, 1px);
+    color: rgba(0, 255, 255, 0.8);
+  }
+}
+
+// Цветовая схема "S-Rank"
+$celeste-cyan: #66b2ff;
+$celeste-red: #ff4d4d;
+$glass-dark: rgba(10, 12, 18, 0.95);
+
+// 1. Бэкдроп (должен перекрывать всё, кроме модалки)
+#modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    circle,
+    rgba(0, 0, 0, 0.4) 0%,
+    rgba(0, 0, 0, 0.9) 100%
+  );
+  backdrop-filter: blur(10px);
+  z-index: 5000;
+  pointer-events: auto; // Чтобы клик для закрытия работал
+}
+
+// 2. Основная панель истории
+#history-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(900px, 90vw);
+  height: min(700px, 80vh);
+  background: $glass-dark;
+  border: 1px solid rgba($celeste-cyan, 0.3);
+  border-radius: 4px;
+  z-index: 5001;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+  pointer-events: auto;
+
+  // Техно-эффект сканирования
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(rgba(102, 178, 255, 0.03) 1px, transparent 1px);
+    background-size: 100% 3px;
+    pointer-events: none;
+    z-index: 10;
+  }
+}
+
+// 3. Шапка модалки
+#history-header {
+  padding: 25px 40px;
+  background: linear-gradient(
+    90deg,
+    rgba($celeste-cyan, 0.05) 0%,
+    transparent 100%
+  );
+  border-bottom: 1px solid rgba($celeste-cyan, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+
+  h3 {
+    margin: 0;
+    color: $celeste-cyan;
+    font-family: "Roboto", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 5px;
+    font-weight: 300;
+    text-shadow: 0 0 15px rgba($celeste-cyan, 0.4);
+
+    &::before {
+      content: "FILE_";
+      opacity: 0.4;
+    }
+  }
+
+  #close-history {
+    background: rgba($celeste-cyan, 0.1);
+    border: 1px solid rgba($celeste-cyan, 0.3);
+    color: $celeste-cyan;
+    width: 35px;
+    height: 35px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      background: $celeste-red;
+      border-color: $celeste-red;
+      color: white;
+      transform: rotate(90deg);
+      box-shadow: 0 0 20px rgba($celeste-red, 0.5);
+    }
+  }
+}
+
+// 4. Область с текстом (Скролл)
+#history-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 30px 40px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba($celeste-cyan, 0.3) transparent;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba($celeste-cyan, 0.3);
+    &:hover {
+      background: $celeste-cyan;
+    }
+  }
+}
+
+// 5. Записи в истории
+.history-entry {
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+
+  strong {
+    display: inline-block;
+    color: $celeste-cyan;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: rgba($celeste-cyan, 0.1);
+    padding: 2px 8px;
+    margin-bottom: 10px;
+    border-radius: 2px;
+  }
+
+  span {
+    display: block;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.8;
+    font-size: 16px;
+    font-weight: 300;
+  }
+}
+
+// 6. Футер внутри диалога (кнопка H)
+#dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px solid rgba($celeste-cyan, 0.1);
+}
+
+.dialog-footer-btn {
+  background: transparent;
+  border: none;
+  color: rgba($celeste-cyan, 0.6);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  cursor: pointer;
+  padding: 5px 10px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: $celeste-cyan;
+    text-shadow: 0 0 8px rgba($celeste-cyan, 0.6);
+  }
+}
+
+.glitch-char {
+  color: $celeste-red !important;
+  text-shadow: 0 0 8px rgba($celeste-red, 0.8);
+  font-family: monospace; // Глитчи на моноширинном шрифте выглядят круче
+}
+
+#fx-layer {
+  position: fixed;
+
+  background-color: black;
+  opacity: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+#noise-layer {
+  position: absolute;
+  z-index: 51; // Выше тьмы
+  pointer-events: none;
+  opacity: 0;
+  background-image: url("/fx/noise.webp");
+  background-repeat: repeat;
+  background-size: 256px;
+  mix-blend-mode: screen;
+}
