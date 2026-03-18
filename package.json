@@ -1,0 +1,31 @@
+{
+  "name": "sota",
+  "type": "module",
+  "main": "index.html",
+  "window": {
+    "width": 1280,
+    "height": 720,
+    "min_width": 800,
+    "min_height": 600,
+    "frame": true,
+    "resizable": true
+  },
+  "devDependencies": {
+    "nw-builder": "^4.11.0",
+    "sass": "^1.97.3",
+    "sharp": "^0.34.5",
+    "vite": "^7.3.1"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "build:nw": "nw-builder --version sdk --mode build --glob ./dist/**",
+    "build:android": "vite build && npx cap sync android && npx cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.2.0",
+    "@capacitor/cli": "^8.2.0",
+    "@capacitor/core": "^8.2.0"
+  }
+}
