@@ -1,0 +1,46 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Vite / Dependencies
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# --- SOTA Custom Rules ---
+
+# Сборки NW.js (чтобы не пушить готовые .exe/.app в репозиторий кода)
+.nw/
+build/
+out/
+release/
+
+# Тяжелые исходники и черновики (оставляем только готовые .webp в assets!)
+# Если ты будешь хранить где-то PSD, Krita файлы или сырые генерации Illustrious:
+raw_assets/
+*.psd
+*.kra
+*.xcf
+
+# Локальные сохранения игры при тестировании
+saves/
+*.save
+
+public/

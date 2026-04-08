@@ -1,0 +1,202 @@
+import "./style.scss";
+import { Typewriter } from "./src/core/typewriter.js";
+import { SceneManager } from "./src/core/sceneManager.js";
+import { state } from "./src/core/state.js";
+
+const app = document.getElementById("app");
+
+// 1. СТРОИМ ДОМ (Генерация всей структуры игры)
+app.innerHTML = `
+  <div id="game-container">
+    <!-- 1. РАЗМЫТЫЙ ЗАДНИК -->
+    <div id="global-bg-layers">
+      <div id="gbg-1" class="bg-layer active blurred"></div>
+      <div id="gbg-2" class="bg-layer blurred"></div>
+    </div>
+      
+    <!-- 2. ИГРОВОЙ МИР -->
+    <div id="game-viewport">
+      <div id="sharp-background-layers" class="viewport-bg">
+        <div id="bg-1" class="bg-layer active sharp-effect"></div>
+        <div id="bg-2" class="bg-layer sharp-effect"></div>
+        <div id="vignette-layer"></div>
+      </div>
+      <div id="character-layer"></div>
+      <div id="interaction-layer"></div>
+      <div id="overlay-layer"></div>
+    </div>
+    <!-- 3. ЭФФЕКТЫ И UI -->
+    <div id="darkness-layer"></div>
+    <div id="noise-layer"></div>
+
+    <div id="game-ui">
+      <div id="history-panel" style="display: none;">
+        <div id="history-header">
+          <h3>История</h3>
+          <button id="close-history">✕</button>
+        </div>
+        <div id="history-content"></div>
+      </div>
+      <div id="notification-container"></div>
+      <div id="choice-container"></div>
+      <div id="dialog-wrapper">
+        <div id="dialog-bg-color"></div>
+        <div id="name-tag"></div>
+        <div id="dialog-box-container">
+          <div id="dialog-box"></div>
+          <div id="dialog-footer">
+            <button id="open-history-btn" class="dialog-footer-btn" title="История (H)">📖 История</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+`;
+
+const tw = new Typewriter("dialog-box");
+const sm = new SceneManager(tw);
+window.sm = sm;
+
+// Заглушка для браузерных тестов (просит повернуть телефон)
+if (sm.isMobile) {
+  const handleOrientation = () => {
+    const prompt = document.getElementById("rotate-prompt");
+    if (!prompt) return;
+    const isPortrait = window.innerHeight > window.innerWidth;
+    const isTablet = Math.min(window.innerWidth, window.innerHeight) >= 600;
+    prompt.style.display = isPortrait && !isTablet ? "flex" : "none";
+  };
+  window.addEventListener("resize", handleOrientation);
+  requestAnimationFrame(() => requestAnimationFrame(handleOrientation));
+}
+
+sm.loadScene("quiz_intro");
+
+// Разблокировка аудио по первому клику
+const unlockAudio = () => {
+  if (
+    window.Howler &&
+    window.Howler.ctx &&
+    window.Howler.ctx.state === "suspended"
+  ) {
+    window.Howler.ctx.resume().then(() => {});
+  }
+};
+window.addEventListener("click", unlockAudio, { once: true });
+
+window.dispatchEvent(
+  new CustomEvent("stressUpdated", {
+    detail: { sanity: state.hero.stats.sanity },
+  }),
+);
+
+// === ЕДИНАЯ СИСТЕМА (СТРЕСС + ПАРАЛЛАКС) ===
+(function initSystems() {
+  let lastMouseMove = Date.now();
+  let currentBlur = 0;
+
+  let targetX = 0,
+    targetY = 0;
+  let currentX = 0,
+    currentY = 0;
+
+  // 1. Мышь для ПК
+  window.addEventListener("mousemove", (e) => {
+    lastMouseMove = Date.now();
+    targetX = (e.clientX / window.innerWidth - 0.5) * 2;
+    targetY = (e.clientY / window.innerHeight - 0.5) * 2;
+  });
+
+  // 2. Сброс таймера AFK при тапе на мобилках
+  window.addEventListener(
+    "touchstart",
+    () => {
+      lastMouseMove = Date.now();
+    },
+    { passive: true },
+  );
+
+  // 3. НАТИВНЫЙ ГИРОСКОП ДЛЯ APK (Capacitor)
+  if (
+    window.Capacitor &&
+    window.Capacitor.Plugins &&
+    window.Capacitor.Plugins.Motion
+  ) {
+    window.Capacitor.Plugins.Motion.addListener("accel", (event) => {
+      let x = event.accelerationIncludingGravity.x / 9.8;
+      let y = event.accelerationIncludingGravity.y / 9.8;
+
+      targetX = Math.max(-1, Math.min(1, x));
+      targetY = Math.max(-1, Math.min(1, -y));
+    });
+  } else {
+    // 4. Запасной браузерный гироскоп
+    window.addEventListener("deviceorientation", (e) => {
+      if (e.gamma === null || e.beta === null) return;
+      if (Math.abs(e.beta) < 10 || Math.abs(e.beta) > 85) return;
+
+      let x = e.gamma / 20;
+      let y = (e.beta - 45) / 20;
+
+      targetX = Math.max(-1, Math.min(1, x));
+      targetY = Math.max(-1, Math.min(1, y));
+    });
+  }
+
+  let rafId = null;
+  function renderFrame() {
+    // 1. БЛЮР СТРЕССА
+    const sanity = state?.hero?.stats?.sanity ?? 100;
+    const safeSanity = Math.max(0, Math.min(100, Number(sanity)));
+    const stress = 100 - safeSanity;
+    const idleTime = (Date.now() - lastMouseMove) / 1000;
+
+    if (idleTime > 3) {
+      document.body.style.cursor = "none";
+    } else {
+      document.body.style.cursor = "default";
+    }
+
+    const targetBlurAmount =
+      idleTime > 3 && stress > 50 ? (stress / 100 - 0.5) * 15 : 0;
+    currentBlur += (targetBlurAmount - currentBlur) * 0.05;
+    if (currentBlur < 0.1) currentBlur = 0;
+    document.documentElement.style.setProperty(
+      "--stress-blur",
+      `${currentBlur}px`,
+    );
+
+    // 2. ПАРАЛЛАКС
+    currentX += (targetX - currentX) * 0.05;
+    currentY += (targetY - currentY) * 0.05;
+
+    const sharpLayers = document.querySelectorAll(
+      "#sharp-background-layers .bg-layer",
+    );
+    const charLayers = document.querySelectorAll(
+      "#character-layer .character-wrapper",
+    );
+    const interLayers = document.querySelectorAll("#interaction-layer");
+
+    sharpLayers.forEach((layer) => {
+      layer.style.transform = `translate(${currentX * 30}px, ${currentY * 30}px) scale(1.15)`;
+    });
+    charLayers.forEach((layer) => {
+      layer.style.transform = `translate(${currentX * 35}px, ${currentY * 2}px)`;
+    });
+    interLayers.forEach((layer) => {
+      layer.style.transform = `translate(${currentX * 30}px, ${currentY * 30}px)`;
+    });
+
+    const docOverlay = document.getElementById("document-overlay");
+    if (docOverlay && docOverlay.style.display !== "none") {
+      const px = currentX * 35;
+      const py = currentY * 35;
+      docOverlay.style.transform = `perspective(2000px) translate(calc(-50% + ${px}px), calc(-50% + ${py}px)) rotateX(28deg) rotateY(0deg) rotateZ(-10deg)`;
+    }
+
+    rafId = requestAnimationFrame(renderFrame);
+  }
+
+  rafId = requestAnimationFrame(renderFrame);
+})();

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+
+    <!-- Жесткая фиксация масштаба (Android Chrome это очень любит) -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+
+    <!-- Красим верхнюю панель Android (status bar) в черный цвет, если игра открыта в браузере -->
+    <meta name="theme-color" content="#000000" />
+
+    <!-- Говорим старым Android-браузерам, что сайт адаптирован под телефоны -->
+    <meta name="HandheldFriendly" content="true" />
+    <meta name="MobileOptimized" content="width" />
+
+    <!-- Эти три строчки можешь оставить, они ничего не весят, но если кто-то случайно откроет ссылку на айфоне - игра не сломается -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="SOTA" />
+
+    <title>PROJECT: ABNORMAL-ZERO</title>
+  </head>
+
+  <body>
+    <div id="app"></div>
+    <script src="/lib/anime.min.js"></script>
+    <script src="/lib/howler.min.js"></script>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
