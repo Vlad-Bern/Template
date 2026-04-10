@@ -183,7 +183,12 @@ export class SaveManager {
     this.close();
 
     if (window.sm) {
-      window.sm.loadScene(slotData.sceneId, slotData.lineIndex);
+      // Используем новый специальный метод загрузки без дублирования статов
+      if (typeof window.sm.loadSceneFromSave === "function") {
+        window.sm.loadSceneFromSave(slotData.sceneId, slotData.lineIndex);
+      } else {
+        window.sm.loadScene(slotData.sceneId, slotData.lineIndex);
+      }
     }
   }
 }

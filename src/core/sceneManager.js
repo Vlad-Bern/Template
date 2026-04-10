@@ -239,6 +239,14 @@ export class SceneManager {
     }
   }
 
+  // +++ НОВЫЙ МЕТОД ДЛЯ БЕЗОПАСНОЙ ЗАГРУЗКИ СЕЙВОВ +++
+  async loadSceneFromSave(sceneId, lineIndex) {
+    this.isRestoringSave = true; // Поднимаем флаг восстановления
+    await this.loadScene(sceneId, lineIndex);
+    this.isRestoringSave = false; // Опускаем флаг
+  }
+
+  // +++ ИСПРАВЛЕННЫЙ LOADSCENE +++
   async loadScene(sceneId, startLineIndex = 0) {
     this.currentSceneId = sceneId;
     this.currentLineIndex = startLineIndex;
@@ -253,7 +261,20 @@ export class SceneManager {
     const scene = story[sceneId];
     if (!scene) return console.error(`[SM] Scene not found: ${sceneId}`);
 
-    if (typeof scene.action === "function") {
+    // 1. ОЧИСТКА ДОМА (Фикс "прибитых" спрайтов)
+    const interLayer = document.getElementById("interaction-layer");
+    const dialogWrapper = document.getElementById("dialog-wrapper");
+    const charLayer = document.getElementById("character-layer");
+
+    if (interLayer) {
+      interLayer.innerHTML = "";
+      interLayer.style.display = "none";
+    }
+    if (dialogWrapper) dialogWrapper.style.display = "flex";
+    if (charLayer) charLayer.innerHTML = ""; // Жестко удаляем старые спрайты
+
+    // 2. Сюжетные скрипты запускаем ТОЛЬКО если это не загрузка сейва
+    if (!this.isRestoringSave && typeof scene.action === "function") {
       try {
         scene.action();
       } catch (e) {
@@ -261,73 +282,80 @@ export class SceneManager {
       }
     }
 
-    if (scene.bg) {
-      const optimizedBg = this._getOptimizedBgPath(scene.bg);
-      this.ui.updateBackground(optimizedBg);
+    let sceneLines =
+      typeof scene.lines === "function" ? scene.lines() : scene.lines;
+    sceneLines = sceneLines || [];
+
+    // 3. ВОССТАНОВЛЕНИЕ ВИЗУАЛЬНОГО СОСТОЯНИЯ
+    let targetBg = scene.bg || null;
+    let activeChars = {};
+
+    if (scene.showCharacter)
+      activeChars[scene.showCharacter.id] = scene.showCharacter;
+    if (scene.hideCharacter) delete activeChars[scene.hideCharacter];
+
+    // Прогоняем скрипт до точки сохранения в фоновом режиме
+    for (let i = 0; i < startLineIndex && i < sceneLines.length; i++) {
+      const l = sceneLines[i];
+      if (l.bg) targetBg = l.bg;
+      if (l.showCharacter) activeChars[l.showCharacter.id] = l.showCharacter;
+      if (l.hideCharacter) delete activeChars[l.hideCharacter];
     }
+
+    // Применяем финальный фон (скорость 0 = мгновенно)
+    if (targetBg) {
+      const optimizedBg = this._getOptimizedBgPath(targetBg);
+      this.ui.updateBackground(optimizedBg, 0);
+    }
+
+    if (scene.audio) this.am.handleAudio(scene.audio);
+
+    // Восстанавливаем персонажей мгновенно (пустая функция вместо анимации)
+    Object.values(activeChars).forEach((char) => {
+      if (this.cm && this.cm.show) {
+        this.cm.show(char.id, char.emotion, char.position, () => {});
+      }
+    });
 
     this.currentScene = scene;
 
-    const interLayer = document.getElementById("interaction-layer");
-    const dialogWrapper = document.getElementById("dialog-wrapper");
-
-    if (interLayer) {
-      interLayer.innerHTML = "";
-      interLayer.style.display = "none";
-    }
-    if (dialogWrapper) dialogWrapper.style.display = "flex";
-
-    this.am.handleAudio(scene.audio);
-
-    if (scene.showCharacter) {
-      const { id, emotion, position } = scene.showCharacter;
-      const animFunc = animations[scene.anim] || animations.fadeInUp;
-      this.cm.show(id, emotion, position, animFunc);
-    }
-
-    if (scene.hideCharacter) {
-      const animFunc = animations[scene.anim] || animations.fadeOut;
-      if (this.cm.hide) this.cm.hide(scene.hideCharacter, animFunc);
-    }
-
-    let sceneLines =
-      typeof scene.lines === "function" ? scene.lines() : scene.lines;
-
+    // 4. ЗАПУСК ДИАЛОГА ИЛИ ВЫБОРОВ
     if (sceneLines && sceneLines.length > 0) {
       await this.playLines(sceneLines, startLineIndex);
-      if (sceneLines && sceneLines.length > 0) {
-        this.prepareNavigation(scene);
-      }
     }
 
     this.prepareNavigation(scene);
   }
 
+  // +++ ИСПРАВЛЕННЫЙ PLAYLINES +++
   async playLines(lines, startIndex = 0) {
     const db = document.getElementById("dialog-box");
 
     for (let i = startIndex; i < lines.length; i++) {
       const line = lines[i];
 
+      // Проверяем: это та самая строчка, с которой мы загрузили сейв?
+      const isRestoredLine = this.isRestoringSave && i === startIndex;
+
       const bgsToPreload = [];
       for (let j = 1; j <= 3; j++) {
         const futureLine = lines[i + j];
         if (futureLine && futureLine.bg && futureLine.bg !== "black_screen") {
-          // Вызываем ваш же метод оптимизации пути перед загрузкой!
           bgsToPreload.push(this._getOptimizedBgPath(futureLine.bg));
         }
       }
       if (bgsToPreload.length > 0) {
-        this.bgManager.preload(bgsToPreload); // Кидаем в ваш bgManager в фоновом режиме
+        this.bgManager.preload(bgsToPreload);
       }
 
-      if (line.effects) {
+      // ФИКС ДУБЛИРОВАНИЯ: Не меняем статы и не вызываем action, если строка восстановлена
+      if (!isRestoredLine && line.effects) {
         Object.entries(line.effects).forEach(([stat, val]) =>
           updateStat(stat, val),
         );
       }
 
-      if (typeof line.action === "function") {
+      if (!isRestoredLine && typeof line.action === "function") {
         try {
           const result = line.action();
           if (result && result.fx) this.ui.handleFx(result.fx);
@@ -336,53 +364,72 @@ export class SceneManager {
         }
       }
 
+      // Визуал, эффекты и аудио применяем всегда
       if (line.audio) this.am.handleAudio(line.audio);
       if (line.shake) this.ui.shakeScreen(line.shake);
       if (line.fx) this.ui.handleFx(line.fx);
+
       if (line.bg) {
-        if (line.dialogStyle === "transparent") {
-          this.isTransparentMode = true;
-        } else if (line.dialogStyle === "normal") {
-          this.isTransparentMode = false;
-        }
+        if (line.dialogStyle === "transparent") this.isTransparentMode = true;
+        else if (line.dialogStyle === "normal") this.isTransparentMode = false;
 
         const dialogWrapper = document.getElementById("dialog-wrapper");
         if (dialogWrapper) {
-          if (this.isTransparentMode) {
+          if (this.isTransparentMode)
             dialogWrapper.classList.add("transparent-mode");
-          } else {
-            dialogWrapper.classList.remove("transparent-mode");
-          }
+          else dialogWrapper.classList.remove("transparent-mode");
         }
 
         const optimizedLineBg = this._getOptimizedBgPath(line.bg);
         const speed = line.bgSpeed !== undefined ? line.bgSpeed : 400;
-        this.ui.updateBackground(optimizedLineBg, speed);
+        // Мгновенная смена фона при загрузке сейва
+        this.ui.updateBackground(optimizedLineBg, isRestoredLine ? 0 : speed);
       }
 
       let displayText = line.text;
       if (!line.speaker) displayText = `${line.text}`;
 
       this.currentLineIndex = i;
-      this.hm.addToHistory(line.speaker, displayText);
+
+      // Не дублируем логи в истории
+      if (!isRestoredLine) {
+        this.hm.addToHistory(line.speaker, displayText);
+      }
       this.ui.updateNameTag(line.speaker);
 
       if (line.showCharacter) {
         const { id, emotion, position } = line.showCharacter;
         const animFunc = animations[line.anim] || animations.fadeInUp;
-        if (this.cm.show) this.cm.show(id, emotion, position, animFunc);
+        if (this.cm.show)
+          this.cm.show(
+            id,
+            emotion,
+            position,
+            isRestoredLine ? () => {} : animFunc,
+          );
       }
 
-      // Если нужно скрыть персонажа прямо посреди разговора
       if (line.hideCharacter) {
         const animFunc = animations[line.anim] || animations.fadeOut;
-        if (this.cm.hide) this.cm.hide(line.hideCharacter, animFunc);
+        if (this.cm.hide)
+          this.cm.hide(
+            line.hideCharacter,
+            isRestoredLine ? () => {} : animFunc,
+          );
       }
 
       this.isTyping = true;
       if (db) db.classList.remove("waiting");
 
-      const typePromise = this.tw.type(displayText);
+      let typePromise;
+      if (isRestoredLine) {
+        // Мгновенно выводим текст при загрузке, без печатной машинки!
+        db.innerHTML = displayText;
+        typePromise = Promise.resolve();
+      } else {
+        typePromise = this.tw.type(displayText);
+      }
+
       const clickPromise = this.waitForClick();
 
       await Promise.race([typePromise, clickPromise]);
@@ -390,6 +437,7 @@ export class SceneManager {
 
       this.isTyping = false;
       if (db) db.classList.add("waiting");
+
       await this.waitForClick();
     }
 
