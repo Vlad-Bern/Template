@@ -2,6 +2,7 @@ import "./style.scss";
 import { Typewriter } from "./src/core/typewriter.js";
 import { SceneManager } from "./src/core/sceneManager.js";
 import { state } from "./src/core/state.js";
+import { SaveManager } from "./src/core/saveManager.js";
 
 // Глобальный класс для паузируемых таймеров (используется в сценариях)
 window.PausableTimeout = class {
@@ -93,8 +94,10 @@ app.innerHTML = `
         <div id="name-tag"></div>
         <div id="dialog-box-container">
           <div id="dialog-box"></div>
-          <div id="dialog-footer">
-            <button id="open-history-btn" class="dialog-footer-btn" title="История (H)">📖 История</button>
+<div id="dialog-footer">
+            <button id="open-save-btn" class="dialog-footer-btn" title="Сохранить">💾 Сохр</button>
+            <button id="open-load-btn" class="dialog-footer-btn" title="Загрузить">📂 Загр</button>
+            <button id="open-history-btn" class="dialog-footer-btn" title="История (H)">📖 Ист</button>
           </div>
         </div>
       </div>
@@ -105,6 +108,15 @@ app.innerHTML = `
 const tw = new Typewriter("dialog-box");
 const sm = new SceneManager(tw);
 window.sm = sm;
+
+window.saveManager = new SaveManager();
+
+document
+  .getElementById("open-save-btn")
+  .addEventListener("click", () => window.saveManager.open("save"));
+document
+  .getElementById("open-load-btn")
+  .addEventListener("click", () => window.saveManager.open("load"));
 
 // Заглушка для браузерных тестов (просит повернуть телефон)
 if (sm.isMobile) {

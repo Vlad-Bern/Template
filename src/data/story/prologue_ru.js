@@ -1396,8 +1396,8 @@ export const story = {
       {
         speaker: "ren",
         text: "Агх!",
-        shake: "medium", // Тряска экрана от удара!
-        audio: { type: "sfx", id: "hit_chair" }, // Звук падения стула
+        shake: "medium",
+        audio: { type: "sfx", id: "hit_chair" }, 
       },
       {
         speaker: "",

@@ -96,6 +96,7 @@ export class SceneManager {
         if (this.cs && this.cs.isActive) return;
 
         if (this.hm && this.hm.modalOpen) return;
+        if (window.saveManager && window.saveManager.modalOpen) return;
 
         if (isScrolling) return;
 
@@ -119,8 +120,13 @@ export class SceneManager {
       e.preventDefault();
       if (e.pointerType === "touch" || window.sm?.isMobile) return;
 
-      if (this.hm.modalOpen) {
-        this.hm.hideHistory();
+      if (
+        this.hm.modalOpen ||
+        (window.saveManager && window.saveManager.modalOpen)
+      ) {
+        if (this.hm.modalOpen) this.hm.hideHistory();
+        if (window.saveManager && window.saveManager.modalOpen)
+          window.saveManager.close();
       } else {
         const ui = document.getElementById("game-ui");
         const choiceContainer = document.getElementById("choice-container");
@@ -162,6 +168,8 @@ export class SceneManager {
     // Клавиатура (горячие клавиши)
     window.addEventListener("keydown", (e) => {
       // Игнорируем всё, если интерфейс скрыт ПКМ
+      if (window.saveManager && window.saveManager.modalOpen) return;
+
       if (this.uiHidden) {
         if (e.code === "Escape") {
           document.dispatchEvent(new MouseEvent("contextmenu"));
@@ -229,7 +237,10 @@ export class SceneManager {
     }
   }
 
-  async loadScene(sceneId) {
+  async loadScene(sceneId, startLineIndex = 0) {
+    this.currentSceneId = sceneId;
+    this.currentLineIndex = startLineIndex;
+
     this.isFastForwarding = false;
     if (this.fastForwardTimeoutId) {
       clearTimeout(this.fastForwardTimeoutId);
@@ -282,7 +293,10 @@ export class SceneManager {
       typeof scene.lines === "function" ? scene.lines() : scene.lines;
 
     if (sceneLines && sceneLines.length > 0) {
-      await this.playLines(sceneLines);
+      await this.playLines(sceneLines, startLineIndex);
+      if (sceneLines && sceneLines.length > 0) {
+        this.prepareNavigation(scene);
+      }
     }
 
     this.prepareNavigation(scene);
@@ -291,7 +305,7 @@ export class SceneManager {
   async playLines(lines) {
     const db = document.getElementById("dialog-box");
 
-    for (let i = 0; i < lines.length; i++) {
+    for (let i = startIndex; i < lines.length; i++) {
       const line = lines[i];
 
       const bgsToPreload = [];
