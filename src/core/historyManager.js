@@ -14,11 +14,14 @@ export class HistoryManager {
   initEvents() {
     // Закрытие по кнопке или фону
     document.addEventListener("click", (e) => {
+      if (window.saveManager?.modalOpen) return;
+
       if (e.target.closest("#open-history-btn")) {
         e.stopPropagation();
         this.showHistory();
         return;
       }
+
       if (this.modalOpen) {
         const clickedInsideContent = e.target.closest("#history-content");
         if (!clickedInsideContent) {
@@ -33,10 +36,15 @@ export class HistoryManager {
     document.addEventListener(
       "wheel",
       (e) => {
+        if (window.saveManager?.modalOpen) {
+          e.preventDefault();
+          e.stopPropagation();
+          return;
+        }
+
         if (window.sm && window.sm.cs && window.sm.cs.isActive) return;
         if (this.modalOpen && e.target.closest("#history-content")) return;
         if (isScrolling) return;
-        if (window.saveManager && window.saveManager.modalOpen) return;
 
         if (e.deltaY < -20 && !this.modalOpen) {
           isScrolling = true;
@@ -61,9 +69,9 @@ export class HistoryManager {
     document.addEventListener(
       "touchmove",
       (e) => {
+        if (window.saveManager?.modalOpen) return;
         if (this.modalOpen) return;
         if (window.sm?.cs?.isActive) return;
-        if (window.saveManager && window.saveManager.modalOpen) return;
 
         const deltaY = touchStartY - e.touches[0].clientY;
         if (deltaY > 40) this.showHistory();

@@ -167,8 +167,12 @@ export class SceneManager {
 
     // Клавиатура (горячие клавиши)
     window.addEventListener("keydown", (e) => {
-      // Игнорируем всё, если интерфейс скрыт ПКМ
-      if (window.saveManager && window.saveManager.modalOpen) return;
+      if (window.saveManager?.modalOpen) {
+        if (e.code === "Escape") window.saveManager.close();
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
 
       if (this.uiHidden) {
         if (e.code === "Escape") {
@@ -177,20 +181,18 @@ export class SceneManager {
         return;
       }
 
-      // Открытие/закрытие истории на H (работает всегда!)
       if (this.hm.modalOpen) {
         if (e.code === "Escape" || e.code === "KeyH") {
           this.hm.hideHistory();
         }
-        return; // Если история открыта, дальше ничего не обрабатываем
+        return;
       } else if (e.code === "KeyH" && !e.repeat) {
         this.hm.showHistory();
-        return; // Открыли историю - выходим
+        return;
       }
 
       if (this.cs && this.cs.isActive) return;
 
-      // Скип (работает ТОЛЬКО если нет выборов)
       if (e.code === "ControlLeft" || e.code === "ControlRight") {
         if (!this.isFastForwarding) {
           this.isFastForwarding = true;
@@ -443,6 +445,14 @@ export class SceneManager {
       );
 
       const advance = (e) => {
+        if (window.saveManager?.modalOpen) {
+          if (e.type === "keydown") {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+          return;
+        }
+
         if (this.hm && this.hm.modalOpen) return;
         if (this.uiHidden) return;
 
@@ -462,11 +472,9 @@ export class SceneManager {
         if (e.type === "keydown" && !allowed.includes(e.code)) return;
         if (e.code === "Space") e.preventDefault();
 
-        // Если текст печатается - скипаем эффект печатной машинки
         if (this.isTyping) {
           this.tw.skip();
         } else {
-          // Если текст уже напечатан - идем дальше (аборт сам вызовет resolve благодаря коду выше)
           this.navController.abort();
         }
       };
