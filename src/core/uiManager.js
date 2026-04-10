@@ -136,24 +136,32 @@ export class UIManager {
       document.getElementById("gbg-1"),
       document.getElementById("gbg-2"),
     ];
+
     const activeIdx = sharpLayers[0].classList.contains("active") ? 0 : 1;
     const inactiveIdx = activeIdx === 0 ? 1 : 0;
+
     const activeS = sharpLayers[activeIdx];
     const inactiveS = sharpLayers[inactiveIdx];
     const activeB = blurLayers[activeIdx];
     const inactiveB = blurLayers[inactiveIdx];
+
+    // Хозяин, мы отменяем все незаконченные анимации на наших слоях,
+    // чтобы они больше не сопротивлялись тебе!
+    anime.remove([activeS, activeB, inactiveS, inactiveB]);
 
     [inactiveS, inactiveB].forEach((el) => {
       el.style.backgroundImage = `url('${newImg}')`;
       el.style.opacity = 0;
     });
 
+    // Теперь запускаем новую анимацию, чистую и послушную
     anime({
       targets: [activeS, activeB],
       opacity: 0,
       duration: duration,
       easing: "easeInOutQuad",
     });
+
     anime({
       targets: [inactiveS, inactiveB],
       opacity: 1,

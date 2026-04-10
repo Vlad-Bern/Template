@@ -730,14 +730,16 @@ export const story = {
       { speaker: "kagami", text: "Присаживайся." },
       { speaker: "", text: "На парте уже лежит бумага с тестом и ручка." },
       { speaker: "kagami", text: "Пока что не переворачивай листок." },
-      { speaker: "", text: "Я сел за парту.",
-          bg: "/bg/common/quiz_room_noKagami.webp",
-       },
+      {
+        speaker: "",
+        text: "Я сел за парту.",
+        bg: "/bg/common/quiz_room_noKagami.webp",
+      },
       {
         speaker: "",
         text: "Кагами сложила наши зонты в корзину и села напротив меня.",
-         bg: "/bg/common/quiz_room_kagamiSpeak.webp",
-         bgSpeed: 50,
+        bg: "/bg/common/quiz_room_kagamiSpeak.webp",
+        bgSpeed: 50,
       },
       {
         speaker: "kagami",
@@ -764,7 +766,7 @@ export const story = {
       { speaker: "ren", text: "А если не отвечу?" },
       { speaker: "kagami", text: "Провалишь тест и вернёшься откуда пришёл." },
       { speaker: "", text: "Нет, это не вариант..." },
-      { speaker: "", text: "Ладно, нет смысла тянуть.", },
+      { speaker: "", text: "Ладно, нет смысла тянуть." },
     ],
     interactables: [
       {
@@ -797,7 +799,7 @@ export const story = {
   // ============================================
   quiz_q1: {
     id: "quiz_q1",
- bg: "/bg/common/quiz_room_paper.webp",
+    bg: "/bg/common/quiz_room_paper.webp",
     lines: [
       {
         speaker: "",
@@ -822,12 +824,12 @@ export const story = {
 
   quiz_q1_warn: {
     id: "quiz_q1_warn",
-    bg: "./bg/quiz_room.png",
     lines: [
       { speaker: "ren", text: "Кагами-сен..." },
       {
         speaker: "",
         text: "Кагами стукнула по столу. Не сильно, не от злости, а просто, чтобы заткнуть меня.",
+         shake: "medium"
       },
       { speaker: "kagami", text: "Ещё раз нарушишь правило и провалишь." },
       {
@@ -908,7 +910,7 @@ export const story = {
         speaker: "",
         text: "Я смотрю на её грудь под красной блузкой.",
       },
-            {
+      {
         speaker: "",
         text: " Она такая пышная, охренеть...",
       },
@@ -930,7 +932,7 @@ export const story = {
       {
         speaker: "",
         text: "Я приулыбнулся, посмотрел ей в глаза.... 0 эмоций, её не волнует, что ученик прям на тесте раздел её взглядом. Ни возбуждения, ни отвращения.",
-      }, 
+      },
       {
         speaker: "",
         text: "0 эмоций, её не волнует, что ученик прям на тесте раздел её взглядом. Ни возбуждения, ни отвращения.",
@@ -1872,7 +1874,7 @@ export const story = {
       { speaker: "", text: "Время на часах 21:43." },
       {
         speaker: "",
-        text: "Я дремал в автобусе по пути сюда, но чувствую себя так себе.",
+        text: "Я дремал в автобусе по пути сюда, но чувствую себя не очень.",
       },
       {
         speaker: "",

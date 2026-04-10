@@ -3,6 +3,55 @@ import { Typewriter } from "./src/core/typewriter.js";
 import { SceneManager } from "./src/core/sceneManager.js";
 import { state } from "./src/core/state.js";
 
+// Глобальный класс для паузируемых таймеров (используется в сценариях)
+window.PausableTimeout = class {
+  constructor(callback, delay) {
+    this.callback = callback;
+    this.remaining = delay;
+    this.timerId = null;
+    this.start = Date.now();
+
+    this.resume();
+
+    // Раз игра уже следит за фокусом, мы просто подвязываем таймер к видимостям окна:
+    this.handleVisibility = () => {
+      if (document.hidden) {
+        this.pause();
+      } else {
+        this.resume();
+      }
+    };
+
+    document.addEventListener("visibilitychange", this.handleVisibility);
+  }
+
+  pause() {
+    if (this.timerId) {
+      clearTimeout(this.timerId);
+      this.timerId = null;
+      this.remaining -= Date.now() - this.start;
+    }
+  }
+
+  resume() {
+    if (!this.timerId && this.remaining > 0) {
+      this.start = Date.now();
+      this.timerId = setTimeout(() => {
+        document.removeEventListener("visibilitychange", this.handleVisibility);
+        this.callback();
+      }, this.remaining);
+    }
+  }
+
+  clear() {
+    if (this.timerId) {
+      clearTimeout(this.timerId);
+      this.timerId = null;
+    }
+    document.removeEventListener("visibilitychange", this.handleVisibility);
+  }
+};
+
 const app = document.getElementById("app");
 
 // 1. СТРОИМ ДОМ (Генерация всей структуры игры)
@@ -70,7 +119,7 @@ if (sm.isMobile) {
   requestAnimationFrame(() => requestAnimationFrame(handleOrientation));
 }
 
-sm.loadScene("quiz_intro");
+sm.loadScene("bus_wakeup");
 
 // Разблокировка аудио по первому клику
 const unlockAudio = () => {
