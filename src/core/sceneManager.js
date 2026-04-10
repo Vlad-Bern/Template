@@ -251,6 +251,13 @@ export class SceneManager {
     this.currentSceneId = sceneId;
     this.currentLineIndex = startLineIndex;
 
+    this.currentPlayId = Symbol();
+    if (this.tw) {
+      this.tw.currentRunId = Symbol();
+      this.tw.isTyping = false;
+    }
+    if (this.navController) this.navController.abort();
+
     this.isFastForwarding = false;
     if (this.fastForwardTimeoutId) {
       clearTimeout(this.fastForwardTimeoutId);
@@ -356,12 +363,13 @@ export class SceneManager {
 
   // +++ ИСПРАВЛЕННЫЙ PLAYLINES +++
   async playLines(lines, startIndex = 0) {
+    const playId = this.currentPlayId;
     const db = document.getElementById("dialog-box");
 
     for (let i = startIndex; i < lines.length; i++) {
-      const line = lines[i];
+      if (this.currentPlayId !== playId) return;
 
-      // Проверяем: это та самая строчка, с которой мы загрузили сейв?
+      const line = lines[i];
       const isRestoredLine = this.isRestoringSave && i === startIndex;
 
       const bgsToPreload = [];
@@ -460,12 +468,16 @@ export class SceneManager {
       const clickPromise = this.waitForClick();
 
       await Promise.race([typePromise, clickPromise]);
+      if (this.currentPlayId !== playId) return;
+
       await typePromise;
+      if (this.currentPlayId !== playId) return;
 
       this.isTyping = false;
       if (db) db.classList.add("waiting");
 
       await this.waitForClick();
+      if (this.currentPlayId !== playId) return;
     }
 
     if (db) db.classList.remove("waiting");
