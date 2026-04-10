@@ -7,7 +7,20 @@ export class HistoryManager {
     this.modalOpen = false;
     this.panel = document.getElementById("history-panel");
     this.content = document.getElementById("history-content");
+
+    // +++ ФИКС: Создаем фон, если его нет в HTML
     this.backdrop = document.getElementById("modal-backdrop");
+    if (!this.backdrop) {
+      this.backdrop = document.createElement("div");
+      this.backdrop.id = "modal-backdrop";
+      // Стиль в точности как у нового SaveManager:
+      this.backdrop.style.cssText = `
+        display: none; position: absolute; inset: 0; background: rgba(5,5,5,0.7); 
+        backdrop-filter: blur(10px); z-index: 10005; pointer-events: auto;
+      `;
+      document.body.appendChild(this.backdrop);
+    }
+
     this.initEvents();
   }
 

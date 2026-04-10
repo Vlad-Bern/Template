@@ -12,38 +12,21 @@ export class SaveManager {
 
   initUI() {
     if (!document.getElementById(this.containerId)) {
-      // 1. Добавляем стили для кнопок, чтобы за ховером следил CSS, а не JS (убирает залипания)
-      const style = document.createElement("style");
-      style.innerHTML = `
-        .sl-slot-btn {
-          background: #111; color: #fff; border: 1px solid #444; 
-          padding: 20px; min-height: 140px; text-align: left; 
-          cursor: pointer; transition: 0.2s;
-        }
-        .sl-slot-btn:hover { border-color: #b19cd9 !important; }
-      `;
-      document.head.appendChild(style);
-
       const panel = document.createElement("div");
       panel.id = this.containerId;
-      panel.style.cssText = `
-        display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.95); 
-        z-index: 10005; padding: 30px; color: white; font-family: 'Inter', sans-serif;
-      `;
 
-      // 2. Оборачиваем контент в #sl-inner-content
       panel.innerHTML = `
-        <div id="sl-inner-content" style="max-width: 900px; margin: 0 auto;">
-          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #444; padding-bottom: 15px; margin-bottom: 20px;">
-            <h2 id="sl-title" style="margin: 0; color: #b19cd9;">Сохранение</h2>
-            <button id="close-sl-btn" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer;">✕</button>
+        <div id="sl-inner-content">
+          <div class="sl-header">
+            <h2 id="sl-title">Сохранение</h2>
+            <button id="close-sl-btn">✕</button>
           </div>
-          <div style="text-align: center; margin-bottom: 30px;">
-            <button id="sl-prev-page" style="background: #222; color: white; border: 1px solid #555; padding: 10px 20px; cursor: pointer;">◀</button>
-            <span id="sl-page-info" style="margin: 0 20px; font-size: 18px;">Страница 1 / 10</span>
-            <button id="sl-next-page" style="background: #222; color: white; border: 1px solid #555; padding: 10px 20px; cursor: pointer;">▶</button>
+          <div class="sl-pagination">
+            <button id="sl-prev-page">◀</button>
+            <span id="sl-page-info">Страница 1 / 10</span>
+            <button id="sl-next-page">▶</button>
           </div>
-          <div id="sl-slots-container" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;"></div>
+          <div id="sl-slots-container"></div>
         </div>
       `;
       document.body.appendChild(panel);
@@ -59,15 +42,12 @@ export class SaveManager {
         .getElementById("sl-next-page")
         .addEventListener("click", () => this.changePage(1));
 
-      // 3. Закрываем, если клик был не по внутреннему блоку
       panel.addEventListener("click", (e) => {
         if (!e.target.closest("#sl-inner-content")) {
           e.stopPropagation();
           this.close();
         }
       });
-
-      // ... дальше идет код с keydown и wheel ...
 
       // Навигация стрелочками
       window.addEventListener("keydown", (e) => {
@@ -77,7 +57,7 @@ export class SaveManager {
         if (e.code === "Escape") this.close();
       });
 
-      // Жесткая блокировка колесика мыши (перехват на погружении)
+      // Жесткая блокировка колесика мыши
       document.addEventListener(
         "wheel",
         (e) => {
@@ -93,29 +73,21 @@ export class SaveManager {
   open(mode) {
     this.mode = mode;
     this.modalOpen = true;
+
     document.getElementById("sl-title").innerText =
       mode === "save" ? "💾 Сохранить игру" : "📂 Загрузить игру";
-    document.getElementById(this.containerId).style.display = "block";
 
-    const gameUi = document.getElementById("game-ui");
-    if (gameUi) {
-      gameUi.style.pointerEvents = "none";
-      gameUi.style.transition = "opacity 0.3s ease";
-      gameUi.style.opacity = "0.3";
-    }
+    const panel = document.getElementById(this.containerId);
+    // Добавляем класс .active (он включит display: flex и запустит CSS-анимацию!)
+    panel.classList.add("active");
 
     this.renderSlots();
   }
 
   close() {
     this.modalOpen = false;
-    document.getElementById(this.containerId).style.display = "none";
-
-    const gameUi = document.getElementById("game-ui");
-    if (gameUi) {
-      gameUi.style.pointerEvents = "auto";
-      gameUi.style.opacity = "1"; // <--- ВОЗВРАЩАЕМ ЯРКОСТЬ
-    }
+    const panel = document.getElementById(this.containerId);
+    panel.classList.remove("active"); // Прячем панель
   }
 
   changePage(dir) {
@@ -139,11 +111,7 @@ export class SaveManager {
       );
 
       const btn = document.createElement("button");
-      btn.style.cssText = `
-        background: #111; color: #fff; border: 1px solid #444; padding: 20px; 
-        min-height: 140px; text-align: left; cursor: pointer; transition: 0.2s;
-      `;
-      btn.className = "sl-slot-btn";
+      btn.className = "sl-slot-btn"; // Теперь стили полностью из CSS
 
       if (slotData) {
         const date = new Date(slotData.timestamp).toLocaleString("ru-RU", {
@@ -153,24 +121,20 @@ export class SaveManager {
           hour: "2-digit",
           minute: "2-digit",
         });
+        // Используем новые красивые CSS классы для данных
         btn.innerHTML = `
-          <div style="color: #b19cd9; font-weight: bold; margin-bottom: 8px;">Слот ${slotIndex + 1}</div>
-          <div style="font-size: 14px;">Ранг: ${slotData.state.hero.rank_letter} (${slotData.state.hero.rank_score})</div>
-          <div style="font-size: 14px; margin-top: 4px;">Рассудок: ${slotData.state.hero.stats.sanity} | Доминация: ${slotData.state.hero.stats.dominance}</div>
-          <div style="font-size: 12px; color: #777; margin-top: 15px;">${date}</div>
+          <div class="slot-title">Слот ${slotIndex + 1}</div>
+          <div class="slot-rank">Ранг: <span class="rank-letter">${slotData.state.hero.rank_letter}</span> (${slotData.state.hero.rank_score})</div>
+          <div class="slot-stats">Рассудок: ${slotData.state.hero.stats.sanity} | Доминация: ${slotData.state.hero.stats.dominance}</div>
+          <div class="slot-date">${date}</div>
         `;
       } else {
+        btn.classList.add("empty");
         btn.innerHTML = `
-          <div style="color: #666; font-weight: bold;">Слот ${slotIndex + 1}</div>
-          <div style="color: #444; margin-top: 10px;">Пусто</div>
+          <div class="slot-title">Слот ${slotIndex + 1}</div>
+          <div>Пусто</div>
         `;
       }
-
-      btn.addEventListener(
-        "mouseover",
-        () => (btn.style.borderColor = "#b19cd9"),
-      );
-      btn.addEventListener("mouseout", () => (btn.style.borderColor = "#444"));
 
       btn.addEventListener("click", () => {
         if (this.mode === "save") {
@@ -219,7 +183,6 @@ export class SaveManager {
     this.close();
 
     if (window.sm) {
-      // ПЕРЕДАЕМ ИНДЕКС СТРОКИ ДЛЯ ЗАГРУЗКИ
       window.sm.loadScene(slotData.sceneId, slotData.lineIndex);
     }
   }

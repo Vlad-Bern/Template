@@ -94,10 +94,10 @@ app.innerHTML = `
         <div id="name-tag"></div>
         <div id="dialog-box-container">
           <div id="dialog-box"></div>
-<div id="dialog-footer">
-            <button id="open-save-btn" class="dialog-footer-btn" title="Сохранить">💾 Сохр</button>
-            <button id="open-load-btn" class="dialog-footer-btn" title="Загрузить">📂 Загр</button>
-            <button id="open-history-btn" class="dialog-footer-btn" title="История (H)">📖 Ист</button>
+        <div id="dialog-footer">
+          <button id="open-save-btn" class="dialog-footer-btn" title="Сохранить">[ СОХРАНИТЬ ]</button>
+          <button id="open-load-btn" class="dialog-footer-btn" title="Загрузить">[ ЗАГРУЗИТЬ ]</button>
+          <button id="open-history-btn" class="dialog-footer-btn" title="История (H)">[ ИСТОРИЯ ]</button>
           </div>
         </div>
       </div>
