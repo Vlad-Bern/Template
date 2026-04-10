@@ -79,15 +79,16 @@ app.innerHTML = `
     <div id="darkness-layer"></div>
     <div id="noise-layer"></div>
 
-    <div id="game-ui">
-      <div id="modal-backdrop" style="display: none;"></div>
-      <div id="history-panel" style="display: none;">
+    <div id="modal-backdrop"></div>
+          <div id="history-panel">
         <div id="history-header">
           <h3>История</h3>
           <button id="close-history">✕</button>
         </div>
         <div id="history-content"></div>
       </div>
+
+    <div id="game-ui">
       <div id="notification-container"></div>
       <div id="choice-container"></div>
       <div id="dialog-wrapper">

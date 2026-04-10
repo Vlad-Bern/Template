@@ -887,7 +887,7 @@ $glass-dark: rgba(10, 12, 18, 0.95);
 
 // 1. Бэкдроп (теперь перекрывает UI, z-index 10000)
 #modal-backdrop {
-  position: absolute;
+  position: fixed;
   inset: 0;
   background: rgba(5, 5, 5, 0.7);
   backdrop-filter: blur(10px);
