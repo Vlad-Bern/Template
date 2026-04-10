@@ -887,20 +887,28 @@ $glass-dark: rgba(10, 12, 18, 0.95);
 
 // 1. Бэкдроп (теперь перекрывает UI, z-index 10000)
 #modal-backdrop {
-  position: absolute; // Заменили fixed на absolute, так как мы внутри game-ui
+  position: absolute;
   inset: 0;
-  background: rgba(5, 5, 5, 0.7); // Строгий темный цвет Синсю
-  backdrop-filter: blur(10px); // Тот самый красивый блюр
-  z-index: 10000; // Диалоговое окно имеет 110, так что фон его перекроет
-  pointer-events: all !important; // Ловит на себя случайные клики
+  background: rgba(5, 5, 5, 0.7);
+  backdrop-filter: blur(10px);
+  z-index: 10000;
+  pointer-events: all !important;
+
+  // +++ ФИКС: Скрыто по умолчанию, плавно появляется
+  display: none;
+  &.active {
+    display: block;
+    animation: fadeInModal 0.3s ease forwards;
+  }
 }
 
-// 2. Основная панель истории
 #history-panel {
-  position: fixed;
+  position: fixed; // Оставляем fixed, чтобы было по центру экрана
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  // +++ ФИКС: В анимации slideUpModal есть свой transform.
+  // Мы должны переопределить начальную точку анимации, чтобы центровка не сломалась.
+  // Поэтому мы убираем `transform: translate(-50%, -50%)` отсюда, оно будет в классе .active
   width: min(900px, 90vw);
   height: min(700px, 80vh);
   background: $glass-dark;
@@ -912,7 +920,15 @@ $glass-dark: rgba(10, 12, 18, 0.95);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
   pointer-events: all !important;
 
-  // Техно-эффект сканирования
+  // +++ ФИКС: Скрыто по умолчанию
+  display: none;
+  &.active {
+    display: flex;
+    // Используем специальную анимацию для центрированного окна
+    animation: slideUpCenterModal 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  // Техно-эффект сканирования (оставляем без изменений)
   &::before {
     content: "";
     position: absolute;
@@ -921,6 +937,20 @@ $glass-dark: rgba(10, 12, 18, 0.95);
     background-size: 100% 3px;
     pointer-events: none;
     z-index: 10;
+  }
+  // ... остальной код панели (заголовки, контент и т.д.)
+}
+
+// +++ ДОБАВЬТЕ ЭТУ АНИМАЦИЮ ВНИЗ ФАЙЛА (рядом с fadeInModal)
+// Она нужна специально для Истории, так как История центрируется через translate(-50%, -50%)
+@keyframes slideUpCenterModal {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -45%) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
   }
 }
 

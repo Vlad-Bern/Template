@@ -137,12 +137,17 @@ export class HistoryManager {
       this.content.appendChild(entryDiv);
     });
 
-    if (this.backdrop) this.backdrop.style.display = "block";
-    this.panel.style.display = "flex";
+    // +++ ФИКС: Используем CSS-классы вместо жесткого display
+    if (this.backdrop) this.backdrop.classList.add("active");
+    this.panel.classList.add("active");
     this.modalOpen = true;
 
     const gameUi = document.getElementById("game-ui");
-    if (gameUi) gameUi.style.pointerEvents = "none";
+    // Не забываем, что pointerEvents="none" у gameUi блочит и клики по кнопкам истории (крестик),
+    // потому что панель истории лежит ВНУТРИ game-ui.
+    // Вместо этого мы блокируем только сам dialog-wrapper!
+    const dialogWrapper = document.getElementById("dialog-wrapper");
+    if (dialogWrapper) dialogWrapper.style.pointerEvents = "none";
 
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
@@ -152,13 +157,13 @@ export class HistoryManager {
   }
 
   hideHistory() {
-    if (this.panel) this.panel.style.display = "none";
-    if (this.backdrop) this.backdrop.style.display = "none";
+    if (this.panel) this.panel.classList.remove("active");
+    if (this.backdrop) this.backdrop.classList.remove("active");
     this.modalOpen = false;
 
-    const gameUi = document.getElementById("game-ui");
-    if (gameUi) {
-      gameUi.style.pointerEvents = "";
+    const dialogWrapper = document.getElementById("dialog-wrapper");
+    if (dialogWrapper) {
+      dialogWrapper.style.pointerEvents = "auto";
     }
   }
 }
