@@ -887,16 +887,12 @@ $glass-dark: rgba(10, 12, 18, 0.95);
 
 // 1. Бэкдроп (теперь перекрывает UI, z-index 10000)
 #modal-backdrop {
-  position: fixed;
+  position: absolute; // Заменили fixed на absolute, так как мы внутри game-ui
   inset: 0;
-  background: radial-gradient(
-    circle,
-    rgba(0, 0, 0, 0.4) 0%,
-    rgba(0, 0, 0, 0.9) 100%
-  );
-  backdrop-filter: blur(10px);
-  z-index: 10000;
-  pointer-events: all !important;
+  background: rgba(5, 5, 5, 0.7); // Строгий темный цвет Синсю
+  backdrop-filter: blur(10px); // Тот самый красивый блюр
+  z-index: 10000; // Диалоговое окно имеет 110, так что фон его перекроет
+  pointer-events: all !important; // Ловит на себя случайные клики
 }
 
 // 2. Основная панель истории
@@ -910,7 +906,7 @@ $glass-dark: rgba(10, 12, 18, 0.95);
   background: $glass-dark;
   border: 1px solid rgba($history-cyan, 0.3);
   border-radius: 4px;
-  z-index: 10001;
+  z-index: 10005;
   flex-direction: column;
   overflow: hidden;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);

@@ -80,6 +80,7 @@ app.innerHTML = `
     <div id="noise-layer"></div>
 
     <div id="game-ui">
+      <div id="modal-backdrop" style="display: none;"></div>
       <div id="history-panel" style="display: none;">
         <div id="history-header">
           <h3>История</h3>
