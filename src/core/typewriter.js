@@ -1,3 +1,5 @@
+import { state } from "./state.js";
+
 export class Typewriter {
   constructor(elementId) {
     this.elementId = elementId;

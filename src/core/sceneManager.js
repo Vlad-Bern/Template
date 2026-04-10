@@ -240,18 +240,14 @@ export class SceneManager {
   }
 
   // +++ НОВЫЙ МЕТОД ДЛЯ БЕЗОПАСНОЙ ЗАГРУЗКИ СЕЙВОВ +++
-  async loadSceneFromSave(sceneId, lineIndex) {
-    this.isRestoringSave = true; // Поднимаем флаг восстановления
-    await this.loadScene(sceneId, lineIndex);
-    this.isRestoringSave = false; // Опускаем флаг
-  }
-
-  // +++ ИСПРАВЛЕННЫЙ LOADSCENE +++
-  async loadScene(sceneId, startLineIndex = 0) {
+  async loadScene(sceneId, startLineIndex = 0, isRestoring = false) {
+    this.isRestoringSave = isRestoring;
     this.currentSceneId = sceneId;
     this.currentLineIndex = startLineIndex;
 
     this.currentPlayId = Symbol();
+    const loadPlayId = this.currentPlayId;
+
     if (this.tw) {
       this.tw.currentRunId = Symbol();
       this.tw.isTyping = false;
@@ -355,8 +351,10 @@ export class SceneManager {
 
     // 4. ЗАПУСК ДИАЛОГА ИЛИ ВЫБОРОВ
     if (sceneLines && sceneLines.length > 0) {
-      await this.playLines(sceneLines, startLineIndex);
+      await this.playLines(sceneLines, startLineIndex, isRestoring);
     }
+
+    if (this.currentPlayId !== loadPlayId) return;
 
     this.prepareNavigation(scene);
   }
@@ -514,7 +512,6 @@ export class SceneManager {
 
   waitForClick() {
     return new Promise((resolve) => {
-      // 1. Если был старый контроллер - убиваем его
       if (this.navController) {
         this.navController.abort();
       }
