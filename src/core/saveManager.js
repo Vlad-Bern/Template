@@ -12,30 +12,46 @@ export class SaveManager {
 
   initUI() {
     if (!document.getElementById(this.containerId)) {
+      // 1. Добавляем стили для кнопок, чтобы за ховером следил CSS, а не JS (убирает залипания)
+      const style = document.createElement("style");
+      style.innerHTML = `
+        .sl-slot-btn {
+          background: #111; color: #fff; border: 1px solid #444; 
+          padding: 20px; min-height: 140px; text-align: left; 
+          cursor: pointer; transition: 0.2s;
+        }
+        .sl-slot-btn:hover { border-color: #b19cd9 !important; }
+      `;
+      document.head.appendChild(style);
+
       const panel = document.createElement("div");
       panel.id = this.containerId;
       panel.style.cssText = `
         display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.95); 
-        z-index: 2000; padding: 30px; color: white; font-family: 'Inter', sans-serif;
+        z-index: 10005; padding: 30px; color: white; font-family: 'Inter', sans-serif;
       `;
 
+      // 2. Оборачиваем контент в #sl-inner-content
       panel.innerHTML = `
-        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #444; padding-bottom: 15px; margin-bottom: 20px;">
-          <h2 id="sl-title" style="margin: 0; color: #b19cd9;">Сохранение</h2>
-          <button id="close-sl-btn" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer;">✕</button>
+        <div id="sl-inner-content" style="max-width: 900px; margin: 0 auto;">
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #444; padding-bottom: 15px; margin-bottom: 20px;">
+            <h2 id="sl-title" style="margin: 0; color: #b19cd9;">Сохранение</h2>
+            <button id="close-sl-btn" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer;">✕</button>
+          </div>
+          <div style="text-align: center; margin-bottom: 30px;">
+            <button id="sl-prev-page" style="background: #222; color: white; border: 1px solid #555; padding: 10px 20px; cursor: pointer;">◀</button>
+            <span id="sl-page-info" style="margin: 0 20px; font-size: 18px;">Страница 1 / 10</span>
+            <button id="sl-next-page" style="background: #222; color: white; border: 1px solid #555; padding: 10px 20px; cursor: pointer;">▶</button>
+          </div>
+          <div id="sl-slots-container" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;"></div>
         </div>
-        <div style="text-align: center; margin-bottom: 30px;">
-          <button id="sl-prev-page" style="background: #222; color: white; border: 1px solid #555; padding: 10px 20px; cursor: pointer;">◀</button>
-          <span id="sl-page-info" style="margin: 0 20px; font-size: 18px;">Страница 1 / 10</span>
-          <button id="sl-next-page" style="background: #222; color: white; border: 1px solid #555; padding: 10px 20px; cursor: pointer;">▶</button>
-        </div>
-        <div id="sl-slots-container" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 900px; margin: 0 auto;"></div>
       `;
       document.body.appendChild(panel);
 
-      document
-        .getElementById("close-sl-btn")
-        .addEventListener("click", () => this.close());
+      document.getElementById("close-sl-btn").addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.close();
+      });
       document
         .getElementById("sl-prev-page")
         .addEventListener("click", () => this.changePage(-1));
@@ -43,12 +59,15 @@ export class SaveManager {
         .getElementById("sl-next-page")
         .addEventListener("click", () => this.changePage(1));
 
-      // Закрытие по клику мимо контента (по фону)
+      // 3. Закрываем, если клик был не по внутреннему блоку
       panel.addEventListener("click", (e) => {
-        if (e.target === panel) {
+        if (!e.target.closest("#sl-inner-content")) {
+          e.stopPropagation();
           this.close();
         }
       });
+
+      // ... дальше идет код с keydown и wheel ...
 
       // Навигация стрелочками
       window.addEventListener("keydown", (e) => {
@@ -124,6 +143,7 @@ export class SaveManager {
         background: #111; color: #fff; border: 1px solid #444; padding: 20px; 
         min-height: 140px; text-align: left; cursor: pointer; transition: 0.2s;
       `;
+      btn.className = "sl-slot-btn";
 
       if (slotData) {
         const date = new Date(slotData.timestamp).toLocaleString("ru-RU", {
