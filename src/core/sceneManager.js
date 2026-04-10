@@ -168,7 +168,10 @@ export class SceneManager {
     // Клавиатура (горячие клавиши)
     window.addEventListener("keydown", (e) => {
       if (window.saveManager?.modalOpen) {
-        if (e.code === "Escape") window.saveManager.close();
+        // Добавили закрытие на S и L
+        if (e.code === "Escape" || e.code === "KeyS" || e.code === "KeyL") {
+          window.saveManager.close();
+        }
         e.preventDefault();
         e.stopPropagation();
         return;
@@ -188,6 +191,12 @@ export class SceneManager {
         return;
       } else if (e.code === "KeyH" && !e.repeat) {
         this.hm.showHistory();
+        return;
+      } else if (e.code === "KeyS" && !e.repeat) {
+        window.saveManager.open("save");
+        return;
+      } else if (e.code === "KeyL" && !e.repeat) {
+        window.saveManager.open("load");
         return;
       }
 

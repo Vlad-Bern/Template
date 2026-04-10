@@ -1,5 +1,17 @@
 import { state } from "./state.js";
 
+let fs = null;
+let path = null;
+try {
+  // nw - глобальный объект в NW.js
+  if (typeof nw !== "undefined" && typeof require !== "undefined") {
+    fs = require("fs");
+    path = require("path");
+  }
+} catch (e) {
+  console.warn("FS not available, falling back to localStorage");
+}
+
 export class SaveManager {
   constructor() {
     this.saveSlots = 60; // 10 страниц по 6 слотов
@@ -7,7 +19,60 @@ export class SaveManager {
     this.containerId = "save-load-panel";
     this.mode = "save"; // "save" или "load"
     this.modalOpen = false; // ФЛАГ ДЛЯ SCENEMANAGER
+    this.saveDir = this._initSaveDir();
     this.initUI();
+  }
+
+  _initSaveDir() {
+    if (fs && path && typeof nw !== "undefined") {
+      try {
+        // Находим папку AppData (Windows) или ~/.local/share (Linux) или ~/Library/Preferences (Mac)
+        const appData =
+          process.env.APPDATA ||
+          (process.platform == "darwin"
+            ? process.env.HOME + "/Library/Preferences"
+            : process.env.HOME + "/.local/share");
+        const dir = path.join(appData, "SOTA_Saves"); // Название папки с сейвами
+
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+        return dir;
+      } catch (e) {
+        console.error("[SaveManager] Error creating save directory:", e);
+      }
+    }
+    return null;
+  }
+
+  _readSave(slotIndex) {
+    if (this.saveDir && fs && path) {
+      const file = path.join(this.saveDir, `save_${slotIndex}.json`);
+      if (fs.existsSync(file)) {
+        try {
+          return JSON.parse(fs.readFileSync(file, "utf-8"));
+        } catch (e) {
+          console.error("Error reading save file:", e);
+        }
+      }
+      return null;
+    }
+    // Фолбек на браузерный localStorage
+    return JSON.parse(localStorage.getItem(`sota_save_${slotIndex}`) || "null");
+  }
+
+  _writeSave(slotIndex, data) {
+    if (this.saveDir && fs && path) {
+      const file = path.join(this.saveDir, `save_${slotIndex}.json`);
+      try {
+        fs.writeFileSync(file, JSON.stringify(data, null, 2), "utf-8");
+        return true;
+      } catch (e) {
+        console.error("Error writing save file:", e);
+        return false;
+      }
+    }
+    // Фолбек на браузерный localStorage
+    localStorage.setItem(`sota_save_${slotIndex}`, JSON.stringify(data));
+    return true;
   }
 
   initUI() {
@@ -75,7 +140,7 @@ export class SaveManager {
     this.modalOpen = true;
 
     document.getElementById("sl-title").innerText =
-      mode === "save" ? "💾 Сохранить игру" : "📂 Загрузить игру";
+      mode === "save" ? "[ СОХРАНИТЬ ДАННЫЕ ]" : "[ ЗАГРУЗИТЬ ДАННЫЕ ]";
 
     const panel = document.getElementById(this.containerId);
     // Добавляем класс .active (он включит display: flex и запустит CSS-анимацию!)
@@ -106,9 +171,7 @@ export class SaveManager {
 
     for (let i = 0; i < 6; i++) {
       const slotIndex = startIdx + i;
-      const slotData = JSON.parse(
-        localStorage.getItem(`sota_save_${slotIndex}`) || "null",
-      );
+      const slotData = this._readSave(slotIndex);
 
       const btn = document.createElement("button");
       btn.className = "sl-slot-btn"; // Теперь стили полностью из CSS
@@ -123,10 +186,8 @@ export class SaveManager {
         });
         // Используем новые красивые CSS классы для данных
         btn.innerHTML = `
-          <div class="slot-title">Слот ${slotIndex + 1}</div>
-          <div class="slot-rank">Ранг: <span class="rank-letter">${slotData.state.hero.rank_letter}</span> (${slotData.state.hero.rank_score})</div>
-          <div class="slot-stats">Рассудок: ${slotData.state.hero.stats.sanity} | Доминация: ${slotData.state.hero.stats.dominance}</div>
-          <div class="slot-date">${date}</div>
+            <div class="slot-title">СЛОТ ${slotIndex + 1}</div>
+            <div class="slot-date">${date}</div>
         `;
       } else {
         btn.classList.add("empty");
@@ -161,7 +222,7 @@ export class SaveManager {
       state: JSON.parse(JSON.stringify(state)),
     };
 
-    localStorage.setItem(`sota_save_${slotIndex}`, JSON.stringify(dataToSave));
+    this._writeSave(slotIndex, dataToSave);
     this.renderSlots();
   }
 
