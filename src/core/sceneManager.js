@@ -308,7 +308,34 @@ export class SceneManager {
       this.ui.updateBackground(optimizedBg, 0);
     }
 
-    if (scene.audio) this.am.handleAudio(scene.audio);
+    let currentBGM =
+      scene.audio && scene.audio.type === "bgm" ? scene.audio : null;
+    let currentSFX =
+      scene.audio && scene.audio.type === "sfx" && scene.audio.loop
+        ? scene.audio
+        : null;
+
+    // Прогоняем скрипт до точки сохранения, чтобы найти последнюю музыку
+    for (let i = 0; i <= startLineIndex && i < sceneLines.length; i++) {
+      const l = sceneLines[i];
+      if (l.audio) {
+        let audios = Array.isArray(l.audio) ? l.audio : [l.audio];
+        for (let a of audios) {
+          if (a.type === "bgm") currentBGM = a;
+          if (a.type === "stop") currentBGM = null;
+          if (a.type === "sfx" && a.loop) currentSFX = a;
+          if (a.type === "stop_sfx") currentSFX = null;
+        }
+      }
+    }
+
+    // Останавливаем всё старое перед загрузкой нового
+    this.am.stopBGM(0);
+    Object.keys(this.am.activeLoops).forEach((key) => this.am.stopSFX(key, 0));
+
+    // Включаем то, что должно играть на момент сохранения
+    if (currentBGM) this.am.handleAudio(currentBGM);
+    if (currentSFX) this.am.handleAudio(currentSFX);
 
     // Восстанавливаем персонажей мгновенно (пустая функция вместо анимации)
     Object.values(activeChars).forEach((char) => {
@@ -365,7 +392,7 @@ export class SceneManager {
       }
 
       // Визуал, эффекты и аудио применяем всегда
-      if (line.audio) this.am.handleAudio(line.audio);
+      if (!isRestoredLine && line.audio) this.am.handleAudio(line.audio);
       if (line.shake) this.ui.shakeScreen(line.shake);
       if (line.fx) this.ui.handleFx(line.fx);
 
