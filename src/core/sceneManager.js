@@ -265,7 +265,6 @@ export class SceneManager {
     }
 
     this.currentScene = scene;
-    this.currentLineIndex = 0;
 
     const interLayer = document.getElementById("interaction-layer");
     const dialogWrapper = document.getElementById("dialog-wrapper");
@@ -302,7 +301,7 @@ export class SceneManager {
     this.prepareNavigation(scene);
   }
 
-  async playLines(lines) {
+  async playLines(lines, startIndex = 0) {
     const db = document.getElementById("dialog-box");
 
     for (let i = startIndex; i < lines.length; i++) {

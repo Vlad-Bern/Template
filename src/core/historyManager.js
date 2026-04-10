@@ -36,6 +36,7 @@ export class HistoryManager {
         if (window.sm && window.sm.cs && window.sm.cs.isActive) return;
         if (this.modalOpen && e.target.closest("#history-content")) return;
         if (isScrolling) return;
+        if (window.saveManager && window.saveManager.modalOpen) return;
 
         if (e.deltaY < -20 && !this.modalOpen) {
           isScrolling = true;
@@ -62,6 +63,7 @@ export class HistoryManager {
       (e) => {
         if (this.modalOpen) return;
         if (window.sm?.cs?.isActive) return;
+        if (window.saveManager && window.saveManager.modalOpen) return;
 
         const deltaY = touchStartY - e.touches[0].clientY;
         if (deltaY > 40) this.showHistory();

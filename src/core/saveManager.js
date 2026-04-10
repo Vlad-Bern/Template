@@ -78,9 +78,12 @@ export class SaveManager {
       mode === "save" ? "💾 Сохранить игру" : "📂 Загрузить игру";
     document.getElementById(this.containerId).style.display = "block";
 
-    // Отключаем кликабельность нижнего UI
     const gameUi = document.getElementById("game-ui");
-    if (gameUi) gameUi.style.pointerEvents = "none";
+    if (gameUi) {
+      gameUi.style.pointerEvents = "none";
+      gameUi.style.transition = "opacity 0.3s ease";
+      gameUi.style.opacity = "0.3";
+    }
 
     this.renderSlots();
   }
@@ -89,9 +92,11 @@ export class SaveManager {
     this.modalOpen = false;
     document.getElementById(this.containerId).style.display = "none";
 
-    // Возвращаем кликабельность
     const gameUi = document.getElementById("game-ui");
-    if (gameUi) gameUi.style.pointerEvents = "auto";
+    if (gameUi) {
+      gameUi.style.pointerEvents = "auto";
+      gameUi.style.opacity = "1"; // <--- ВОЗВРАЩАЕМ ЯРКОСТЬ
+    }
   }
 
   changePage(dir) {
