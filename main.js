@@ -4,12 +4,22 @@ import { SceneManager } from "./src/core/sceneManager.js";
 import { state } from "./src/core/state.js";
 import { SaveManager } from "./src/core/saveManager.js";
 
+// --- МЕНЕДЖЕР ЗВУКОВ UI ---
+window.playUISound = (type) => {
+  // type может быть "open" или "close"
+  const audio = new Audio(`/sfx/click-${type}.ogg`);
+  audio.volume = 0.5; // Стерильный клик не должен оглушать
+  audio.play().catch(() => {}); // Игнорируем ошибку, если браузер заблокировал автоплей до первого клика
+};
+
 // Глобальные переменные, чтобы щит не наслаивался сам на себя
 window._confirmKeyHandler = null;
 window._confirmRmbHandler = null;
 
 // --- УНИВЕРСАЛЬНОЕ ОКНО ПОДТВЕРЖДЕНИЯ ---
 window.showConfirm = function (message, onConfirm) {
+  window.playUISound("open"); // <-- Звук появления опасного окна
+
   let backdrop = document.getElementById("confirm-backdrop");
   if (!backdrop) {
     backdrop = document.createElement("div");
@@ -35,35 +45,39 @@ window.showConfirm = function (message, onConfirm) {
   document.getElementById("confirm-text").innerText = message;
   backdrop.classList.add("active");
 
+  // === ВОТ ОН, ЕДИНСТВЕННЫЙ И ПРАВИЛЬНЫЙ CLOSE ===
   const close = () => {
+    window.playUISound("close"); // <-- Звук отмены/исчезновения
     backdrop.classList.remove("active");
     window.removeEventListener("keydown", window._confirmKeyHandler, true);
     window.removeEventListener("contextmenu", window._confirmRmbHandler, true);
   };
 
-  // Этот щит глотает вообще ВСЕ кнопки, чтобы игра не реагировала ни на S, ни на L
+  // Ловим ESC, чтобы закрыть окно
   window._confirmKeyHandler = (e) => {
-    e.stopPropagation();
     if (e.code === "Escape") {
-      e.preventDefault();
+      e.stopPropagation();
       close();
     }
   };
+  window.addEventListener("keydown", window._confirmKeyHandler, true);
 
+  // Ловим ПКМ, чтобы закрыть окно
   window._confirmRmbHandler = (e) => {
     e.preventDefault();
     e.stopPropagation();
     close();
   };
-
-  window.addEventListener("keydown", window._confirmKeyHandler, true);
   window.addEventListener("contextmenu", window._confirmRmbHandler, true);
 
+  // Обработчики кнопок
   document.getElementById("confirm-yes").onclick = () => {
     close();
-    if (typeof onConfirm === "function") onConfirm();
+    if (onConfirm) onConfirm();
   };
   document.getElementById("confirm-no").onclick = close;
+
+  // Клик по фону
   backdrop.onclick = (e) => {
     if (e.target === backdrop) close();
   };
@@ -191,12 +205,22 @@ window.sm = sm;
 
 window.saveManager = new SaveManager();
 
-document
-  .getElementById("open-save-btn")
-  .addEventListener("click", () => window.saveManager.open("save"));
-document
-  .getElementById("open-load-btn")
-  .addEventListener("click", () => window.saveManager.open("load"));
+document.getElementById("open-save-btn").addEventListener("click", () => {
+  window.playUISound("open");
+  window.saveManager.open("save");
+});
+
+document.getElementById("open-load-btn").addEventListener("click", () => {
+  window.playUISound("open");
+  window.saveManager.open("load");
+});
+
+document.getElementById("open-history-btn").addEventListener("click", () => {
+  window.playUISound("open");
+  if (window.sm && window.sm.hm) {
+    window.sm.hm.showHistory();
+  }
+});
 
 // Заглушка для браузерных тестов (просит повернуть телефон)
 if (sm.isMobile) {

@@ -76,7 +76,7 @@ export class SaveManager {
   }
 
   _deleteSave(slotIndex) {
-    if (slotIndex === 1) return;
+    if (slotIndex === 0) return;
     // 1. Пытаемся удалить физический файл (если мы в NW.js)
     if (this.saveDir && fs && path) {
       const file = path.join(this.saveDir, `save_${slotIndex}.json`);
@@ -199,9 +199,11 @@ export class SaveManager {
   }
 
   close() {
+    if (!this.modalOpen) return; // Чтобы звук не играл вхолостую
+    window.playUISound("close");
     this.modalOpen = false;
     const panel = document.getElementById(this.containerId);
-    panel.classList.remove("active"); // Прячем панель
+    panel.classList.remove("active");
   }
 
   changePage(dir) {
@@ -221,9 +223,11 @@ export class SaveManager {
     for (let i = 0; i < 6; i++) {
       const slotIndex = startIdx + i;
       const slotData = this._readSave(slotIndex);
-
       const btn = document.createElement("button");
-      btn.className = "sl-slot-btn"; // Теперь стили полностью из CSS
+
+      // === ПРОВЕРКА НА АВТОСЕЙВ (Слот 0) ===
+      const isAutoSave = slotIndex === 0;
+      btn.className = `sl-slot-btn ${isAutoSave ? "auto-save" : ""}`;
 
       if (slotData) {
         const date = new Date(slotData.timestamp).toLocaleString("ru-RU", {
@@ -235,28 +239,30 @@ export class SaveManager {
         });
 
         btn.innerHTML = `
-          <button class="delete-save-btn" title="Удалить слот">[ DEL ]</button>
-          <div class="slot-title">СЛОТ ${slotIndex + 1}</div>
+          ${!isAutoSave ? '<button class="delete-save-btn" title="Удалить слот">[ DEL ]</button>' : ""}
+          <div class="slot-title">${isAutoSave ? "АВТОСОХРАНЕНИЕ" : `СЛОТ ${slotIndex + 1}`}</div>
           <div class="slot-date">${date}</div>
         `;
 
-        // +++ ЛОГИКА УДАЛЕНИЯ +++
-        const delBtn = btn.querySelector(".delete-save-btn");
-        delBtn.addEventListener("click", (e) => {
-          e.stopPropagation(); // Чтобы клик по кнопке не вызвал загрузку слота!
-          window.showConfirm(
-            `БЕЗВОЗВРАТНО УДАЛИТЬ ДАННЫЕ В СЛОТЕ ${slotIndex + 1}?`,
-            () => {
-              this._deleteSave(slotIndex);
-              this.renderSlots(); // Перерисовываем меню, показывая, что слот пуст
-            },
-          );
-        });
+        // Логика удаления (только если кнопка существует)
+        if (!isAutoSave) {
+          const delBtn = btn.querySelector(".delete-save-btn");
+          delBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            window.showConfirm(
+              `БЕЗВОЗВРАТНО УДАЛИТЬ ДАННЫЕ В СЛОТЕ ${slotIndex + 1}?`,
+              () => {
+                this._deleteSave(slotIndex);
+                this.renderSlots();
+              },
+            );
+          });
+        }
       } else {
         // Если слот пустой
         btn.classList.add("empty");
         btn.innerHTML = `
-          <div class="slot-title">СЛОТ ${slotIndex + 1}</div>
+          <div class="slot-title">${isAutoSave ? "АВТОСОХРАНЕНИЕ" : `СЛОТ ${slotIndex + 1}`}</div>
           <div>Пусто</div>
         `;
       }
@@ -268,14 +274,13 @@ export class SaveManager {
           this.loadGame(slotIndex, slotData);
         }
       });
-
       container.appendChild(btn);
     }
   }
 
   saveGame(slotIndex, isOverwrite = false, isAuto = false) {
     // Жестко блокируем ручные попытки сохранить в первый слот
-    if (slotIndex === 1 && !isAuto) {
+    if (slotIndex === 0 && !isAuto) {
       console.warn("Слот 1 зарезервирован для автосохранений!");
       return;
     }
@@ -331,9 +336,7 @@ export class SaveManager {
   }
 
   autoSave() {
-    // Полностью вычищаем старый автосейв
-    localStorage.removeItem(this.prefix + "1");
-    // Вызываем сохранение (слот 1, перезапись разрешена, это автосейв)
-    this.saveGame(1, true, true);
+    this._deleteSave(0); // Стираем старый автосейв по индексу 0
+    this.saveGame(0, true, true); // Сохраняем в индекс 0
   }
 }
