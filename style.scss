@@ -1533,17 +1533,16 @@ $glass-dark: rgba(10, 12, 18, 0.95);
 }
 
 // === УНИВЕРСАЛЬНАЯ ПАНЕЛЬ ДЛЯ НАСТРОЕК ===
-// === УНИВЕРСАЛЬНАЯ ПАНЕЛЬ ДЛЯ НАСТРОЕК ===
 .modal-panel {
-  display: none; 
-  position: fixed; 
-  inset: 0; 
-  z-index: 10005; 
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 10005;
   background: transparent;
-  pointer-events: all !important; 
-  
+  pointer-events: all !important;
+
   &.active {
-    display: block; 
+    display: block;
   }
 
   #settings-inner {
@@ -1565,13 +1564,15 @@ $glass-dark: rgba(10, 12, 18, 0.95);
       right: 20px;
       background: transparent;
       border: none;
-      color: rgba(255,255,255,0.5);
+      color: rgba(255, 255, 255, 0.5);
       font-size: 24px;
       cursor: pointer;
       z-index: 10;
       transition: color 0.2s;
-      
-      &:hover { color: $ui-accent; }
+
+      &:hover {
+        color: $ui-accent;
+      }
     }
 
     .settings-layout {
@@ -1584,7 +1585,7 @@ $glass-dark: rgba(10, 12, 18, 0.95);
     .settings-left {
       width: 60%;
       padding-right: 30px;
-      border-right: 1px solid rgba(255, 255, 255, 0.1); 
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
       display: flex;
       flex-direction: column;
 
@@ -1601,7 +1602,7 @@ $glass-dark: rgba(10, 12, 18, 0.95);
         display: flex;
         flex-direction: column;
         justify-content: flex-start; // Прижали настройки к верху
-        
+
         // Стили для групп настроек
         .settings-group {
           margin-bottom: 25px;
@@ -1705,7 +1706,7 @@ $glass-dark: rgba(10, 12, 18, 0.95);
         .hotkey-row {
           display: flex;
           align-items: center;
-          
+
           .key {
             font-family: monospace;
             color: $ui-accent;
@@ -1721,7 +1722,7 @@ $glass-dark: rgba(10, 12, 18, 0.95);
             justify-content: center;
             align-items: center;
           }
-          
+
           .desc {
             font-family: "Inter", sans-serif;
             color: rgba(255, 255, 255, 0.8);
@@ -1735,8 +1736,14 @@ $glass-dark: rgba(10, 12, 18, 0.95);
 }
 
 @keyframes settingsAppear {
-  0% { opacity: 0; transform: translate(-50%, -45%); }
-  100% { opacity: 1; transform: translate(-50%, -50%); }
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -45%);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
 }
 
 // Отключение параллакса
@@ -1747,68 +1754,6 @@ body.disable-parallax {
   .parallax-layer {
     transform: none !important;
     transition: none !important;
-  }
-}
-
-    // ПРАВАЯ ЧАСТЬ (Справочник) - 40%
-    .settings-right {
-      width: 40%;
-      padding-left: 30px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-
-      .manual-header {
-        font-family: "Inter", sans-serif;
-        font-size: 14px;
-        color: rgba(255, 255, 255, 0.4);
-        letter-spacing: 3px;
-        margin-bottom: 20px;
-        text-transform: uppercase;
-      }
-
-      .manual-content {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-
-        .hotkey-row {
-          display: flex;
-          align-items: center;
-
-          .key {
-            font-family: monospace;
-            color: $ui-accent;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 4px 8px;
-            border-radius: 3px;
-            border: 1px solid rgba($ui-accent, 0.3);
-            margin-right: 15px;
-            font-size: 13px;
-            min-width: 100px;
-            text-align: center;
-          }
-
-          .desc {
-            font-family: "Inter", sans-serif;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 14px;
-          }
-        }
-      }
-    }
-  }
-}
-
-// Анимация появления
-@keyframes settingsAppear {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -45%);
-  }
-  100% {
-    opacity: 1;
-    transform: translate(-50%, -50%);
   }
 }
 

@@ -2,8 +2,81 @@ export class SettingsManager {
   constructor() {
     this.modalOpen = false;
     this.containerId = "settings-panel";
+
+    // БАЗОВЫЕ НАСТРОЙКИ (По умолчанию)
+    this.defaultSettings = {
+      fullscreen: "window",
+      parallax: "on",
+      bgmVolume: 100, // Заготовка для аудио
+      sfxVolume: 100, // Заготовка для аудио
+      textSpeed: 50, // Заготовка для текста
+    };
+
+    // Загружаем сохраненные или берем базовые
+    this.settings = this.loadSettings();
+
     this._initUI();
+    this._applySettingsOnLoad(); // Применяем их при старте игры
   }
+
+  // --- РАБОТА С ПАМЯТЬЮ ---
+  loadSettings() {
+    const saved = localStorage.getItem("sota_settings");
+    if (saved) {
+      return { ...this.defaultSettings, ...JSON.parse(saved) };
+    }
+    return { ...this.defaultSettings };
+  }
+
+  saveCurrentSettings() {
+    localStorage.setItem("sota_settings", JSON.stringify(this.settings));
+  }
+
+  resetToDefaults() {
+    this.settings = { ...this.defaultSettings };
+    this.saveCurrentSettings();
+    this._updateUIFromSettings(); // Обновляем ползунки и тумблеры на экране
+    this._applySettingsOnLoad(); // Применяем их к игре
+  }
+
+  // Применяем настройки к самой игре (вызывается при старте и сбросе)
+  _applySettingsOnLoad() {
+    // 1. Параллакс
+    if (this.settings.parallax === "off") {
+      document.body.classList.add("disable-parallax");
+    } else {
+      document.body.classList.remove("disable-parallax");
+    }
+
+    // 2. Полный экран (браузеры блокируют авто-фулскрин при старте,
+    // так что мы просто синхронизируем UI)
+
+    // Позже тут будет применение громкости и скорости текста
+  }
+
+  // Обновляем визуальное состояние кнопок в меню настроек
+  _updateUIFromSettings() {
+    const panel = document.getElementById(this.containerId);
+    if (!panel) return;
+
+    // Обновляем тумблеры полного экрана
+    const fsBtns = panel.querySelectorAll("#fullscreen-toggle .toggle-btn");
+    fsBtns.forEach((b) => b.classList.remove("active"));
+    const activeFs = panel.querySelector(
+      `#fullscreen-toggle .toggle-btn[data-val="${this.settings.fullscreen}"]`,
+    );
+    if (activeFs) activeFs.classList.add("active");
+
+    // Обновляем тумблеры параллакса
+    const pxBtns = panel.querySelectorAll("#parallax-toggle .toggle-btn");
+    pxBtns.forEach((b) => b.classList.remove("active"));
+    const activePx = panel.querySelector(
+      `#parallax-toggle .toggle-btn[data-val="${this.settings.parallax}"]`,
+    );
+    if (activePx) activePx.classList.add("active");
+  }
+
+  // ... (дальше идет _initUI)
 
   _initUI() {
     const panel = document.createElement("div");
@@ -46,9 +119,8 @@ export class SettingsManager {
             <button class="reset-btn">[ СБРОС ]</button>
           </div>
 
-          <!-- ПРАВАЯ ЧАСТЬ: СПРАВОЧНИК (40%) -->
           <div class="settings-right">
-            <div class="manual-header">СПРАВОЧНИК ТЕРМИНАЛА</div>
+            <div class="manual-header">СПРАВОЧНИК</div>
             <div class="manual-content">
               <div class="hotkey-row"><span class="key">[ ЛКМ / Пробел / -&gt; / Колёсико вниз ]</span><span class="desc">Далее</span></div>
               <div class="hotkey-row"><span class="key">[ Ctrl ]</span><span class="desc">Промотка</span></div>
@@ -86,7 +158,6 @@ export class SettingsManager {
 
     // --- ЛОГИКА НАСТРОЕК ГРАФИКИ ---
 
-    // 1. Полный экран
     const fsToggleBtns = panel.querySelectorAll(
       "#fullscreen-toggle .toggle-btn",
     );
@@ -94,6 +165,11 @@ export class SettingsManager {
       btn.addEventListener("click", (e) => {
         window.playUISound("open");
         const val = e.target.getAttribute("data-val");
+
+        // Сохраняем в память
+        this.settings.fullscreen = val;
+        this.saveCurrentSettings();
+        this._updateUIFromSettings(); // Подсвечиваем кнопку
 
         if (val === "full") {
           if (!document.fullscreenElement) {
@@ -109,13 +185,15 @@ export class SettingsManager {
       });
     });
 
+    // Синхронизация, если нажали F11 (меняем память, но не вызываем requestFullscreen)
     document.addEventListener("fullscreenchange", () => {
-      fsToggleBtns.forEach((b) => b.classList.remove("active"));
       if (document.fullscreenElement) {
-        panel.querySelector('[data-val="full"]').classList.add("active");
+        this.settings.fullscreen = "full";
       } else {
-        panel.querySelector('[data-val="window"]').classList.add("active");
+        this.settings.fullscreen = "window";
       }
+      this.saveCurrentSettings();
+      this._updateUIFromSettings();
     });
 
     // 2. Параллакс
@@ -127,16 +205,30 @@ export class SettingsManager {
         window.playUISound("open");
         const val = e.target.getAttribute("data-val");
 
-        parallaxToggleBtns.forEach((b) => b.classList.remove("active"));
-        e.target.classList.add("active");
+        // Сохраняем в память
+        this.settings.parallax = val;
+        this.saveCurrentSettings();
+        this._updateUIFromSettings(); // Подсвечиваем кнопку
 
+        // Применяем к игре
         if (val === "off") {
-          document.body.classList.add("disable-parallax"); // Вешаем класс на body
+          document.body.classList.add("disable-parallax");
         } else {
           document.body.classList.remove("disable-parallax");
         }
       });
     });
+
+    // 3. Кнопка СБРОСА
+    const resetBtn = panel.querySelector(".reset-btn");
+    if (resetBtn) {
+      resetBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        window.showConfirm("ВОССТАНОВИТЬ НАСТРЙОКИ ПО УМОЛЧАНИЮ?", () => {
+          this.resetToDefaults();
+        });
+      });
+    }
   }
 
   open() {
