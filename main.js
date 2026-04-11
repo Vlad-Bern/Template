@@ -160,10 +160,11 @@ app.innerHTML = `
         <div id="dialog-bg-color"></div>
         <div id="name-tag"></div>
         <div id="dialog-box-container">
+          <button id="dialog-hide-btn" title="Скрыть окно" aria-label="Скрыть окно (RMB)">✕</button>
           <div id="dialog-box"></div>
         <div id="dialog-footer">
-          <button id="open-save-btn" class="dialog-footer-btn" title="Сохранить">[ СОХРАНИТЬ ]</button>
-          <button id="open-load-btn" class="dialog-footer-btn" title="Загрузить">[ ЗАГРУЗИТЬ ]</button>
+          <button id="open-save-btn" class="dialog-footer-btn" title="Сохранить (H)">[ СОХРАНИТЬ ]</button>
+          <button id="open-load-btn" class="dialog-footer-btn" title="Загрузить (L)">[ ЗАГРУЗИТЬ ]</button>
           <button id="open-history-btn" class="dialog-footer-btn" title="История (H)">[ ИСТОРИЯ ]</button>
           </div>
         </div>
@@ -171,6 +172,18 @@ app.innerHTML = `
     </div>
   </div>
 `;
+
+const dialogHideBtn = document.getElementById("dialog-hide-btn");
+
+if (dialogHideBtn) {
+  dialogHideBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    document.dispatchEvent(
+      new MouseEvent("contextmenu", { bubbles: true, cancelable: true }),
+    );
+  });
+}
 
 const tw = new Typewriter("dialog-box");
 const sm = new SceneManager(tw);

@@ -272,10 +272,22 @@ export class SaveManager {
     }
   }
 
-  saveGame(slotIndex) {
+  saveGame(slotIndex, isOverwrite = false) {
     if (!window.sm || !window.sm.currentSceneId) {
       alert("Невозможно сохранить игру в данный момент!");
       return;
+    }
+
+    // Если слот НЕ ПУСТОЙ и мы еще не дали команду на перезапись (isOverwrite = false)
+    if (!isOverwrite && this._readSave(slotIndex)) {
+      window.showConfirm(
+        `ПЕРЕЗАПИСАТЬ ДАННЫЕ В СЛОТЕ ${slotIndex + 1}?`,
+        () => {
+          // Вызываем снова, но уже с флагом перезаписи
+          this.saveGame(slotIndex, true);
+        },
+      );
+      return; // Прерываем текущее выполнение
     }
 
     const dataToSave = {

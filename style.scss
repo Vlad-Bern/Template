@@ -1733,6 +1733,52 @@ $glass-dark: rgba(10, 12, 18, 0.95);
       margin: 0;
     }
 
+    #dialog-box-container {
+      position: relative;
+    }
+
+    #dialog-hide-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 10px;
+      background: rgba(15, 20, 28, 0.72);
+      backdrop-filter: blur(10px);
+      color: rgba(255, 255, 255, 0.82);
+      font-size: 20px;
+      line-height: 1;
+      cursor: pointer;
+      z-index: 5;
+      transition:
+        transform 0.18s ease,
+        background 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease,
+        opacity 0.18s ease;
+    }
+
+    #dialog-hide-btn:hover {
+      transform: scale(1.06);
+      background: rgba(30, 38, 52, 0.92);
+      border-color: rgba(255, 255, 255, 0.28);
+      color: #ffffff;
+    }
+
+    #dialog-hide-btn:active {
+      transform: scale(0.96);
+    }
+
+    #dialog-hide-btn:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(180, 220, 255, 0.35);
+    }
+
     #dialog-box {
       font-size: 16px;
       line-height: 1.4;
