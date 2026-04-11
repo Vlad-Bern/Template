@@ -1534,20 +1534,22 @@ $glass-dark: rgba(10, 12, 18, 0.95);
 
 // === УНИВЕРСАЛЬНАЯ ПАНЕЛЬ ДЛЯ НАСТРОЕК ===
 .modal-panel {
-  display: none; // Скрыто по умолчанию
-  position: fixed; // FIXED отвязывает нас от game-ui и 16:9
-  inset: 0; // Растягиваем на весь экран как невидимый щит
-  z-index: 10005; // Строго выше backdrop (10000)
-  justify-content: center;
-  align-items: center;
-  pointer-events: all !important; // Важно: забираем на себя все клики мыши!
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 10005;
+  background: transparent;
+  pointer-events: all !important;
 
   &.active {
-    display: flex;
+    display: block; // Просто block, никакого flex!
   }
 
-  // Сама стеклянная табличка
   #settings-inner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); // Жестко центрируем
     @include glass;
     width: 90%;
     max-width: 600px;
@@ -1556,8 +1558,9 @@ $glass-dark: rgba(10, 12, 18, 0.95);
     display: flex;
     flex-direction: column;
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
-    // Используем ту же анимацию появления по центру, что и у Истории
-    animation: slideUpCenterModal 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+    // Новая надежная анимация
+    animation: settingsAppear 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
   .modal-header {
@@ -1597,6 +1600,17 @@ $glass-dark: rgba(10, 12, 18, 0.95);
       border-color: $ui-accent;
       color: $ui-accent;
     }
+  }
+}
+
+@keyframes settingsAppear {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -45%);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%);
   }
 }
 

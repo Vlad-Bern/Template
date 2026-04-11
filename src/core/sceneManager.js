@@ -192,47 +192,90 @@ export class SceneManager {
     });
 
     // Клавиатура (горячие клавиши)
+javascript
     window.addEventListener("keydown", (e) => {
-      // 1. БЛОКИРОВКА СЕЙВОВ
-      if (window.saveManager?.modalOpen) {
-        if (e.code === "Escape") window.saveManager.close();
-        return;
-      }
+      // Собираем состояния всех наших окон
+      const isSave = window.saveManager && window.saveManager.modalOpen;
+      const isSettings = window.settingsManager && window.settingsManager.modalOpen;
+      const isHistory = this.hm && this.hm.modalOpen;
 
-      // 2. БЛОКИРОВКА НАСТРОЕК (НОВОЕ)
-      if (window.settingsManager?.modalOpen) {
-        if (e.code === "Escape") window.settingsManager.close();
-        return;
-      }
-
-      if (this.uiHidden) {
-        if (e.code === "Escape")
-          document.dispatchEvent(new MouseEvent("contextmenu"));
-        return;
-      }
-
-      // ЛОГИКА ИСТОРИИ (С возможностью мгновенного переключения на сейвы/настройки)
-      if (this.hm.modalOpen) {
-        if (e.code === "Escape" || e.code === "KeyH") {
-          this.hm.hideHistory();
-        } else if (e.code === "KeyS") {
-          this.hm.hideHistory();
-          window.saveManager.open("save");
-        } else if (e.code === "KeyL") {
-          this.hm.hideHistory();
-          window.saveManager.open("load");
-        } else if (e.code === "KeyO") {
-          // Переход в настройки
-          this.hm.hideHistory();
-          window.settingsManager.open();
+      // ЕСЛИ ОТКРЫТО ХОТЯ БЫ ОДНО ОКНО:
+      if (isSave || isSettings || isHistory) {
+        
+        // 1. БЛОКИРУЕМ ИГРОВЫЕ КНОПКИ (Пробел, Enter, Стрелки, Ctrl)
+        if (["Space", "Enter", "ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown", "ControlLeft", "ControlRight"].includes(e.code)) {
+          e.preventDefault();
+          e.stopPropagation();
+          return;
         }
+
+        // 2. ЗАКРЫТИЕ НА ESCAPE
+        if (e.code === "Escape") {
+          if (isSettings) window.settingsManager.close();
+          if (isSave) window.saveManager.close();
+          if (isHistory) this.hm.hideHistory();
+          e.stopPropagation();
+          return;
+        }
+
+        // 3. ПЕРЕКЛЮЧЕНИЕ: НАСТРОЙКИ (O)
+        if (e.code === "KeyO" && !e.repeat) {
+          if (isSettings) window.settingsManager.close(); // Закрываем, если открыто
+          else {
+            if (isSave) window.saveManager.close();
+            if (isHistory) this.hm.hideHistory();
+            window.settingsManager.open(); // Открываем настройки
+          }
+          e.stopPropagation();
+          return;
+        }
+
+        // 4. ПЕРЕКЛЮЧЕНИЕ: СОХРАНЕНИЕ (S)
+        if (e.code === "KeyS" && !e.repeat) {
+          if (isSave && window.saveManager.mode === "save") window.saveManager.close();
+          else {
+            if (isSettings) window.settingsManager.close();
+            if (isHistory) this.hm.hideHistory();
+            window.saveManager.open("save");
+          }
+          e.stopPropagation();
+          return;
+        }
+
+        // 5. ПЕРЕКЛЮЧЕНИЕ: ЗАГРУЗКА (L)
+        if (e.code === "KeyL" && !e.repeat) {
+          if (isSave && window.saveManager.mode === "load") window.saveManager.close();
+          else {
+            if (isSettings) window.settingsManager.close();
+            if (isHistory) this.hm.hideHistory();
+            window.saveManager.open("load");
+          }
+          e.stopPropagation();
+          return;
+        }
+
+        // 6. ПЕРЕКЛЮЧЕНИЕ: ИСТОРИЯ (H)
+        if (e.code === "KeyH" && !e.repeat) {
+          if (isHistory) this.hm.hideHistory();
+          else {
+            if (isSettings) window.settingsManager.close();
+            if (isSave) window.saveManager.close();
+            this.hm.showHistory();
+          }
+          e.stopPropagation();
+          return;
+        }
+
+        // Блокируем любые другие случайные кнопки
         e.stopPropagation();
         return;
       }
 
-      // Открытие окон из самой игры
-      if (e.code === "KeyH" && !e.repeat) {
-        this.hm.showHistory();
+      // === ЕСЛИ НИ ОДНО ОКНО НЕ ОТКРЫТО, РАБОТАЕТ ИГРА ===
+      
+      // Открытие окон из чистой игры
+      if (e.code === "KeyO" && !e.repeat) {
+        window.settingsManager.open();
         return;
       } else if (e.code === "KeyS" && !e.repeat) {
         window.saveManager.open("save");
@@ -240,9 +283,8 @@ export class SceneManager {
       } else if (e.code === "KeyL" && !e.repeat) {
         window.saveManager.open("load");
         return;
-      } else if (e.code === "KeyO" && !e.repeat) {
-        // Открытие настроек из игры
-        window.settingsManager.open();
+      } else if (e.code === "KeyH" && !e.repeat) {
+        this.hm.showHistory();
         return;
       }
 
