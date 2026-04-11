@@ -6,32 +6,46 @@ export class SettingsManager {
   }
 
   _initUI() {
-    // 1. Создаем HTML
     const panel = document.createElement("div");
     panel.id = this.containerId;
-    panel.className = "modal-panel"; // Используем общий класс модалок
+    panel.className = "modal-panel";
+
+    // Обертка settings-inner нужна, чтобы отличать клик по самой панели от клика мимо
     panel.innerHTML = `
-      <div class="modal-header">НАСТРОЙКИ СИСТЕМЫ</div>
-      <div class="settings-content">
-        <!-- Сюда потом добавим ползунки -->
-        <p style="text-align: center; color: #888;">[ ПАРАМЕТРЫ ЗАБЛОКИРОВАНЫ ДОСТУПОМ D-РАНГА ]</p>
+      <div id="settings-inner">
+        <div class="modal-header">НАСТРОЙКИ СИСТЕМЫ</div>
+        <div class="settings-content">
+          <p style="text-align: center; color: #888;">[ ПАРАМЕТРЫ ЗАБЛОКИРОВАНЫ ДОСТУПОМ D-РАНГА ]</p>
+        </div>
+        <button class="modal-close-btn" id="close-settings-btn">[ ЗАКРЫТЬ ]</button>
       </div>
-      <button class="modal-close-btn" id="close-settings-btn">[ ЗАКРЫТЬ ]</button>
     `;
 
-    // Вставляем панель в game-ui (туда же, где лежат history-panel и save-panel)
-    document.getElementById("game-ui").appendChild(panel);
+    // КРЕПИМ К BODY! Это навсегда решит проблему с z-index и блюром.
+    document.body.appendChild(panel);
 
-    // 2. Слушатель на кнопку закрытия
+    // Закрытие по кнопке
     document
       .getElementById("close-settings-btn")
-      .addEventListener("click", () => this.close());
+      .addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.close();
+      });
+
+    // Закрытие по клику В ПУСТОТУ
+    panel.addEventListener("click", (e) => {
+      // Если кликнули не по внутреннему блоку, значит кликнули по фону
+      if (!e.target.closest("#settings-inner")) {
+        e.stopPropagation();
+        this.close();
+      }
+    });
   }
 
   open() {
     if (this.modalOpen) return;
 
-    // Закрываем другие окна перед открытием
+    // Закрываем другие модалки
     if (window.saveManager && window.saveManager.modalOpen)
       window.saveManager.close();
     if (window.sm && window.sm.hm && window.sm.hm.modalOpen)
@@ -41,13 +55,13 @@ export class SettingsManager {
     this.modalOpen = true;
     document.getElementById(this.containerId).classList.add("active");
 
-    // Блокируем игру
-    const dialogWrapper = document.getElementById("dialog-wrapper");
-    if (dialogWrapper) dialogWrapper.style.pointerEvents = "none";
-
-    // Показываем общий фон модалок
+    // Показываем общий блюр (он тоже забирает клики)
     const backdrop = document.getElementById("modal-backdrop");
     if (backdrop) backdrop.classList.add("active");
+
+    // Блокируем клики по текстовому окну на всякий случай
+    const dialogWrapper = document.getElementById("dialog-wrapper");
+    if (dialogWrapper) dialogWrapper.style.pointerEvents = "none";
   }
 
   close() {
@@ -57,12 +71,10 @@ export class SettingsManager {
     this.modalOpen = false;
     document.getElementById(this.containerId).classList.remove("active");
 
-    // Возвращаем управление игре
-    const dialogWrapper = document.getElementById("dialog-wrapper");
-    if (dialogWrapper) dialogWrapper.style.pointerEvents = "auto";
-
-    // Прячем фон
     const backdrop = document.getElementById("modal-backdrop");
     if (backdrop) backdrop.classList.remove("active");
+
+    const dialogWrapper = document.getElementById("dialog-wrapper");
+    if (dialogWrapper) dialogWrapper.style.pointerEvents = "auto";
   }
 }

@@ -1532,6 +1532,74 @@ $glass-dark: rgba(10, 12, 18, 0.95);
   }
 }
 
+// === УНИВЕРСАЛЬНАЯ ПАНЕЛЬ ДЛЯ НАСТРОЕК ===
+.modal-panel {
+  display: none; // Скрыто по умолчанию
+  position: fixed; // FIXED отвязывает нас от game-ui и 16:9
+  inset: 0; // Растягиваем на весь экран как невидимый щит
+  z-index: 10005; // Строго выше backdrop (10000)
+  justify-content: center;
+  align-items: center;
+  pointer-events: all !important; // Важно: забираем на себя все клики мыши!
+
+  &.active {
+    display: flex;
+  }
+
+  // Сама стеклянная табличка
+  #settings-inner {
+    @include glass;
+    width: 90%;
+    max-width: 600px;
+    padding: 40px;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    // Используем ту же анимацию появления по центру, что и у Истории
+    animation: slideUpCenterModal 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .modal-header {
+    font-size: 24px;
+    color: $ui-accent;
+    font-family: "Lora", serif;
+    letter-spacing: 2px;
+    border-bottom: 1px solid rgba($ui-accent, 0.3);
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  .settings-content {
+    flex-grow: 1;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-close-btn {
+    margin-top: 25px;
+    align-self: center;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.7);
+    padding: 10px 30px;
+    font-size: 16px;
+    font-family: "Inter", sans-serif;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba($ui-accent, 0.1);
+      border-color: $ui-accent;
+      color: $ui-accent;
+    }
+  }
+}
+
 // ==========================================
 // --- TABLET ADAPTATION (Clean & Safe) ---
 // ==========================================
