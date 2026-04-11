@@ -10,7 +10,6 @@ export class SettingsManager {
     panel.id = this.containerId;
     panel.className = "modal-panel";
 
-    // Обертка settings-inner нужна, чтобы отличать клик по самой панели от клика мимо
     panel.innerHTML = `
       <div id="settings-inner">
         <button class="modal-close-btn" id="close-settings-btn" title="Закрыть">[ × ]</button>
@@ -20,8 +19,29 @@ export class SettingsManager {
           <div class="settings-left">
             <div class="modal-header">[ НАСТРОЙКИ СИСТЕМЫ ]</div>
             <div class="settings-list">
-              <!-- Сюда мы позже добавим ползунки -->
-              <p style="text-align: center; color: #888;">[ ПАРАМЕТРЫ ЗАБЛОКИРОВАНЫ ДОСТУПОМ D-РАНГА ]</p>
+              
+              <!-- ГРУППА 1: ГРАФИКА -->
+              <div class="settings-group">
+                <div class="group-title">ЭКРАН И ГРАФИКА</div>
+                
+                <div class="settings-row">
+                  <span class="settings-label">Режим экрана</span>
+                  <div class="toggle-group" id="fullscreen-toggle">
+                    <button class="toggle-btn active" data-val="window">Окно</button>
+                    <button class="toggle-btn" data-val="full">Полный</button>
+                  </div>
+                </div>
+
+                <div class="settings-row">
+                  <span class="settings-label">Эффект параллакса</span>
+                  <div class="toggle-group" id="parallax-toggle">
+                    <button class="toggle-btn active" data-val="on">Вкл</button>
+                    <button class="toggle-btn" data-val="off">Выкл</button>
+                  </div>
+                </div>
+
+              </div>
+              
             </div>
             <button class="reset-btn">[ СБРОС ]</button>
           </div>
@@ -30,23 +50,21 @@ export class SettingsManager {
           <div class="settings-right">
             <div class="manual-header">СПРАВОЧНИК ТЕРМИНАЛА</div>
             <div class="manual-content">
-              <div class="hotkey-row"><span class="key">[ ЛКМ / Пробел / -> / Колёсико вниз ]</span><span class="desc">Далее</span></div>
+              <div class="hotkey-row"><span class="key">[ ЛКМ / Пробел / -&gt; / Колёсико вниз ]</span><span class="desc">Далее</span></div>
               <div class="hotkey-row"><span class="key">[ Ctrl ]</span><span class="desc">Промотка</span></div>
               <div class="hotkey-row"><span class="key">[ H / Колёсико вверх]</span><span class="desc">История</span></div>
               <div class="hotkey-row"><span class="key">[ S / L ]</span><span class="desc">Сохранить / Загрузить</span></div>
               <div class="hotkey-row"><span class="key">[ O ]</span><span class="desc">Настройки</span></div>
               <div class="hotkey-row"><span class="key">[ ПКМ ]</span><span class="desc">Скрыть интерфейс</span></div>
             </div>
-            <!-- Сюда вы потом можете добавить любой лор или картинки -->
           </div>
         </div>
       </div>
     `;
 
-    // КРЕПИМ К BODY! Это навсегда решит проблему с z-index и блюром.
     document.body.appendChild(panel);
 
-    // 1. Кнопка закрытия
+    // --- ЛОГИКА КНОПОК ЗАКРЫТИЯ ---
     document
       .getElementById("close-settings-btn")
       .addEventListener("click", (e) => {
@@ -54,19 +72,70 @@ export class SettingsManager {
         this.close();
       });
 
-    // 2. ЩИТ ДЛЯ САМОЙ ТАБЛИЧКИ
-    // Блокируем абсолютно все клики внутри настроек, чтобы они не летели в игру
     const inner = panel.querySelector("#settings-inner");
     inner.addEventListener("click", (e) => {
       e.stopPropagation();
     });
 
-    // 3. ЗАКРЫТИЕ ПО ПУСТОТЕ (И перехват клика)
     panel.addEventListener("click", (e) => {
-      e.stopPropagation(); // <-- ВОЗВРАЩАЕМ УБИТЫЙ МНОЮ ЩИТ!
+      e.stopPropagation();
       if (!e.target.closest("#settings-inner")) {
         this.close();
       }
+    });
+
+    // --- ЛОГИКА НАСТРОЕК ГРАФИКИ ---
+
+    // 1. Полный экран
+    const fsToggleBtns = panel.querySelectorAll(
+      "#fullscreen-toggle .toggle-btn",
+    );
+    fsToggleBtns.forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        window.playUISound("open");
+        const val = e.target.getAttribute("data-val");
+
+        if (val === "full") {
+          if (!document.fullscreenElement) {
+            document.documentElement
+              .requestFullscreen()
+              .catch((err) => console.warn(err));
+          }
+        } else {
+          if (document.fullscreenElement) {
+            document.exitFullscreen().catch((err) => console.warn(err));
+          }
+        }
+      });
+    });
+
+    document.addEventListener("fullscreenchange", () => {
+      fsToggleBtns.forEach((b) => b.classList.remove("active"));
+      if (document.fullscreenElement) {
+        panel.querySelector('[data-val="full"]').classList.add("active");
+      } else {
+        panel.querySelector('[data-val="window"]').classList.add("active");
+      }
+    });
+
+    // 2. Параллакс
+    const parallaxToggleBtns = panel.querySelectorAll(
+      "#parallax-toggle .toggle-btn",
+    );
+    parallaxToggleBtns.forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        window.playUISound("open");
+        const val = e.target.getAttribute("data-val");
+
+        parallaxToggleBtns.forEach((b) => b.classList.remove("active"));
+        e.target.classList.add("active");
+
+        if (val === "off") {
+          document.body.classList.add("disable-parallax"); // Вешаем класс на body
+        } else {
+          document.body.classList.remove("disable-parallax");
+        }
+      });
     });
   }
 
