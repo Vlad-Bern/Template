@@ -18,24 +18,24 @@ export class SettingsManager {
         <div class="settings-layout">
           <!-- ЛЕВАЯ ЧАСТЬ: НАСТРОЙКИ (60%) -->
           <div class="settings-left">
-            <div class="modal-header">НАСТРОЙКИ СИСТЕМЫ</div>
+            <div class="modal-header">[ НАСТРОЙКИ СИСТЕМЫ ]</div>
             <div class="settings-list">
               <!-- Сюда мы позже добавим ползунки -->
               <p style="text-align: center; color: #888;">[ ПАРАМЕТРЫ ЗАБЛОКИРОВАНЫ ДОСТУПОМ D-РАНГА ]</p>
             </div>
-            <button class="reset-btn">[ СБРОС К БАЗОВЫМ ]</button>
+            <button class="reset-btn">[ СБРОС ]</button>
           </div>
 
           <!-- ПРАВАЯ ЧАСТЬ: СПРАВОЧНИК (40%) -->
           <div class="settings-right">
             <div class="manual-header">СПРАВОЧНИК ТЕРМИНАЛА</div>
             <div class="manual-content">
-              <div class="hotkey-row"><span class="key">[ ЛКМ / Space ]</span><span class="desc">Далее</span></div>
-              <div class="hotkey-row"><span class="key">[ Ctrl ]</span><span class="desc">Промотка (Hold)</span></div>
-              <div class="hotkey-row"><span class="key">[ H ]</span><span class="desc">База данных (Лог)</span></div>
-              <div class="hotkey-row"><span class="key">[ S / L ]</span><span class="desc">Память (Save/Load)</span></div>
-              <div class="hotkey-row"><span class="key">[ O ]</span><span class="desc">Система (Опции)</span></div>
-              <div class="hotkey-row"><span class="key">[ ПКМ / Esc ]</span><span class="desc">Скрыть интерфейс</span></div>
+              <div class="hotkey-row"><span class="key">[ ЛКМ / Пробел / -> / Колёсико вниз ]</span><span class="desc">Далее</span></div>
+              <div class="hotkey-row"><span class="key">[ Ctrl ]</span><span class="desc">Промотка</span></div>
+              <div class="hotkey-row"><span class="key">[ H / Колёсико вверх]</span><span class="desc">История</span></div>
+              <div class="hotkey-row"><span class="key">[ S / L ]</span><span class="desc">Сохранить / Загрузить</span></div>
+              <div class="hotkey-row"><span class="key">[ O ]</span><span class="desc">Настройки</span></div>
+              <div class="hotkey-row"><span class="key">[ ПКМ ]</span><span class="desc">Скрыть интерфейс</span></div>
             </div>
             <!-- Сюда вы потом можете добавить любой лор или картинки -->
           </div>

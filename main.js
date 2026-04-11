@@ -181,7 +181,7 @@ app.innerHTML = `
           <button id="open-save-btn" class="dialog-footer-btn">[ СОХРАНИТЬ ]</button>
           <button id="open-load-btn" class="dialog-footer-btn">[ ЗАГРУЗИТЬ ]</button>
           <button id="open-history-btn" class="dialog-footer-btn">[ ИСТОРИЯ ]</button>
-          <button class="footer-btn" id="open-settings-btn">[ НАСТРОЙКИ ]</button>
+          <button class="dialog-footer-btn" id="open-settings-btn">[ НАСТРОЙКИ ]</button>
           </div>
         </div>
       </div>
