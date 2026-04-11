@@ -137,22 +137,39 @@ export class SaveManager {
       });
 
       // Навигация стрелочками
-      window.addEventListener("keydown", (e) => {
-        if (!this.modalOpen) return;
+      // Навигация стрелочками и горячими клавишами
+      window.addEventListener(
+        "keydown",
+        (e) => {
+          if (!this.modalOpen) return;
 
-        e.stopPropagation(); // Блокируем передачу любых нажатий на задний фон
+          // Щит от окна подтверждения
+          if (
+            document
+              .getElementById("confirm-backdrop")
+              ?.classList.contains("active")
+          )
+            return;
 
-        if (e.code === "ArrowLeft") this.changePage(-1);
-        else if (e.code === "ArrowRight") this.changePage(1);
-        else if (e.code === "Escape") this.close();
-        else if (e.code === "KeyS") {
-          // Если уже в сохранениях - закрываем. Иначе - переключаем на сохранения!
-          this.mode === "save" ? this.close() : this.open("save");
-        } else if (e.code === "KeyL") {
-          // Если уже в загрузках - закрываем. Иначе - переключаем на загрузки!
-          this.mode === "load" ? this.close() : this.open("load");
-        }
-      });
+          e.stopPropagation(); // Блокируем спуск события вниз к SceneManager
+
+          if (e.code === "ArrowLeft") {
+            this.changePage(-1);
+          } else if (e.code === "ArrowRight") {
+            this.changePage(1);
+          } else if (e.code === "Escape") {
+            this.close();
+          } else if (e.code === "KeyS") {
+            this.mode === "save" ? this.close() : this.open("save");
+          } else if (e.code === "KeyL") {
+            this.mode === "load" ? this.close() : this.open("load");
+          } else if (e.code === "KeyH") {
+            this.close();
+            window.sm.hm.showHistory(); // Вызываем Историю
+          }
+        },
+        true,
+      ); // Установили true, чтобы ловить событие раньше игрового поля
 
       // Жесткая блокировка колесика мыши
       document.addEventListener(

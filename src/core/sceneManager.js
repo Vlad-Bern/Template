@@ -166,7 +166,9 @@ export class SceneManager {
     });
 
     // Клавиатура (горячие клавиши)
+    // Клавиатура (горячие клавиши)
     window.addEventListener("keydown", (e) => {
+      // Если открыты сейвы - SceneManager вообще не реагирует
       if (window.saveManager?.modalOpen) {
         return;
       }
@@ -178,10 +180,18 @@ export class SceneManager {
         return;
       }
 
+      // ЛОГИКА ИСТОРИИ (С возможностью переключения на сейвы)
       if (this.hm.modalOpen) {
         if (e.code === "Escape" || e.code === "KeyH") {
           this.hm.hideHistory();
+        } else if (e.code === "KeyS") {
+          this.hm.hideHistory();
+          window.saveManager.open("save");
+        } else if (e.code === "KeyL") {
+          this.hm.hideHistory();
+          window.saveManager.open("load");
         }
+        e.stopPropagation(); // Не даем событию пойти дальше
         return;
       } else if (e.code === "KeyH" && !e.repeat) {
         this.hm.showHistory();
@@ -194,7 +204,7 @@ export class SceneManager {
         return;
       }
 
-      if (this.cs && this.cs.isActive) return;
+      // ... дальше идет скип (ControlLeft / ControlRight) ...
 
       if (e.code === "ControlLeft" || e.code === "ControlRight") {
         if (!this.isFastForwarding) {
