@@ -166,21 +166,17 @@ export class SceneManager {
     });
 
     // Клавиатура (горячие клавиши)
-    // Клавиатура (горячие клавиши)
     window.addEventListener("keydown", (e) => {
       // Если открыты сейвы - SceneManager вообще не реагирует
-      if (window.saveManager?.modalOpen) {
-        return;
-      }
+      if (window.saveManager?.modalOpen) return;
 
       if (this.uiHidden) {
-        if (e.code === "Escape") {
+        if (e.code === "Escape")
           document.dispatchEvent(new MouseEvent("contextmenu"));
-        }
         return;
       }
 
-      // ЛОГИКА ИСТОРИИ (С возможностью переключения на сейвы)
+      // ЛОГИКА ИСТОРИИ (С возможностью мгновенного переключения на сейвы)
       if (this.hm.modalOpen) {
         if (e.code === "Escape" || e.code === "KeyH") {
           this.hm.hideHistory();
@@ -191,9 +187,12 @@ export class SceneManager {
           this.hm.hideHistory();
           window.saveManager.open("load");
         }
-        e.stopPropagation(); // Не даем событию пойти дальше
+        e.stopPropagation();
         return;
-      } else if (e.code === "KeyH" && !e.repeat) {
+      }
+
+      // Открытие окон из самой игры
+      if (e.code === "KeyH" && !e.repeat) {
         this.hm.showHistory();
         return;
       } else if (e.code === "KeyS" && !e.repeat) {
@@ -204,8 +203,9 @@ export class SceneManager {
         return;
       }
 
-      // ... дальше идет скип (ControlLeft / ControlRight) ...
+      if (this.cs && this.cs.isActive) return;
 
+      // Код перемотки
       if (e.code === "ControlLeft" || e.code === "ControlRight") {
         if (!this.isFastForwarding) {
           this.isFastForwarding = true;

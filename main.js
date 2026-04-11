@@ -4,7 +4,10 @@ import { SceneManager } from "./src/core/sceneManager.js";
 import { state } from "./src/core/state.js";
 import { SaveManager } from "./src/core/saveManager.js";
 
-// --- УНИВЕРСАЛЬНОЕ ОКНО ПОДТВЕРЖДЕНИЯ ---
+// Глобальные переменные, чтобы щит не наслаивался сам на себя
+window._confirmKeyHandler = null;
+window._confirmRmbHandler = null;
+
 // --- УНИВЕРСАЛЬНОЕ ОКНО ПОДТВЕРЖДЕНИЯ ---
 window.showConfirm = function (message, onConfirm) {
   let backdrop = document.getElementById("confirm-backdrop");
@@ -16,42 +19,46 @@ window.showConfirm = function (message, onConfirm) {
         <div id="confirm-text"></div>
         <div class="confirm-btns">
           <button id="confirm-yes">[ ДА ]</button>
-          <button id="confirm-no">[ НЕТ ]</button>
+          <button id="confirm-no">[ ОТМЕНА ]</button>
         </div>
       </div>
     `;
     document.body.appendChild(backdrop);
   }
 
+  // Очищаем старые щиты, если окно каким-то чудом вызвали поверх старого
+  if (window._confirmKeyHandler)
+    window.removeEventListener("keydown", window._confirmKeyHandler, true);
+  if (window._confirmRmbHandler)
+    window.removeEventListener("contextmenu", window._confirmRmbHandler, true);
+
   document.getElementById("confirm-text").innerText = message;
   backdrop.classList.add("active");
 
-  // Метод закрытия (убирает окно и удаляет щиты-перехватчики)
   const close = () => {
     backdrop.classList.remove("active");
-    window.removeEventListener("keydown", escHandler, true);
-    window.removeEventListener("contextmenu", rmbHandler, true);
+    window.removeEventListener("keydown", window._confirmKeyHandler, true);
+    window.removeEventListener("contextmenu", window._confirmRmbHandler, true);
   };
 
-  // Перехватываем ВООБЩЕ ВСЕ кнопки клавиатуры!
-  const keyHandler = (e) => {
-    e.stopPropagation(); // Ни одна кнопка (S, L, стрелки) не пройдет дальше окна!
+  // Этот щит глотает вообще ВСЕ кнопки, чтобы игра не реагировала ни на S, ни на L
+  window._confirmKeyHandler = (e) => {
+    e.stopPropagation();
     if (e.code === "Escape") {
       e.preventDefault();
       close();
     }
   };
 
-  const rmbHandler = (e) => {
+  window._confirmRmbHandler = (e) => {
     e.preventDefault();
     e.stopPropagation();
     close();
   };
 
-  window.addEventListener("keydown", keyHandler, true);
-  window.addEventListener("contextmenu", rmbHandler, true);
+  window.addEventListener("keydown", window._confirmKeyHandler, true);
+  window.addEventListener("contextmenu", window._confirmRmbHandler, true);
 
-  // Кнопки и клик по фону
   document.getElementById("confirm-yes").onclick = () => {
     close();
     if (typeof onConfirm === "function") onConfirm();

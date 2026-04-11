@@ -136,14 +136,13 @@ export class SaveManager {
         }
       });
 
-      // Навигация стрелочками
       // Навигация стрелочками и горячими клавишами
       window.addEventListener(
         "keydown",
         (e) => {
           if (!this.modalOpen) return;
 
-          // Щит от окна подтверждения
+          // Если висит окно "Удалить?", SaveManager полностью игнорирует клаву
           if (
             document
               .getElementById("confirm-backdrop")
@@ -151,7 +150,7 @@ export class SaveManager {
           )
             return;
 
-          e.stopPropagation(); // Блокируем спуск события вниз к SceneManager
+          e.stopPropagation(); // Блокируем передачу нажатий в SceneManager
 
           if (e.code === "ArrowLeft") {
             this.changePage(-1);
@@ -165,11 +164,11 @@ export class SaveManager {
             this.mode === "load" ? this.close() : this.open("load");
           } else if (e.code === "KeyH") {
             this.close();
-            window.sm.hm.showHistory(); // Вызываем Историю
+            window.sm.hm.showHistory(); // Мгновенный переход в Историю
           }
         },
         true,
-      ); // Установили true, чтобы ловить событие раньше игрового поля
+      ); // Флаг true позволяет ловить нажатия раньше игрового поля
 
       // Жесткая блокировка колесика мыши
       document.addEventListener(
