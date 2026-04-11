@@ -145,11 +145,14 @@ export class SceneManager {
 
       if (
         this.hm.modalOpen ||
-        (window.saveManager && window.saveManager.modalOpen)
+        (window.saveManager && window.saveManager.modalOpen) ||
+        (window.settingsManager && window.settingsManager.modalOpen) // Добавили проверку Настроек
       ) {
         if (this.hm.modalOpen) this.hm.hideHistory();
         if (window.saveManager && window.saveManager.modalOpen)
           window.saveManager.close();
+        if (window.settingsManager && window.settingsManager.modalOpen)
+          window.settingsManager.close(); // Закрываем Настройки
       } else {
         const ui = document.getElementById("game-ui");
         const choiceContainer = document.getElementById("choice-container");
@@ -190,8 +193,17 @@ export class SceneManager {
 
     // Клавиатура (горячие клавиши)
     window.addEventListener("keydown", (e) => {
-      // Если открыты сейвы - SceneManager вообще не реагирует
-      if (window.saveManager?.modalOpen) return;
+      // 1. БЛОКИРОВКА СЕЙВОВ
+      if (window.saveManager?.modalOpen) {
+        if (e.code === "Escape") window.saveManager.close();
+        return;
+      }
+
+      // 2. БЛОКИРОВКА НАСТРОЕК (НОВОЕ)
+      if (window.settingsManager?.modalOpen) {
+        if (e.code === "Escape") window.settingsManager.close();
+        return;
+      }
 
       if (this.uiHidden) {
         if (e.code === "Escape")
@@ -199,7 +211,7 @@ export class SceneManager {
         return;
       }
 
-      // ЛОГИКА ИСТОРИИ (С возможностью мгновенного переключения на сейвы)
+      // ЛОГИКА ИСТОРИИ (С возможностью мгновенного переключения на сейвы/настройки)
       if (this.hm.modalOpen) {
         if (e.code === "Escape" || e.code === "KeyH") {
           this.hm.hideHistory();
@@ -209,6 +221,10 @@ export class SceneManager {
         } else if (e.code === "KeyL") {
           this.hm.hideHistory();
           window.saveManager.open("load");
+        } else if (e.code === "KeyO") {
+          // Переход в настройки
+          this.hm.hideHistory();
+          window.settingsManager.open();
         }
         e.stopPropagation();
         return;
@@ -223,6 +239,10 @@ export class SceneManager {
         return;
       } else if (e.code === "KeyL" && !e.repeat) {
         window.saveManager.open("load");
+        return;
+      } else if (e.code === "KeyO" && !e.repeat) {
+        // Открытие настроек из игры
+        window.settingsManager.open();
         return;
       }
 

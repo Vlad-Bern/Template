@@ -3,6 +3,7 @@ import { Typewriter } from "./src/core/typewriter.js";
 import { SceneManager } from "./src/core/sceneManager.js";
 import { state } from "./src/core/state.js";
 import { SaveManager } from "./src/core/saveManager.js";
+import { SettingsManager } from "./src/core/settingsManager.js";
 
 // --- МЕНЕДЖЕР ЗВУКОВ UI ---
 window.playUISound = (type) => {
@@ -180,6 +181,7 @@ app.innerHTML = `
           <button id="open-save-btn" class="dialog-footer-btn">[ СОХРАНИТЬ ]</button>
           <button id="open-load-btn" class="dialog-footer-btn">[ ЗАГРУЗИТЬ ]</button>
           <button id="open-history-btn" class="dialog-footer-btn">[ ИСТОРИЯ ]</button>
+          <button class="footer-btn" id="open-settings-btn">[ НАСТРОЙКИ ]</button>
           </div>
         </div>
       </div>
@@ -204,6 +206,7 @@ const sm = new SceneManager(tw);
 window.sm = sm;
 
 window.saveManager = new SaveManager();
+window.settingsManager = new SettingsManager();
 
 document.getElementById("open-save-btn").addEventListener("click", () => {
   window.playUISound("open");
@@ -220,6 +223,10 @@ document.getElementById("open-history-btn").addEventListener("click", () => {
   if (window.sm && window.sm.hm) {
     window.sm.hm.showHistory();
   }
+});
+
+document.getElementById("open-settings-btn").addEventListener("click", () => {
+  window.settingsManager.open();
 });
 
 // Заглушка для браузерных тестов (просит повернуть телефон)

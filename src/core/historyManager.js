@@ -157,6 +157,10 @@ export class HistoryManager {
   }
 
   hideHistory() {
+    if (!this.modalOpen) return; 
+
+    window.playUISound("close"); 
+
     if (this.panel) this.panel.classList.remove("active");
     if (this.backdrop) this.backdrop.classList.remove("active");
     this.modalOpen = false;
