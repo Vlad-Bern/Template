@@ -5,6 +5,7 @@ import { state } from "./src/core/state.js";
 import { SaveManager } from "./src/core/saveManager.js";
 
 // --- УНИВЕРСАЛЬНОЕ ОКНО ПОДТВЕРЖДЕНИЯ ---
+// --- УНИВЕРСАЛЬНОЕ ОКНО ПОДТВЕРЖДЕНИЯ ---
 window.showConfirm = function (message, onConfirm) {
   let backdrop = document.getElementById("confirm-backdrop");
   if (!backdrop) {
@@ -15,7 +16,7 @@ window.showConfirm = function (message, onConfirm) {
         <div id="confirm-text"></div>
         <div class="confirm-btns">
           <button id="confirm-yes">[ ДА ]</button>
-          <button id="confirm-no">[ ОТМЕНА ]</button>
+          <button id="confirm-no">[ НЕТ ]</button>
         </div>
       </div>
     `;
@@ -25,8 +26,32 @@ window.showConfirm = function (message, onConfirm) {
   document.getElementById("confirm-text").innerText = message;
   backdrop.classList.add("active");
 
-  const close = () => backdrop.classList.remove("active");
+  // Метод закрытия (убирает окно и удаляет щиты-перехватчики)
+  const close = () => {
+    backdrop.classList.remove("active");
+    window.removeEventListener("keydown", escHandler, true);
+    window.removeEventListener("contextmenu", rmbHandler, true);
+  };
 
+  // Перехватываем ВООБЩЕ ВСЕ кнопки клавиатуры!
+  const keyHandler = (e) => {
+    e.stopPropagation(); // Ни одна кнопка (S, L, стрелки) не пройдет дальше окна!
+    if (e.code === "Escape") {
+      e.preventDefault();
+      close();
+    }
+  };
+
+  const rmbHandler = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    close();
+  };
+
+  window.addEventListener("keydown", keyHandler, true);
+  window.addEventListener("contextmenu", rmbHandler, true);
+
+  // Кнопки и клик по фону
   document.getElementById("confirm-yes").onclick = () => {
     close();
     if (typeof onConfirm === "function") onConfirm();

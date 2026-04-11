@@ -139,18 +139,19 @@ export class SaveManager {
       // Навигация стрелочками
       window.addEventListener("keydown", (e) => {
         if (!this.modalOpen) return;
-        // Если открыто окно подтверждения - блокируем управление!
-        if (
-          document
-            .getElementById("confirm-backdrop")
-            ?.classList.contains("active")
-        )
-          return;
+
+        e.stopPropagation(); // Блокируем передачу любых нажатий на задний фон
 
         if (e.code === "ArrowLeft") this.changePage(-1);
-        if (e.code === "ArrowRight") this.changePage(1);
-        if (e.code === "Escape" || e.code === "KeyS" || e.code === "KeyL")
-          this.close();
+        else if (e.code === "ArrowRight") this.changePage(1);
+        else if (e.code === "Escape") this.close();
+        else if (e.code === "KeyS") {
+          // Если уже в сохранениях - закрываем. Иначе - переключаем на сохранения!
+          this.mode === "save" ? this.close() : this.open("save");
+        } else if (e.code === "KeyL") {
+          // Если уже в загрузках - закрываем. Иначе - переключаем на загрузки!
+          this.mode === "load" ? this.close() : this.open("load");
+        }
       });
 
       // Жесткая блокировка колесика мыши
