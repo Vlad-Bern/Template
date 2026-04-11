@@ -115,10 +115,33 @@ export class SceneManager {
       { passive: false },
     );
 
+    // Возвращение скрытого UI по левому клику ИЛИ ТАПУ (перехватчик)
+    document.addEventListener(
+      "click",
+      (e) => {
+        // Если интерфейс скрыт — любой клик/тап по экрану обязан его вернуть!
+        if (this.uiHidden) {
+          e.preventDefault();
+          e.stopPropagation();
+          document.dispatchEvent(
+            new MouseEvent("contextmenu", { bubbles: true, cancelable: true }),
+          );
+          return;
+        }
+        // А вот если UI открыт, и это тап пальцем - не лезем, пусть работает базовая логика
+        if (e.pointerType === "touch" || window.sm?.isMobile) return;
+      },
+      true,
+    );
+
     // Правый клик (скрыть/показать UI или закрыть историю)
     document.addEventListener("contextmenu", (e) => {
       e.preventDefault();
-      if (e.pointerType === "touch" || window.sm?.isMobile) return;
+      // ПРОПУСКАЕМ искусственные клики (от нашего крестика) через проверку !e.isTrusted
+      if (e.isTrusted && (e.pointerType === "touch" || window.sm?.isMobile))
+        return;
+
+      // ... дальше ваш старый код ПКМ
 
       if (
         this.hm.modalOpen ||
