@@ -165,7 +165,11 @@ export class SaveManager {
             this.mode === "load" ? this.close() : this.open("load");
           } else if (e.code === "KeyH") {
             this.close();
-            window.sm.hm.showHistory(); // Мгновенный переход в Историю
+            window.sm.hm.showHistory();
+          } else if (e.code === "KeyO") {
+            // <--- ДОБАВЛЯЕМ ВОТ ЭТО
+            this.close();
+            window.settingsManager.open();
           }
         },
         true,

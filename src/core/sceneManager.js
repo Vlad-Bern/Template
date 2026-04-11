@@ -286,18 +286,59 @@ export class SceneManager {
 
       // === ЕСЛИ НИ ОДНО ОКНО НЕ ОТКРЫТО, РАБОТАЕТ ИГРА ===
 
-      // Открытие окон из чистой игры
+      // 3. ПЕРЕКЛЮЧЕНИЕ: НАСТРОЙКИ (O)
       if (e.code === "KeyO" && !e.repeat) {
-        window.settingsManager.open();
+        if (isSettings) {
+          window.settingsManager.close();
+        } else {
+          if (isSave) window.saveManager.close();
+          if (isHistory) this.hm.hideHistory();
+          window.settingsManager.open();
+        }
+        e.preventDefault();
+        e.stopPropagation();
         return;
-      } else if (e.code === "KeyS" && !e.repeat) {
-        window.saveManager.open("save");
+      }
+
+      // 4. ПЕРЕКЛЮЧЕНИЕ: СОХРАНЕНИЕ (S)
+      if (e.code === "KeyS" && !e.repeat) {
+        if (isSave && window.saveManager.mode === "save") {
+          window.saveManager.close();
+        } else {
+          if (isSettings) window.settingsManager.close();
+          if (isHistory) this.hm.hideHistory();
+          window.saveManager.open("save");
+        }
+        e.preventDefault();
+        e.stopPropagation();
         return;
-      } else if (e.code === "KeyL" && !e.repeat) {
-        window.saveManager.open("load");
+      }
+
+      // 5. ПЕРЕКЛЮЧЕНИЕ: ЗАГРУЗКА (L)
+      if (e.code === "KeyL" && !e.repeat) {
+        if (isSave && window.saveManager.mode === "load") {
+          window.saveManager.close();
+        } else {
+          if (isSettings) window.settingsManager.close();
+          if (isHistory) this.hm.hideHistory();
+          window.saveManager.open("load");
+        }
+        e.preventDefault();
+        e.stopPropagation();
         return;
-      } else if (e.code === "KeyH" && !e.repeat) {
-        this.hm.showHistory();
+      }
+
+      // 6. ПЕРЕКЛЮЧЕНИЕ: ИСТОРИЯ (H)
+      if (e.code === "KeyH" && !e.repeat) {
+        if (isHistory) {
+          this.hm.hideHistory();
+        } else {
+          if (isSettings) window.settingsManager.close();
+          if (isSave) window.saveManager.close();
+          this.hm.showHistory();
+        }
+        e.preventDefault();
+        e.stopPropagation();
         return;
       }
 
