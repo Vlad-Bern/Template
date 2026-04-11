@@ -1359,6 +1359,28 @@ $glass-dark: rgba(10, 12, 18, 0.95);
         margin-bottom: 5px;
       }
     }
+
+    .delete-save-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: transparent;
+      border: none;
+      color: rgba(255, 60, 60, 0.3); // Тускло-красный по умолчанию
+      font-family: "Inter", sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      z-index: 10;
+
+      &:hover {
+        color: #ff4444; // Ярко-красный при наведении!
+        text-shadow: 0 0 10px rgba(255, 60, 60, 0.8);
+        transform: scale(1.1);
+      }
+    }
   }
 }
 
@@ -1380,6 +1402,74 @@ $glass-dark: rgba(10, 12, 18, 0.95);
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+// === УНИВЕРСАЛЬНОЕ ОКНО ПОДТВЕРЖДЕНИЯ ===
+#confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 5, 5, 0.85);
+  backdrop-filter: blur(15px);
+  z-index: 20000; // Поверх ВООБЩЕ всего!
+  display: none;
+  justify-content: center;
+  align-items: center;
+
+  &.active {
+    display: flex;
+    animation: fadeInModal 0.2s ease forwards;
+  }
+
+  #confirm-box {
+    @include glass;
+    padding: 30px 50px;
+    border-top: 2px solid rgba(255, 60, 60, 0.6); // Опасный красный акцент
+    text-align: center;
+    box-shadow:
+      0 20px 50px rgba(0, 0, 0, 0.9),
+      inset 0 0 20px rgba(255, 60, 60, 0.05);
+    animation: slideUpCenterModal 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+    #confirm-text {
+      color: #fff;
+      font-family: "Inter", sans-serif;
+      font-size: 16px;
+      letter-spacing: 2px;
+      margin-bottom: 25px;
+      text-transform: uppercase;
+      text-shadow: 0 0 10px rgba(255, 60, 60, 0.4);
+    }
+
+    .confirm-btns {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+
+      button {
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: rgba(255, 255, 255, 0.6);
+        padding: 8px 20px;
+        font-family: "Inter", sans-serif;
+        font-size: 12px;
+        letter-spacing: 3px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &#confirm-yes:hover {
+          color: #ff4444;
+          border-color: #ff4444;
+          box-shadow: 0 0 15px rgba(255, 60, 60, 0.3);
+        }
+
+        &#confirm-no:hover {
+          color: $ui-accent;
+          border-color: $ui-accent;
+          box-shadow: 0 0 15px rgba($ui-accent, 0.3);
+        }
+      }
+    }
   }
 }
 
@@ -1580,6 +1670,15 @@ $glass-dark: rgba(10, 12, 18, 0.95);
     /* Легкая, чистая тень вместо грязной обводки. 
        Текст читается, но выглядит аккуратно. */
     text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.9) !important;
+  }
+
+  .sl-slot-btn .delete-save-btn {
+    top: 10px;
+    right: 10px;
+  }
+
+  #confirm-backdrop #confirm-box {
+    padding: 25px 40px;
   }
 }
 
@@ -1804,6 +1903,40 @@ $glass-dark: rgba(10, 12, 18, 0.95);
     .slot-date {
       bottom: 12px;
       left: 12px;
+    }
+  }
+
+  .sl-slot-btn .delete-save-btn {
+    top: 5px;
+    right: 5px;
+    padding: 10px; // Увеличиваем невидимую зону клика для пальца!
+    font-size: 11px;
+  }
+
+  #confirm-backdrop {
+    padding: 20px; // Чтобы окно не прилипало к краям экрана
+
+    #confirm-box {
+      padding: 25px 20px;
+      width: 100%;
+      border-top-width: 3px;
+
+      #confirm-text {
+        font-size: 14px;
+        line-height: 1.4;
+        margin-bottom: 20px;
+      }
+
+      .confirm-btns {
+        gap: 10px;
+
+        button {
+          flex: 1; // Кнопки равномерно растянутся по ширине
+          padding: 12px 10px; // Делаем их "толще" для удобного нажатия
+          font-size: 11px;
+          letter-spacing: 1px;
+        }
+      }
     }
   }
 }

@@ -75,6 +75,20 @@ export class SaveManager {
     return true;
   }
 
+  _deleteSave(slotIndex) {
+    // 1. Пытаемся удалить физический файл (если мы в NW.js)
+    if (this.saveDir && fs && path) {
+      const file = path.join(this.saveDir, `save_${slotIndex}.json`);
+      try {
+        if (fs.existsSync(file)) fs.unlinkSync(file);
+      } catch (e) {
+        console.error("Error deleting save file:", e);
+      }
+    }
+    // 2. И всегда чистим localStorage для браузера/Android
+    localStorage.removeItem(`sota_save_${slotIndex}`);
+  }
+
   initUI() {
     if (!document.getElementById(this.containerId)) {
       const panel = document.createElement("div");
@@ -184,15 +198,30 @@ export class SaveManager {
           hour: "2-digit",
           minute: "2-digit",
         });
-        // Используем новые красивые CSS классы для данных
+
         btn.innerHTML = `
-            <div class="slot-title">СЛОТ ${slotIndex + 1}</div>
-            <div class="slot-date">${date}</div>
+          <button class="delete-save-btn" title="Удалить слот">[ DEL ]</button>
+          <div class="slot-title">СЛОТ ${slotIndex + 1}</div>
+          <div class="slot-date">${date}</div>
         `;
+
+        // +++ ЛОГИКА УДАЛЕНИЯ +++
+        const delBtn = btn.querySelector(".delete-save-btn");
+        delBtn.addEventListener("click", (e) => {
+          e.stopPropagation(); // Чтобы клик по кнопке не вызвал загрузку слота!
+          window.showConfirm(
+            `БЕЗВОЗВРАТНО УДАЛИТЬ ДАННЫЕ В СЛОТЕ ${slotIndex + 1}?`,
+            () => {
+              this._deleteSave(slotIndex);
+              this.renderSlots(); // Перерисовываем меню, показывая, что слот пуст
+            },
+          );
+        });
       } else {
+        // Если слот пустой
         btn.classList.add("empty");
         btn.innerHTML = `
-          <div class="slot-title">Слот ${slotIndex + 1}</div>
+          <div class="slot-title">СЛОТ ${slotIndex + 1}</div>
           <div>Пусто</div>
         `;
       }

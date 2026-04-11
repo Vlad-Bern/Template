@@ -4,6 +4,39 @@ import { SceneManager } from "./src/core/sceneManager.js";
 import { state } from "./src/core/state.js";
 import { SaveManager } from "./src/core/saveManager.js";
 
+// --- УНИВЕРСАЛЬНОЕ ОКНО ПОДТВЕРЖДЕНИЯ ---
+window.showConfirm = function (message, onConfirm) {
+  let backdrop = document.getElementById("confirm-backdrop");
+  if (!backdrop) {
+    backdrop = document.createElement("div");
+    backdrop.id = "confirm-backdrop";
+    backdrop.innerHTML = `
+      <div id="confirm-box">
+        <div id="confirm-text"></div>
+        <div class="confirm-btns">
+          <button id="confirm-yes">[ ДА ]</button>
+          <button id="confirm-no">[ ОТМЕНА ]</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(backdrop);
+  }
+
+  document.getElementById("confirm-text").innerText = message;
+  backdrop.classList.add("active");
+
+  const close = () => backdrop.classList.remove("active");
+
+  document.getElementById("confirm-yes").onclick = () => {
+    close();
+    if (typeof onConfirm === "function") onConfirm();
+  };
+  document.getElementById("confirm-no").onclick = close;
+  backdrop.onclick = (e) => {
+    if (e.target === backdrop) close();
+  };
+};
+
 // Глобальный класс для паузируемых таймеров (используется в сценариях)
 window.PausableTimeout = class {
   constructor(callback, delay) {
