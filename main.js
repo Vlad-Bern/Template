@@ -208,26 +208,34 @@ window.sm = sm;
 window.saveManager = new SaveManager();
 window.settingsManager = new SettingsManager();
 
-document.getElementById("open-save-btn").addEventListener("click", () => {
+document.getElementById("open-save-btn").addEventListener("click", function () {
+  this.blur(); // ОТБИРАЕМ ФОКУС!
   window.playUISound("open");
   window.saveManager.open("save");
 });
 
-document.getElementById("open-load-btn").addEventListener("click", () => {
+document.getElementById("open-load-btn").addEventListener("click", function () {
+  this.blur(); // ОТБИРАЕМ ФОКУС!
   window.playUISound("open");
   window.saveManager.open("load");
 });
 
-document.getElementById("open-history-btn").addEventListener("click", () => {
-  window.playUISound("open");
-  if (window.sm && window.sm.hm) {
-    window.sm.hm.showHistory();
-  }
-});
+document
+  .getElementById("open-settings-btn")
+  .addEventListener("click", function () {
+    this.blur(); // ОТБИРАЕМ ФОКУС!
+    window.settingsManager.open();
+  });
 
-document.getElementById("open-settings-btn").addEventListener("click", () => {
-  window.settingsManager.open();
-});
+document
+  .getElementById("open-history-btn")
+  .addEventListener("click", function () {
+    this.blur(); // ОТБИРАЕМ ФОКУС!
+    window.playUISound("open");
+    if (window.sm && window.sm.hm) {
+      window.sm.hm.showHistory();
+    }
+  });
 
 // Заглушка для браузерных тестов (просит повернуть телефон)
 if (sm.isMobile) {

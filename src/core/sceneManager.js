@@ -654,6 +654,7 @@ export class SceneManager {
 
       const advance = (e) => {
         // Если открыто ХОТЯ БЫ ОДНО меню - убиваем событие на месте
+        if (document.activeElement) document.activeElement.blur();
         if (
           (window.saveManager && window.saveManager.modalOpen) ||
           (window.settingsManager && window.settingsManager.modalOpen) || // <-- Защита настроек!

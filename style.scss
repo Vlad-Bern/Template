@@ -1532,85 +1532,133 @@ $glass-dark: rgba(10, 12, 18, 0.95);
   }
 }
 
-// === УНИВЕРСАЛЬНАЯ ПАНЕЛЬ ДЛЯ НАСТРОЕК ===
-.modal-panel {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 10005;
-  background: transparent;
-  pointer-events: all !important;
+#settings-inner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  @include glass;
+  width: 90%;
+  max-width: 900px; // Расширили модалку для двух колонок!
+  padding: 30px;
+  border-radius: 4px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+  animation: settingsAppear 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 
-  &.active {
-    display: block; // Просто block, никакого flex!
-  }
-
-  #settings-inner {
+  // Кнопка закрытия в углу
+  #close-settings-btn {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%); // Жестко центрируем
-    @include glass;
-    width: 90%;
-    max-width: 600px;
-    padding: 40px;
-    border-radius: 4px;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
-
-    // Новая надежная анимация
-    animation: settingsAppear 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-
-  .modal-header {
-    font-size: 24px;
-    color: $ui-accent;
-    font-family: "Lora", serif;
-    letter-spacing: 2px;
-    border-bottom: 1px solid rgba($ui-accent, 0.3);
-    padding-bottom: 15px;
-    margin-bottom: 25px;
-    text-transform: uppercase;
-    text-align: center;
-  }
-
-  .settings-content {
-    flex-grow: 1;
-    min-height: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .modal-close-btn {
-    margin-top: 25px;
-    align-self: center;
+    top: 15px;
+    right: 20px;
     background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: rgba(255, 255, 255, 0.7);
-    padding: 10px 30px;
-    font-size: 16px;
-    font-family: "Inter", sans-serif;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 24px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    z-index: 10;
+    transition: color 0.2s;
 
     &:hover {
-      background: rgba($ui-accent, 0.1);
-      border-color: $ui-accent;
       color: $ui-accent;
     }
   }
-}
 
-@keyframes settingsAppear {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -45%);
+  // Сетка: левая и правая часть
+  .settings-layout {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
   }
-  100% {
-    opacity: 1;
-    transform: translate(-50%, -50%);
+
+  // === ЛЕВАЯ ЧАСТЬ (НАСТРОЙКИ) ===
+  .settings-left {
+    width: 60%;
+    padding-right: 30px;
+    border-right: 1px solid rgba(255, 255, 255, 0.1); // Та самая полоса!
+    display: flex;
+    flex-direction: column;
+
+    .modal-header {
+      font-size: 22px;
+      color: $ui-accent;
+      font-family: "Lora", serif;
+      letter-spacing: 2px;
+      margin-bottom: 25px;
+    }
+
+    .settings-list {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center; // Пока центрируем заглушку
+    }
+
+    .reset-btn {
+      margin-top: 20px;
+      align-self: flex-start;
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: rgba(255, 255, 255, 0.5);
+      padding: 8px 15px;
+      font-family: "Inter", sans-serif;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:hover {
+        border-color: $ui-accent;
+        color: $ui-accent;
+      }
+    }
+  }
+
+  // === ПРАВАЯ ЧАСТЬ (СПРАВОЧНИК) ===
+  .settings-right {
+    width: 40%;
+    padding-left: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    .manual-header {
+      font-family: "Inter", sans-serif;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.4);
+      letter-spacing: 3px;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+    }
+
+    .manual-content {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+
+      .hotkey-row {
+        display: flex;
+        align-items: center;
+
+        .key {
+          font-family: monospace;
+          color: $ui-accent;
+          background: rgba(0, 0, 0, 0.3);
+          padding: 4px 8px;
+          border-radius: 3px;
+          border: 1px solid rgba($ui-accent, 0.3);
+          margin-right: 15px;
+          font-size: 13px;
+          min-width: 100px;
+          text-align: center;
+        }
+
+        .desc {
+          font-family: "Inter", sans-serif;
+          color: rgba(255, 255, 255, 0.8);
+          font-size: 14px;
+        }
+      }
+    }
   }
 }
 
