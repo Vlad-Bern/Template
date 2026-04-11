@@ -24,7 +24,7 @@ export class SettingsManager {
     // КРЕПИМ К BODY! Это навсегда решит проблему с z-index и блюром.
     document.body.appendChild(panel);
 
-    // Закрытие по кнопке
+    // 1. Кнопка закрытия
     document
       .getElementById("close-settings-btn")
       .addEventListener("click", (e) => {
@@ -32,9 +32,16 @@ export class SettingsManager {
         this.close();
       });
 
-    // Закрытие по клику В ПУСТОТУ
+    // 2. ЩИТ ДЛЯ САМОЙ ТАБЛИЧКИ
+    // Блокируем абсолютно все клики внутри настроек, чтобы они не летели в игру
+    const inner = panel.querySelector("#settings-inner");
+    inner.addEventListener("click", (e) => {
+      e.stopPropagation();
+    });
+
+    // 3. ЗАКРЫТИЕ ПО ПУСТОТЕ (И перехват клика)
     panel.addEventListener("click", (e) => {
-      // Если кликнули не по внутреннему блоку, значит кликнули по фону
+      e.stopPropagation(); // <-- ВОЗВРАЩАЕМ УБИТЫЙ МНОЮ ЩИТ!
       if (!e.target.closest("#settings-inner")) {
         this.close();
       }

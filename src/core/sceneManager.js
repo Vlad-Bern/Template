@@ -195,14 +195,25 @@ export class SceneManager {
     window.addEventListener("keydown", (e) => {
       // Собираем состояния всех наших окон
       const isSave = window.saveManager && window.saveManager.modalOpen;
-      const isSettings = window.settingsManager && window.settingsManager.modalOpen;
+      const isSettings =
+        window.settingsManager && window.settingsManager.modalOpen;
       const isHistory = this.hm && this.hm.modalOpen;
 
       // ЕСЛИ ОТКРЫТО ХОТЯ БЫ ОДНО ОКНО:
       if (isSave || isSettings || isHistory) {
-        
         // 1. БЛОКИРУЕМ ИГРОВЫЕ КНОПКИ (Пробел, Enter, Стрелки, Ctrl)
-        if (["Space", "Enter", "ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown", "ControlLeft", "ControlRight"].includes(e.code)) {
+        if (
+          [
+            "Space",
+            "Enter",
+            "ArrowRight",
+            "ArrowLeft",
+            "ArrowUp",
+            "ArrowDown",
+            "ControlLeft",
+            "ControlRight",
+          ].includes(e.code)
+        ) {
           e.preventDefault();
           e.stopPropagation();
           return;
@@ -219,7 +230,8 @@ export class SceneManager {
 
         // 3. ПЕРЕКЛЮЧЕНИЕ: НАСТРОЙКИ (O)
         if (e.code === "KeyO" && !e.repeat) {
-          if (isSettings) window.settingsManager.close(); // Закрываем, если открыто
+          if (isSettings)
+            window.settingsManager.close(); // Закрываем, если открыто
           else {
             if (isSave) window.saveManager.close();
             if (isHistory) this.hm.hideHistory();
@@ -231,7 +243,8 @@ export class SceneManager {
 
         // 4. ПЕРЕКЛЮЧЕНИЕ: СОХРАНЕНИЕ (S)
         if (e.code === "KeyS" && !e.repeat) {
-          if (isSave && window.saveManager.mode === "save") window.saveManager.close();
+          if (isSave && window.saveManager.mode === "save")
+            window.saveManager.close();
           else {
             if (isSettings) window.settingsManager.close();
             if (isHistory) this.hm.hideHistory();
@@ -243,7 +256,8 @@ export class SceneManager {
 
         // 5. ПЕРЕКЛЮЧЕНИЕ: ЗАГРУЗКА (L)
         if (e.code === "KeyL" && !e.repeat) {
-          if (isSave && window.saveManager.mode === "load") window.saveManager.close();
+          if (isSave && window.saveManager.mode === "load")
+            window.saveManager.close();
           else {
             if (isSettings) window.settingsManager.close();
             if (isHistory) this.hm.hideHistory();
@@ -271,7 +285,7 @@ export class SceneManager {
       }
 
       // === ЕСЛИ НИ ОДНО ОКНО НЕ ОТКРЫТО, РАБОТАЕТ ИГРА ===
-      
+
       // Открытие окон из чистой игры
       if (e.code === "KeyO" && !e.repeat) {
         window.settingsManager.open();
@@ -639,23 +653,28 @@ export class SceneManager {
       );
 
       const advance = (e) => {
-        if (window.saveManager?.modalOpen) {
+        // Если открыто ХОТЯ БЫ ОДНО меню - убиваем событие на месте
+        if (
+          (window.saveManager && window.saveManager.modalOpen) ||
+          (window.settingsManager && window.settingsManager.modalOpen) || // <-- Защита настроек!
+          (this.hm && this.hm.modalOpen)
+        ) {
           if (e.type === "keydown") {
             e.preventDefault();
             e.stopPropagation();
           }
-          return;
+          return; // Не пускаем клик дальше!
         }
 
-        if (this.hm && this.hm.modalOpen) return;
         if (this.uiHidden) return;
 
+        // Игнорируем клики по кнопкам UI (чтобы не перелистывать текст)
         if (e.target && e.target.closest) {
           if (
             e.target.id === "modal-backdrop" ||
-            e.target.closest("#close-history") ||
-            e.target.closest("#open-history-btn") ||
-             e.target.closest("#open-settings-btn")
+            e.target.closest(".modal-close-btn") || // Универсальная кнопка закрытия
+            e.target.closest(".footer-btn") || // Универсальные кнопки внизу (Save, Load, Opt, History)
+            e.target.closest("#close-history")
           ) {
             return;
           }
@@ -667,6 +686,7 @@ export class SceneManager {
         if (e.type === "keydown" && !allowed.includes(e.code)) return;
         if (e.code === "Space") e.preventDefault();
 
+        // Пропускаем текст или идем дальше
         if (this.isTyping) {
           this.tw.skip();
         } else {
