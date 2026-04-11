@@ -192,7 +192,6 @@ export class SceneManager {
     });
 
     // Клавиатура (горячие клавиши)
-javascript
     window.addEventListener("keydown", (e) => {
       // Собираем состояния всех наших окон
       const isSave = window.saveManager && window.saveManager.modalOpen;
@@ -655,7 +654,8 @@ javascript
           if (
             e.target.id === "modal-backdrop" ||
             e.target.closest("#close-history") ||
-            e.target.closest("#open-history-btn")
+            e.target.closest("#open-history-btn") ||
+             e.target.closest("#open-settings-btn")
           ) {
             return;
           }

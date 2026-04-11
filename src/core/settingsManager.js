@@ -36,7 +36,6 @@ export class SettingsManager {
     panel.addEventListener("click", (e) => {
       // Если кликнули не по внутреннему блоку, значит кликнули по фону
       if (!e.target.closest("#settings-inner")) {
-        e.stopPropagation();
         this.close();
       }
     });
