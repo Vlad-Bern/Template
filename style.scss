@@ -1429,7 +1429,12 @@ $glass-dark: rgba(10, 12, 18, 0.95);
     box-shadow:
       0 20px 50px rgba(0, 0, 0, 0.9),
       inset 0 0 20px rgba(255, 60, 60, 0.05);
-    animation: slideUpCenterModal 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: slideUpModal 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+    // +++ ФИКС: Ограничитель, чтобы на мобилках оно смотрелось аккуратно
+    max-width: 400px;
+    width: 100%;
+    margin: 0 auto;
 
     #confirm-text {
       color: #fff;

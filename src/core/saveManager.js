@@ -122,6 +122,14 @@ export class SaveManager {
         .addEventListener("click", () => this.changePage(1));
 
       panel.addEventListener("click", (e) => {
+        // Если открыто окно подтверждения - игнорируем клик!
+        if (
+          document
+            .getElementById("confirm-backdrop")
+            ?.classList.contains("active")
+        )
+          return;
+
         if (!e.target.closest("#sl-inner-content")) {
           e.stopPropagation();
           this.close();
@@ -131,9 +139,18 @@ export class SaveManager {
       // Навигация стрелочками
       window.addEventListener("keydown", (e) => {
         if (!this.modalOpen) return;
+        // Если открыто окно подтверждения - блокируем управление!
+        if (
+          document
+            .getElementById("confirm-backdrop")
+            ?.classList.contains("active")
+        )
+          return;
+
         if (e.code === "ArrowLeft") this.changePage(-1);
         if (e.code === "ArrowRight") this.changePage(1);
-        if (e.code === "Escape") this.close();
+        if (e.code === "Escape" || e.code === "KeyS" || e.code === "KeyL")
+          this.close();
       });
 
       // Жесткая блокировка колесика мыши
