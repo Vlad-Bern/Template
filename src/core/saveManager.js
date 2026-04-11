@@ -76,6 +76,7 @@ export class SaveManager {
   }
 
   _deleteSave(slotIndex) {
+    if (slotIndex === 1) return;
     // 1. Пытаемся удалить физический файл (если мы в NW.js)
     if (this.saveDir && fs && path) {
       const file = path.join(this.saveDir, `save_${slotIndex}.json`);
@@ -272,9 +273,10 @@ export class SaveManager {
     }
   }
 
-  saveGame(slotIndex, isOverwrite = false) {
-    if (!window.sm || !window.sm.currentSceneId) {
-      alert("Невозможно сохранить игру в данный момент!");
+  saveGame(slotIndex, isOverwrite = false, isAuto = false) {
+    // Жестко блокируем ручные попытки сохранить в первый слот
+    if (slotIndex === 1 && !isAuto) {
+      console.warn("Слот 1 зарезервирован для автосохранений!");
       return;
     }
 
@@ -326,5 +328,12 @@ export class SaveManager {
         window.sm.loadScene(slotData.sceneId, slotData.lineIndex);
       }
     }
+  }
+
+  autoSave() {
+    // Полностью вычищаем старый автосейв
+    localStorage.removeItem(this.prefix + "1");
+    // Вызываем сохранение (слот 1, перезапись разрешена, это автосейв)
+    this.saveGame(1, true, true);
   }
 }

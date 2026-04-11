@@ -301,6 +301,8 @@ export class SceneManager {
     if (!scene) return console.error(`[SM] Scene not found: ${sceneId}`);
 
     // 1. ОЧИСТКА ДОМА (Фикс "прибитых" спрайтов)
+    this.ui.handleFx({ darkness: 0, noise: 0, vignette: 0, duration: 0 });
+
     const interLayer = document.getElementById("interaction-layer");
     const dialogWrapper = document.getElementById("dialog-wrapper");
     const charLayer = document.getElementById("character-layer");
@@ -328,10 +330,7 @@ export class SceneManager {
     // 3. ВОССТАНОВЛЕНИЕ ВИЗУАЛЬНОГО СОСТОЯНИЯ
     let targetBg = scene.bg || null;
     let activeChars = {};
-
-    if (scene.showCharacter)
-      activeChars[scene.showCharacter.id] = scene.showCharacter;
-    if (scene.hideCharacter) delete activeChars[scene.hideCharacter];
+    let targetFx = {}; // Собираем нужные эффекты
 
     // Прогоняем скрипт до точки сохранения в фоновом режиме
     for (let i = 0; i < startLineIndex && i < sceneLines.length; i++) {
@@ -339,12 +338,22 @@ export class SceneManager {
       if (l.bg) targetBg = l.bg;
       if (l.showCharacter) activeChars[l.showCharacter.id] = l.showCharacter;
       if (l.hideCharacter) delete activeChars[l.hideCharacter];
+
+      // Если на строке был эффект, наслаиваем его поверх старых
+      if (l.fx) Object.assign(targetFx, l.fx);
     }
 
+    // Применяем финальный фон (скорость 0 = мгновенно)
     // Применяем финальный фон (скорость 0 = мгновенно)
     if (targetBg) {
       const optimizedBg = this._getOptimizedBgPath(targetBg);
       this.ui.updateBackground(optimizedBg, 0);
+    }
+
+    // Мгновенно натягиваем правильные эффекты без анимации
+    if (Object.keys(targetFx).length > 0) {
+      targetFx.duration = 0;
+      this.ui.handleFx(targetFx);
     }
 
     let currentBGM =
@@ -393,6 +402,10 @@ export class SceneManager {
     if (this.currentPlayId !== loadPlayId) return;
 
     this.prepareNavigation(scene);
+
+    if (window.saveManager) {
+      window.saveManager.autoSave();
+    }
   }
 
   // +++ ИСПРАВЛЕННЫЙ PLAYLINES +++
