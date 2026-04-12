@@ -298,15 +298,28 @@ window.dispatchEvent(
 (function initSystems() {
   let lastMouseMove = Date.now();
   let currentBlur = 0;
-
   let targetX = 0,
     targetY = 0;
   let currentX = 0,
     currentY = 0;
 
+  // Безопасная проверка: включен ли параллакс?
+  const isParallaxEnabled = () => {
+    // Если менеджер настроек еще не прогрузился - по умолчанию считаем параллакс включенным
+    if (!window.settingsManager || !window.settingsManager.settings) {
+      return true;
+    }
+    return window.settingsManager.settings.parallax !== "off";
+  };
+
   // 1. Мышь для ПК
   window.addEventListener("mousemove", (e) => {
     lastMouseMove = Date.now();
+    if (!isParallaxEnabled()) {
+      targetX = 0;
+      targetY = 0;
+      return;
+    }
     targetX = (e.clientX / window.innerWidth - 0.5) * 2;
     targetY = (e.clientY / window.innerHeight - 0.5) * 2;
   });
@@ -327,21 +340,28 @@ window.dispatchEvent(
     window.Capacitor.Plugins.Motion
   ) {
     window.Capacitor.Plugins.Motion.addListener("accel", (event) => {
+      if (!isParallaxEnabled()) {
+        targetX = 0;
+        targetY = 0;
+        return;
+      }
       let x = event.accelerationIncludingGravity.x / 9.8;
       let y = event.accelerationIncludingGravity.y / 9.8;
-
       targetX = Math.max(-1, Math.min(1, x));
       targetY = Math.max(-1, Math.min(1, -y));
     });
   } else {
     // 4. Запасной браузерный гироскоп
     window.addEventListener("deviceorientation", (e) => {
+      if (!isParallaxEnabled()) {
+        targetX = 0;
+        targetY = 0;
+        return;
+      }
       if (e.gamma === null || e.beta === null) return;
       if (Math.abs(e.beta) < 10 || Math.abs(e.beta) > 85) return;
-
       let x = e.gamma / 20;
       let y = (e.beta - 45) / 20;
-
       targetX = Math.max(-1, Math.min(1, x));
       targetY = Math.max(-1, Math.min(1, y));
     });
@@ -382,6 +402,7 @@ window.dispatchEvent(
     );
     const interLayers = document.querySelectorAll("#interaction-layer");
 
+    // ИСПОЛЬЗУЕМ ВАШУ ИСХОДНУЮ МАТЕМАТИКУ ИЗ GITHUB
     sharpLayers.forEach((layer) => {
       layer.style.transform = `translate(${currentX * 30}px, ${currentY * 30}px) scale(1.15)`;
     });
