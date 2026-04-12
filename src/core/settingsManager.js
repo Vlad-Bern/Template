@@ -25,10 +25,12 @@ export class SettingsManager {
       ru: {
         settings_header: "[ НАСТРОЙКИ СИСТЕМЫ ]",
         lang_label: "Язык (Language)",
+        bgm_volume: "Громкость музыки", 
       },
       en: {
         settings_header: "[ SYSTEM SETTINGS ]",
         lang_label: "Language",
+        bgm_volume: "Music Volume",
       },
     };
   }
@@ -144,7 +146,7 @@ export class SettingsManager {
                 <div class="group-title">ЗВУК И ТЕКСТ</div>
                 
                 <div class="settings-row">
-                  <span class="settings-label">Громкость музыки</span>
+                  <span class="settings-label" data-i18n="bgm_volume">Громкость музыки</span>
                   <input type="range" id="bgm-slider" class="settings-slider" min="0" max="100" value="${this.settings.bgmVolume}">
                 </div>
                 
@@ -342,24 +344,6 @@ export class SettingsManager {
         // например: if (window.localeManager) window.localeManager.setLanguage(val);
       });
     });
-
-          // Мгновенно переводит все элементы с атрибутом data-i18n
-  applyTranslations() {
-    const lang = this.settings.language || "ru";
-    const dict = this.uiTranslations[lang];
-    if (!dict) return;
-
-    const panel = document.getElementById(this.containerId);
-    if (!panel) return;
-
-    const elements = panel.querySelectorAll("[data-i18n]");
-    elements.forEach(el => {
-      const key = el.getAttribute("data-i18n");
-      if (dict[key]) {
-        el.textContent = dict[key];
-      }
-    });
-  }
   }
 
   open() {
@@ -396,5 +380,23 @@ export class SettingsManager {
 
     const dialogWrapper = document.getElementById("dialog-wrapper");
     if (dialogWrapper) dialogWrapper.style.pointerEvents = "auto";
+  }
+
+  // Мгновенно переводит все элементы с атрибутом data-i18n
+  applyTranslations() {
+    const lang = this.settings.language || "ru";
+    const dict = this.uiTranslations[lang];
+    if (!dict) return;
+
+    const panel = document.getElementById(this.containerId);
+    if (!panel) return;
+
+    const elements = panel.querySelectorAll("[data-i18n]");
+    elements.forEach((el) => {
+      const key = el.getAttribute("data-i18n");
+      if (dict[key]) {
+        el.textContent = dict[key];
+      }
+    });
   }
 }
