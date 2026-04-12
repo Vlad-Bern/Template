@@ -17,6 +17,7 @@ export class SettingsManager {
 
     this._initUI();
     this._applySettingsOnLoad(); // Применяем их при старте игры
+    this._updateUIFromSettings();
   }
 
   // --- РАБОТА С ПАМЯТЬЮ ---
@@ -41,17 +42,21 @@ export class SettingsManager {
 
   // Применяем настройки к самой игре (вызывается при старте и сбросе)
   _applySettingsOnLoad() {
-    // 1. Параллакс
     if (this.settings.parallax === "off") {
       document.body.classList.add("disable-parallax");
     } else {
       document.body.classList.remove("disable-parallax");
     }
 
-    // 2. Полный экран (браузеры блокируют авто-фулскрин при старте,
-    // так что мы просто синхронизируем UI)
-
-    // Позже тут будет применение громкости и скорости текста
+    // Применяем полный экран (ТОЛЬКО ДЛЯ NW.JS)
+    if (this.settings.fullscreen === "full" && typeof nw !== "undefined") {
+      nw.Window.get().enterFullscreen();
+    } else if (
+      this.settings.fullscreen === "window" &&
+      typeof nw !== "undefined"
+    ) {
+      nw.Window.get().leaveFullscreen();
+    }
   }
 
   // Обновляем визуальное состояние кнопок в меню настроек
@@ -98,6 +103,7 @@ export class SettingsManager {
                 <div class="group-title">ЭКРАН И ГРАФИКА</div>
                 
                 <div class="settings-row">
+                 <div class="settings-row" id="row-fullscreen">
                   <span class="settings-label">Режим экрана</span>
                   <div class="toggle-group" id="fullscreen-toggle">
                     <button class="toggle-btn active" data-val="window">Окно</button>
@@ -135,6 +141,16 @@ export class SettingsManager {
     `;
 
     document.body.appendChild(panel);
+
+    // Если мы на телефоне/планшете, скрываем настройку режима экрана
+    const isMobile =
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent,
+      );
+    if (isMobile) {
+      const fsRow = panel.querySelector("#row-fullscreen");
+      if (fsRow) fsRow.style.display = "none";
+    }
 
     // --- ЛОГИКА КНОПОК ЗАКРЫТИЯ ---
     document

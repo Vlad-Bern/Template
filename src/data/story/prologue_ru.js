@@ -231,7 +231,7 @@ export const story = {
 
   meet_kagami: {
     id: "meet_kagami",
-    ...m.show("kagami", "neutral", "center", "fadeIn"),
+   
     bg: "/bg/common/synsu_enterence.webp",
     audio: [
       { type: "sfx", id: "rain", volume: 0.2, loop: true },
@@ -240,6 +240,7 @@ export const story = {
     ],
     lines: [
       {
+         ...m.show("kagami", "neutral", "center", "fadeIn"),
         speaker: "",
         text: "Стоило мне выйти из автобуса, как меня встретила она...",
       },
