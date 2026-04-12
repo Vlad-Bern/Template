@@ -1804,6 +1804,108 @@ $glass-dark: rgba(10, 12, 18, 0.95);
   }
 }
 
+// === ДИСКЛЕЙМЕР (INTRO SCREEN) ===
+#disclaimer-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 99999; // Поверх вообще всего во вселенной!
+  background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  font-family: "Inter", sans-serif;
+  transition: opacity 1s ease-in-out; // Плавное затухание при клике
+  cursor: pointer; // Показываем, что можно кликать
+
+  &.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .disclaimer-content {
+    text-align: center;
+    max-width: 800px;
+    padding: 20px;
+  }
+
+  // Заголовок "ВНИМАНИЕ!"
+  #disclaimer-title {
+    font-family: "Lora", serif;
+    font-size: 3rem;
+    color: #ff3333;
+    letter-spacing: 15px;
+    margin-bottom: 40px;
+    text-shadow: 0 0 20px rgba(255, 51, 51, 0.6);
+
+    // 🔥 Магия: Быстрое появление слева направо через clip-path
+    clip-path: polygon(0 0, 0 0, 0 100%, 0% 100%);
+    animation: swipeRight 0.8s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+  }
+
+  // Основной текст (появляется с задержкой)
+  #disclaimer-body {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 1.5s ease 1.2s forwards; // Ждем 1.2 секунды, пока отыграет заголовок
+
+    p {
+      font-size: 1.1rem;
+      line-height: 1.8;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 15px;
+    }
+
+    .click-to-continue {
+      margin-top: 50px;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.4);
+      letter-spacing: 4px;
+      animation: pulseText 2s infinite ease-in-out 3s; // Начинает пульсировать через 3 секунды
+    }
+  }
+}
+
+// --- АНИМАЦИИ ДЛЯ ДИСКЛЕЙМЕРА ---
+@keyframes swipeRight {
+  0% {
+    clip-path: polygon(0 0, 0 0, 0 100%, 0% 100%);
+  }
+  40% {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.1);
+    filter: blur(10px);
+    display: none;
+  } // Резко исчезает с блюром!
+}
+
+@keyframes fadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseText {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.8;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  }
+}
+
 // ==========================================
 // --- TABLET ADAPTATION (Clean & Safe) ---
 // ==========================================
@@ -2309,6 +2411,7 @@ $glass-dark: rgba(10, 12, 18, 0.95);
       }
     }
   }
+
   #settings-panel {
     backdrop-filter: blur(3px); // Уменьшаем блюр для слабых телефонов
 
@@ -2320,12 +2423,29 @@ $glass-dark: rgba(10, 12, 18, 0.95);
       padding: 20px 15px;
       box-shadow: none;
       backdrop-filter: blur(10px);
+
+      // 🔥 ФИКС: РАЗРЕШАЕМ СКРОЛЛ НА МОБИЛКАХ
+      overflow-y: auto;
+      overflow-x: hidden;
+
+      // Красивый тонкий скроллбар для телефонов
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0, 255, 255, 0.3) transparent;
+      &::-webkit-scrollbar {
+        width: 4px;
+      }
+      &::-webkit-scrollbar-thumb {
+        background: rgba(0, 255, 255, 0.3);
+        border-radius: 4px;
+      }
     }
 
     #close-settings-btn {
       top: 15px;
       right: 15px;
       font-size: 28px; // Кнопка закрытия побольше, чтобы легко попасть
+      z-index: 100; // Чтобы скролл её не перекрыл
+      position: fixed; // Чтобы крестик всегда был на виду при скролле!
     }
 
     // Заголовки поменьше
@@ -2334,6 +2454,11 @@ $glass-dark: rgba(10, 12, 18, 0.95);
       font-size: 18px;
       letter-spacing: 2px;
       margin-bottom: 20px;
+    }
+
+    // ФИКС ОТСТУПОВ: Даем шапке отступ, чтобы крестик не наезжал на текст
+    .settings-layout {
+      margin-top: 30px;
     }
 
     .settings-row {
@@ -2393,9 +2518,10 @@ $glass-dark: rgba(10, 12, 18, 0.95);
     .reset-btn {
       width: 100%;
       text-align: center;
-      padding: 12px;
+      padding: 15px; // Сделали кнопку сброса толще для пальца
       font-size: 14px;
-      margin-top: 30px;
+      margin-top: 20px;
+      margin-bottom: 40px; // Дали отступ снизу, чтобы можно было докрутить до конца
     }
   }
 }

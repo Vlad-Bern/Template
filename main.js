@@ -169,6 +169,18 @@ app.innerHTML = `
       
     <!-- 2. ИГРОВОЙ МИР -->
     <div id="game-viewport">
+    
+        <div id="disclaimer-screen">
+          <div class="disclaimer-content">
+            <h1 id="disclaimer-title" class="glitch-text" data-text="ВНИМАНИЕ!">ВНИМАНИЕ!</h1>
+            <div id="disclaimer-body">
+              <p>Данная визуальная новелла содержит сцены жестокости, упоминания крови и элементы психологического хоррора.</p>
+              <p>Впечатлительным людям и лицам со слабой психикой рекомендуется воздержаться от прохождения.</p>
+              <p class="click-to-continue">[ Нажмите любую кнопку, чтобы продолжить ]</p>
+            </div>
+          </div>
+        </div>
+
       <div id="sharp-background-layers" class="viewport-bg">
         <div id="bg-1" class="bg-layer active sharp-effect"></div>
         <div id="bg-2" class="bg-layer sharp-effect"></div>
