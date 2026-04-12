@@ -13,26 +13,37 @@ export class SettingsManager {
       language: "en",
     };
 
-    // Загружаем сохраненные или берем базовые
-    this.settings = this.loadSettings();
-
-    this._initUI();
-    this._applySettingsOnLoad(); // Применяем их при старте игры
-    this._updateUIFromSettings();
-
-    // Словарь для перевода интерфейса настроек
+    // Словарь для перевода интерфейса настроек (ТЕПЕРЬ ОН ТУТ, НАВЕРХУ!)
     this.uiTranslations = {
       ru: {
         settings_header: "[ НАСТРОЙКИ СИСТЕМЫ ]",
         lang_label: "Язык (Language)",
-        bgm_volume: "Громкость музыки", 
+        bgm_volume: "Громкость музыки",
+        btn_save: "[ СОХРАНИТЬ ]",
+        btn_load: "[ ЗАГРУЗИТЬ ]",
+        btn_history: "[ ИСТОРИЯ ]",
+        btn_settings: "[ НАСТРОЙКИ ]",
+        history_title: "История",
       },
       en: {
         settings_header: "[ SYSTEM SETTINGS ]",
         lang_label: "Language",
         bgm_volume: "Music Volume",
+        btn_save: "[ SAVE ]",
+        btn_load: "[ LOAD ]",
+        btn_history: "[ LOG ]",
+        btn_settings: "[ SETTINGS ]",
+        history_title: "History Log",
       },
     };
+
+    // Загружаем сохраненные или берем базовые
+    this.settings = this.loadSettings();
+
+    // Теперь, когда словарь готов, мы можем строить и переводить интерфейс!
+    this._initUI();
+    this._applySettingsOnLoad();
+    this._updateUIFromSettings();
   }
 
   // --- РАБОТА С ПАМЯТЬЮ ---
@@ -340,10 +351,13 @@ export class SettingsManager {
         this.settings.language = val;
         this.saveCurrentSettings();
 
-        // В будущем здесь будет вызов функции, которая меняет тексты в интерфейсе на лету!
-        // например: if (window.localeManager) window.localeManager.setLanguage(val);
+        // 🔥 ВОТ ЭТА СТРОЧКА МЕНЯЕТ ТЕКСТ ПРИ КЛИКЕ:
+        this.applyTranslations();
       });
     });
+
+    // 🔥 ВОТ ЭТА СТРОЧКА МЕНЯЕТ ТЕКСТ ПРИ ПЕРВОМ ОТКРЫТИИ НАСТРОЕК:
+    this.applyTranslations();
   }
 
   open() {

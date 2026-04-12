@@ -201,10 +201,10 @@ app.innerHTML = `
           <button id="dialog-hide-btn" aria-label="Скрыть окно">✕</button>
           <div id="dialog-box"></div>
         <div id="dialog-footer">
-          <button id="open-save-btn" class="dialog-footer-btn">[ СОХРАНИТЬ ]</button>
-          <button id="open-load-btn" class="dialog-footer-btn">[ ЗАГРУЗИТЬ ]</button>
-          <button id="open-history-btn" class="dialog-footer-btn">[ ИСТОРИЯ ]</button>
-          <button class="dialog-footer-btn" id="open-settings-btn">[ НАСТРОЙКИ ]</button>
+            <button id="open-save-btn" class="dialog-footer-btn" data-i18n="btn_save">[ СОХРАНИТЬ ]</button>
+            <button id="open-load-btn" class="dialog-footer-btn" data-i18n="btn_load">[ ЗАГРУЗИТЬ ]</button>
+            <button id="open-history-btn" class="dialog-footer-btn" data-i18n="btn_history">[ ИСТОРИЯ ]</button>
+            <button id="open-settings-btn" class="dialog-footer-btn" data-i18n="btn_settings">[ НАСТРОЙКИ ]</button>
           </div>
         </div>
       </div>
