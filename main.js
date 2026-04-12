@@ -402,22 +402,23 @@ window.dispatchEvent(
     );
     const interLayers = document.querySelectorAll("#interaction-layer");
 
-    // 1. ФОНЫ: Без calc, просто смещение и скейл
+    // 1. ФОНЫ: Никаких calc! Только чистое смещение.
     sharpLayers.forEach((layer) => {
       layer.style.transform = `translate(${currentX * 30}px, ${currentY * 30}px) scale(1.15)`;
     });
 
-    // 2. ПЕРСОНАЖИ: Обязательно с calc(-50% ...) по оси X для центровки!
+    // 2. ПЕРСОНАЖИ: Никаких calc! CSS-свойство translate: -50% 0;
+    // само держит их по центру, а мы лишь чуть-чуть их двигаем.
     charLayers.forEach((layer) => {
-      layer.style.transform = `translate(calc(-50% + ${currentX * 35}px), ${currentY * 2}px)`;
+      layer.style.transform = `translate(${currentX * 35}px, ${currentY * 2}px)`;
     });
 
-    // 3. ИНТЕРАКТИВЫ: Без calc
+    // 3. ИНТЕРАКТИВЫ: Тоже без calc.
     interLayers.forEach((layer) => {
       layer.style.transform = `translate(${currentX * 30}px, ${currentY * 30}px)`;
     });
 
-    // 4. ДОКУМЕНТЫ: С calc(-50%) по обеим осям
+    // 4. ДОКУМЕНТЫ: Тут вы изначально использовали calc, так и оставим
     const docOverlay = document.getElementById("document-overlay");
     if (docOverlay && docOverlay.style.display !== "none") {
       const px = currentX * 35;
