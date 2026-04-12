@@ -1532,34 +1532,14 @@ $glass-dark: rgba(10, 12, 18, 0.95);
   }
 }
 
-// Отключение параллакса (Жестко убиваем все смещения)
-body.disable-parallax {
-  // Убиваем параллакс для фонов
-  #sharp-background-layers {
-    #bg-1,
-    #bg-2 {
-      transform: none !important;
-      transition: opacity 1s ease-in-out !important; // Оставляем только смену прозрачности
-    }
-  }
-
-  // Убиваем смещение для персонажей
-  #character-layer {
-    .character-wrapper {
-      translate: -50% 0 !important; // Жестко центрируем без сдвигов
-      transition: opacity 0.3s ease !important;
-    }
-  }
-} // <--- ВОТ ЭТА СКОБКА БЫЛА ПОТЕРЯНА! ОНА ЗАКРЫВАЕТ disable-parallax!
-
-// === SETTINGS MODAL STYLES (S-Rank) ===
+// === SETTINGS MODAL STYLES (S-Rank - БЕЗОПАСНЫЙ) ===
 #settings-panel {
   display: none; // Скрыто по умолчанию
   position: fixed;
   inset: 0;
   z-index: 10010; // Выше всего!
-  background: rgba(5, 5, 5, 0.7);
-  backdrop-filter: blur(10px); // Тот самый красивый блюр фона
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(5px);
   justify-content: center;
   align-items: center;
   font-family: "Inter", sans-serif;
@@ -1572,23 +1552,26 @@ body.disable-parallax {
 
   // Внутреннее стеклянное окно
   #settings-inner {
-    @include glass; // Используем ваш фирменный миксин!
+    background: rgba(15, 15, 20, 0.85); // Стеклянный фон вместо миксина
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(0, 255, 255, 0.2); // Неоновая обводка
     width: min(900px, 90vw);
     height: min(600px, 80vh);
     position: relative;
     padding: 40px;
-    border-radius: 4px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+    border-radius: 8px;
+    box-shadow:
+      0 20px 60px rgba(0, 0, 0, 0.9),
+      0 0 20px rgba(0, 255, 255, 0.1);
     display: flex;
     flex-direction: column;
-    animation: slideUpCenterModal 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 
     // Техно-сетка на фоне
     &::before {
       content: "";
       position: absolute;
       inset: 0;
-      background: linear-gradient(rgba($ui-accent, 0.03) 1px, transparent 1px);
+      background: linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px);
       background-size: 100% 4px;
       pointer-events: none;
       z-index: -1;
@@ -1609,9 +1592,9 @@ body.disable-parallax {
     z-index: 10;
 
     &:hover {
-      color: $blood-red;
+      color: #ff3333; // Красный при наведении
       transform: scale(1.2) rotate(90deg);
-      text-shadow: 0 0 10px rgba($blood-red, 0.8);
+      text-shadow: 0 0 10px rgba(255, 51, 51, 0.8);
     }
   }
 
@@ -1622,15 +1605,15 @@ body.disable-parallax {
     height: 100%;
 
     .settings-left {
-      flex: 3; // Занимает 60% ширины
+      flex: 3;
       display: flex;
       flex-direction: column;
-      border-right: 1px solid rgba($ui-accent, 0.2);
+      border-right: 1px solid rgba(0, 255, 255, 0.2);
       padding-right: 40px;
     }
 
     .settings-right {
-      flex: 2; // Занимает 40% ширины
+      flex: 2;
       display: flex;
       flex-direction: column;
     }
@@ -1639,18 +1622,17 @@ body.disable-parallax {
   // Заголовки разделов
   .modal-header,
   .manual-header {
-    color: $ui-accent;
+    color: #00ffff; // Неоновый циан
     font-family: "Lora", serif;
     font-size: 22px;
     letter-spacing: 3px;
     text-transform: uppercase;
-    text-shadow: 0 0 10px rgba($ui-accent, 0.4);
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
     margin-bottom: 30px;
-    border-bottom: 1px solid rgba($ui-accent, 0.3);
+    border-bottom: 1px solid rgba(0, 255, 255, 0.3);
     padding-bottom: 10px;
   }
 
-  // Группы настроек (Экран, Аудио)
   .group-title {
     color: rgba(255, 255, 255, 0.5);
     font-size: 12px;
@@ -1670,14 +1652,14 @@ body.disable-parallax {
     }
   }
 
-  // КРАСИВЫЕ ТУМБЛЕРЫ (Язык, Окно/Полный)
+  // ТУМБЛЕРЫ (Язык, Окно)
   .toggle-group {
     display: flex;
     gap: 5px;
     background: rgba(0, 0, 0, 0.4);
     padding: 3px;
     border-radius: 4px;
-    border: 1px solid rgba($ui-accent, 0.2);
+    border: 1px solid rgba(0, 255, 255, 0.2);
 
     .toggle-btn {
       background: transparent;
@@ -1688,7 +1670,6 @@ body.disable-parallax {
       cursor: pointer;
       border-radius: 2px;
       transition: all 0.2s ease;
-      font-family: "Inter", sans-serif;
 
       &:hover {
         color: #fff;
@@ -1696,32 +1677,32 @@ body.disable-parallax {
       }
 
       &.active {
-        background: rgba($ui-accent, 0.2);
-        color: $ui-accent;
+        background: rgba(0, 255, 255, 0.2);
+        color: #00ffff;
         font-weight: bold;
-        box-shadow: inset 0 0 10px rgba($ui-accent, 0.3);
+        box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.3);
       }
     }
   }
 
-  // КРАСИВЫЕ ПОЛЗУНКИ (Рейнджи)
+  // ПОЛЗУНКИ
   .settings-slider {
     -webkit-appearance: none;
+    appearance: none;
     width: 200px;
     height: 4px;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 2px;
     outline: none;
-    transition: background 0.2s;
 
     &::-webkit-slider-thumb {
       -webkit-appearance: none;
       width: 16px;
       height: 16px;
-      background: $ui-accent;
+      background: #00ffff;
       border-radius: 50%;
       cursor: pointer;
-      box-shadow: 0 0 10px rgba($ui-accent, 0.8);
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
       transition: transform 0.1s;
     }
 
@@ -1731,7 +1712,7 @@ body.disable-parallax {
     }
   }
 
-  // СПРАВОЧНИК СПРАВА
+  // СПРАВОЧНИК
   .manual-content {
     display: flex;
     flex-direction: column;
@@ -1745,10 +1726,10 @@ body.disable-parallax {
       padding-bottom: 5px;
 
       .key {
-        color: $history-cyan;
+        color: #00ffff;
         font-family: monospace;
         font-size: 14px;
-        background: rgba($history-cyan, 0.1);
+        background: rgba(0, 255, 255, 0.1);
         padding: 2px 6px;
         border-radius: 3px;
       }
@@ -1765,8 +1746,8 @@ body.disable-parallax {
     margin-top: auto;
     align-self: flex-start;
     background: transparent;
-    border: 1px solid rgba($blood-red, 0.5);
-    color: rgba($blood-red, 0.8);
+    border: 1px solid rgba(255, 51, 51, 0.5);
+    color: rgba(255, 51, 51, 0.8);
     padding: 8px 20px;
     font-size: 12px;
     letter-spacing: 2px;
@@ -1774,10 +1755,52 @@ body.disable-parallax {
     transition: all 0.2s ease;
 
     &:hover {
-      background: rgba($blood-red, 0.2);
+      background: rgba(255, 51, 51, 0.2);
       color: #fff;
-      box-shadow: 0 0 15px rgba($blood-red, 0.4);
+      box-shadow: 0 0 15px rgba(255, 51, 51, 0.4);
     }
+  }
+}
+
+/* Полностью прозрачный режим для CG-сцен */
+#dialog-wrapper.transparent-mode {
+  #dialog-bg-color {
+    background: transparent !important;
+    animation: none !important;
+  }
+
+  #dialog-box-container {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    border: none !important;
+    box-shadow: none !important;
+
+    &::before {
+      display: none !important; /* Убираем диагональные блики */
+    }
+    /* &::after НЕ трогаем, левая полоска остается! */
+  }
+
+  #name-tag {
+    background: transparent !important;
+    border: none !important;
+    /* Убираем тень, чтобы имя было чистым корпоративным цветом */
+    text-shadow: none;
+  }
+
+  #dialog-box {
+    /* Легкая, чистая тень вместо грязной обводки. 
+       Текст читается, но выглядит аккуратно. */
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.9) !important;
+  }
+
+  .sl-slot-btn .delete-save-btn {
+    top: 10px;
+    right: 10px;
+  }
+
+  #confirm-backdrop #confirm-box {
+    padding: 25px 40px;
   }
 }
 
@@ -1945,48 +1968,32 @@ body.disable-parallax {
         left: 15px;
       }
     }
-  }
-}
+    #settings-panel {
+      #settings-inner {
+        width: 95vw;
+        height: 90vh;
+        padding: 30px;
+        overflow-y: auto; // Разрешаем прокрутку, если не влезает
+      }
 
-/* Полностью прозрачный режим для CG-сцен */
-#dialog-wrapper.transparent-mode {
-  #dialog-bg-color {
-    background: transparent !important;
-    animation: none !important;
-  }
+      // Ломаем сетку: теперь справочник будет ПОД настройками
+      .settings-layout {
+        flex-direction: column;
+        gap: 30px;
+        height: auto;
 
-  #dialog-box-container {
-    background: transparent !important;
-    backdrop-filter: none !important;
-    border: none !important;
-    box-shadow: none !important;
+        .settings-left {
+          border-right: none;
+          padding-right: 0;
+          border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+          padding-bottom: 30px;
+        }
 
-    &::before {
-      display: none !important; /* Убираем диагональные блики */
+        .settings-right {
+          padding-top: 10px;
+        }
+      }
     }
-    /* &::after НЕ трогаем, левая полоска остается! */
-  }
-
-  #name-tag {
-    background: transparent !important;
-    border: none !important;
-    /* Убираем тень, чтобы имя было чистым корпоративным цветом */
-    text-shadow: none;
-  }
-
-  #dialog-box {
-    /* Легкая, чистая тень вместо грязной обводки. 
-       Текст читается, но выглядит аккуратно. */
-    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.9) !important;
-  }
-
-  .sl-slot-btn .delete-save-btn {
-    top: 10px;
-    right: 10px;
-  }
-
-  #confirm-backdrop #confirm-box {
-    padding: 25px 40px;
   }
 }
 
@@ -2300,6 +2307,95 @@ body.disable-parallax {
           letter-spacing: 1px;
         }
       }
+    }
+  }
+  #settings-panel {
+    backdrop-filter: blur(3px); // Уменьшаем блюр для слабых телефонов
+
+    #settings-inner {
+      width: 100vw;
+      height: 100vh; // На мобилке меню занимает ВЕСЬ экран
+      border-radius: 0; // Убираем скругления
+      border: none;
+      padding: 20px 15px;
+      box-shadow: none;
+      backdrop-filter: blur(10px);
+    }
+
+    #close-settings-btn {
+      top: 15px;
+      right: 15px;
+      font-size: 28px; // Кнопка закрытия побольше, чтобы легко попасть
+    }
+
+    // Заголовки поменьше
+    .modal-header,
+    .manual-header {
+      font-size: 18px;
+      letter-spacing: 2px;
+      margin-bottom: 20px;
+    }
+
+    .settings-row {
+      flex-direction: column; // Название настройки и ползунок/кнопка друг над другом
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 25px;
+
+      .settings-label {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.8);
+      }
+    }
+
+    // Ползунки на всю ширину экрана
+    .settings-slider {
+      width: 100%;
+      height: 6px; // Чуть толще для пальцев
+
+      &::-webkit-slider-thumb {
+        width: 20px; // Большой ползунок
+        height: 20px;
+      }
+    }
+
+    // Кнопки языков/экрана покрупнее
+    .toggle-group {
+      width: 100%;
+      display: flex;
+
+      .toggle-btn {
+        flex: 1; // Растягиваем кнопки поровну
+        padding: 10px 5px;
+        font-size: 14px;
+      }
+    }
+
+    // Справочник компактнее
+    .manual-content .hotkey-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 5px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+
+      .key {
+        font-size: 13px;
+        padding: 4px 8px;
+      }
+
+      .desc {
+        font-size: 12px;
+        padding-left: 5px;
+      }
+    }
+
+    // Кнопка сброса на всю ширину
+    .reset-btn {
+      width: 100%;
+      text-align: center;
+      padding: 12px;
+      font-size: 14px;
+      margin-top: 30px;
     }
   }
 }
