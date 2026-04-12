@@ -35,6 +35,16 @@ export class SettingsManager {
         btn_settings: "[ SETTINGS ]",
         history_title: "History Log",
       },
+      ja: {
+        settings_header: "[ システム設定 ]",
+        lang_label: "言語 (Language)",
+        bgm_volume: "BGM音量",
+        btn_save: "[ セーブ ]",
+        btn_load: "[ ロード ]",
+        btn_history: "[ ログ ]",
+        btn_settings: "[ 設定 ]",
+        history_title: "テキスト履歴",
+      },
     };
 
     // Загружаем сохраненные или берем базовые
@@ -150,6 +160,7 @@ export class SettingsManager {
                   <div class="toggle-group" id="language-toggle">
                     <button class="toggle-btn ${this.settings.language === "ru" ? "active" : ""}" data-val="ru">Русский</button>
                     <button class="toggle-btn ${this.settings.language === "en" ? "active" : ""}" data-val="en">English</button>
+                    <button class="toggle-btn ${this.settings.language === 'ja' ? 'active' : ''}" data-val="ja">日本語</button>
                   </div>
               </div>
               
