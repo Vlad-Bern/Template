@@ -166,13 +166,12 @@ app.innerHTML = `
       <div id="gbg-1" class="bg-layer active blurred"></div>
       <div id="gbg-2" class="bg-layer blurred"></div>
     </div>
-      
-    <!-- 2. ИГРОВОЙ МИР -->
-    <div id="game-viewport" style="display: none;">
 
-        <div id="disclaimer-screen">
+      <div id="disclaimer-screen">
           <div class="disclaimer-content">
-            <h1 id="disclaimer-title" class="glitch-text" data-text="ВНИМАНИЕ!">ВНИМАНИЕ!</h1>
+        <h1 id="disclaimer-title" class="glitch-text" data-text="ВНИМАНИЕ!">
+          <span class="typewriter-burst">ВНИМАНИЕ!</span>
+        </h1>
             <div id="disclaimer-body">
               <p>Данная визуальная новелла содержит сцены жестокости, упоминания крови и элементы психологического хоррора.</p>
               <p>Впечатлительным людям и лицам со слабой психикой рекомендуется воздержаться от прохождения.</p>
@@ -180,6 +179,9 @@ app.innerHTML = `
             </div>
           </div>
         </div>
+      
+    <!-- 2. ИГРОВОЙ МИР -->
+    <div id="game-viewport" style="display: none;">
 
       <div id="sharp-background-layers" class="viewport-bg">
         <div id="bg-1" class="bg-layer active sharp-effect"></div>
