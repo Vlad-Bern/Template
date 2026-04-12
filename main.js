@@ -168,8 +168,8 @@ app.innerHTML = `
     </div>
       
     <!-- 2. ИГРОВОЙ МИР -->
-    <div id="game-viewport">
-    
+    <div id="game-viewport" style="display: none;">
+
         <div id="disclaimer-screen">
           <div class="disclaimer-content">
             <h1 id="disclaimer-title" class="glitch-text" data-text="ВНИМАНИЕ!">ВНИМАНИЕ!</h1>
@@ -287,7 +287,52 @@ if (sm.isMobile) {
   requestAnimationFrame(() => requestAnimationFrame(handleOrientation));
 }
 
-sm.loadScene("bus_wakeup");
+// Функция запуска игры (сработает только один раз)
+// === ЛОГИКА ДИСКЛЕЙМЕРА И ЗАПУСКА ИГРЫ (SPA) ===
+const disclaimer = document.getElementById("disclaimer-screen");
+const gameViewport = document.getElementById("game-viewport");
+const dialogWrapper = document.getElementById("dialog-wrapper");
+
+// 1. Прячем саму игру (слой с фонами и персонажами) и диалоговое окно
+if (gameViewport) gameViewport.style.display = "none";
+if (dialogWrapper) dialogWrapper.style.display = "none";
+
+// Функция запуска игры (сработает только один раз)
+const startGame = (e) => {
+  // Игнорируем правый клик или системные клавиши
+  if (
+    e &&
+    e.type === "keydown" &&
+    ["Shift", "Control", "Alt", "Tab", "Meta"].includes(e.key)
+  )
+    return;
+
+  // Убираем слушатели
+  document.removeEventListener("click", startGame);
+  document.removeEventListener("keydown", startGame);
+  document.removeEventListener("touchstart", startGame);
+
+  if (window.audioManager) window.audioManager.playUISound("open");
+
+  // Растворяем дисклеймер
+  if (disclaimer) disclaimer.classList.add("hidden");
+
+  // Ждем 1 секунду и ВОЗВРАЩАЕМ ИГРУ НА ЭКРАН
+  setTimeout(() => {
+    if (disclaimer) disclaimer.style.display = "none";
+
+    // Возвращаем слои игры обратно!
+    if (gameViewport) gameViewport.style.display = "block";
+    if (dialogWrapper) dialogWrapper.style.display = "flex"; // dialog-wrapper всегда был flex!
+
+    sm.loadScene("bus_wakeup"); // Запускаем сценарий!
+  }, 1000);
+};
+
+// Вешаем слушатели
+document.addEventListener("click", startGame);
+document.addEventListener("keydown", startGame);
+document.addEventListener("touchstart", startGame);
 
 // Разблокировка аудио по первому клику
 const unlockAudio = () => {
