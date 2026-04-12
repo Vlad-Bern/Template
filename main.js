@@ -54,11 +54,35 @@ window.showConfirm = function (message, onConfirm) {
     window.removeEventListener("contextmenu", window._confirmRmbHandler, true);
   };
 
-  // Ловим ESC, чтобы закрыть окно
+  // Ловим ESC, чтобы закрыть окно, и БЛОКИРУЕМ все остальные кнопки
   window._confirmKeyHandler = (e) => {
+    // Если нажали ESC — закрываем окно отмены
     if (e.code === "Escape") {
       e.stopPropagation();
       close();
+      return;
+    }
+
+    // Блокируем все игровые и интерфейсные кнопки, пока висит окно подтверждения!
+    if (
+      [
+        "Space",
+        "Enter",
+        "ArrowRight",
+        "ArrowLeft",
+        "ArrowUp",
+        "ArrowDown",
+        "ControlLeft",
+        "ControlRight",
+        "KeyH",
+        "KeyS",
+        "KeyL",
+        "KeyO",
+      ].includes(e.code)
+    ) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation(); // Жестко убиваем событие, чтобы оно не дошло до sceneManager
     }
   };
   window.addEventListener("keydown", window._confirmKeyHandler, true);

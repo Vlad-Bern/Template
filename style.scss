@@ -1746,14 +1746,22 @@ $glass-dark: rgba(10, 12, 18, 0.95);
   }
 }
 
-// Отключение параллакса
+// Отключение параллакса (Жестко убиваем все смещения)
 body.disable-parallax {
-  #scene-container {
-    perspective: none !important;
+  // Убиваем параллакс для фонов
+  #sharp-background-layers {
+    #bg-1,
+    #bg-2 {
+      transform: none !important;
+      transition: opacity 1s ease-in-out !important; // Оставляем только смену прозрачности
+    }
   }
-  .parallax-layer {
-    transform: none !important;
-    transition: none !important;
+  // Убиваем смещение для персонажей
+  #character-layer {
+    .character-wrapper {
+      translate: -50% 0 !important; // Жестко центрируем без сдвигов
+      transition: opacity 0.3s ease !important;
+    }
   }
 }
 
