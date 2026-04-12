@@ -1595,17 +1595,16 @@ $glass-dark: rgba(10, 12, 18, 0.95);
         font-family: "Lora", serif;
         letter-spacing: 2px;
         margin-bottom: 25px;
+        flex-shrink: 0; // Не даем сжиматься
       }
 
       .settings-list {
-        flex-grow: 1;
         display: flex;
         flex-direction: column;
-        justify-content: flex-start; // Прижали настройки к верху
+        gap: 15px; // Идеальное расстояние между группами настроек
 
-        // Стили для групп настроек
         .settings-group {
-          margin-bottom: 25px;
+          margin-bottom: 10px;
 
           .group-title {
             font-family: "Inter", sans-serif;
@@ -1632,7 +1631,6 @@ $glass-dark: rgba(10, 12, 18, 0.95);
           }
         }
 
-        // Кнопки-переключатели (Окно/Полный)
         .toggle-group {
           display: flex;
           border: 1px solid rgba($ui-accent, 0.3);
@@ -1663,7 +1661,7 @@ $glass-dark: rgba(10, 12, 18, 0.95);
       }
 
       .reset-btn {
-        margin-top: auto; // Прижали кнопку сброса к низу
+        margin-top: auto; // МАГИЯ ЗДЕСЬ: Всегда прижимает кнопку сброса к низу!
         align-self: flex-start;
         background: transparent;
         border: 1px solid rgba(255, 255, 255, 0.2);
@@ -1687,7 +1685,7 @@ $glass-dark: rgba(10, 12, 18, 0.95);
       padding-left: 30px;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-start; // МАГИЯ ЗДЕСЬ: Прижимаем справочник к верху, чтобы он не плавал!
 
       .manual-header {
         font-family: "Inter", sans-serif;
@@ -1696,6 +1694,7 @@ $glass-dark: rgba(10, 12, 18, 0.95);
         letter-spacing: 3px;
         margin-bottom: 20px;
         text-transform: uppercase;
+        flex-shrink: 0;
       }
 
       .manual-content {
@@ -1716,9 +1715,9 @@ $glass-dark: rgba(10, 12, 18, 0.95);
             border: 1px solid rgba($ui-accent, 0.3);
             margin-right: 15px;
             font-size: 13px;
-            min-width: 170px; // Идеальная ширина для всех кнопок
+            min-width: 170px;
             text-align: center;
-            display: inline-flex; // flex позволяет центрировать текст даже если он переносится
+            display: inline-flex;
             justify-content: center;
             align-items: center;
           }
@@ -1734,7 +1733,6 @@ $glass-dark: rgba(10, 12, 18, 0.95);
     }
   }
 }
-
 @keyframes settingsAppear {
   0% {
     opacity: 0;

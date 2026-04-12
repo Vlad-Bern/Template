@@ -14,14 +14,15 @@ export class HistoryManager {
   initEvents() {
     // Закрытие по кнопке или фону
     document.addEventListener("click", (e) => {
+      // Блокируем клики, если открыты другие модалки
       if (window.saveManager?.modalOpen) return;
+      if (window.settingsManager?.modalOpen) return;
 
       if (e.target.closest("#open-history-btn")) {
         e.stopPropagation();
         this.showHistory();
         return;
       }
-
       if (this.modalOpen) {
         const clickedInsideContent = e.target.closest("#history-content");
         if (!clickedInsideContent) {
@@ -36,12 +37,15 @@ export class HistoryManager {
     document.addEventListener(
       "wheel",
       (e) => {
-        if (window.saveManager?.modalOpen) {
+        // БЛОКИРУЕМ КОЛЕСИКО, ЕСЛИ ОТКРЫТЫ СОХРАНЕНИЯ ИЛИ НАСТРОЙКИ!
+        if (
+          window.saveManager?.modalOpen ||
+          window.settingsManager?.modalOpen
+        ) {
           e.preventDefault();
           e.stopPropagation();
           return;
         }
-
         if (window.sm && window.sm.cs && window.sm.cs.isActive) return;
         if (this.modalOpen && e.target.closest("#history-content")) return;
         if (isScrolling) return;
@@ -69,12 +73,16 @@ export class HistoryManager {
     document.addEventListener(
       "touchmove",
       (e) => {
-        if (window.saveManager?.modalOpen) return;
+        // БЛОКИРУЕМ СВАЙП, ЕСЛИ ОТКРЫТЫ СОХРАНЕНИЯ ИЛИ НАСТРОЙКИ!
+        if (window.saveManager?.modalOpen || window.settingsManager?.modalOpen)
+          return;
         if (this.modalOpen) return;
         if (window.sm?.cs?.isActive) return;
 
         const deltaY = touchStartY - e.touches[0].clientY;
-        if (deltaY > 40) this.showHistory();
+
+        // СВАЙП ВНИЗ (палец идет от верхнего края к нижнему) открывает историю!
+        if (deltaY < -40) this.showHistory();
       },
       { passive: true },
     );
@@ -157,9 +165,9 @@ export class HistoryManager {
   }
 
   hideHistory() {
-    if (!this.modalOpen) return; 
+    if (!this.modalOpen) return;
 
-    window.playUISound("close"); 
+    window.playUISound("close");
 
     if (this.panel) this.panel.classList.remove("active");
     if (this.backdrop) this.backdrop.classList.remove("active");

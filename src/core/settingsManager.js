@@ -34,10 +34,10 @@ export class SettingsManager {
   }
 
   resetToDefaults() {
-    this.settings = { ...this.defaultSettings };
+    Object.assign(this.settings, this.defaultSettings);
     this.saveCurrentSettings();
-    this._updateUIFromSettings(); // Обновляем ползунки и тумблеры на экране
-    this._applySettingsOnLoad(); // Применяем их к игре
+    this._updateUIFromSettings();
+    this._applySettingsOnLoad();
   }
 
   // Применяем настройки к самой игре (вызывается при старте и сбросе)
@@ -102,8 +102,8 @@ export class SettingsManager {
               <div class="settings-group">
                 <div class="group-title">ЭКРАН И ГРАФИКА</div>
                 
-                <div class="settings-row">
-                 <div class="settings-row" id="row-fullscreen">
+                <!-- ПЕРВАЯ НАСТРОЙКА -->
+                <div class="settings-row" id="row-fullscreen">
                   <span class="settings-label">Режим экрана</span>
                   <div class="toggle-group" id="fullscreen-toggle">
                     <button class="toggle-btn active" data-val="window">Окно</button>
@@ -111,6 +111,7 @@ export class SettingsManager {
                   </div>
                 </div>
 
+                <!-- ВТОРАЯ НАСТРОЙКА -->
                 <div class="settings-row">
                   <span class="settings-label">Эффект параллакса</span>
                   <div class="toggle-group" id="parallax-toggle">

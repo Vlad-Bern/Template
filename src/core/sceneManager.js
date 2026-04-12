@@ -137,11 +137,20 @@ export class SceneManager {
     // Правый клик (скрыть/показать UI или закрыть историю)
     document.addEventListener("contextmenu", (e) => {
       e.preventDefault();
-      // ПРОПУСКАЕМ искусственные клики (от нашего крестика) через проверку !e.isTrusted
       if (e.isTrusted && (e.pointerType === "touch" || window.sm?.isMobile))
         return;
 
-      // ... дальше ваш старый код ПКМ
+      if (
+        this.hm.modalOpen ||
+        window.saveManager?.modalOpen ||
+        window.settingsManager?.modalOpen
+      ) {
+        if (this.hm.modalOpen) this.hm.hideHistory();
+        if (window.saveManager?.modalOpen) window.saveManager.close();
+        if (window.settingsManager?.modalOpen) window.settingsManager.close();
+      } else {
+        this.toggleUI(); // <--- ВОТ ТАК ИЗЯЩНО!
+      }
 
       if (
         this.hm.modalOpen ||
@@ -185,6 +194,65 @@ export class SceneManager {
         }
       }
     });
+
+    // === ГЛОБАЛЬНЫЕ СВАЙПЫ (Скрытие UI и Промотка) ===
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    document.addEventListener(
+      "touchstart",
+      (e) => {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+
+        // Любой тап по экрану прерывает перемотку текста (Скип)
+        if (this.isFastForwarding) {
+          this.isFastForwarding = false;
+        }
+      },
+      { passive: true },
+    );
+
+    document.addEventListener(
+      "touchend",
+      (e) => {
+        // Игнорируем свайпы, если открыты модалки или выбор
+        if (
+          this.hm?.modalOpen ||
+          window.saveManager?.modalOpen ||
+          window.settingsManager?.modalOpen
+        )
+          return;
+        if (this.cs?.isActive) return;
+
+        const touchEndX = e.changedTouches[0].clientX;
+        const touchEndY = e.changedTouches[0].clientY;
+
+        const deltaX = touchStartX - touchEndX;
+        const deltaY = touchStartY - touchEndY;
+
+        // Чтобы жест сработал, он должен быть достаточно длинным (защита от случайных тапов)
+        if (Math.abs(deltaX) > 50 || Math.abs(deltaY) > 50) {
+          // Определяем направление: горизонтальный свайп или вертикальный
+          if (Math.abs(deltaX) > Math.abs(deltaY)) {
+            // СВАЙП ВПРАВО (touchEndX больше touchStartX)
+            if (deltaX < -50) {
+              if (!this.isFastForwarding) {
+                this.isFastForwarding = true;
+                this.handleFastForward();
+                if (window.playUISound) window.playUISound("open"); // Озвучиваем включение перемотки
+              }
+            }
+          } else {
+            // СВАЙП ВВЕРХ (touchEndY меньше touchStartY)
+            if (deltaY > 50) {
+              this.toggleUI(); // Вызываем скрытие интерфейса
+            }
+          }
+        }
+      },
+      { passive: true },
+    );
 
     window.addEventListener("loadScene", (e) => {
       const sceneId = e.detail;
@@ -363,6 +431,34 @@ export class SceneManager {
         this.isFastForwarding = false;
       }
     });
+  }
+
+  toggleUI() {
+    const ui = document.getElementById("game-ui");
+    const choiceContainer = document.getElementById("choice-container");
+    const interLayer = document.getElementById("interaction-layer");
+    if (!ui) return;
+
+    this.uiHidden = !this.uiHidden;
+    document.body.classList.toggle("ui-hidden", this.uiHidden);
+
+    const opacity = this.uiHidden ? "0" : "";
+    const pointerEvents = this.uiHidden ? "none" : "";
+
+    ui.style.opacity = opacity;
+    ui.style.pointerEvents = pointerEvents;
+    ui.style.transition = "opacity 0.3s ease";
+
+    if (choiceContainer) {
+      choiceContainer.style.opacity = opacity;
+      choiceContainer.style.pointerEvents = pointerEvents;
+      choiceContainer.style.transition = "opacity 0.3s ease";
+    }
+    if (interLayer) {
+      interLayer.style.opacity = opacity;
+      interLayer.style.pointerEvents = pointerEvents;
+      interLayer.style.transition = "opacity 0.3s ease";
+    }
   }
 
   handleFastForward() {
