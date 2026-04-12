@@ -7,10 +7,9 @@ import { SettingsManager } from "./src/core/settingsManager.js";
 
 // --- МЕНЕДЖЕР ЗВУКОВ UI ---
 window.playUISound = (type) => {
-  // type может быть "open" или "close"
-  const audio = new Audio(`/sfx/click-${type}.ogg`);
-  audio.volume = 0.5; // Стерильный клик не должен оглушать
-  audio.play().catch(() => {}); // Игнорируем ошибку, если браузер заблокировал автоплей до первого клика
+  if (window.audioManager) {
+    window.audioManager.playUISound(type);
+  }
 };
 
 // Глобальные переменные, чтобы щит не наслаивался сам на себя

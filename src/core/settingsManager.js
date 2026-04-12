@@ -88,6 +88,7 @@ export class SettingsManager {
     panel.id = this.containerId;
     panel.className = "modal-panel";
 
+    // 🔥 ДОБАВИЛИ HTML ДЛЯ ПОЛЗУНКОВ ЗВУКА И ТЕКСТА
     panel.innerHTML = `
       <div id="settings-inner">
         <button class="modal-close-btn" id="close-settings-btn" title="Закрыть">[ × ]</button>
@@ -102,7 +103,6 @@ export class SettingsManager {
               <div class="settings-group">
                 <div class="group-title">ЭКРАН И ГРАФИКА</div>
                 
-                <!-- ПЕРВАЯ НАСТРОЙКА -->
                 <div class="settings-row" id="row-fullscreen">
                   <span class="settings-label">Режим экрана</span>
                   <div class="toggle-group" id="fullscreen-toggle">
@@ -111,7 +111,6 @@ export class SettingsManager {
                   </div>
                 </div>
 
-                <!-- ВТОРАЯ НАСТРОЙКА -->
                 <div class="settings-row">
                   <span class="settings-label">Эффект параллакса</span>
                   <div class="toggle-group" id="parallax-toggle">
@@ -119,17 +118,37 @@ export class SettingsManager {
                     <button class="toggle-btn" data-val="off">Выкл</button>
                   </div>
                 </div>
-
               </div>
               
+              <!-- ГРУППА 2: АУДИО И ТЕКСТ -->
+              <div class="settings-group">
+                <div class="group-title">ЗВУК И ТЕКСТ</div>
+                
+                <div class="settings-row">
+                  <span class="settings-label">Громкость музыки</span>
+                  <input type="range" id="bgm-slider" class="settings-slider" min="0" max="100" value="${this.settings.bgmVolume}">
+                </div>
+                
+                <div class="settings-row">
+                  <span class="settings-label">Громкость звуков</span>
+                  <input type="range" id="sfx-slider" class="settings-slider" min="0" max="100" value="${this.settings.sfxVolume}">
+                </div>
+
+                <div class="settings-row">
+                  <span class="settings-label">Скорость текста</span>
+                  <input type="range" id="text-speed-slider" class="settings-slider" min="10" max="100" value="${this.settings.textSpeed}">
+                </div>
+              </div>
+
             </div>
             <button class="reset-btn">[ СБРОС ]</button>
           </div>
 
+          <!-- ПРАВАЯ ЧАСТЬ: СПРАВОЧНИК -->
           <div class="settings-right">
             <div class="manual-header">СПРАВОЧНИК</div>
             <div class="manual-content">
-              <div class="hotkey-row"><span class="key">[ ЛКМ / Пробел / -&gt; / Колёсико вниз ]</span><span class="desc">Далее</span></div>
+              <div class="hotkey-row"><span class="key">[ ЛКМ / Пробел / -> / Колёсико вниз ]</span><span class="desc">Далее</span></div>
               <div class="hotkey-row"><span class="key">[ Ctrl ]</span><span class="desc">Промотка</span></div>
               <div class="hotkey-row"><span class="key">[ H / Колёсико вверх]</span><span class="desc">История</span></div>
               <div class="hotkey-row"><span class="key">[ S / L ]</span><span class="desc">Сохранить / Загрузить</span></div>
@@ -140,8 +159,13 @@ export class SettingsManager {
         </div>
       </div>
     `;
-
     document.body.appendChild(panel);
+
+    // --- КНОПКА ЗАКРЫТИЯ (которую мы случайно сломали) ---
+    const closeBtn = panel.querySelector("#close-settings-btn");
+    if (closeBtn) {
+      closeBtn.addEventListener("click", () => this.close());
+    }
 
     // --- АДАПТАЦИЯ ПОД МОБИЛЬНЫЕ УСТРОЙСТВА ---
     const isMobile =
@@ -152,11 +176,9 @@ export class SettingsManager {
       !!window.Capacitor;
 
     if (isMobile) {
-      // 1. Скрываем режим экрана
       const fsRow = panel.querySelector("#row-fullscreen");
       if (fsRow) fsRow.style.display = "none";
 
-      // 2. Подменяем Справочник на мобильные жесты
       const manualContent = panel.querySelector(".manual-content");
       if (manualContent) {
         manualContent.innerHTML = `
@@ -169,7 +191,6 @@ export class SettingsManager {
     }
 
     // --- ЛОГИКА НАСТРОЕК ГРАФИКИ ---
-
     const fsToggleBtns = panel.querySelectorAll(
       "#fullscreen-toggle .toggle-btn",
     );
@@ -177,12 +198,9 @@ export class SettingsManager {
       btn.addEventListener("click", (e) => {
         window.playUISound("open");
         const val = e.target.getAttribute("data-val");
-
-        // Сохраняем в память
         this.settings.fullscreen = val;
         this.saveCurrentSettings();
-        this._updateUIFromSettings(); // Подсвечиваем кнопку
-
+        this._updateUIFromSettings();
         if (val === "full") {
           if (!document.fullscreenElement) {
             document.documentElement
@@ -197,7 +215,6 @@ export class SettingsManager {
       });
     });
 
-    // Синхронизация, если нажали F11 (меняем память, но не вызываем requestFullscreen)
     document.addEventListener("fullscreenchange", () => {
       if (document.fullscreenElement) {
         this.settings.fullscreen = "full";
@@ -208,7 +225,6 @@ export class SettingsManager {
       this._updateUIFromSettings();
     });
 
-    // 2. Параллакс
     const parallaxToggleBtns = panel.querySelectorAll(
       "#parallax-toggle .toggle-btn",
     );
@@ -216,13 +232,9 @@ export class SettingsManager {
       btn.addEventListener("click", (e) => {
         window.playUISound("open");
         const val = e.target.getAttribute("data-val");
-
-        // Сохраняем в память
         this.settings.parallax = val;
         this.saveCurrentSettings();
-        this._updateUIFromSettings(); // Подсвечиваем кнопку
-
-        // Применяем к игре
+        this._updateUIFromSettings();
         if (val === "off") {
           document.body.classList.add("disable-parallax");
         } else {
@@ -236,26 +248,24 @@ export class SettingsManager {
     const sfxSlider = panel.querySelector("#sfx-slider");
     const tsSlider = panel.querySelector("#text-speed-slider");
 
-    // Событие "input" срабатывает ПРИ ДВИЖЕНИИ ползунка, а "change" - только когда мы его ОТПУСКАЕМ.
-
     if (bgmSlider) {
       bgmSlider.addEventListener("input", (e) => {
         this.settings.bgmVolume = parseInt(e.target.value);
-        if (window.audioManager) window.audioManager.updateVolumes(); // МГНОВЕННЫЙ ЭФФЕКТ
+        if (window.audioManager) window.audioManager.updateVolumes();
       });
       bgmSlider.addEventListener("change", () => {
-        this.saveCurrentSettings(); // Сохраняем в localStorage только после отпускания
+        this.saveCurrentSettings();
       });
     }
 
     if (sfxSlider) {
       sfxSlider.addEventListener("input", (e) => {
         this.settings.sfxVolume = parseInt(e.target.value);
-        if (window.audioManager) window.audioManager.updateVolumes(); // МГНОВЕННЫЙ ЭФФЕКТ
+        if (window.audioManager) window.audioManager.updateVolumes();
       });
       sfxSlider.addEventListener("change", () => {
         this.saveCurrentSettings();
-        if (window.playUISound) window.playUISound("open"); // Тестовый "пик", чтобы игрок заценил громкость
+        if (window.playUISound) window.playUISound("open");
       });
     }
 
@@ -268,13 +278,17 @@ export class SettingsManager {
       });
     }
 
-    // 3. Кнопка СБРОСА
+    // --- Кнопка СБРОСА ---
     const resetBtn = panel.querySelector(".reset-btn");
     if (resetBtn) {
       resetBtn.addEventListener("click", (e) => {
         e.stopPropagation();
-        window.showConfirm("ВОССТАНОВИТЬ НАСТРЙОКИ ПО УМОЛЧАНИЮ?", () => {
+        window.showConfirm("ВОССТАНОВИТЬ НАСТРОЙКИ ПО УМОЛЧАНИЮ?", () => {
           this.resetToDefaults();
+          // Обновляем ползунки после сброса
+          if (bgmSlider) bgmSlider.value = this.settings.bgmVolume;
+          if (sfxSlider) sfxSlider.value = this.settings.sfxVolume;
+          if (tsSlider) tsSlider.value = this.settings.textSpeed;
         });
       });
     }

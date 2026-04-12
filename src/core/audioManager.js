@@ -135,4 +135,30 @@ export class AudioManager {
     };
     Array.isArray(audio) ? audio.forEach(play) : play(audio);
   }
+
+  // Системные звуки UI (клики, наведение, открытие окон)
+  playUISound(type) {
+    let src = "";
+    if (type === "open") src = "/sfx/click-open.ogg";
+    if (type === "close") src = "/sfx/click-close.ogg";
+
+    if (!src) return;
+
+    // Системные звуки обычно не зацикливаются, просто проигрываем 1 раз
+    const targetVol = 1.0 * this.sfxMaster; // Используем базовую громкость 1.0 * мастер ползунок
+
+    const sound = new Howl({
+      src: [src],
+      volume: targetVol,
+      html5: false,
+      onend: () => {
+        this.activeSfx.delete(sound);
+        sound.unload();
+      },
+    });
+
+    sound._baseVolume = 1.0;
+    this.activeSfx.add(sound);
+    sound.play();
+  }
 }
