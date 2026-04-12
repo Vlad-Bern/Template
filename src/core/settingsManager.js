@@ -329,8 +329,8 @@ export class SettingsManager {
 
     // --- ЗАКРЫТИЕ ПО КЛИКУ В ПУСТОТУ (на затемненный фон) ---
     panel.addEventListener("click", (e) => {
-      // Если мы кликнули ровно по самому фону, а не по окошку настроек внутри
       if (e.target === panel) {
+        e.stopPropagation();
         this.close();
       }
     });
@@ -402,10 +402,9 @@ export class SettingsManager {
     const dict = this.uiTranslations[lang];
     if (!dict) return;
 
-    const panel = document.getElementById(this.containerId);
-    if (!panel) return;
+    // 🔥 ИЩЕМ ПО ВСЕМУ ДОКУМЕНТУ, А НЕ ТОЛЬКО В ПАНЕЛИ НАСТРОЕК!
+    const elements = document.querySelectorAll("[data-i18n]");
 
-    const elements = panel.querySelectorAll("[data-i18n]");
     elements.forEach((el) => {
       const key = el.getAttribute("data-i18n");
       if (dict[key]) {
