@@ -160,70 +160,107 @@ const app = document.getElementById("app");
 
 // 1. СТРОИМ ДОМ (Генерация всей структуры игры)
 app.innerHTML = `
-  <div id="game-container">
-    <!-- 1. РАЗМЫТЫЙ ЗАДНИК -->
-    <div id="global-bg-layers">
-      <div id="gbg-1" class="bg-layer active blurred"></div>
-      <div id="gbg-2" class="bg-layer blurred"></div>
-    </div>
+<div id="game-container">
+  <!-- 1. РАЗМЫТЫЙ ЗАДНИК -->
+  <div id="global-bg-layers">
+    <div id="gbg-1" class="bg-layer active blurred"></div>
+    <div id="gbg-2" class="bg-layer blurred"></div>
+  </div>
 
-      <div id="disclaimer-screen">
-          <div class="disclaimer-content">
-        <h1 id="disclaimer-title" class="glitch-text" data-text="ВНИМАНИЕ!">
-          <span class="typewriter-burst">ВНИМАНИЕ!</span>
-        </h1>
-            <div id="disclaimer-body">
-              <p>Данная визуальная новелла содержит сцены жестокости, упоминания крови и элементы психологического хоррора.</p>
-              <p>Впечатлительным людям и лицам со слабой психикой рекомендуется воздержаться от прохождения.</p>
-              <p class="click-to-continue"></p>
-            </div>
-          </div>
-        </div>
-      
-    <!-- 2. ИГРОВОЙ МИР -->
-    <div id="game-viewport" style="display: none;">
-
-      <div id="sharp-background-layers" class="viewport-bg">
-        <div id="bg-1" class="bg-layer active sharp-effect"></div>
-        <div id="bg-2" class="bg-layer sharp-effect"></div>
-        <div id="vignette-layer"></div>
+  <div id="disclaimer-screen">
+    <div class="disclaimer-content">
+      <h1 id="disclaimer-title" class="glitch-text" data-text="ВНИМАНИЕ!">
+        <span class="typewriter-burst">ВНИМАНИЕ!</span>
+      </h1>
+      <div id="disclaimer-body">
+        <p>
+          Эта игра содержит откровенные сцены жестокости, наготы и множество
+          фетишей, способных вызвать сильное возбуждение.
+        </p>
+        <p>
+          Проект находится в стадии ранней демо-версии — возможны баги и
+          недоработки.
+        </p>
+        <p>
+          Всем персонажам строго больше 18 лет. И вам, игрок, тоже должно быть
+          не меньше! Если это не так, то господь вам судья.
+        </p>
+        <p class="click-to-continue"></p>
       </div>
-      <div id="character-layer"></div>
-      <div id="interaction-layer"></div>
-      <div id="overlay-layer"></div>
     </div>
-    <!-- 3. ЭФФЕКТЫ И UI -->
-    <div id="darkness-layer"></div>
-    <div id="noise-layer"></div>
+  </div>
 
-    <div id="modal-backdrop"></div>
-          <div id="history-panel">
-        <div id="history-header">
-          <h3>История</h3>
-          <button id="close-history">✕</button>
-        </div>
-        <div id="history-content"></div>
-      </div>
+  <div id="splash-screen">
+    <h1>VLADBER PRESENTS</h1>
+  </div>
 
-    <div id="game-ui">
-      <div id="notification-container"></div>
-      <div id="choice-container"></div>
-      <div id="dialog-wrapper">
-        <div id="dialog-bg-color"></div>
-        <div id="name-tag"></div>
-        <div id="dialog-box-container">
-          <button id="dialog-hide-btn" aria-label="Скрыть окно">✕</button>
-          <div id="dialog-box"></div>
+  <!-- 2. ИГРОВОЙ МИР -->
+  <div id="game-viewport" style="display: none">
+    <div id="sharp-background-layers" class="viewport-bg">
+      <div id="bg-1" class="bg-layer active sharp-effect"></div>
+      <div id="bg-2" class="bg-layer sharp-effect"></div>
+      <div id="vignette-layer"></div>
+    </div>
+    <div id="character-layer"></div>
+    <div id="interaction-layer"></div>
+    <div id="overlay-layer"></div>
+  </div>
+  <!-- 3. ЭФФЕКТЫ И UI -->
+  <div id="darkness-layer"></div>
+  <div id="noise-layer"></div>
+
+  <div id="modal-backdrop"></div>
+  <div id="history-panel">
+    <div id="history-header">
+      <h3>История</h3>
+      <button id="close-history">✕</button>
+    </div>
+    <div id="history-content"></div>
+  </div>
+
+  <div id="game-ui">
+    <div id="notification-container"></div>
+    <div id="choice-container"></div>
+    <div id="dialog-wrapper">
+      <div id="dialog-bg-color"></div>
+      <div id="name-tag"></div>
+      <div id="dialog-box-container">
+        <button id="dialog-hide-btn" aria-label="Скрыть окно">✕</button>
+        <div id="dialog-box"></div>
         <div id="dialog-footer">
-            <button id="open-save-btn" class="dialog-footer-btn" data-i18n="btn_save">[ СОХРАНИТЬ ]</button>
-            <button id="open-load-btn" class="dialog-footer-btn" data-i18n="btn_load">[ ЗАГРУЗИТЬ ]</button>
-            <button id="open-history-btn" class="dialog-footer-btn" data-i18n="btn_history">[ ИСТОРИЯ ]</button>
-            <button id="open-settings-btn" class="dialog-footer-btn" data-i18n="btn_settings">[ НАСТРОЙКИ ]</button>
-          </div>
+          <button
+            id="open-save-btn"
+            class="dialog-footer-btn"
+            data-i18n="btn_save"
+          >
+            [ СОХРАНИТЬ ]
+          </button>
+          <button
+            id="open-load-btn"
+            class="dialog-footer-btn"
+            data-i18n="btn_load"
+          >
+            [ ЗАГРУЗИТЬ ]
+          </button>
+          <button
+            id="open-history-btn"
+            class="dialog-footer-btn"
+            data-i18n="btn_history"
+          >
+            [ ИСТОРИЯ ]
+          </button>
+          <button
+            id="open-settings-btn"
+            class="dialog-footer-btn"
+            data-i18n="btn_settings"
+          >
+            [ НАСТРОЙКИ ]
+          </button>
         </div>
       </div>
     </div>
   </div>
+</div>
 `;
 
 const dialogHideBtn = document.getElementById("dialog-hide-btn");
@@ -300,36 +337,43 @@ if (gameViewport) gameViewport.style.display = "none";
 if (dialogWrapper) dialogWrapper.style.display = "none";
 
 // Функция запуска игры (сработает только один раз)
-const startGame = (e) => {
-  // Игнорируем правый клик или системные клавиши
-  if (
-    e &&
-    e.type === "keydown" &&
-    ["Shift", "Control", "Alt", "Tab", "Meta"].includes(e.key)
-  )
-    return;
-
-  // Убираем слушатели
+function startGame(e) {
+  // Убираем слушатели, чтобы игрок не накликал лишнего
   document.removeEventListener("click", startGame);
   document.removeEventListener("keydown", startGame);
   document.removeEventListener("touchstart", startGame);
 
-  if (window.audioManager) window.audioManager.playUISound("open");
+  const disclaimer = document.getElementById("disclaimer-screen");
+  const splash = document.getElementById("splash-screen");
+  const gameViewport = document.getElementById("game-viewport");
+  const dialogWrapper = document.getElementById("dialog-wrapper");
 
-  // Растворяем дисклеймер
-  if (disclaimer) disclaimer.classList.add("hidden");
+  // 1. Растворяем ваш дерзкий дисклеймер
+  disclaimer.style.opacity = "0";
+  disclaimer.style.pointerEvents = "none";
 
-  // Ждем 1 секунду и ВОЗВРАЩАЕМ ИГРУ НА ЭКРАН
+  // 2. Ждем 1 секунду, пока он исчезнет, и проявляем "VLADBER PRESENTS"
   setTimeout(() => {
-    if (disclaimer) disclaimer.style.display = "none";
+    disclaimer.style.display = "none";
+    splash.style.opacity = "1";
 
-    // Возвращаем слои игры обратно!
-    if (gameViewport) gameViewport.style.display = "block";
-    if (dialogWrapper) dialogWrapper.style.display = "flex"; // dialog-wrapper всегда был flex!
+    // 3. Держим ваше имя на экране 2 секунды, затем растворяем
+    setTimeout(() => {
+      splash.style.opacity = "0";
 
-    sm.loadScene("bus_wakeup"); // Запускаем сценарий!
-  }, 1000);
-};
+      // 4. Еще через 1 секунду пускаем игрока в Синсю
+      setTimeout(() => {
+        splash.style.display = "none";
+
+        // Возвращаем игровые слои, как мы делали в прошлый раз
+        if (gameViewport) gameViewport.style.display = "block";
+        if (dialogWrapper) dialogWrapper.style.display = "flex";
+
+        // Здесь уже стартует сама сцена движка
+      }, 1000);
+    }, 2000); // Время отображения заставки
+  }, 1000); // Время угасания дисклеймера
+}
 
 // Вешаем слушатели
 document.addEventListener("click", startGame);

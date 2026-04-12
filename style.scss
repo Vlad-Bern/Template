@@ -2030,6 +2030,32 @@ $glass-dark: rgba(10, 12, 18, 0.95);
   }
 }
 
+#splash-screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #000;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99998; /* Чуть ниже дисклеймера */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1s ease-in-out;
+
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 300;
+    letter-spacing: 0.8rem;
+    text-transform: uppercase;
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  }
+}
+
 // ==========================================
 // --- TABLET ADAPTATION (Clean & Safe) ---
 // ==========================================
@@ -2244,7 +2270,7 @@ $glass-dark: rgba(10, 12, 18, 0.95);
       }
     }
   }
-} 
+}
 
 // ==========================================
 // --- MOBILE ---
@@ -2703,5 +2729,12 @@ $glass-dark: rgba(10, 12, 18, 0.95);
         letter-spacing: 2px;
       }
     }
+  }
+}
+
+// 🔥 Универсальная проверка на наличие тачскрина (Телефоны, планшеты, iPad)
+@media (pointer: coarse) {
+  #disclaimer-screen #disclaimer-body .click-to-continue::before {
+    content: "[ Коснитесь экрана, чтобы продолжить ]";
   }
 }
