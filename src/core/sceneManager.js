@@ -116,6 +116,7 @@ export class SceneManager {
     );
 
     // Возвращение скрытого UI по левому клику ИЛИ ТАПУ (перехватчик)
+    // Возвращение скрытого UI по левому клику ИЛИ ТАПУ (перехватчик)
     document.addEventListener(
       "click",
       (e) => {
@@ -123,76 +124,37 @@ export class SceneManager {
         if (this.uiHidden) {
           e.preventDefault();
           e.stopPropagation();
-            e.stopImmediatePropagation();
-          document.dispatchEvent(
-            new MouseEvent("contextmenu", { bubbles: true, cancelable: true }),
-          );
+          e.stopImmediatePropagation();
+
+          this.toggleUI(); // Вызываем скрытие напрямую!
           return;
         }
         // А вот если UI открыт, и это тап пальцем - не лезем, пусть работает базовая логика
         if (e.pointerType === "touch" || window.sm?.isMobile) return;
       },
-      true,
+      true, // true = ловим событие самым первым
     );
 
-    // Правый клик (скрыть/показать UI или закрыть историю)
+    // Правый клик (скрыть/показать UI или закрыть окна)
     document.addEventListener("contextmenu", (e) => {
-      e.preventDefault();
+      e.preventDefault(); // Убиваем стандартное меню браузера
+
+      // Игнорируем на мобилках (там свайпы)
       if (e.isTrusted && (e.pointerType === "touch" || window.sm?.isMobile))
         return;
 
+      // Если открыты модалки - закрываем их
       if (
-        this.hm.modalOpen ||
+        this.hm?.modalOpen ||
         window.saveManager?.modalOpen ||
         window.settingsManager?.modalOpen
       ) {
-        if (this.hm.modalOpen) this.hm.hideHistory();
+        if (this.hm?.modalOpen) this.hm.hideHistory();
         if (window.saveManager?.modalOpen) window.saveManager.close();
         if (window.settingsManager?.modalOpen) window.settingsManager.close();
       } else {
-        this.toggleUI(); // <--- ВОТ ТАК ИЗЯЩНО!
-      }
-
-      if (
-        this.hm.modalOpen ||
-        (window.saveManager && window.saveManager.modalOpen) ||
-        (window.settingsManager && window.settingsManager.modalOpen) // Добавили проверку Настроек
-      ) {
-        if (this.hm.modalOpen) this.hm.hideHistory();
-        if (window.saveManager && window.saveManager.modalOpen)
-          window.saveManager.close();
-        if (window.settingsManager && window.settingsManager.modalOpen)
-          window.settingsManager.close(); // Закрываем Настройки
-      } else {
-        const ui = document.getElementById("game-ui");
-        const choiceContainer = document.getElementById("choice-container");
-        const interLayer = document.getElementById("interaction-layer");
-
-        if (ui) {
-          this.uiHidden = !this.uiHidden; // Переключаем глобальный флаг
-
-          document.body.classList.toggle("ui-hidden", this.uiHidden);
-
-          const opacity = this.uiHidden ? "0" : "";
-          const pointerEvents = this.uiHidden ? "none" : "";
-
-          // Скрываем и делаем "прозрачным" для кликов основной UI
-          ui.style.opacity = opacity;
-          ui.style.pointerEvents = pointerEvents;
-          ui.style.transition = "opacity 0.3s ease";
-
-          // Жестко отключаем кликабельность контейнеров выбора, если они есть
-          if (choiceContainer) {
-            choiceContainer.style.opacity = opacity;
-            choiceContainer.style.pointerEvents = pointerEvents;
-            choiceContainer.style.transition = "opacity 0.3s ease";
-          }
-          if (interLayer) {
-            interLayer.style.opacity = opacity;
-            interLayer.style.pointerEvents = pointerEvents;
-            interLayer.style.transition = "opacity 0.3s ease";
-          }
-        }
+        // Если всё чисто — скрываем/показываем интерфейс
+        this.toggleUI();
       }
     });
 

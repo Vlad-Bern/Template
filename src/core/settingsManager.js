@@ -231,6 +231,43 @@ export class SettingsManager {
       });
     });
 
+    // --- ЛОГИКА АУДИО И ТЕКСТА ---
+    const bgmSlider = panel.querySelector("#bgm-slider");
+    const sfxSlider = panel.querySelector("#sfx-slider");
+    const tsSlider = panel.querySelector("#text-speed-slider");
+
+    // Событие "input" срабатывает ПРИ ДВИЖЕНИИ ползунка, а "change" - только когда мы его ОТПУСКАЕМ.
+
+    if (bgmSlider) {
+      bgmSlider.addEventListener("input", (e) => {
+        this.settings.bgmVolume = parseInt(e.target.value);
+        if (window.audioManager) window.audioManager.updateVolumes(); // МГНОВЕННЫЙ ЭФФЕКТ
+      });
+      bgmSlider.addEventListener("change", () => {
+        this.saveCurrentSettings(); // Сохраняем в localStorage только после отпускания
+      });
+    }
+
+    if (sfxSlider) {
+      sfxSlider.addEventListener("input", (e) => {
+        this.settings.sfxVolume = parseInt(e.target.value);
+        if (window.audioManager) window.audioManager.updateVolumes(); // МГНОВЕННЫЙ ЭФФЕКТ
+      });
+      sfxSlider.addEventListener("change", () => {
+        this.saveCurrentSettings();
+        if (window.playUISound) window.playUISound("open"); // Тестовый "пик", чтобы игрок заценил громкость
+      });
+    }
+
+    if (tsSlider) {
+      tsSlider.addEventListener("input", (e) => {
+        this.settings.textSpeed = parseInt(e.target.value);
+      });
+      tsSlider.addEventListener("change", () => {
+        this.saveCurrentSettings();
+      });
+    }
+
     // 3. Кнопка СБРОСА
     const resetBtn = panel.querySelector(".reset-btn");
     if (resetBtn) {
