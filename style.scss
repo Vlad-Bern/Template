@@ -2055,29 +2055,190 @@ $glass-dark: rgba(10, 12, 18, 0.95);
   }
 }
 
+// === ГЛАВНОЕ МЕНЮ ===
 #main-menu-screen {
+  /* Запираем видео в 16:9 */
   position: absolute;
-  inset: 0;
-  overflow: hidden;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100vw;
+  height: 100vh;
+  max-width: calc(100vh * (16 / 9));
+  aspect-ratio: 16 / 9;
+
   display: flex;
-  justify-content: center; /* Центрируем ваше меню */
+  justify-content: flex-start; /* Прижимаем контент влево */
   align-items: center;
+  overflow: hidden;
+  z-index: 10;
+  background-color: #000;
+  box-shadow: 0 0 100px 30px rgba(0, 0, 0, 0.95);
 
   .menu-bg-video {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100vw;
-    height: 100vh;
-    object-fit: cover; /* Видео идеально заполнит экран без сплющивания */
-    z-index: -1; /* Прячем видео под кнопки */
-    pointer-events: none; /* Чтобы игроки случайно не нажали на паузу */
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
+    pointer-events: none;
+    filter: brightness(0.6); /* Слегка гасим фон, чтобы кнопки читались лучше */
   }
 
+  // === СТИЛИ КНОПОК ===
   .menu-buttons-container {
     position: relative;
     z-index: 1;
-    /* Тут будут стили ваших кнопок */
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    margin-left: 10%; /* Отступ от левого края */
+
+    button {
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.6);
+      font-family: "Inter", sans-serif;
+      font-size: 2rem; /* Крупные, читаемые буквы */
+      font-weight: 300;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      text-align: left;
+      cursor: pointer;
+      padding: 5px 0;
+      position: relative;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      overflow: hidden;
+
+      /* Анимация подчеркивания при наведении (как в настройках) */
+      &::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0%;
+        height: 2px;
+        background: $ui-accent; /* Ваш фирменный сиреневый */
+        transition: width 0.3s ease;
+        box-shadow: 0 0 10px rgba($ui-accent, 0.8);
+      }
+
+      &:hover {
+        color: #fff;
+        text-shadow: 0 0 15px rgba($ui-accent, 0.6);
+        transform: translateX(20px); /* Кнопка слегка "выезжает" вправо */
+
+        &::after {
+          width: 100%; /* Линия подчеркивания рисуется до конца */
+        }
+      }
+
+      /* Красная, агрессивная кнопка Выхода */
+      &#btn-exit {
+        margin-top: 50px; /* Отрываем её от остальных */
+        font-size: 1.5rem;
+
+        &::after {
+          background: rgba(150, 0, 0, 0.8); /* Ваш $blood-red */
+          box-shadow: 0 0 10px rgba(150, 0, 0, 0.8);
+        }
+
+        &:hover {
+          color: #ff4d4d;
+          text-shadow: 0 0 15px rgba(150, 0, 0, 0.8);
+        }
+      }
+    }
+  }
+
+  // Черная ширма, которая растворится в конце анимации
+  #menu-black-overlay {
+    position: absolute;
+    inset: 0;
+    background: #000;
+    z-index: 15; /* Перекрывает видео и кнопки, но ниже заголовка */
+    // Растворяется через 1.8 секунды после старта меню
+    animation: fadeOutOverlay 1s ease-in-out 1.8s forwards;
+  }
+
+  // Анимированный заголовок
+  .menu-title-container {
+    position: absolute;
+    top: 15%; /* Висит над кнопками слева */
+    left: 10%;
+    display: flex;
+    gap: 15px; /* Расстояние между словами */
+    z-index: 20; /* Поверх черной ширмы! */
+    font-family: "Inter", sans-serif;
+    text-transform: uppercase;
+
+    .word {
+      display: flex;
+      align-items: flex-end;
+
+      /* Заглавные буквы S O T A */
+      .initial {
+        font-size: 4.5rem;
+        font-weight: 900;
+        color: #00ffff; /* Ваш фирменный неоново-синий */
+        text-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+        opacity: 0;
+        transform: translateX(-50px);
+        animation: flyInLetter 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+      }
+
+      /* Остальная часть слов (chool, f, he, bnormal) */
+      .rest {
+        font-size: 3rem;
+        font-weight: 300;
+        color: #ffffff;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        overflow: hidden;
+        white-space: nowrap;
+        max-width: 0; /* Спрятано по умолчанию */
+        opacity: 0;
+        // Расширяется через 1.5 секунды (после того как SOTA повисит)
+        animation: revealWord 0.6s cubic-bezier(0.25, 1, 0.5, 1) 1.5s forwards;
+      }
+    }
+
+    /* Тайминги: Буквы вылетают по очереди (как выстрелы) */
+    .word:nth-child(1) .initial {
+      animation-delay: 0.1s;
+    }
+    .word:nth-child(2) .initial {
+      animation-delay: 0.25s;
+    }
+    .word:nth-child(3) .initial {
+      animation-delay: 0.4s;
+    }
+    .word:nth-child(4) .initial {
+      animation-delay: 0.55s;
+    }
+  }
+
+  // === Ключевые кадры для магии ===
+  @keyframes flyInLetter {
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes revealWord {
+    to {
+      max-width: 400px; /* Раздвигаем контейнер, чтобы влезло слово */
+      opacity: 1;
+    }
+  }
+
+  @keyframes fadeOutOverlay {
+    to {
+      opacity: 0;
+      visibility: hidden;
+    }
   }
 }
 

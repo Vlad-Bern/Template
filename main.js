@@ -196,6 +196,26 @@ app.innerHTML = `
 
   <!-- === ГЛАВНОЕ МЕНЮ === -->
 <div id="main-menu-screen" style="display: none;">
+  
+  <!-- Временная черная ширма -->
+  <div id="menu-black-overlay"></div>
+
+  <!-- Наш роскошный заголовок -->
+  <div class="menu-title-container">
+    <div class="word">
+      <span class="initial">S</span><span class="rest">chool</span>
+    </div>
+    <div class="word">
+      <span class="initial">O</span><span class="rest">f</span>
+    </div>
+    <div class="word">
+      <span class="initial">T</span><span class="rest">he</span>
+    </div>
+    <div class="word">
+      <span class="initial">A</span><span class="rest">bnormal</span>
+    </div>
+  </div>
+
   <video class="menu-bg-video" autoplay loop muted playsinline>
     <source src="/bg/common/menu_bg.webm" type="video/webm">
   </video>
@@ -366,21 +386,26 @@ function startGame(e) {
   disclaimer.style.opacity = "0";
   disclaimer.style.pointerEvents = "none";
 
-  // 2. Ждем 1 секунду, пока он исчезнет, и проявляем "VLADBER PRESENTS"
+  // 2. Ждем 1 секунду, пока он исчезнет, и ПРОЯВЛЯЕМ заставку
   setTimeout(() => {
-    splash.style.opacity = "0";
+    disclaimer.style.display = "none"; // Прячем дисклеймер совсем
+    splash.style.opacity = "1"; // ВОТ ЭТА СТРОЧКА БЫЛА УТЕРЯНА!
 
-    // 4. Через 1 секунду пускаем игрока... в ГЛАВНОЕ МЕНЮ
+    // 3. Держим заставку 2 секунды, затем РАСТВОРЯЕМ
     setTimeout(() => {
-      splash.style.display = "none";
+      splash.style.opacity = "0";
 
-      // ВМЕСТО игровых слоев включаем меню
-      const mainMenu = document.getElementById("main-menu-screen");
-      if (mainMenu) {
-        mainMenu.style.display = "block"; // Или flex, когда напишете стили
-      }
-    }, 1000);
-  }, 2000); // Время отображения заставки
+      // 4. Еще через 1 секунду пускаем игрока в Главное меню
+      setTimeout(() => {
+        splash.style.display = "none";
+
+        const mainMenu = document.getElementById("main-menu-screen");
+        if (mainMenu) {
+          mainMenu.style.display = "flex"; // Обязательно flex, а не block, иначе сломаете центрирование кнопок!
+        }
+      }, 1000);
+    }, 2000); // Время отображения заставки
+  }, 1000); // Время угасания дисклеймера
 }
 
 // Вешаем слушатели
