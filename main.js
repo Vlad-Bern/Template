@@ -194,6 +194,20 @@ app.innerHTML = `
     <h1>VLADBER PRESENTS</h1>
   </div>
 
+  <!-- === ГЛАВНОЕ МЕНЮ === -->
+<div id="main-menu-screen" style="display: none;">
+  <video class="menu-bg-video" autoplay loop muted playsinline>
+    <source src="/bg/common/menu_bg.webm" type="video/webm">
+  </video>
+  
+  <div class="menu-buttons-container">
+    <button id="btn-new-game">Новая игра</button>
+    <button id="btn-load-game">Загрузить</button>
+    <button id="btn-settings-menu">Настройки</button>
+    <button id="btn-exit">Выход</button>
+  </div>
+</div>
+
   <!-- 2. ИГРОВОЙ МИР -->
   <div id="game-viewport" style="display: none">
     <div id="sharp-background-layers" class="viewport-bg">
@@ -354,25 +368,19 @@ function startGame(e) {
 
   // 2. Ждем 1 секунду, пока он исчезнет, и проявляем "VLADBER PRESENTS"
   setTimeout(() => {
-    disclaimer.style.display = "none";
-    splash.style.opacity = "1";
+    splash.style.opacity = "0";
 
-    // 3. Держим ваше имя на экране 2 секунды, затем растворяем
+    // 4. Через 1 секунду пускаем игрока... в ГЛАВНОЕ МЕНЮ
     setTimeout(() => {
-      splash.style.opacity = "0";
+      splash.style.display = "none";
 
-      // 4. Еще через 1 секунду пускаем игрока в Синсю
-      setTimeout(() => {
-        splash.style.display = "none";
-
-        // Возвращаем игровые слои, как мы делали в прошлый раз
-        if (gameViewport) gameViewport.style.display = "block";
-        if (dialogWrapper) dialogWrapper.style.display = "flex";
-
-        // Здесь уже стартует сама сцена движка
-      }, 1000);
-    }, 2000); // Время отображения заставки
-  }, 1000); // Время угасания дисклеймера
+      // ВМЕСТО игровых слоев включаем меню
+      const mainMenu = document.getElementById("main-menu-screen");
+      if (mainMenu) {
+        mainMenu.style.display = "block"; // Или flex, когда напишете стили
+      }
+    }, 1000);
+  }, 2000); // Время отображения заставки
 }
 
 // Вешаем слушатели
@@ -536,3 +544,33 @@ window.dispatchEvent(
 
   rafId = requestAnimationFrame(renderFrame);
 })();
+
+// === ЛОГИКА ГЛАВНОГО МЕНЮ ===
+
+// Кнопка: Новая игра
+const btnNewGame = document.getElementById("btn-new-game");
+if (btnNewGame) {
+  btnNewGame.addEventListener("click", () => {
+    // Прячем главное меню
+    document.getElementById("main-menu-screen").style.display = "none";
+
+    // Включаем игровой интерфейс
+    const gameViewport = document.getElementById("game-viewport");
+    const dialogWrapper = document.getElementById("dialog-wrapper");
+    if (gameViewport) gameViewport.style.display = "block";
+    if (dialogWrapper) dialogWrapper.style.display = "flex";
+
+    // Пример: window.sceneManager.loadScene("d_rank_start_scene");
+  });
+}
+
+// Кнопка: Выход (Жесткий выход через NW.js)
+const btnExit = document.getElementById("btn-exit");
+if (btnExit) {
+  btnExit.addEventListener("click", () => {
+    // Проверяем, запущена ли игра в оболочке NW.js
+    if (typeof nw !== "undefined") {
+      nw.App.quit(); // Беспощадно убиваем процесс
+    }
+  });
+}

@@ -1816,7 +1816,6 @@ $glass-dark: rgba(10, 12, 18, 0.95);
   color: #fff;
   font-family: "Inter", sans-serif;
   transition: opacity 1s ease-in-out; // Плавное затухание при клике
-  cursor: pointer; // Показываем, что можно кликать
 
   &.hidden {
     opacity: 0;
@@ -1905,7 +1904,7 @@ $glass-dark: rgba(10, 12, 18, 0.95);
       font-size: 1rem;
       color: #00ffff;
       letter-spacing: 4px;
-      animation: pulseText 1.5s infinite ease-in-out 2s;
+      animation: pulseText 1.5s infinite ease-in-out 0.5s;
 
       // На ПК показываем этот текст
       &::before {
@@ -2053,6 +2052,32 @@ $glass-dark: rgba(10, 12, 18, 0.95);
     text-transform: uppercase;
     color: #ffffff;
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  }
+}
+
+#main-menu-screen {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  display: flex;
+  justify-content: center; /* Центрируем ваше меню */
+  align-items: center;
+
+  .menu-bg-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover; /* Видео идеально заполнит экран без сплющивания */
+    z-index: -1; /* Прячем видео под кнопки */
+    pointer-events: none; /* Чтобы игроки случайно не нажали на паузу */
+  }
+
+  .menu-buttons-container {
+    position: relative;
+    z-index: 1;
+    /* Тут будут стили ваших кнопок */
   }
 }
 
