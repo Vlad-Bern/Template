@@ -28,7 +28,7 @@ export class SettingsManager {
       en: {
         settings_header: "[ SYSTEM SETTINGS ]",
         lang_label: "Language",
-        bgm_volume: "Music Volume",
+        bgm_volume: "Music volume",
         btn_save: "[ SAVE ]",
         btn_load: "[ LOAD ]",
         btn_history: "[ LOG ]",
