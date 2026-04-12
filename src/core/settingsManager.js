@@ -143,35 +143,30 @@ export class SettingsManager {
 
     document.body.appendChild(panel);
 
-    // Если мы на телефоне/планшете, скрываем настройку режима экрана
+    // --- АДАПТАЦИЯ ПОД МОБИЛЬНЫЕ УСТРОЙСТВА ---
     const isMobile =
       /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
         navigator.userAgent,
-      );
+      ) ||
+      !!window.cordova ||
+      !!window.Capacitor;
+
     if (isMobile) {
+      // 1. Скрываем режим экрана
       const fsRow = panel.querySelector("#row-fullscreen");
       if (fsRow) fsRow.style.display = "none";
-    }
 
-    // --- ЛОГИКА КНОПОК ЗАКРЫТИЯ ---
-    document
-      .getElementById("close-settings-btn")
-      .addEventListener("click", (e) => {
-        e.stopPropagation();
-        this.close();
-      });
-
-    const inner = panel.querySelector("#settings-inner");
-    inner.addEventListener("click", (e) => {
-      e.stopPropagation();
-    });
-
-    panel.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (!e.target.closest("#settings-inner")) {
-        this.close();
+      // 2. Подменяем Справочник на мобильные жесты
+      const manualContent = panel.querySelector(".manual-content");
+      if (manualContent) {
+        manualContent.innerHTML = `
+          <div class="hotkey-row"><span class="key">[ Тап по экрану ]</span><span class="desc">Далее</span></div>
+          <div class="hotkey-row"><span class="key">[ Удержание ]</span><span class="desc">Промотка</span></div>
+          <div class="hotkey-row"><span class="key">[ Свайп вниз ]</span><span class="desc">История</span></div>
+          <div class="hotkey-row"><span class="key">[ Свайп вверх ]</span><span class="desc">Скрыть интерфейс</span></div>
+        `;
       }
-    });
+    }
 
     // --- ЛОГИКА НАСТРОЕК ГРАФИКИ ---
 

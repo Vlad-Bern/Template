@@ -123,6 +123,7 @@ export class SceneManager {
         if (this.uiHidden) {
           e.preventDefault();
           e.stopPropagation();
+            e.stopImmediatePropagation();
           document.dispatchEvent(
             new MouseEvent("contextmenu", { bubbles: true, cancelable: true }),
           );
@@ -196,8 +197,11 @@ export class SceneManager {
     });
 
     // === ГЛОБАЛЬНЫЕ СВАЙПЫ (Скрытие UI и Промотка) ===
+    // === ГЛОБАЛЬНЫЕ ЖЕСТЫ (Hold-to-Skip и Скрытие UI) ===
     let touchStartX = 0;
     let touchStartY = 0;
+    let holdSkipTimer = null;
+    let isHolding = false;
 
     document.addEventListener(
       "touchstart",
@@ -205,9 +209,37 @@ export class SceneManager {
         touchStartX = e.touches[0].clientX;
         touchStartY = e.touches[0].clientY;
 
-        // Любой тап по экрану прерывает перемотку текста (Скип)
-        if (this.isFastForwarding) {
-          this.isFastForwarding = false;
+        // Очищаем старый таймер на всякий случай
+        clearTimeout(holdSkipTimer);
+
+        // Запускаем таймер: если игрок держит палец 500мс, начинается СКИП
+        holdSkipTimer = setTimeout(() => {
+          // Блокируем скип, если открыты менюшки или UI скрыт
+          if (
+            this.hm?.modalOpen ||
+            window.saveManager?.modalOpen ||
+            window.settingsManager?.modalOpen
+          )
+            return;
+          if (this.cs?.isActive || this.uiHidden) return;
+
+          isHolding = true;
+          this.isFastForwarding = true;
+          this.handleFastForward();
+          if (window.playUISound) window.playUISound("open"); // Звук активации промотки
+        }, 500);
+      },
+      { passive: true },
+    );
+
+    document.addEventListener(
+      "touchmove",
+      (e) => {
+        // Если палец сдвинулся больше чем на 15 пикселей (это свайп, а не удержание) — отменяем таймер скипа!
+        const dx = Math.abs(e.touches[0].clientX - touchStartX);
+        const dy = Math.abs(e.touches[0].clientY - touchStartY);
+        if (dx > 15 || dy > 15) {
+          clearTimeout(holdSkipTimer);
         }
       },
       { passive: true },
@@ -216,7 +248,19 @@ export class SceneManager {
     document.addEventListener(
       "touchend",
       (e) => {
-        // Игнорируем свайпы, если открыты модалки или выбор
+        // Игрок убрал палец — сразу убиваем таймер
+        clearTimeout(holdSkipTimer);
+
+        // Если мы были в режиме удержания (скипали), ТО НЕМЕДЛЕННО ОСТАНАВЛИВАЕМ СКИП!
+        if (isHolding) {
+          this.isFastForwarding = false;
+          isHolding = false;
+          // Предотвращаем срабатывание обычного клика после удержания
+          e.preventDefault();
+          return;
+        }
+
+        // --- ОБРАБОТКА СВАЙПА ВВЕРХ (Скрытие UI) ---
         if (
           this.hm?.modalOpen ||
           window.saveManager?.modalOpen ||
@@ -227,31 +271,17 @@ export class SceneManager {
 
         const touchEndX = e.changedTouches[0].clientX;
         const touchEndY = e.changedTouches[0].clientY;
-
-        const deltaX = touchStartX - touchEndX;
         const deltaY = touchStartY - touchEndY;
 
-        // Чтобы жест сработал, он должен быть достаточно длинным (защита от случайных тапов)
-        if (Math.abs(deltaX) > 50 || Math.abs(deltaY) > 50) {
-          // Определяем направление: горизонтальный свайп или вертикальный
-          if (Math.abs(deltaX) > Math.abs(deltaY)) {
-            // СВАЙП ВПРАВО (touchEndX больше touchStartX)
-            if (deltaX < -50) {
-              if (!this.isFastForwarding) {
-                this.isFastForwarding = true;
-                this.handleFastForward();
-                if (window.playUISound) window.playUISound("open"); // Озвучиваем включение перемотки
-              }
-            }
-          } else {
-            // СВАЙП ВВЕРХ (touchEndY меньше touchStartY)
-            if (deltaY > 50) {
-              this.toggleUI(); // Вызываем скрытие интерфейса
-            }
-          }
+        // Если провели пальцем снизу ВВЕРХ
+        if (
+          deltaY > 50 &&
+          Math.abs(deltaY) > Math.abs(touchStartX - touchEndX)
+        ) {
+          this.toggleUI();
         }
       },
-      { passive: true },
+      { passive: false },
     );
 
     window.addEventListener("loadScene", (e) => {
