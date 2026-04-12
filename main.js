@@ -402,17 +402,22 @@ window.dispatchEvent(
     );
     const interLayers = document.querySelectorAll("#interaction-layer");
 
-    // ИСПОЛЬЗУЕМ ВАШУ ИСХОДНУЮ МАТЕМАТИКУ ИЗ GITHUB
+    // 1. ФОНЫ: Без calc, просто смещение и скейл
     sharpLayers.forEach((layer) => {
       layer.style.transform = `translate(${currentX * 30}px, ${currentY * 30}px) scale(1.15)`;
     });
+
+    // 2. ПЕРСОНАЖИ: Обязательно с calc(-50% ...) по оси X для центровки!
     charLayers.forEach((layer) => {
-      layer.style.transform = `translate(${currentX * 35}px, ${currentY * 2}px)`;
+      layer.style.transform = `translate(calc(-50% + ${currentX * 35}px), ${currentY * 2}px)`;
     });
+
+    // 3. ИНТЕРАКТИВЫ: Без calc
     interLayers.forEach((layer) => {
       layer.style.transform = `translate(${currentX * 30}px, ${currentY * 30}px)`;
     });
 
+    // 4. ДОКУМЕНТЫ: С calc(-50%) по обеим осям
     const docOverlay = document.getElementById("document-overlay");
     if (docOverlay && docOverlay.style.display !== "none") {
       const px = currentX * 35;
