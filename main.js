@@ -175,7 +175,7 @@ app.innerHTML = `
             <div id="disclaimer-body">
               <p>Данная визуальная новелла содержит сцены жестокости, упоминания крови и элементы психологического хоррора.</p>
               <p>Впечатлительным людям и лицам со слабой психикой рекомендуется воздержаться от прохождения.</p>
-              <p class="click-to-continue">[ Нажмите любую кнопку, чтобы продолжить ]</p>
+              <p class="click-to-continue"></p>
             </div>
           </div>
         </div>
@@ -334,7 +334,8 @@ const startGame = (e) => {
 // Вешаем слушатели
 document.addEventListener("click", startGame);
 document.addEventListener("keydown", startGame);
-document.addEventListener("touchstart", startGame);
+document.addEventListener("touchstart", startGame, { passive: true });
+document.addEventListener("touchend", startGame, { passive: true });
 
 // Разблокировка аудио по первому клику
 const unlockAudio = () => {

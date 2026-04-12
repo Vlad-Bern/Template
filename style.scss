@@ -1903,9 +1903,14 @@ $glass-dark: rgba(10, 12, 18, 0.95);
     .click-to-continue {
       margin-top: 50px;
       font-size: 1rem;
-      color: #00ffff; // Неоновый призыв к действию
+      color: #00ffff;
       letter-spacing: 4px;
-      animation: pulseText 1.5s infinite ease-in-out 2s; // Быстрая пульсация
+      animation: pulseText 1.5s infinite ease-in-out 2s;
+
+      // На ПК показываем этот текст
+      &::before {
+        content: "[ Нажмите любую кнопку, чтобы продолжить ]";
+      }
     }
   }
 }
@@ -2194,10 +2199,9 @@ $glass-dark: rgba(10, 12, 18, 0.95);
         width: 95vw;
         height: 90vh;
         padding: 30px;
-        overflow-y: auto; // Разрешаем прокрутку, если не влезает
+        overflow-y: auto;
       }
 
-      // Ломаем сетку: теперь справочник будет ПОД настройками
       .settings-layout {
         flex-direction: column;
         gap: 30px;
@@ -2214,9 +2218,33 @@ $glass-dark: rgba(10, 12, 18, 0.95);
           padding-top: 10px;
         }
       }
+    } // <-- ВАЖНО! Закрыли #settings-panel
+
+    // ТЕПЕРЬ пишем Дисклеймер на одном уровне с настройками
+    #disclaimer-screen {
+      #disclaimer-title {
+        font-size: 4rem;
+        letter-spacing: 15px;
+
+        .typewriter-burst {
+          border-right: 8px solid #00ffff;
+        }
+      }
+
+      #disclaimer-body {
+        p {
+          font-size: 1.1rem;
+        }
+
+        .click-to-continue {
+          &::before {
+            content: "[ Коснитесь экрана, чтобы продолжить ]";
+          }
+        }
+      }
     }
   }
-}
+} 
 
 // ==========================================
 // --- MOBILE ---
@@ -2641,6 +2669,39 @@ $glass-dark: rgba(10, 12, 18, 0.95);
       font-size: 14px;
       margin-top: 20px;
       margin-bottom: 40px; // Дали отступ снизу, чтобы можно было докрутить до конца
+    }
+  }
+
+  // Хардкорная адаптация Дисклеймера для Телефонов
+  #disclaimer-screen {
+    .disclaimer-content {
+      padding: 15px;
+      width: 100%; // Чтобы текст не прилипал к краям
+    }
+
+    #disclaimer-title {
+      font-size: 2.5rem; // Сильно уменьшаем для узких экранов
+      letter-spacing: 8px; // Сжимаем межбуквенный интервал
+      margin-bottom: 25px;
+
+      .typewriter-burst {
+        border-right: 5px solid #00ffff; // Тонкая каретка для мобилок
+      }
+    }
+
+    #disclaimer-body {
+      p {
+        font-size: 0.95rem; // Меньше шрифт
+        line-height: 1.5; // Плотнее строки
+        margin-bottom: 10px;
+        color: rgba(255, 255, 255, 0.85);
+      }
+
+      .click-to-continue {
+        margin-top: 30px;
+        font-size: 0.8rem;
+        letter-spacing: 2px;
+      }
     }
   }
 }
