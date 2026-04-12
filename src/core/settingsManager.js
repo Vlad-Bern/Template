@@ -7,9 +7,10 @@ export class SettingsManager {
     this.defaultSettings = {
       fullscreen: "window",
       parallax: "on",
-      bgmVolume: 100, // Заготовка для аудио
-      sfxVolume: 100, // Заготовка для аудио
-      textSpeed: 50, // Заготовка для текста
+      bgmVolume: 50,
+      sfxVolume: 100,
+      textSpeed: 70,
+      language: "en",
     };
 
     // Загружаем сохраненные или берем базовые
@@ -18,6 +19,18 @@ export class SettingsManager {
     this._initUI();
     this._applySettingsOnLoad(); // Применяем их при старте игры
     this._updateUIFromSettings();
+
+    // Словарь для перевода интерфейса настроек
+    this.uiTranslations = {
+      ru: {
+        settings_header: "[ НАСТРОЙКИ СИСТЕМЫ ]",
+        lang_label: "Язык (Language)",
+      },
+      en: {
+        settings_header: "[ SYSTEM SETTINGS ]",
+        lang_label: "Language",
+      },
+    };
   }
 
   // --- РАБОТА С ПАМЯТЬЮ ---
@@ -88,7 +101,6 @@ export class SettingsManager {
     panel.id = this.containerId;
     panel.className = "modal-panel";
 
-    // 🔥 ДОБАВИЛИ HTML ДЛЯ ПОЛЗУНКОВ ЗВУКА И ТЕКСТА
     panel.innerHTML = `
       <div id="settings-inner">
         <button class="modal-close-btn" id="close-settings-btn" title="Закрыть">[ × ]</button>
@@ -119,8 +131,15 @@ export class SettingsManager {
                   </div>
                 </div>
               </div>
+
+              <div class="settings-row" id="row-language">
+                  <span class="settings-label">Язык (Language)</span>
+                  <div class="toggle-group" id="language-toggle">
+                    <button class="toggle-btn ${this.settings.language === "ru" ? "active" : ""}" data-val="ru">Русский</button>
+                    <button class="toggle-btn ${this.settings.language === "en" ? "active" : ""}" data-val="en">English</button>
+                  </div>
+              </div>
               
-              <!-- ГРУППА 2: АУДИО И ТЕКСТ -->
               <div class="settings-group">
                 <div class="group-title">ЗВУК И ТЕКСТ</div>
                 
@@ -255,6 +274,7 @@ export class SettingsManager {
       });
       bgmSlider.addEventListener("change", () => {
         this.saveCurrentSettings();
+        if (window.playUISound) window.playUISound("open");
       });
     }
 
@@ -275,6 +295,7 @@ export class SettingsManager {
       });
       tsSlider.addEventListener("change", () => {
         this.saveCurrentSettings();
+        if (window.playUISound) window.playUISound("open");
       });
     }
 
@@ -292,6 +313,53 @@ export class SettingsManager {
         });
       });
     }
+
+    // --- ЗАКРЫТИЕ ПО КЛИКУ В ПУСТОТУ (на затемненный фон) ---
+    panel.addEventListener("click", (e) => {
+      // Если мы кликнули ровно по самому фону, а не по окошку настроек внутри
+      if (e.target === panel) {
+        this.close();
+      }
+    });
+
+    // --- ЛОГИКА СМЕНЫ ЯЗЫКА ---
+    const langToggleBtns = panel.querySelectorAll(
+      "#language-toggle .toggle-btn",
+    );
+    langToggleBtns.forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        window.playUISound("click"); // Или "hover"
+
+        // Убираем класс active у всех и вешаем на нажатую
+        langToggleBtns.forEach((b) => b.classList.remove("active"));
+        e.target.classList.add("active");
+
+        const val = e.target.getAttribute("data-val");
+        this.settings.language = val;
+        this.saveCurrentSettings();
+
+        // В будущем здесь будет вызов функции, которая меняет тексты в интерфейсе на лету!
+        // например: if (window.localeManager) window.localeManager.setLanguage(val);
+      });
+    });
+
+          // Мгновенно переводит все элементы с атрибутом data-i18n
+  applyTranslations() {
+    const lang = this.settings.language || "ru";
+    const dict = this.uiTranslations[lang];
+    if (!dict) return;
+
+    const panel = document.getElementById(this.containerId);
+    if (!panel) return;
+
+    const elements = panel.querySelectorAll("[data-i18n]");
+    elements.forEach(el => {
+      const key = el.getAttribute("data-i18n");
+      if (dict[key]) {
+        el.textContent = dict[key];
+      }
+    });
+  }
   }
 
   open() {

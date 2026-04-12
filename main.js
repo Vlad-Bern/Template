@@ -228,6 +228,8 @@ const tw = new Typewriter("dialog-box");
 const sm = new SceneManager(tw);
 window.sm = sm;
 
+window.audioManager = sm.am;
+
 window.saveManager = new SaveManager();
 window.settingsManager = new SettingsManager();
 
