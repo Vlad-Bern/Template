@@ -249,7 +249,6 @@ app.innerHTML = `
     <button id="btn-exit">Выход</button>
   </div>
   
-  <!-- +++ ВАША ПОДПИСЬ S-РАНГА +++ -->
   <div class="version-watermark" style="
     position: absolute;
     bottom: 15px;
@@ -269,13 +268,14 @@ app.innerHTML = `
 </div>
 </div>
 
-<div id="gallery-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 10000; justify-content: center; align-items: center;">
-  <div id="gallery-content" style="background: #111; border: 1px solid #444; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 15px;">
-    <h2 style="color: #fff; margin: 0;">Галерея CG</h2>
-    <div id="gallery-grid" style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; max-width: 80vw;">
-       <!-- Сюда мы будем подгружать открытые сцены -->
+<div id="gallery-modal" class="sota-gallery-modal">
+  <div id="gallery-content" class="sota-gallery-content">
+    <div class="sota-gallery-header">
+      <h2>СИНСЮ ОС: СЕКРЕТНЫЙ АРХИВ</h2>
+      <button id="close-gallery-btn" class="sota-close-btn">✖</button>
     </div>
-    <button id="close-gallery-btn">Закрыть</button>
+    <!-- Сюда скрипт будет кидать картинки -->
+    <div id="gallery-grid" class="sota-gallery-grid"></div>
   </div>
 </div>
 
@@ -997,18 +997,15 @@ if (btnGallery) {
         // Отрисовываем всё, что накопили
         gallery.forEach((path, index) => {
           const img = document.createElement("img");
-          img.src = path;
-          img.style.width = "240px";
-          img.style.height = "135px";
-          img.style.objectFit = "cover";
-          img.style.border = "2px solid #444";
-          img.style.cursor = "pointer";
-          img.style.transition = "transform 0.2s";
+          // Наш мобильный оптимизатор (оставили из прошлого шага)
+          img.src =
+            window.sm && window.sm._getOptimizedBgPath
+              ? window.sm._getOptimizedBgPath(path)
+              : path;
 
-          img.onmouseenter = () => (img.style.transform = "scale(1.05)");
-          img.onmouseleave = () => (img.style.transform = "scale(1)");
+          // Вся магия теперь в классе!
+          img.className = "sota-gallery-item";
 
-          // ТЕПЕРЬ index ИЗВЕСТЕН И РАБОТАЕТ!
           img.onclick = () => {
             if (window.playUISound) window.playUISound("click");
             window.showLightbox(index);
@@ -1120,7 +1117,11 @@ let currentLightboxIndex = 0;
 
 function updateLightboxImage() {
   if (lightboxImages.length === 0) return;
-  lightboxImg.src = lightboxImages[currentLightboxIndex];
+  const rawPath = lightboxImages[currentLightboxIndex];
+  lightboxImg.src =
+    window.sm && window.sm._getOptimizedBgPath
+      ? window.sm._getOptimizedBgPath(rawPath)
+      : rawPath;
 }
 
 window.showLightbox = function (index) {
@@ -1181,3 +1182,37 @@ document.addEventListener("keydown", (e) => {
     if (e.key === "ArrowLeft") prevLightboxImg();
   }
 });
+
+// === МАЙ: АДАПТАЦИЯ ДЛЯ ПАЛЬЧИКОВ (СВАЙПЫ) ===
+let touchstartX = 0;
+let touchendX = 0;
+
+lightboxOverlay.addEventListener(
+  "touchstart",
+  (e) => {
+    touchstartX = e.changedTouches[0].screenX;
+  },
+  { passive: true },
+);
+
+lightboxOverlay.addEventListener(
+  "touchend",
+  (e) => {
+    touchendX = e.changedTouches[0].screenX;
+    handleSwipeGesture();
+  },
+  { passive: true },
+);
+
+function handleSwipeGesture() {
+  // Если провели пальцем влево (следующая картинка)
+  if (touchendX < touchstartX - 50) {
+    if (window.playUISound) window.playUISound("click");
+    nextLightboxImg();
+  }
+  // Если провели пальцем вправо (предыдущая картинка)
+  if (touchendX > touchstartX + 50) {
+    if (window.playUISound) window.playUISound("click");
+    prevLightboxImg();
+  }
+}
