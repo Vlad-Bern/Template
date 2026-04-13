@@ -2153,24 +2153,22 @@ $glass-dark: rgba(10, 12, 18, 0.95);
     }
   }
 
-  // Черная ширма, которая растворится в конце анимации
   #menu-black-overlay {
     position: absolute;
     inset: 0;
     background: #000;
-    z-index: 15; /* Перекрывает видео и кнопки, но ниже заголовка */
-    // Растворяется через 1.8 секунды после старта меню
-    animation: fadeOutOverlay 1s ease-in-out 1.8s forwards;
+    z-index: 15;
   }
 
-  // Анимированный заголовок
-  .menu-title-container {
+  #main-menu-title {
     position: absolute;
-    top: 15%; /* Висит над кнопками слева */
-    left: 10%;
+    /* Стартовые позиции: жестко по центру */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1.5);
     display: flex;
-    gap: 15px; /* Расстояние между словами */
-    z-index: 20; /* Поверх черной ширмы! */
+    gap: 20px;
+    z-index: 20;
     font-family: "Inter", sans-serif;
     text-transform: uppercase;
 
@@ -2178,66 +2176,24 @@ $glass-dark: rgba(10, 12, 18, 0.95);
       display: flex;
       align-items: flex-end;
 
-      /* Заглавные буквы S O T A */
       .initial {
         font-size: 4.5rem;
         font-weight: 900;
-        color: #00ffff; /* Ваш фирменный неоново-синий */
+        color: #00ffff; /* Синий неон */
         text-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
-        opacity: 0;
-        transform: translateX(-50px);
-        animation: flyInLetter 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        opacity: 0; /* Спрятано до команды anime.js */
       }
 
-      /* Остальная часть слов (chool, f, he, bnormal) */
       .rest {
         font-size: 3rem;
         font-weight: 300;
         color: #ffffff;
         text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-        overflow: hidden;
         white-space: nowrap;
-        max-width: 0; /* Спрятано по умолчанию */
+        overflow: hidden;
+        max-width: 0; /* Слова сжаты в ноль */
         opacity: 0;
-        // Расширяется через 1.5 секунды (после того как SOTA повисит)
-        animation: revealWord 0.6s cubic-bezier(0.25, 1, 0.5, 1) 1.5s forwards;
       }
-    }
-
-    /* Тайминги: Буквы вылетают по очереди (как выстрелы) */
-    .word:nth-child(1) .initial {
-      animation-delay: 0.1s;
-    }
-    .word:nth-child(2) .initial {
-      animation-delay: 0.25s;
-    }
-    .word:nth-child(3) .initial {
-      animation-delay: 0.4s;
-    }
-    .word:nth-child(4) .initial {
-      animation-delay: 0.55s;
-    }
-  }
-
-  // === Ключевые кадры для магии ===
-  @keyframes flyInLetter {
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
-  @keyframes revealWord {
-    to {
-      max-width: 400px; /* Раздвигаем контейнер, чтобы влезло слово */
-      opacity: 1;
-    }
-  }
-
-  @keyframes fadeOutOverlay {
-    to {
-      opacity: 0;
-      visibility: hidden;
     }
   }
 }

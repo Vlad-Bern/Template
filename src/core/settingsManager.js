@@ -3,14 +3,30 @@ export class SettingsManager {
     this.modalOpen = false;
     this.containerId = "settings-panel";
 
-    // БАЗОВЫЕ НАСТРОЙКИ (По умолчанию)
+    // --- УМНОЕ ОПРЕДЕЛЕНИЕ ЯЗЫКА СИСТЕМЫ ---
+    const getSystemLanguage = () => {
+      // Поддерживаемые языки в Синсю 
+      const supportedLangs = ["ru", "en", "ja"];
+
+      // Берем язык из системы (например, 'ru-RU' или 'en-US')
+      const systemLang = (
+        navigator.language || navigator.userLanguage
+      ).toLowerCase();
+
+      // Отрезаем всё после дефиса (получаем просто 'ru' или 'en')
+      const shortLang = systemLang.split("-")[0];
+
+      // Если язык системы есть в нашем списке — ставим его. Иначе — строгий английский.
+      return supportedLangs.includes(shortLang) ? shortLang : "en";
+    };
+
     this.defaultSettings = {
       fullscreen: "window",
       parallax: "on",
       bgmVolume: 50,
       sfxVolume: 100,
       textSpeed: 70,
-      language: "en",
+      language: getSystemLanguage(),
     };
 
     // Словарь для перевода интерфейса настроек (ТЕПЕРЬ ОН ТУТ, НАВЕРХУ!)
@@ -160,7 +176,7 @@ export class SettingsManager {
                   <div class="toggle-group" id="language-toggle">
                     <button class="toggle-btn ${this.settings.language === "ru" ? "active" : ""}" data-val="ru">Русский</button>
                     <button class="toggle-btn ${this.settings.language === "en" ? "active" : ""}" data-val="en">English</button>
-                    <button class="toggle-btn ${this.settings.language === 'ja' ? 'active' : ''}" data-val="ja">日本語</button>
+                    <button class="toggle-btn ${this.settings.language === "ja" ? "active" : ""}" data-val="ja">日本語</button>
                   </div>
               </div>
               

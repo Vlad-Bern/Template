@@ -197,23 +197,15 @@ app.innerHTML = `
   <!-- === ГЛАВНОЕ МЕНЮ === -->
 <div id="main-menu-screen" style="display: none;">
   
-  <!-- Временная черная ширма -->
+    <!-- Временная черная ширма (скрывает видео и кнопки) -->
   <div id="menu-black-overlay"></div>
 
-  <!-- Наш роскошный заголовок -->
-  <div class="menu-title-container">
-    <div class="word">
-      <span class="initial">S</span><span class="rest">chool</span>
-    </div>
-    <div class="word">
-      <span class="initial">O</span><span class="rest">f</span>
-    </div>
-    <div class="word">
-      <span class="initial">T</span><span class="rest">he</span>
-    </div>
-    <div class="word">
-      <span class="initial">A</span><span class="rest">bnormal</span>
-    </div>
+  <!-- Наш анимированный контейнер (сначала он будет по центру) -->
+  <div id="main-menu-title">
+    <div class="word"><span class="initial">S</span><span class="rest">chool</span></div>
+    <div class="word"><span class="initial">O</span><span class="rest">f</span></div>
+    <div class="word"><span class="initial">T</span><span class="rest">he</span></div>
+    <div class="word"><span class="initial">A</span><span class="rest">bnormal</span></div>
   </div>
 
   <video class="menu-bg-video" autoplay loop muted playsinline>
@@ -370,43 +362,193 @@ const dialogWrapper = document.getElementById("dialog-wrapper");
 if (gameViewport) gameViewport.style.display = "none";
 if (dialogWrapper) dialogWrapper.style.display = "none";
 
-// Функция запуска игры (сработает только один раз)
 function startGame(e) {
-  // Убираем слушатели, чтобы игрок не накликал лишнего
+  // 1. Немедленно убиваем слушатели стартового экрана
   document.removeEventListener("click", startGame);
   document.removeEventListener("keydown", startGame);
   document.removeEventListener("touchstart", startGame);
 
   const disclaimer = document.getElementById("disclaimer-screen");
   const splash = document.getElementById("splash-screen");
-  const gameViewport = document.getElementById("game-viewport");
-  const dialogWrapper = document.getElementById("dialog-wrapper");
 
-  // 1. Растворяем ваш дерзкий дисклеймер
-  disclaimer.style.opacity = "0";
-  disclaimer.style.pointerEvents = "none";
+  // Флаг, предотвращающий двойной запуск меню
+  let menuStarted = false;
 
-  // 2. Ждем 1 секунду, пока он исчезнет, и ПРОЯВЛЯЕМ заставку
+  // Функция для жесткого старта меню и очистки мусора
+  const triggerMenu = () => {
+    if (menuStarted) return;
+    menuStarted = true;
+
+    // Убиваем все слушатели скипа стартового экрана
+    document.removeEventListener("click", forceSkipIntro);
+    document.removeEventListener("keydown", forceSkipIntro);
+
+    // Прячем всё стартовое барахло
+    if (disclaimer) disclaimer.style.display = "none";
+    if (splash) splash.style.display = "none";
+
+    // Передаем эстафету
+    startMainMenuAnimation();
+  };
+
+  // Логика скипа ТОЛЬКО для стартового экрана (Дисклеймер + VLADBER PRESENTS)
+  const forceSkipIntro = () => {
+    triggerMenu();
+  };
+
+  // 2. Растворяем дисклеймер
+  if (disclaimer) {
+    disclaimer.style.opacity = "0";
+    disclaimer.style.pointerEvents = "none";
+  }
+
+  // 3. Запускаем каскад таймеров для ленивых игроков (кто не скипает)
   setTimeout(() => {
-    disclaimer.style.display = "none"; // Прячем дисклеймер совсем
-    splash.style.opacity = "1"; // ВОТ ЭТА СТРОЧКА БЫЛА УТЕРЯНА!
+    if (menuStarted) return;
+    if (disclaimer) disclaimer.style.display = "none";
+    if (splash) splash.style.opacity = "1";
 
-    // 3. Держим заставку 2 секунды, затем РАСТВОРЯЕМ
     setTimeout(() => {
-      splash.style.opacity = "0";
+      if (menuStarted) return;
+      if (splash) splash.style.opacity = "0";
 
-      // 4. Еще через 1 секунду пускаем игрока в Главное меню
       setTimeout(() => {
-        splash.style.display = "none";
-
-        const mainMenu = document.getElementById("main-menu-screen");
-        if (mainMenu) {
-          mainMenu.style.display = "flex"; // Обязательно flex, а не block, иначе сломаете центрирование кнопок!
-        }
+        if (menuStarted) return;
+        triggerMenu(); // Естественный старт меню
       }, 1000);
-    }, 2000); // Время отображения заставки
-  }, 1000); // Время угасания дисклеймера
+    }, 2000); // 2 секунды Заставка
+  }, 1000); // 1 секунда угасание Дисклеймера
+
+  // 4. Вешаем слушатели скипа с микро-задержкой, чтобы первый клик не убил всё сразу
+  setTimeout(() => {
+    if (!menuStarted) {
+      document.addEventListener("click", forceSkipIntro);
+      document.addEventListener("keydown", forceSkipIntro);
+    }
+  }, 300);
 }
+
+// === КИНЕМАТОГРАФИЧНЫЙ ОПЕНИНГ СИНСЮ ===
+function startMainMenuAnimation() {
+  const mainMenu = document.getElementById("main-menu-screen");
+  const overlay = document.getElementById("menu-black-overlay");
+  const title = document.getElementById("main-menu-title");
+
+  if (!mainMenu) return;
+
+  mainMenu.style.display = "flex";
+
+  const introTimeline = anime.timeline({
+    easing: "easeOutExpo",
+  });
+
+  // Локальный флаг скипа ТОЛЬКО для анимации меню
+  let menuCanSkip = true;
+
+  const killMenuSkip = () => {
+    menuCanSkip = false;
+    document.removeEventListener("click", doMenuSkip);
+    document.removeEventListener("keydown", doMenuSkip);
+  };
+
+  // ЗАЩИТА: Как только буквы тронутся с места (через 1.3 секунды) - скип отрубается
+  const safetyLock = setTimeout(() => {
+    killMenuSkip();
+  }, 1300);
+
+  introTimeline
+    .add({
+      targets: "#main-menu-title .initial",
+      opacity: [0, 1],
+      scale: [3, 1],
+      duration: 600,
+      delay: anime.stagger(150),
+    })
+    .add(
+      {
+        targets: "#main-menu-title",
+        top: ["50%", "15%"],
+        left: ["50%", "10%"],
+        translateX: ["-50%", "0%"],
+        translateY: ["-50%", "0%"],
+        scale: [1.5, 1],
+        duration: 900,
+        easing: "easeInOutExpo",
+      },
+      "+=500",
+    )
+    .add(
+      {
+        targets: "#main-menu-title .rest",
+        maxWidth: ["0px", "300px"],
+        opacity: [0, 1],
+        duration: 700,
+        delay: anime.stagger(100),
+      },
+      "-=400",
+    )
+    .add(
+      {
+        targets: "#menu-black-overlay",
+        opacity: [1, 0],
+        duration: 800,
+        easing: "linear",
+        complete: () => {
+          if (overlay) overlay.style.display = "none";
+          killMenuSkip(); // Контрольный выстрел в слушатели
+        },
+      },
+      "-=600",
+    );
+
+  // Сама функция скипа меню
+  const doMenuSkip = () => {
+    if (!menuCanSkip) return;
+
+    clearTimeout(safetyLock); // Убиваем таймер защиты
+    killMenuSkip(); // Глушим слушатели навсегда
+    introTimeline.pause(); // Тормозим anime.js
+
+    // Вырываем элементы
+    anime.remove([
+      "#main-menu-title",
+      "#main-menu-title .initial",
+      "#main-menu-title .rest",
+      "#menu-black-overlay",
+    ]);
+
+    // Вбиваем финальные стили
+    if (title) {
+      title.style.top = "15%";
+      title.style.left = "10%";
+      title.style.transform = "translate(0%, 0%) scale(1)";
+    }
+    document.querySelectorAll("#main-menu-title .initial").forEach((el) => {
+      el.style.opacity = "1";
+      el.style.transform = "scale(1)";
+    });
+    document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
+      el.style.opacity = "1";
+      el.style.maxWidth = "300px";
+    });
+    if (overlay) {
+      overlay.style.display = "none";
+      overlay.style.opacity = "0";
+    }
+  };
+
+  // ВАЖНО: Вешаем слушатель скипа меню с небольшой задержкой (чтобы клик из интро не перескочил сюда)
+  setTimeout(() => {
+    if (menuCanSkip) {
+      document.addEventListener("click", doMenuSkip);
+      document.addEventListener("keydown", doMenuSkip);
+    }
+  }, 400); // 400мс защиты от "сквозного прокликивания"
+}
+
+// Вешаем стартовые слушатели
+document.addEventListener("click", startGame);
+// ... остальной ваш код с Howler и CustomEvent остается ниже!
 
 // Вешаем слушатели
 document.addEventListener("click", startGame);
