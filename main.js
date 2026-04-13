@@ -712,32 +712,106 @@ window.dispatchEvent(
   rafId = requestAnimationFrame(renderFrame);
 })();
 
-// === ЛОГИКА ГЛАВНОГО МЕНЮ ===
+// === ЛОГИКА КНОПОК ГЛАВНОГО МЕНЮ ===
 
-// Кнопка: Новая игра
+// 1. Кнопка: Новая игра
 const btnNewGame = document.getElementById("btn-new-game");
 if (btnNewGame) {
   btnNewGame.addEventListener("click", () => {
-    // Прячем главное меню
-    document.getElementById("main-menu-screen").style.display = "none";
+    if (window.playUISound) window.playUISound("click"); // Звук клика!
 
-    // Включаем игровой интерфейс
+    // Прячем главное меню
+    const mainMenu = document.getElementById("main-menu-screen");
+    if (mainMenu) mainMenu.style.display = "none";
+
+    // Включаем игровой интерфейс Синсю
     const gameViewport = document.getElementById("game-viewport");
     const dialogWrapper = document.getElementById("dialog-wrapper");
     if (gameViewport) gameViewport.style.display = "block";
     if (dialogWrapper) dialogWrapper.style.display = "flex";
 
-    // Пример: window.sceneManager.loadScene("d_rank_start_scene");
+    // Сбрасываем стресс (Санити) и Доминирование для нового забега
+    if (window.state && window.state.hero) {
+      window.state.hero.stats.sanity = 100;
+      window.state.hero.stats.dominance = 0;
+      window.dispatchEvent(
+        new CustomEvent("stressUpdated", { detail: { sanity: 100 } }),
+      );
+    }
+
+    // Запускаем первую сцену! (Укажи тут ID твоей стартовой сцены D-ранга)
+    if (window.sceneManager) {
+      window.sceneManager.loadScene("prologue_interrogation"); // <== ЗАМЕНИ "scene_1" НА СВОЕ НАЗВАНИЕ!
+    } else {
+      console.warn("Май: Господин... то есть, слуга! sceneManager не найден!");
+    }
   });
 }
 
-// Кнопка: Выход (Жесткий выход через NW.js)
+// 2. Кнопка: Загрузить
+const btnLoadGame = document.getElementById("btn-load-game");
+if (btnLoadGame) {
+  btnLoadGame.addEventListener("click", () => {
+    if (window.playUISound) window.playUISound("click");
+    if (window.saveManager) {
+      window.saveManager.open("load");
+    }
+  });
+}
+
+// 3. Кнопка: Настройки
+const btnSettingsMenu = document.getElementById("btn-settings-menu");
+if (btnSettingsMenu) {
+  btnSettingsMenu.addEventListener("click", () => {
+    if (window.playUISound) window.playUISound("click");
+    if (window.settingsManager) {
+      window.settingsManager.open();
+    }
+  });
+}
+
+// 4. Кнопка: Выход (С кинематографичным затемнением)
 const btnExit = document.getElementById("btn-exit");
 if (btnExit) {
   btnExit.addEventListener("click", () => {
-    // Проверяем, запущена ли игра в оболочке NW.js
-    if (typeof nw !== "undefined") {
-      nw.App.quit(); // Беспощадно убиваем процесс
-    }
+    // 1. Звук клика (если есть)
+    if (window.playUISound) window.playUISound("click");
+
+    // 2. Блокируем весь экран, чтобы игрок больше никуда не нажал
+    const blackoutLayer = document.createElement("div");
+    blackoutLayer.style.position = "fixed";
+    blackoutLayer.style.inset = "0";
+    blackoutLayer.style.backgroundColor = "black";
+    blackoutLayer.style.zIndex = "999999"; // Поверх вообще всего
+    blackoutLayer.style.display = "flex";
+    blackoutLayer.style.justifyContent = "center";
+    blackoutLayer.style.alignItems = "center";
+    blackoutLayer.style.opacity = "0";
+    blackoutLayer.style.transition = "opacity 2s ease-in-out"; // Плавное затемнение на 2 секунды
+    blackoutLayer.style.pointerEvents = "all"; // Перехватываем клики
+
+    // 3. Добавляем кровавую надпись
+    const exitText = document.createElement("h1");
+    exitText.innerText = "Я БУДУ ЖДАТЬ ТВОЕГО ВОЗВРАЩЕНИЯ...";
+    exitText.style.color = "#8b0000"; // Ваш $blood-red
+    exitText.style.fontFamily = "'Inter', sans-serif";
+    exitText.style.fontSize = "3rem";
+    exitText.style.letterSpacing = "10px";
+    exitText.style.textShadow = "0 0 20px rgba(150, 0, 0, 0.8)";
+
+    blackoutLayer.appendChild(exitText);
+    document.body.appendChild(blackoutLayer);
+
+    // 4. Запускаем анимацию затемнения через микро-задержку (чтобы сработал CSS transition)
+    setTimeout(() => {
+      blackoutLayer.style.opacity = "1";
+    }, 50);
+
+    // 5. Ждем окончания анимации (2 секунды) и убиваем процесс, если мы на ПК
+    setTimeout(() => {
+      if (typeof nw !== "undefined") {
+        nw.App.quit(); // Беспощадно рубим питание
+      }
+    }, 2050);
   });
 }

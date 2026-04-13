@@ -37,6 +37,10 @@ export class HistoryManager {
     document.addEventListener(
       "wheel",
       (e) => {
+        if (
+          document.getElementById("main-menu-screen")?.style.display !== "none"
+        )
+          return;
         // БЛОКИРУЕМ КОЛЕСИКО, ЕСЛИ ОТКРЫТЫ СОХРАНЕНИЯ ИЛИ НАСТРОЙКИ!
         if (
           window.saveManager?.modalOpen ||
@@ -73,6 +77,10 @@ export class HistoryManager {
     document.addEventListener(
       "touchmove",
       (e) => {
+        if (
+          document.getElementById("main-menu-screen")?.style.display !== "none"
+        )
+          return;
         // БЛОКИРУЕМ СВАЙП, ЕСЛИ ОТКРЫТЫ СОХРАНЕНИЯ ИЛИ НАСТРОЙКИ!
         if (window.saveManager?.modalOpen || window.settingsManager?.modalOpen)
           return;

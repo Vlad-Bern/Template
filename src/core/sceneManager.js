@@ -168,6 +168,11 @@ export class SceneManager {
     document.addEventListener(
       "touchstart",
       (e) => {
+        if (
+          document.getElementById("main-menu-screen")?.style.display !== "none"
+        )
+          return;
+
         touchStartX = e.touches[0].clientX;
         touchStartY = e.touches[0].clientY;
 
@@ -197,6 +202,10 @@ export class SceneManager {
     document.addEventListener(
       "touchmove",
       (e) => {
+        if (
+          document.getElementById("main-menu-screen")?.style.display !== "none"
+        )
+          return;
         // Если палец сдвинулся больше чем на 15 пикселей (это свайп, а не удержание) — отменяем таймер скипа!
         const dx = Math.abs(e.touches[0].clientX - touchStartX);
         const dy = Math.abs(e.touches[0].clientY - touchStartY);
@@ -259,8 +268,12 @@ export class SceneManager {
         window.settingsManager && window.settingsManager.modalOpen;
       const isHistory = this.hm && this.hm.modalOpen;
 
-      // ЕСЛИ ОТКРЫТО ХОТЯ БЫ ОДНО ОКНО:
-      if (isSave || isSettings || isHistory) {
+      // Проверяем, висит ли Главное меню
+      const mainMenu = document.getElementById("main-menu-screen");
+      const isMainMenuActive = mainMenu && mainMenu.style.display !== "none";
+
+      // === ФАЗА 1: РЕЖИМ БЛОКИРОВКИ (ОТКРЫТО ОКНО ИЛИ ГЛАВНОЕ МЕНЮ) ===
+      if (isSave || isSettings || isHistory || isMainMenuActive) {
         // 1. БЛОКИРУЕМ ИГРОВЫЕ КНОПКИ (Пробел, Enter, Стрелки, Ctrl)
         if (
           [
@@ -275,141 +288,57 @@ export class SceneManager {
           ].includes(e.code)
         ) {
           e.preventDefault();
-          e.stopPropagation();
+          e.stopImmediatePropagation(); // Жестко глушим все остальные скрипты!
           return;
         }
 
-        // 2. ЗАКРЫТИЕ НА ESCAPE
+        // 2. ЗАКРЫТИЕ НА ESCAPE (РАБОТАЕТ ВСЕГДА, ЕСЛИ ЕСТЬ ЧТО ЗАКРЫВАТЬ)
         if (e.code === "Escape") {
           if (isSettings) window.settingsManager.close();
           if (isSave) window.saveManager.close();
           if (isHistory) this.hm.hideHistory();
-          e.stopPropagation();
+          e.stopImmediatePropagation();
           return;
         }
 
-        // 3. ПЕРЕКЛЮЧЕНИЕ: НАСТРОЙКИ (O)
-        if (e.code === "KeyO" && !e.repeat) {
-          if (isSettings)
-            window.settingsManager.close(); // Закрываем, если открыто
-          else {
-            if (isSave) window.saveManager.close();
-            if (isHistory) this.hm.hideHistory();
-            window.settingsManager.open(); // Открываем настройки
-          }
-          e.stopPropagation();
-          return;
-        }
-
-        // 4. ПЕРЕКЛЮЧЕНИЕ: СОХРАНЕНИЕ (S)
-        if (e.code === "KeyS" && !e.repeat) {
-          if (isSave && window.saveManager.mode === "save")
-            window.saveManager.close();
-          else {
-            if (isSettings) window.settingsManager.close();
-            if (isHistory) this.hm.hideHistory();
-            window.saveManager.open("save");
-          }
-          e.stopPropagation();
-          return;
-        }
-
-        // 5. ПЕРЕКЛЮЧЕНИЕ: ЗАГРУЗКА (L)
-        if (e.code === "KeyL" && !e.repeat) {
-          if (isSave && window.saveManager.mode === "load")
-            window.saveManager.close();
-          else {
-            if (isSettings) window.settingsManager.close();
-            if (isHistory) this.hm.hideHistory();
-            window.saveManager.open("load");
-          }
-          e.stopPropagation();
-          return;
-        }
-
-        // 6. ПЕРЕКЛЮЧЕНИЕ: ИСТОРИЯ (H)
-        if (e.code === "KeyH" && !e.repeat) {
-          if (isHistory) this.hm.hideHistory();
-          else {
-            if (isSettings) window.settingsManager.close();
-            if (isSave) window.saveManager.close();
-            this.hm.showHistory();
-          }
-          e.stopPropagation();
-          return;
-        }
-
-        // Блокируем любые другие случайные кнопки
-        e.stopPropagation();
+        // Если мы дошли сюда — значит нажата любая другая кнопка (O, S, L, H) во время блокировки.
+        // Мы просто ее игнорируем!
+        e.stopImmediatePropagation();
         return;
       }
 
-      // === ЕСЛИ НИ ОДНО ОКНО НЕ ОТКРЫТО, РАБОТАЕТ ИГРА ===
+      // === ФАЗА 2: ЧИСТАЯ ИГРА (МЕНЮ И ОКНА ЗАКРЫТЫ) ===
 
       // 3. ПЕРЕКЛЮЧЕНИЕ: НАСТРОЙКИ (O)
       if (e.code === "KeyO" && !e.repeat) {
-        if (isSettings) {
-          window.settingsManager.close();
-        } else {
-          if (isSave) window.saveManager.close();
-          if (isHistory) this.hm.hideHistory();
-          window.settingsManager.open();
-        }
+        window.settingsManager.open();
         e.preventDefault();
-        e.stopPropagation();
+        e.stopImmediatePropagation();
         return;
       }
 
       // 4. ПЕРЕКЛЮЧЕНИЕ: СОХРАНЕНИЕ (S)
       if (e.code === "KeyS" && !e.repeat) {
-        if (isSave && window.saveManager.mode === "save") {
-          window.saveManager.close();
-        } else {
-          if (isSettings) window.settingsManager.close();
-          if (isHistory) this.hm.hideHistory();
-          window.saveManager.open("save");
-        }
+        window.saveManager.open("save");
         e.preventDefault();
-        e.stopPropagation();
+        e.stopImmediatePropagation();
         return;
       }
 
       // 5. ПЕРЕКЛЮЧЕНИЕ: ЗАГРУЗКА (L)
       if (e.code === "KeyL" && !e.repeat) {
-        if (isSave && window.saveManager.mode === "load") {
-          window.saveManager.close();
-        } else {
-          if (isSettings) window.settingsManager.close();
-          if (isHistory) this.hm.hideHistory();
-          window.saveManager.open("load");
-        }
+        window.saveManager.open("load");
         e.preventDefault();
-        e.stopPropagation();
+        e.stopImmediatePropagation();
         return;
       }
 
       // 6. ПЕРЕКЛЮЧЕНИЕ: ИСТОРИЯ (H)
       if (e.code === "KeyH" && !e.repeat) {
-        if (isHistory) {
-          this.hm.hideHistory();
-        } else {
-          if (isSettings) window.settingsManager.close();
-          if (isSave) window.saveManager.close();
-          this.hm.showHistory();
-        }
+        this.hm.showHistory();
         e.preventDefault();
-        e.stopPropagation();
+        e.stopImmediatePropagation();
         return;
-      }
-
-      if (this.cs && this.cs.isActive) return;
-
-      // Код перемотки
-      if (e.code === "ControlLeft" || e.code === "ControlRight") {
-        if (!this.isFastForwarding) {
-          this.isFastForwarding = true;
-          this.handleFastForward();
-        }
       }
     });
 
