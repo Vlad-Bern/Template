@@ -241,13 +241,15 @@ app.innerHTML = `
     <source src="/bg/common/menu_bg.webm" type="video/webm">
   </video>
   
-  <div class="menu-buttons-container">
-    <button id="btn-new-game">Новая игра</button>
-    <button id="btn-load-game">Загрузить</button>
-    <button id="btn-settings-menu">Настройки</button>
-    <button id="btn-gallery">Галерея</button>
-    <button id="btn-exit">Выход</button>
-  </div>
+  <div id="main-menu-character-container" class="sota-menu-character"></div>
+
+<div class="menu-buttons-container">
+  <button id="btn-new-game"><span class="visual">Новая игра</span></button>
+  <button id="btn-load-game"><span class="visual">Загрузить</span></button>
+  <button id="btn-settings-menu"><span class="visual">Настройки</span></button>
+  <button id="btn-gallery"><span class="visual">Галерея</span></button>
+  <button id="btn-exit"><span class="visual">Выход</span></button>
+</div>
   
   <div class="version-watermark" style="
     position: absolute;
@@ -271,7 +273,7 @@ app.innerHTML = `
 <div id="gallery-modal" class="sota-gallery-modal">
   <div id="gallery-content" class="sota-gallery-content">
     <div class="sota-gallery-header">
-      <h2>СИНСЮ ОС: СЕКРЕТНЫЙ АРХИВ</h2>
+      <h2>ГАЛЕРЕЯ</h2>
       <button id="close-gallery-btn" class="sota-close-btn">✖</button>
     </div>
     <!-- Сюда скрипт будет кидать картинки -->
@@ -465,6 +467,8 @@ window.returnToMenuLogic = () => {
       const mainMenu = document.getElementById("main-menu-screen");
       if (mainMenu) mainMenu.style.display = "flex";
 
+      window.showRandomMenuCharacter();
+
       // 5. Растворяем затемнение
       blackoutLayer.style.opacity = "0";
       setTimeout(() => blackoutLayer.remove(), 1500);
@@ -478,6 +482,40 @@ document
     this.blur(); // Отбираем фокус
     returnToMenuLogic();
   });
+
+// === МАЙ: ПОЯВЛЕНИЕ СЛУЧАЙНОГО ПЕРСОНАЖА ===
+window.showRandomMenuCharacter = function () {
+  const container = document.getElementById("main-menu-character-container");
+  if (!container) return;
+
+  // Ваши пути к спрайтам для меню
+  const characters = [
+    "/chars/mMenu/celeste_menu.png",
+    "/chars/mMenu/kagami_menu.png",
+    "/chars/mMenu/livia_menu.png",
+  ];
+
+  // Выбираем случайного
+  const randomIndex = Math.floor(Math.random() * characters.length);
+  const selectedChar = characters[randomIndex];
+
+  // Очищаем контейнер
+  container.innerHTML = "";
+
+  const img = document.createElement("img");
+
+  img.src =
+    window.sm && window.sm._getOptimizedSpritePath
+      ? window.sm._getOptimizedSpritePath(selectedChar)
+      : selectedChar;
+
+  container.appendChild(img);
+
+  // Плавное проявление
+  setTimeout(() => {
+    img.classList.add("visible");
+  }, 100);
+};
 
 // Заглушка для браузерных тестов (просит повернуть телефон)
 if (sm.isMobile) {
@@ -547,10 +585,14 @@ function startGame(e) {
           el.style.maxWidth = "300px";
         });
         if (overlay) overlay.style.display = "none";
+
+        window.showRandomMenuCharacter();
       }
     } else {
       // Обычный старт для игроков
       startMainMenuAnimation();
+
+      window.showRandomMenuCharacter();
     }
   };
 
@@ -973,7 +1015,6 @@ if (btnSettingsMenu) {
 
 // 4. Кнопка: Галерея
 const btnGallery = document.getElementById("btn-gallery");
-const galleryModal = document.getElementById("gallery-modal");
 const closeGalleryBtn = document.getElementById("close-gallery-btn");
 
 if (btnGallery) {
@@ -1017,6 +1058,46 @@ if (btnGallery) {
     }
   });
 }
+
+// === МАЙ: УМНОЕ ЗАКРЫТИЕ ГАЛЕРЕИ ===
+const galleryModal = document.getElementById("gallery-modal");
+
+if (galleryModal) {
+  // 1. Закрытие по Правой Кнопке Мыши (ПКМ)
+  galleryModal.addEventListener("contextmenu", (e) => {
+    e.preventDefault(); // Безжалостно убиваем стандартное белое меню браузера!
+
+    // Снова проверяем, не открыта ли в этот момент большая картинка
+    const lightboxOverlay = document.getElementById("cg-lightbox-overlay");
+    const isLightboxOpen =
+      lightboxOverlay && lightboxOverlay.style.display === "flex";
+
+    if (!isLightboxOpen) {
+      if (window.playUISound) window.playUISound("click");
+      galleryModal.style.display = "none";
+    }
+  });
+}
+
+// 2. Закрытие по клавише Esc
+document.addEventListener("keydown", (e) => {
+  if (
+    e.key === "Escape" &&
+    galleryModal &&
+    galleryModal.style.display === "flex"
+  ) {
+    // Проверяем, не открыт ли сейчас наш полноэкранный слайдер
+    const lightboxOverlay = document.getElementById("cg-lightbox-overlay");
+    const isLightboxOpen =
+      lightboxOverlay && lightboxOverlay.style.display === "flex";
+
+    // Если слайдер ЗАКРЫТ, значит мы имеем право закрыть саму галерею
+    if (!isLightboxOpen) {
+      if (window.playUISound) window.playUISound("click"); // Или звук закрытия окна
+      galleryModal.style.display = "none";
+    }
+  }
+});
 
 if (closeGalleryBtn) {
   closeGalleryBtn.addEventListener("click", () => {

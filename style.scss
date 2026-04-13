@@ -2087,6 +2087,36 @@ $glass-dark: rgba(10, 12, 18, 0.95);
     filter: brightness(0.6); /* Слегка гасим фон, чтобы кнопки читались лучше */
   }
 
+  /* МАЙ: Случайный персонаж в главном меню */
+  .sota-menu-character {
+    position: absolute;
+    right: 5%; /* Отступ от правого края */
+    bottom: -5%; /* Немного опускаем спрайт вниз, чтобы он выглядел естественно */
+    height: 95%; /* Персонаж почти во всю высоту экрана */
+    width: auto;
+    z-index: 2; /* Между фоном и кнопками */
+    pointer-events: none; /* Чтобы спрайт не мешал кликать, если случайно перекроет что-то */
+
+    img {
+      height: 100%;
+      width: auto;
+      object-fit: contain;
+      filter: drop-shadow(
+        -10px 10px 20px rgba(0, 0, 0, 0.8)
+      ); /* Красивая тень */
+      opacity: 0; /* Изначально прозрачный для плавной анимации */
+      transform: translateX(30px); /* Слегка сдвинут вправо */
+      transition:
+        opacity 1.5s ease-in-out,
+        transform 1.5s ease-out; /* Плавное появление */
+
+      &.visible {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+  }
+
   // === СТИЛИ КНОПОК ===
   .menu-buttons-container {
     position: relative;
@@ -2099,53 +2129,63 @@ $glass-dark: rgba(10, 12, 18, 0.95);
     button {
       background: transparent;
       border: none;
-      color: rgba(255, 255, 255, 0.6);
-      font-family: "Inter", sans-serif;
-      font-size: 2rem; /* Крупные, читаемые буквы */
-      font-weight: 300;
-      letter-spacing: 5px;
-      text-transform: uppercase;
-      text-align: left;
       cursor: pointer;
-      padding: 5px 0;
-      position: relative;
-      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-      overflow: hidden;
+      text-align: left;
+      padding: 10px 0; /* Это наш неподвижный Хитбокс! Растягиваем зону клика */
+      width: 100%; /* Чтобы мышка цепляла кнопку даже справа */
 
-      /* Анимация подчеркивания при наведении (как в настройках) */
-      &::after {
-        content: "";
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 0%;
-        height: 2px;
-        background: $ui-accent; /* Ваш фирменный сиреневый */
-        transition: width 0.3s ease;
-        box-shadow: 0 0 10px rgba($ui-accent, 0.8);
+      /* Визуальный слой: Текст, который будет двигаться */
+      .visual {
+        display: inline-block; /* Обязательно, чтобы работал transform! */
+        color: rgba(255, 255, 255, 0.6);
+        font-family: "Inter", sans-serif;
+        font-size: 2rem;
+        font-weight: 300;
+        letter-spacing: 5px;
+        text-transform: uppercase;
+        position: relative;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+        /* Линия подчеркивания теперь привязана к тексту */
+        &::after {
+          content: "";
+          position: absolute;
+          bottom: -5px;
+          left: 0;
+          width: 0%;
+          height: 2px;
+          background: $ui-accent;
+          transition: width 0.3s ease;
+          box-shadow: 0 0 10px rgba($ui-accent, 0.8);
+        }
       }
 
-      &:hover {
+      /* МАГИЯ ROCKSTAR: При наведении на неподвижную кнопку двигается ТОЛЬКО .visual */
+      &:hover .visual {
         color: #fff;
         text-shadow: 0 0 15px rgba($ui-accent, 0.6);
-        transform: translateX(20px); /* Кнопка слегка "выезжает" вправо */
+        transform: translateX(
+          20px
+        ); /* Текст уехал, а хитбокс остался на месте! */
 
         &::after {
-          width: 100%; /* Линия подчеркивания рисуется до конца */
+          width: 100%;
         }
       }
 
-      /* Красная, агрессивная кнопка Выхода */
+      /* Стили для красной кнопки выхода */
       &#btn-exit {
-        margin-top: 50px; /* Отрываем её от остальных */
-        font-size: 1.5rem;
+        margin-top: 50px;
 
-        &::after {
-          background: rgba(150, 0, 0, 0.8); /* Ваш $blood-red */
-          box-shadow: 0 0 10px rgba(150, 0, 0, 0.8);
+        .visual {
+          font-size: 1.5rem;
+          &::after {
+            background: rgba(150, 0, 0, 0.8);
+            box-shadow: 0 0 10px rgba(150, 0, 0, 0.8);
+          }
         }
 
-        &:hover {
+        &:hover .visual {
           color: #ff4d4d;
           text-shadow: 0 0 15px rgba(150, 0, 0, 0.8);
         }
@@ -2977,6 +3017,54 @@ $glass-dark: rgba(10, 12, 18, 0.95);
         font-size: 0.8rem;
         letter-spacing: 2px;
       }
+    }
+  }
+
+  /* Разворачиваем окно на весь экран, никаких отступов по краям! */
+  .sota-gallery-content {
+    width: 100vw;
+    height: 100vh;
+    border: none;
+    border-radius: 0;
+  }
+
+  /* Сплющиваем шапку, чтобы больше места осталось для... кхм... артов */
+  .sota-gallery-header {
+    padding: 15px 20px;
+
+    h2 {
+      font-size: 1rem; /* Уменьшаем шрифт заголовка */
+      letter-spacing: 1px;
+    }
+  }
+
+  .sota-close-btn {
+    font-size: 1.5rem; /* Крестик чуть меньше, но в него легко попасть пальцем */
+  }
+
+  /* Ужимаем сетку */
+  .sota-gallery-grid {
+    padding: 15px;
+    gap: 10px; /* Картинки плотнее друг к другу */
+    /* Теперь миниатюры будут мельче, чтобы влезало ровно 2 колонки на телефоне */
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+
+  /* МАГИЯ ДЛЯ ТАЧСКРИНОВ: Отменяем залипающий :hover */
+  .sota-gallery-item {
+    /* На телефоне сразу показываем всё в цвете! Никакой серости. */
+    filter: grayscale(0%) brightness(1) contrast(1);
+
+    &:hover {
+      /* Выключаем увеличение и рамки при тапе, чтобы не было фантомных залипаний */
+      transform: none;
+      box-shadow: none;
+      border-color: #222;
+    }
+
+    /* Легкая вспышка яркости именно в момент прикосновения подушечки вашего пальца */
+    &:active {
+      filter: brightness(1.2);
     }
   }
 }
