@@ -260,27 +260,46 @@ export class SceneManager {
       if (sceneId) this.loadScene(sceneId);
     });
 
-    // Клавиатура (горячие клавиши)
     window.addEventListener("keydown", (e) => {
-      // Собираем состояния всех наших окон
       const isSave = window.saveManager && window.saveManager.modalOpen;
       const isSettings =
         window.settingsManager && window.settingsManager.modalOpen;
       const isHistory = this.hm && this.hm.modalOpen;
+      const isModalOpen = isSave || isSettings || isHistory;
 
-      // Проверяем, висит ли Главное меню
       const mainMenu = document.getElementById("main-menu-screen");
       const isMainMenuActive = mainMenu && mainMenu.style.display !== "none";
 
-      // === ФАЗА 1: РЕЖИМ БЛОКИРОВКИ (ОТКРЫТО ОКНО ИЛИ ГЛАВНОЕ МЕНЮ) ===
-      if (isSave || isSettings || isHistory || isMainMenuActive) {
-        // 1. БЛОКИРУЕМ ИГРОВЫЕ КНОПКИ (Пробел, Enter, Стрелки, Ctrl)
+      // === 1. ГЛАВНОЕ МЕНЮ ===
+      // В меню игровые хоткеи не работают.
+      // Но Escape должен закрывать открытые поверх меню окна.
+      if (isMainMenuActive) {
+        if (e.code === "Escape") {
+          if (isSettings) window.settingsManager.close();
+          if (isSave) window.saveManager.close();
+          if (isHistory) this.hm.hideHistory();
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          return;
+        }
+
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        return;
+      }
+
+      // === 2. ЕСЛИ ОТКРЫТА МОДАЛКА ВО ВРЕМЯ ИГРЫ ===
+      if (isModalOpen) {
+        // Даем SaveManager самому листать страницы стрелками
+        if (isSave && (e.code === "ArrowLeft" || e.code === "ArrowRight")) {
+          return;
+        }
+
+        // Блокируем игровые кнопки
         if (
           [
             "Space",
             "Enter",
-            "ArrowRight",
-            "ArrowLeft",
             "ArrowUp",
             "ArrowDown",
             "ControlLeft",
@@ -288,28 +307,82 @@ export class SceneManager {
           ].includes(e.code)
         ) {
           e.preventDefault();
-          e.stopImmediatePropagation(); // Жестко глушим все остальные скрипты!
-          return;
-        }
-
-        // 2. ЗАКРЫТИЕ НА ESCAPE (РАБОТАЕТ ВСЕГДА, ЕСЛИ ЕСТЬ ЧТО ЗАКРЫВАТЬ)
-        if (e.code === "Escape") {
-          if (isSettings) window.settingsManager.close();
-          if (isSave) window.saveManager.close();
-          if (isHistory) this.hm.hideHistory();
           e.stopImmediatePropagation();
           return;
         }
 
-        // Если мы дошли сюда — значит нажата любая другая кнопка (O, S, L, H) во время блокировки.
-        // Мы просто ее игнорируем!
+        // Escape закрывает текущее окно
+        if (e.code === "Escape") {
+          if (isSettings) window.settingsManager.close();
+          if (isSave) window.saveManager.close();
+          if (isHistory) this.hm.hideHistory();
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          return;
+        }
+
+        // O — настройки
+        if (e.code === "KeyO" && !e.repeat) {
+          if (isSettings) {
+            window.settingsManager.close();
+          } else {
+            if (isSave) window.saveManager.close();
+            if (isHistory) this.hm.hideHistory();
+            window.settingsManager.open();
+          }
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          return;
+        }
+
+        // S — сохранение
+        if (e.code === "KeyS" && !e.repeat) {
+          if (isSave && window.saveManager.mode === "save") {
+            window.saveManager.close();
+          } else {
+            if (isSettings) window.settingsManager.close();
+            if (isHistory) this.hm.hideHistory();
+            window.saveManager.open("save");
+          }
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          return;
+        }
+
+        // L — загрузка
+        if (e.code === "KeyL" && !e.repeat) {
+          if (isSave && window.saveManager.mode === "load") {
+            window.saveManager.close();
+          } else {
+            if (isSettings) window.settingsManager.close();
+            if (isHistory) this.hm.hideHistory();
+            window.saveManager.open("load");
+          }
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          return;
+        }
+
+        // H — история
+        if (e.code === "KeyH" && !e.repeat) {
+          if (isHistory) {
+            this.hm.hideHistory();
+          } else {
+            if (isSettings) window.settingsManager.close();
+            if (isSave) window.saveManager.close();
+            this.hm.showHistory();
+          }
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          return;
+        }
+
+        e.preventDefault();
         e.stopImmediatePropagation();
         return;
       }
 
-      // === ФАЗА 2: ЧИСТАЯ ИГРА (МЕНЮ И ОКНА ЗАКРЫТЫ) ===
-
-      // 3. ПЕРЕКЛЮЧЕНИЕ: НАСТРОЙКИ (O)
+      // === 3. ОБЫЧНАЯ ИГРА, БЕЗ ОКОН ===
       if (e.code === "KeyO" && !e.repeat) {
         window.settingsManager.open();
         e.preventDefault();
@@ -317,7 +390,6 @@ export class SceneManager {
         return;
       }
 
-      // 4. ПЕРЕКЛЮЧЕНИЕ: СОХРАНЕНИЕ (S)
       if (e.code === "KeyS" && !e.repeat) {
         window.saveManager.open("save");
         e.preventDefault();
@@ -325,7 +397,6 @@ export class SceneManager {
         return;
       }
 
-      // 5. ПЕРЕКЛЮЧЕНИЕ: ЗАГРУЗКА (L)
       if (e.code === "KeyL" && !e.repeat) {
         window.saveManager.open("load");
         e.preventDefault();
@@ -333,7 +404,6 @@ export class SceneManager {
         return;
       }
 
-      // 6. ПЕРЕКЛЮЧЕНИЕ: ИСТОРИЯ (H)
       if (e.code === "KeyH" && !e.repeat) {
         this.hm.showHistory();
         e.preventDefault();
