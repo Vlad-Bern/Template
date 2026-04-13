@@ -17,14 +17,13 @@ window._confirmKeyHandler = null;
 window._confirmRmbHandler = null;
 
 // --- УНИВЕРСАЛЬНОЕ ОКНО ПОДТВЕРЖДЕНИЯ ---
-window.showConfirm = function (message, onConfirm) {
-  window.playUISound("open"); // <-- Звук появления опасного окна
+window.playUISound("open");
 
-  let backdrop = document.getElementById("confirm-backdrop");
-  if (!backdrop) {
-    backdrop = document.createElement("div");
-    backdrop.id = "confirm-backdrop";
-    backdrop.innerHTML = `
+let backdrop = document.getElementById("confirm-backdrop");
+if (!backdrop) {
+  backdrop = document.createElement("div");
+  backdrop.id = "confirm-backdrop";
+  backdrop.innerHTML = `
       <div id="confirm-box">
         <div id="confirm-text"></div>
         <div class="confirm-btns">
@@ -33,78 +32,79 @@ window.showConfirm = function (message, onConfirm) {
         </div>
       </div>
     `;
-    document.body.appendChild(backdrop);
-  }
+  document.body.appendChild(backdrop);
+}
 
-  // Очищаем старые щиты, если окно каким-то чудом вызвали поверх старого
-  if (window._confirmKeyHandler)
-    window.removeEventListener("keydown", window._confirmKeyHandler, true);
-  if (window._confirmRmbHandler)
-    window.removeEventListener("contextmenu", window._confirmRmbHandler, true);
+// Очищаем старые щиты, если окно каким-то чудом вызвали поверх старого
+if (window._confirmKeyHandler)
+  window.removeEventListener("keydown", window._confirmKeyHandler, true);
+if (window._confirmRmbHandler)
+  window.removeEventListener("contextmenu", window._confirmRmbHandler, true);
 
-  document.getElementById("confirm-text").innerText = message;
-  backdrop.classList.add("active");
+document.getElementById("confirm-text").innerText = message;
+backdrop.classList.add("active");
 
-  // === ВОТ ОН, ЕДИНСТВЕННЫЙ И ПРАВИЛЬНЫЙ CLOSE ===
-  const close = () => {
-    window.playUISound("close"); // <-- Звук отмены/исчезновения
-    backdrop.classList.remove("active");
-    window.removeEventListener("keydown", window._confirmKeyHandler, true);
-    window.removeEventListener("contextmenu", window._confirmRmbHandler, true);
-  };
+// === ВОТ ОН, ЕДИНСТВЕННЫЙ И ПРАВИЛЬНЫЙ CLOSE ===
+const close = () => {
+  window.playUISound("close"); // <-- Звук отмены/исчезновения
+  backdrop.classList.remove("active");
+  window.removeEventListener("keydown", window._confirmKeyHandler, true);
+  window.removeEventListener("contextmenu", window._confirmRmbHandler, true);
+};
 
-  // Ловим ESC, чтобы закрыть окно, и БЛОКИРУЕМ все остальные кнопки
-  window._confirmKeyHandler = (e) => {
-    // Если нажали ESC — закрываем окно отмены
-    if (e.code === "Escape") {
-      e.stopPropagation();
-      close();
-      return;
-    }
-
-    // Блокируем все игровые и интерфейсные кнопки, пока висит окно подтверждения!
-    if (
-      [
-        "Space",
-        "Enter",
-        "ArrowRight",
-        "ArrowLeft",
-        "ArrowUp",
-        "ArrowDown",
-        "ControlLeft",
-        "ControlRight",
-        "KeyH",
-        "KeyS",
-        "KeyL",
-        "KeyO",
-      ].includes(e.code)
-    ) {
-      e.preventDefault();
-      e.stopPropagation();
-      e.stopImmediatePropagation(); // Жестко убиваем событие, чтобы оно не дошло до sceneManager
-    }
-  };
-  window.addEventListener("keydown", window._confirmKeyHandler, true);
-
-  // Ловим ПКМ, чтобы закрыть окно
-  window._confirmRmbHandler = (e) => {
-    e.preventDefault();
+// Ловим ESC, чтобы закрыть окно, и БЛОКИРУЕМ все остальные кнопки
+window._confirmKeyHandler = (e) => {
+  if (e.code === "Escape") {
     e.stopPropagation();
     close();
-  };
-  window.addEventListener("contextmenu", window._confirmRmbHandler, true);
+    return;
+  }
+  if (
+    [
+      "Space",
+      "Enter",
+      "ArrowRight",
+      "ArrowLeft",
+      "ArrowUp",
+      "ArrowDown",
+      "ControlLeft",
+      "ControlRight",
+      "KeyH",
+      "KeyS",
+      "KeyL",
+      "KeyO",
+    ].includes(e.code)
+  ) {
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+  }
+};
+window.addEventListener("keydown", window._confirmKeyHandler, true);
 
-  // Обработчики кнопок
-  document.getElementById("confirm-yes").onclick = () => {
-    close();
-    if (onConfirm) onConfirm();
-  };
-  document.getElementById("confirm-no").onclick = close;
+// Ловим ПКМ, чтобы закрыть окно
+window._confirmRmbHandler = (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  close();
+};
+window.addEventListener("contextmenu", window._confirmRmbHandler, true);
 
-  // Клик по фону
-  backdrop.onclick = (e) => {
-    if (e.target === backdrop) close();
-  };
+// === ЖЕСТКАЯ ЗАЩИТА КНОПОК ОТ ПРОКЛИКИВАНИЯ ===
+document.getElementById("confirm-yes").onclick = (e) => {
+  e.stopPropagation(); // Спасает от клика сквозь интерфейс
+  close();
+  if (onConfirm) onConfirm();
+};
+
+document.getElementById("confirm-no").onclick = (e) => {
+  e.stopPropagation();
+  close();
+};
+
+backdrop.onclick = (e) => {
+  e.stopPropagation();
+  if (e.target === backdrop) close();
 };
 
 // Глобальный класс для паузируемых таймеров (используется в сценариях)
@@ -282,6 +282,12 @@ app.innerHTML = `
           >
             [ НАСТРОЙКИ ]
           </button>
+          <button
+            id="open-mainmenu-btn"
+            class="dialog-footer-btn"
+          >
+            [ В МЕНЮ ]
+          </button>
         </div>
       </div>
     </div>
@@ -337,6 +343,62 @@ document
     if (window.sm && window.sm.hm) {
       window.sm.hm.showHistory();
     }
+  });
+
+// === КНОПКА ВОЗВРАТА В МЕНЮ ИЗ ИГРЫ ===
+window.returnToMenuLogic = () => {
+  window.showConfirm("ВЫЙТИ В ГЛАВНОЕ МЕНЮ? НЕ ЗАБУДЬ СОХРАНИТЬСЯ.", () => {
+    if (window.playUISound) window.playUISound("click");
+
+    // Плавное затемнение (как при старте)
+    const blackoutLayer = document.createElement("div");
+    blackoutLayer.style.position = "fixed";
+    blackoutLayer.style.inset = "0";
+    blackoutLayer.style.backgroundColor = "black";
+    blackoutLayer.style.zIndex = "999999";
+    blackoutLayer.style.opacity = "0";
+    blackoutLayer.style.transition = "opacity 1.5s ease-in-out";
+    blackoutLayer.style.pointerEvents = "all";
+    document.body.appendChild(blackoutLayer);
+
+    setTimeout(() => {
+      blackoutLayer.style.opacity = "1";
+    }, 50);
+
+    setTimeout(() => {
+      // 1. Убиваем игровой интерфейс
+      const gameViewport = document.getElementById("game-viewport");
+      const dialogWrapper = document.getElementById("dialog-wrapper");
+      if (gameViewport) gameViewport.style.display = "none";
+      if (dialogWrapper) dialogWrapper.style.display = "none";
+
+      // 2. Глушим печатную машинку (чтобы текст не лез на экран меню)
+      if (window.sm && window.sm.navController) {
+        window.sm.navController.abort();
+      }
+
+      // 3. Останавливаем аудио (музыку игры)
+      if (window.audioManager) {
+        window.audioManager.fadeOutBGM(1); // Плавное затухание
+        window.audioManager.fadeOutSFX(1);
+      }
+
+      // 4. Показываем Главное меню заново
+      const mainMenu = document.getElementById("main-menu-screen");
+      if (mainMenu) mainMenu.style.display = "flex";
+
+      // 5. Растворяем затемнение
+      blackoutLayer.style.opacity = "0";
+      setTimeout(() => blackoutLayer.remove(), 1500);
+    }, 1550);
+  });
+};
+
+document
+  .getElementById("open-mainmenu-btn")
+  .addEventListener("click", function () {
+    this.blur(); // Отбираем фокус
+    returnToMenuLogic();
   });
 
 // Заглушка для браузерных тестов (просит повернуть телефон)

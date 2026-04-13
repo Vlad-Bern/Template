@@ -404,7 +404,18 @@ export class SceneManager {
         return;
       }
 
-      // Все остальные кнопки (пробел, энтер) свободно проходят дальше к движку диалогов!
+      // Выход в меню на ESCAPE!
+      if (e.code === "Escape") {
+        if (typeof returnToMenuLogic !== "undefined") {
+          // Если функция глобальна, или просто захардкодь вызов window.showConfirm прямо тут
+          window.showConfirm("ВЫЙТИ В ГЛАВНОЕ МЕНЮ?", () => {
+            // ... логика выхода
+          });
+        }
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        return;
+      }
     });
 
     window.addEventListener("keyup", (e) => {
@@ -776,11 +787,18 @@ export class SceneManager {
       );
 
       const advance = (e) => {
+        // === ЗАМОК МАЙ: ЕСЛИ ВИСИТ ОКНО ПОДТВЕРЖДЕНИЯ - ИГНОРИРУЕМ ВСЁ! ===
+        const confirmBackdrop = document.getElementById("confirm-backdrop");
+        if (confirmBackdrop && confirmBackdrop.classList.contains("active")) {
+          e.stopPropagation();
+          return;
+        }
+
         // Если открыто ХОТЯ БЫ ОДНО меню - убиваем событие на месте
         if (document.activeElement) document.activeElement.blur();
         if (
           (window.saveManager && window.saveManager.modalOpen) ||
-          (window.settingsManager && window.settingsManager.modalOpen) || // <-- Защита настроек!
+          (window.settingsManager && window.settingsManager.modalOpen) ||
           (this.hm && this.hm.modalOpen)
         ) {
           if (e.type === "keydown") {
