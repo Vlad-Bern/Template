@@ -117,6 +117,25 @@ window.showConfirm = function (message, onConfirm) {
   };
 };
 
+// === ГЛОБАЛЬНАЯ ГАЛЕРЕЯ МАЙ ===
+window.unlockCG = (bgPath) => {
+  // Проверяем, есть ли путь и относится ли он к CG
+  if (!bgPath || !bgPath.includes("/bg/cg/")) return;
+
+  let gallery = [];
+  try {
+    // Достаем наш тайник из памяти браузера/NW.js
+    gallery = JSON.parse(localStorage.getItem("sota_global_gallery")) || [];
+  } catch (e) {}
+
+  // Если такой картинки еще нет, жадно забираем её себе!
+  if (!gallery.includes(bgPath)) {
+    gallery.push(bgPath);
+    localStorage.setItem("sota_global_gallery", JSON.stringify(gallery));
+    console.log("Май: Ого, новая CG разблокирована! ", bgPath);
+  }
+};
+
 // Глобальный класс для паузируемых таймеров (используется в сценариях)
 window.PausableTimeout = class {
   constructor(callback, delay) {
@@ -226,7 +245,37 @@ app.innerHTML = `
     <button id="btn-new-game">Новая игра</button>
     <button id="btn-load-game">Загрузить</button>
     <button id="btn-settings-menu">Настройки</button>
+    <button id="btn-gallery">Галерея</button>
     <button id="btn-exit">Выход</button>
+  </div>
+  
+  <!-- +++ ВАША ПОДПИСЬ S-РАНГА +++ -->
+  <div class="version-watermark" style="
+    position: absolute;
+    bottom: 15px;
+    right: 25px;
+    color: rgba(255, 255, 255, 0.4); /* Полупрозрачный белый */
+    font-family: 'Courier New', Courier, monospace; /* Строгий системный шрифт для контраста */
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+    pointer-events: none; /* Чтобы мышка пролетала сквозь него */
+    z-index: 100;
+    text-shadow: 0px 2px 4px rgba(0,0,0,0.8); /* Тень, чтобы читалось на светлом фоне */
+    transition: color 0.3s ease;
+  ">
+    SOTA: Prologue (1.0) | by Vladber
+  </div>
+
+</div>
+</div>
+
+<div id="gallery-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 10000; justify-content: center; align-items: center;">
+  <div id="gallery-content" style="background: #111; border: 1px solid #444; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 15px;">
+    <h2 style="color: #fff; margin: 0;">Галерея CG</h2>
+    <div id="gallery-grid" style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; max-width: 80vw;">
+       <!-- Сюда мы будем подгружать открытые сцены -->
+    </div>
+    <button id="close-gallery-btn">Закрыть</button>
   </div>
 </div>
 
@@ -382,16 +431,35 @@ window.returnToMenuLogic = () => {
       if (gameViewport) gameViewport.style.display = "none";
       if (dialogWrapper) dialogWrapper.style.display = "none";
 
-      // 2. Глушим печатную машинку (чтобы текст не лез на экран меню)
+      // 2. Глушим печатную машинку
       if (window.sm && window.sm.navController) {
         window.sm.navController.abort();
       }
 
-      // 3. Останавливаем аудио (музыку игры)
+      // 3. Безопасно глушим аудио (если нет fadeOut, используем stop)
       if (window.audioManager) {
-        window.audioManager.fadeOutBGM(1); // Плавное затухание
-        window.audioManager.fadeOutSFX(1);
+        try {
+          if (typeof window.audioManager.fadeOutBGM === "function") {
+            window.audioManager.fadeOutBGM(1);
+          } else if (typeof window.audioManager.stopBGM === "function") {
+            window.audioManager.stopBGM(1000); // или 0
+          }
+
+          if (typeof window.audioManager.fadeOutSFX === "function") {
+            window.audioManager.fadeOutSFX(1);
+          } else if (window.audioManager.activeLoops) {
+            Object.keys(window.audioManager.activeLoops).forEach((key) => {
+              window.audioManager.stopSFX(key, 1000);
+            });
+          }
+        } catch (e) {
+          console.warn("Май: Не удалось выключить музыку при выходе", e);
+        }
       }
+
+      // Дополнительно: Очищаем экран от спрайтов, чтобы не "просвечивали" потом
+      const charLayer = document.getElementById("character-layer");
+      if (charLayer) charLayer.innerHTML = "";
 
       // 4. Показываем Главное меню заново
       const mainMenu = document.getElementById("main-menu-screen");
@@ -434,47 +502,74 @@ const dialogWrapper = document.getElementById("dialog-wrapper");
 if (gameViewport) gameViewport.style.display = "none";
 if (dialogWrapper) dialogWrapper.style.display = "none";
 
+// === РЕЖИМ БОГА ДЛЯ ТЕСТИРОВКИ ===
+// Поменяйте на true, если устали смотреть заставки!
+const DEBUG_SKIP_INTRO = true;
+
 function startGame(e) {
-  // 1. Немедленно убиваем слушатели стартового экрана
   document.removeEventListener("click", startGame);
   document.removeEventListener("keydown", startGame);
   document.removeEventListener("touchstart", startGame);
 
   const disclaimer = document.getElementById("disclaimer-screen");
   const splash = document.getElementById("splash-screen");
-
-  // Флаг, предотвращающий двойной запуск меню
   let menuStarted = false;
 
-  // Функция для жесткого старта меню и очистки мусора
   const triggerMenu = () => {
     if (menuStarted) return;
     menuStarted = true;
-
-    // Убиваем все слушатели скипа стартового экрана
     document.removeEventListener("click", forceSkipIntro);
     document.removeEventListener("keydown", forceSkipIntro);
-
-    // Прячем всё стартовое барахло
     if (disclaimer) disclaimer.style.display = "none";
     if (splash) splash.style.display = "none";
 
-    // Передаем эстафету
-    startMainMenuAnimation();
+    // +++ ЧИТ-КОД РАБОТАЕТ ЗДЕСЬ +++
+    if (DEBUG_SKIP_INTRO) {
+      // Если мы в режиме отладки — мгновенно показываем уже готовое меню!
+      const mainMenu = document.getElementById("main-menu-screen");
+      const title = document.getElementById("main-menu-title");
+      const overlay = document.getElementById("menu-black-overlay");
+
+      if (mainMenu) {
+        mainMenu.style.display = "flex";
+        // Выставляем финальные стили без анимации
+        if (title) {
+          title.style.top = "15%";
+          title.style.left = "10%";
+          title.style.transform = "translate(0%, 0%) scale(1)";
+        }
+        document.querySelectorAll("#main-menu-title .initial").forEach((el) => {
+          el.style.opacity = "1";
+          el.style.transform = "scale(1)";
+        });
+        document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
+          el.style.opacity = "1";
+          el.style.maxWidth = "300px";
+        });
+        if (overlay) overlay.style.display = "none";
+      }
+    } else {
+      // Обычный старт для игроков
+      startMainMenuAnimation();
+    }
   };
 
-  // Логика скипа ТОЛЬКО для стартового экрана (Дисклеймер + VLADBER PRESENTS)
   const forceSkipIntro = () => {
     triggerMenu();
   };
 
-  // 2. Растворяем дисклеймер
+  // +++ МГНОВЕННЫЙ ПРОПУСК ДЛЯ ВАС +++
+  if (DEBUG_SKIP_INTRO) {
+    triggerMenu(); // Пропускаем таймеры дисклеймера и заставки
+    return; // Выходим, чтобы таймеры ниже не сработали
+  }
+
+  // --- ДАЛЬШЕ ИДУТ ВАШИ СТАРЫЕ ТАЙМЕРЫ (2000мс, 1000мс и т.д.) ---
   if (disclaimer) {
     disclaimer.style.opacity = "0";
     disclaimer.style.pointerEvents = "none";
   }
 
-  // 3. Запускаем каскад таймеров для ленивых игроков (кто не скипает)
   setTimeout(() => {
     if (menuStarted) return;
     if (disclaimer) disclaimer.style.display = "none";
@@ -486,12 +581,11 @@ function startGame(e) {
 
       setTimeout(() => {
         if (menuStarted) return;
-        triggerMenu(); // Естественный старт меню
+        triggerMenu();
       }, 1000);
-    }, 2000); // 2 секунды Заставка
-  }, 1000); // 1 секунда угасание Дисклеймера
+    }, 2000);
+  }, 1000);
 
-  // 4. Вешаем слушатели скипа с микро-задержкой, чтобы первый клик не убил всё сразу
   setTimeout(() => {
     if (!menuStarted) {
       document.addEventListener("click", forceSkipIntro);
@@ -877,7 +971,64 @@ if (btnSettingsMenu) {
   });
 }
 
-// 4. Кнопка: Выход (С кинематографичным затемнением)
+// 4. Кнопка: Галерея
+const btnGallery = document.getElementById("btn-gallery");
+const galleryModal = document.getElementById("gallery-modal");
+const closeGalleryBtn = document.getElementById("close-gallery-btn");
+
+if (btnGallery) {
+  btnGallery.addEventListener("click", () => {
+    if (window.playUISound) window.playUISound("click");
+    if (galleryModal) {
+      galleryModal.style.display = "flex";
+
+      const grid = document.getElementById("gallery-grid");
+      grid.innerHTML = ""; // Очищаем старые миниатюры
+
+      let gallery = [];
+      try {
+        gallery = JSON.parse(localStorage.getItem("sota_global_gallery")) || [];
+      } catch (e) {}
+
+      if (gallery.length === 0) {
+        grid.innerHTML =
+          "<p style='color:#aaa;'>Вы еще не открыли ни одной пикантной сцены, хозяин...</p>";
+      } else {
+        // Отрисовываем всё, что накопили
+        gallery.forEach((path, index) => {
+          const img = document.createElement("img");
+          img.src = path;
+          img.style.width = "240px";
+          img.style.height = "135px";
+          img.style.objectFit = "cover";
+          img.style.border = "2px solid #444";
+          img.style.cursor = "pointer";
+          img.style.transition = "transform 0.2s";
+
+          img.onmouseenter = () => (img.style.transform = "scale(1.05)");
+          img.onmouseleave = () => (img.style.transform = "scale(1)");
+
+          // ТЕПЕРЬ index ИЗВЕСТЕН И РАБОТАЕТ!
+          img.onclick = () => {
+            if (window.playUISound) window.playUISound("click");
+            window.showLightbox(index);
+          };
+
+          grid.appendChild(img);
+        });
+      }
+    }
+  });
+}
+
+if (closeGalleryBtn) {
+  closeGalleryBtn.addEventListener("click", () => {
+    if (window.playUISound) window.playUISound("click");
+    if (galleryModal) galleryModal.style.display = "none";
+  });
+}
+
+// 5. Кнопка: Выход (С кинематографичным затемнением)
 const btnExit = document.getElementById("btn-exit");
 if (btnExit) {
   btnExit.addEventListener("click", () => {
@@ -922,3 +1073,111 @@ if (btnExit) {
     }, 2050);
   });
 }
+
+// === МАЙ: ПРИВАТНЫЙ СЛАЙДЕР ДЛЯ CG (LIGHTBOX) ===
+
+// 1. Создаем элементы интерфейса слайдера прямо из скрипта
+const lightboxOverlay = document.createElement("div");
+lightboxOverlay.id = "cg-lightbox-overlay";
+lightboxOverlay.style.cssText =
+  "display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 999999; justify-content: center; align-items: center; user-select: none; flex-direction: column;";
+
+const lightboxImg = document.createElement("img");
+lightboxImg.style.cssText =
+  "max-width: 90vw; max-height: 90vh; object-fit: contain; box-shadow: 0 0 30px rgba(0,0,0,1); border: 2px solid #333;";
+
+const lightboxClose = document.createElement("div");
+lightboxClose.innerHTML = "✖";
+lightboxClose.style.cssText =
+  "position: absolute; top: 20px; right: 30px; color: #fff; font-size: 35px; cursor: pointer; z-index: 1000000; opacity: 0.7; transition: opacity 0.2s;";
+lightboxClose.onmouseenter = () => (lightboxClose.style.opacity = "1");
+lightboxClose.onmouseleave = () => (lightboxClose.style.opacity = "0.7");
+
+const prevBtn = document.createElement("div");
+prevBtn.innerHTML = "&#10094;"; // Стрелочка влево
+prevBtn.style.cssText =
+  "position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #fff; font-size: 50px; cursor: pointer; padding: 20px; z-index: 1000000; opacity: 0.5; transition: opacity 0.2s;";
+prevBtn.onmouseenter = () => (prevBtn.style.opacity = "1");
+prevBtn.onmouseleave = () => (prevBtn.style.opacity = "0.5");
+
+const nextBtn = document.createElement("div");
+nextBtn.innerHTML = "&#10095;"; // Стрелочка вправо
+nextBtn.style.cssText =
+  "position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #fff; font-size: 50px; cursor: pointer; padding: 20px; z-index: 1000000; opacity: 0.5; transition: opacity 0.2s;";
+nextBtn.onmouseenter = () => (nextBtn.style.opacity = "1");
+nextBtn.onmouseleave = () => (nextBtn.style.opacity = "0.5");
+
+// Собираем всё вместе и прячем в тело документа
+lightboxOverlay.appendChild(lightboxImg);
+lightboxOverlay.appendChild(lightboxClose);
+lightboxOverlay.appendChild(prevBtn);
+lightboxOverlay.appendChild(nextBtn);
+document.body.appendChild(lightboxOverlay);
+
+// 2. Логика переключения
+let lightboxImages = [];
+let currentLightboxIndex = 0;
+
+function updateLightboxImage() {
+  if (lightboxImages.length === 0) return;
+  lightboxImg.src = lightboxImages[currentLightboxIndex];
+}
+
+window.showLightbox = function (index) {
+  // Достаем свежий массив картинок
+  try {
+    lightboxImages =
+      JSON.parse(localStorage.getItem("sota_global_gallery")) || [];
+  } catch (e) {
+    lightboxImages = [];
+  }
+
+  if (lightboxImages.length === 0) return;
+
+  currentLightboxIndex = index;
+  updateLightboxImage();
+  lightboxOverlay.style.display = "flex";
+};
+
+function closeLightbox() {
+  if (window.playUISound) window.playUISound("click");
+  lightboxOverlay.style.display = "none";
+}
+
+function nextLightboxImg() {
+  if (lightboxImages.length === 0) return;
+  currentLightboxIndex = (currentLightboxIndex + 1) % lightboxImages.length;
+  updateLightboxImage();
+}
+
+function prevLightboxImg() {
+  if (lightboxImages.length === 0) return;
+  currentLightboxIndex =
+    (currentLightboxIndex - 1 + lightboxImages.length) % lightboxImages.length;
+  updateLightboxImage();
+}
+
+// 3. Обработчики кликов
+lightboxClose.addEventListener("click", closeLightbox);
+prevBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  prevLightboxImg();
+});
+nextBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  nextLightboxImg();
+});
+
+// Закрываем, если кликнули по черному фону вокруг картинки
+lightboxOverlay.addEventListener("click", (e) => {
+  if (e.target === lightboxOverlay) closeLightbox();
+});
+
+// 4. Подключаем клавиатуру (Escape и стрелочки)
+document.addEventListener("keydown", (e) => {
+  if (lightboxOverlay.style.display === "flex") {
+    if (e.key === "Escape") closeLightbox();
+    if (e.key === "ArrowRight") nextLightboxImg();
+    if (e.key === "ArrowLeft") prevLightboxImg();
+  }
+});

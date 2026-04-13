@@ -4,7 +4,7 @@ import { state, setFlag, getFlag, removeFlag } from "../../core/state.js";
 export const story = {
   prologue_interrogation: {
     id: "prologue_interrogation",
-    bg: "./bg/common/dream_man.webp",
+    bg: "./bg/cg/prologue/dream_man.webp",
     ...m.bgm("Zero Rank", 0.5),
 
     lines: [

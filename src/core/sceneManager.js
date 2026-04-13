@@ -379,6 +379,16 @@ export class SceneManager {
       }
 
       // === ФАЗА 3: ЧИСТАЯ ИГРА (МЕНЮ И ОКНА ЗАКРЫТЫ) ===
+      if (e.code === "ControlLeft" || e.code === "ControlRight") {
+        if (!e.repeat && !this.uiHidden && (!this.cs || !this.cs.isActive)) {
+          this.isFastForwarding = true;
+          this.handleFastForward();
+        }
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        return;
+      }
+
       if (e.code === "KeyO" && !e.repeat) {
         window.settingsManager.open();
         e.preventDefault();
@@ -472,7 +482,7 @@ export class SceneManager {
   }
 
   skipToNextChoice() {
-    if (this.isTyping) {
+    if (this.tw && this.tw.isTyping) {
       this.tw.skip();
     } else {
       const skipEvent = new KeyboardEvent("keydown", {
@@ -556,6 +566,8 @@ export class SceneManager {
     if (targetBg) {
       const optimizedBg = this._getOptimizedBgPath(targetBg);
       this.ui.updateBackground(optimizedBg, 0);
+
+      if (window.unlockCG) window.unlockCG(targetBg);
     }
 
     // Мгновенно натягиваем правильные эффекты без анимации
@@ -674,6 +686,7 @@ export class SceneManager {
         const speed = line.bgSpeed !== undefined ? line.bgSpeed : 400;
         // Мгновенная смена фона при загрузке сейва
         this.ui.updateBackground(optimizedLineBg, isRestoredLine ? 0 : speed);
+        if (window.unlockCG) window.unlockCG(line.bg);
       }
 
       let displayText = line.text;
@@ -828,7 +841,7 @@ export class SceneManager {
         if (e.code === "Space") e.preventDefault();
 
         // Пропускаем текст или идем дальше
-        if (this.isTyping) {
+        if (this.tw && this.tw.isTyping) {
           this.tw.skip();
         } else {
           this.navController.abort();

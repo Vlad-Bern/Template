@@ -316,10 +316,27 @@ export class SaveManager {
   loadGame(slotIndex, slotData) {
     if (!slotData) return;
 
-    Object.assign(state.hero, slotData.state.hero);
-    Object.assign(state.relations, slotData.state.relations);
-    Object.assign(state.flags, slotData.state.flags);
-    Object.assign(state.temp, slotData.state.temp);
+    // Очищаем и заново собираем героя
+    Object.keys(state.hero).forEach((key) => delete state.hero[key]);
+    Object.assign(state.hero, JSON.parse(JSON.stringify(slotData.state.hero)));
+
+    // Очищаем и заново собираем отношения
+    Object.keys(state.relations).forEach((key) => delete state.relations[key]);
+    Object.assign(
+      state.relations,
+      JSON.parse(JSON.stringify(slotData.state.relations)),
+    );
+
+    // Очищаем и заново собираем флаги
+    Object.keys(state.flags).forEach((key) => delete state.flags[key]);
+    Object.assign(
+      state.flags,
+      JSON.parse(JSON.stringify(slotData.state.flags)),
+    );
+
+    // Очищаем и заново собираем временные переменные
+    Object.keys(state.temp).forEach((key) => delete state.temp[key]);
+    Object.assign(state.temp, JSON.parse(JSON.stringify(slotData.state.temp)));
 
     window.dispatchEvent(
       new CustomEvent("stressUpdated", {
