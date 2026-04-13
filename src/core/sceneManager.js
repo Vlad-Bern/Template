@@ -406,14 +406,13 @@ export class SceneManager {
 
       // Выход в меню на ESCAPE!
       if (e.code === "Escape") {
-        if (typeof returnToMenuLogic !== "undefined") {
-          // Если функция глобальна, или просто захардкодь вызов window.showConfirm прямо тут
-          window.showConfirm("ВЫЙТИ В ГЛАВНОЕ МЕНЮ?", () => {
-            // ... логика выхода
-          });
-        }
         e.preventDefault();
         e.stopImmediatePropagation();
+
+        // Вызываем нашу красивую функцию возврата в меню из main.js!
+        if (typeof window.returnToMenuLogic === "function") {
+          window.returnToMenuLogic();
+        }
         return;
       }
     });

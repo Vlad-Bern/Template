@@ -17,13 +17,14 @@ window._confirmKeyHandler = null;
 window._confirmRmbHandler = null;
 
 // --- УНИВЕРСАЛЬНОЕ ОКНО ПОДТВЕРЖДЕНИЯ ---
-window.playUISound("open");
+window.showConfirm = function (message, onConfirm) {
+  if (window.playUISound) window.playUISound("open");
 
-let backdrop = document.getElementById("confirm-backdrop");
-if (!backdrop) {
-  backdrop = document.createElement("div");
-  backdrop.id = "confirm-backdrop";
-  backdrop.innerHTML = `
+  let backdrop = document.getElementById("confirm-backdrop");
+  if (!backdrop) {
+    backdrop = document.createElement("div");
+    backdrop.id = "confirm-backdrop";
+    backdrop.innerHTML = `
       <div id="confirm-box">
         <div id="confirm-text"></div>
         <div class="confirm-btns">
@@ -32,79 +33,88 @@ if (!backdrop) {
         </div>
       </div>
     `;
-  document.body.appendChild(backdrop);
-}
-
-// Очищаем старые щиты, если окно каким-то чудом вызвали поверх старого
-if (window._confirmKeyHandler)
-  window.removeEventListener("keydown", window._confirmKeyHandler, true);
-if (window._confirmRmbHandler)
-  window.removeEventListener("contextmenu", window._confirmRmbHandler, true);
-
-document.getElementById("confirm-text").innerText = message;
-backdrop.classList.add("active");
-
-// === ВОТ ОН, ЕДИНСТВЕННЫЙ И ПРАВИЛЬНЫЙ CLOSE ===
-const close = () => {
-  window.playUISound("close"); // <-- Звук отмены/исчезновения
-  backdrop.classList.remove("active");
-  window.removeEventListener("keydown", window._confirmKeyHandler, true);
-  window.removeEventListener("contextmenu", window._confirmRmbHandler, true);
-};
-
-// Ловим ESC, чтобы закрыть окно, и БЛОКИРУЕМ все остальные кнопки
-window._confirmKeyHandler = (e) => {
-  if (e.code === "Escape") {
-    e.stopPropagation();
-    close();
-    return;
+    document.body.appendChild(backdrop);
   }
-  if (
-    [
-      "Space",
-      "Enter",
-      "ArrowRight",
-      "ArrowLeft",
-      "ArrowUp",
-      "ArrowDown",
-      "ControlLeft",
-      "ControlRight",
-      "KeyH",
-      "KeyS",
-      "KeyL",
-      "KeyO",
-    ].includes(e.code)
-  ) {
+
+  // Очищаем старые щиты
+  if (window._confirmKeyHandler) {
+    window.removeEventListener("keydown", window._confirmKeyHandler, true);
+  }
+  if (window._confirmRmbHandler) {
+    window.removeEventListener("contextmenu", window._confirmRmbHandler, true);
+  }
+
+  document.getElementById("confirm-text").innerText = message;
+  backdrop.classList.add("active");
+
+  const close = () => {
+    if (window.playUISound) window.playUISound("close");
+    backdrop.classList.remove("active");
+    window.removeEventListener("keydown", window._confirmKeyHandler, true);
+    window.removeEventListener("contextmenu", window._confirmRmbHandler, true);
+  };
+
+  // Защита кнопок клавиатуры
+  window._confirmKeyHandler = (e) => {
+    if (e.code === "Escape") {
+      e.stopPropagation();
+      e.preventDefault();
+      close();
+      return;
+    }
+    if (
+      [
+        "Space",
+        "Enter",
+        "ArrowRight",
+        "ArrowLeft",
+        "ArrowUp",
+        "ArrowDown",
+        "ControlLeft",
+        "ControlRight",
+        "KeyH",
+        "KeyS",
+        "KeyL",
+        "KeyO",
+      ].includes(e.code)
+    ) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+    }
+  };
+  window.addEventListener("keydown", window._confirmKeyHandler, true);
+
+  // Правая кнопка мыши
+  window._confirmRmbHandler = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    e.stopImmediatePropagation();
-  }
-};
-window.addEventListener("keydown", window._confirmKeyHandler, true);
+    close();
+  };
+  window.addEventListener("contextmenu", window._confirmRmbHandler, true);
 
-// Ловим ПКМ, чтобы закрыть окно
-window._confirmRmbHandler = (e) => {
-  e.preventDefault();
-  e.stopPropagation();
-  close();
-};
-window.addEventListener("contextmenu", window._confirmRmbHandler, true);
+  // === ЖЕСТКАЯ ЗАЩИТА КНОПОК ОТ ПРОКЛИКИВАНИЯ МЫШКОЙ ===
+  const btnYes = document.getElementById("confirm-yes");
+  const btnNo = document.getElementById("confirm-no");
 
-// === ЖЕСТКАЯ ЗАЩИТА КНОПОК ОТ ПРОКЛИКИВАНИЯ ===
-document.getElementById("confirm-yes").onclick = (e) => {
-  e.stopPropagation(); // Спасает от клика сквозь интерфейс
-  close();
-  if (onConfirm) onConfirm();
-};
+  btnYes.onclick = null;
+  btnNo.onclick = null;
 
-document.getElementById("confirm-no").onclick = (e) => {
-  e.stopPropagation();
-  close();
-};
+  btnYes.onclick = (e) => {
+    e.stopPropagation();
+    close();
+    if (onConfirm) onConfirm();
+  };
 
-backdrop.onclick = (e) => {
-  e.stopPropagation();
-  if (e.target === backdrop) close();
+  btnNo.onclick = (e) => {
+    e.stopPropagation();
+    close();
+  };
+
+  backdrop.onclick = (e) => {
+    e.stopPropagation();
+    if (e.target === backdrop) close();
+  };
 };
 
 // Глобальный класс для паузируемых таймеров (используется в сценариях)
