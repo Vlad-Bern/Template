@@ -713,38 +713,73 @@ window.dispatchEvent(
 })();
 
 // === ЛОГИКА КНОПОК ГЛАВНОГО МЕНЮ ===
-
 // 1. Кнопка: Новая игра
 const btnNewGame = document.getElementById("btn-new-game");
 if (btnNewGame) {
   btnNewGame.addEventListener("click", () => {
     if (window.playUISound) window.playUISound("click"); // Звук клика!
 
-    // Прячем главное меню
     const mainMenu = document.getElementById("main-menu-screen");
-    if (mainMenu) mainMenu.style.display = "none";
-
-    // Включаем игровой интерфейс Синсю
     const gameViewport = document.getElementById("game-viewport");
     const dialogWrapper = document.getElementById("dialog-wrapper");
-    if (gameViewport) gameViewport.style.display = "block";
-    if (dialogWrapper) dialogWrapper.style.display = "flex";
 
-    // Сбрасываем стресс (Санити) и Доминирование для нового забега
-    if (window.state && window.state.hero) {
-      window.state.hero.stats.sanity = 100;
-      window.state.hero.stats.dominance = 0;
-      window.dispatchEvent(
-        new CustomEvent("stressUpdated", { detail: { sanity: 100 } }),
-      );
-    }
+    // === ПЛАВНОЕ ЗАТЕМНЕНИЕ ПЕРЕД СТАРТОМ ===
+    const blackoutLayer = document.createElement("div");
+    blackoutLayer.style.position = "fixed";
+    blackoutLayer.style.inset = "0";
+    blackoutLayer.style.backgroundColor = "black";
+    blackoutLayer.style.zIndex = "999999";
+    blackoutLayer.style.opacity = "0";
+    blackoutLayer.style.transition = "opacity 1.5s ease-in-out";
+    blackoutLayer.style.pointerEvents = "all";
+    document.body.appendChild(blackoutLayer);
 
-    // Запускаем первую сцену! (Укажи тут ID твоей стартовой сцены D-ранга)
-    if (window.sceneManager) {
-      window.sceneManager.loadScene("prologue_interrogation"); // <== ЗАМЕНИ "scene_1" НА СВОЕ НАЗВАНИЕ!
-    } else {
-      console.warn("Май: Господин... то есть, слуга! sceneManager не найден!");
-    }
+    setTimeout(() => {
+      blackoutLayer.style.opacity = "1";
+    }, 50);
+
+    setTimeout(() => {
+      if (mainMenu) mainMenu.style.display = "none"; // Прячем меню
+
+      if (gameViewport) gameViewport.style.display = "block";
+      if (dialogWrapper) dialogWrapper.style.display = "flex";
+
+      // === ЖЕСТКИЙ СБРОС ИГРЫ К ДЕФОЛТУ (D-ранг старт) ===
+      if (window.state) {
+        window.state.hero = {
+          name: "Ren",
+          rank_letter: "D",
+          rank_score: 20,
+          credits: 100,
+          stats: {
+            dominance: -10,
+            sanity: 80,
+            physique: 50,
+          },
+          inventory: { items: {} },
+        };
+        window.state.relations = {};
+        window.state.flags = {};
+        window.state.temp = {};
+
+        // Обновляем UI, чтобы интерфейс сразу показал D-ранг и 80 sanity
+        window.dispatchEvent(
+          new CustomEvent("stressUpdated", { detail: { sanity: 80 } }),
+        );
+        window.dispatchEvent(new CustomEvent("statsUpdated"));
+      }
+
+      // Запускаем первую сцену из prologue_ru.js
+      if (window.sm) {
+        window.sm.loadScene("prologue_interrogation");
+      } else {
+        console.warn("Май: О боги, sm всё еще не найден!");
+      }
+
+      // Плавно снимаем затемнение, открывая первую сцену
+      blackoutLayer.style.opacity = "0";
+      setTimeout(() => blackoutLayer.remove(), 1500);
+    }, 1550);
   });
 }
 

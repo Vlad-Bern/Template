@@ -328,15 +328,59 @@ export class SaveManager {
     );
     window.dispatchEvent(new CustomEvent("statsUpdated"));
 
-    this.close();
+    this.close(); // Закрываем само окно сохранений
 
-    if (window.sm) {
-      // Используем новый специальный метод загрузки без дублирования статов
-      if (typeof window.sm.loadSceneFromSave === "function") {
-        window.sm.loadSceneFromSave(slotData.sceneId, slotData.lineIndex);
-      } else {
-        window.sm.loadScene(slotData.sceneId, slotData.lineIndex);
+    // ПРОВЕРЯЕМ: Грузимся ли мы из Главного меню?
+    const mainMenu = document.getElementById("main-menu-screen");
+    const isMenuVisible =
+      mainMenu && window.getComputedStyle(mainMenu).display !== "none";
+
+    // Функция финальной передачи данных в SceneManager
+    const finalizeLoad = () => {
+      if (window.sm) {
+        if (typeof window.sm.loadSceneFromSave === "function") {
+          window.sm.loadSceneFromSave(slotData.sceneId, slotData.lineIndex);
+        } else {
+          window.sm.loadScene(slotData.sceneId, slotData.lineIndex);
+        }
       }
+    };
+
+    if (isMenuVisible) {
+      // === ПЛАВНЫЙ ПЕРЕХОД ИЗ МЕНЮ В ИГРУ ===
+      const transitionScreen = document.createElement("div");
+      transitionScreen.style.position = "fixed";
+      transitionScreen.style.inset = "0";
+      transitionScreen.style.backgroundColor = "black";
+      transitionScreen.style.zIndex = "999999";
+      transitionScreen.style.opacity = "0";
+      transitionScreen.style.transition = "opacity 1s ease";
+      transitionScreen.style.pointerEvents = "all"; // Защита от кликов во время загрузки
+      document.body.appendChild(transitionScreen);
+
+      // 1. Запускаем затемнение
+      setTimeout(() => {
+        transitionScreen.style.opacity = "1";
+      }, 50);
+
+      // 2. Когда экран черный: убиваем меню, включаем игру, грузим сцену
+      setTimeout(() => {
+        mainMenu.style.display = "none"; // ВОТ ОН, ТОТ САМЫЙ РУБИЛЬНИК!
+
+        const gameViewport = document.getElementById("game-viewport");
+        const dialogWrapper = document.getElementById("dialog-wrapper");
+        if (gameViewport) gameViewport.style.display = "block";
+        if (dialogWrapper) dialogWrapper.style.display = "flex";
+
+        finalizeLoad(); // Оживляем сцену
+
+        // 3. Плавно снимаем затемнение, открывая Синсю
+        transitionScreen.style.opacity = "0";
+        setTimeout(() => transitionScreen.remove(), 1000);
+      }, 1050);
+    } else {
+      // === МГНОВЕННАЯ ЗАГРУЗКА ВНУТРИ ИГРЫ ===
+      finalizeLoad();
     }
   }
 
