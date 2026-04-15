@@ -490,9 +490,9 @@ window.showRandomMenuCharacter = function () {
 
   // Ваши пути к спрайтам для меню
   const characters = [
-    "/chars/mMenu/celeste_menu.png",
-    "/chars/mMenu/kagami_menu.png",
-    "/chars/mMenu/livia_menu.png",
+    "/chars/mMenu/celeste_menu.webp",
+    "/chars/mMenu/kagami_menu.webp",
+    "/chars/mMenu/kaira_menu.webp",
   ];
 
   // Выбираем случайного
@@ -977,13 +977,9 @@ if (btnNewGame) {
         window.dispatchEvent(new CustomEvent("statsUpdated"));
       }
 
-      // Запускаем первую сцену из prologue_ru.js
       if (window.sm) {
-        window.sm.loadScene("prologue_interrogation");
-      } else {
-        console.warn("Май: О боги, sm всё еще не найден!");
+        window.sm.loadScene("meet_kagami");
       }
-
       // Плавно снимаем затемнение, открывая первую сцену
       blackoutLayer.style.opacity = "0";
       setTimeout(() => blackoutLayer.remove(), 1500);

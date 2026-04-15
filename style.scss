@@ -2096,6 +2096,7 @@ $glass-dark: rgba(10, 12, 18, 0.95);
     width: auto;
     z-index: 2; /* Между фоном и кнопками */
     pointer-events: none; /* Чтобы спрайт не мешал кликать, если случайно перекроет что-то */
+    mask-image: linear-gradient(to top, transparent 0%, black 10%);
 
     img {
       height: 100%;

@@ -729,7 +729,7 @@ export const story = {
         text: "Два стола стоят напротив друг друга и одна доска.",
       },
       { speaker: "kagami", text: "Присаживайся." },
-      { speaker: "", text: "На парте уже лежит бумага с тестом и ручка." },
+      { speaker: "", text: "На парте уже лежит бумага и ручка." },
       { speaker: "kagami", text: "Пока что не переворачивай листок." },
       {
         speaker: "",
@@ -767,7 +767,6 @@ export const story = {
       { speaker: "ren", text: "А если не отвечу?" },
       { speaker: "kagami", text: "Провалишь тест и вернёшься откуда пришёл." },
       { speaker: "", text: "Нет, это не вариант..." },
-      { speaker: "", text: "Ладно, нет смысла тянуть." },
     ],
     interactables: [
       {
