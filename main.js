@@ -652,22 +652,27 @@ function startGame(e) {
   }, 300);
 }
 
-// === КИНЕМАТОГРАФИЧНЫЙ ОПЕНИНГ СИНСЮ ===
+// === КИНЕМАТОГРАФИЧНЫЙ ОПЕНИНГ ===
 function startMainMenuAnimation() {
   if (window.sotaIntroPlayed) {
-    // Если анимация уже была, просто показываем меню мгновенно!
     const mainMenu = document.getElementById("main-menu-screen");
     if (mainMenu) mainMenu.style.display = "flex";
 
-    const title = document.getElementById("main-menu-title");
-    if (title) {
-      title.style.transform = "none";
-      // ... (здесь жестко пропиши финальные стили)
-    }
-    return; // УБИВАЕМ ВЫПОЛНЕНИЕ! anime.js даже не запустится.
+    document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
+      el.style.maxWidth = "none";
+      el.style.opacity = "1";
+    });
+    document.querySelectorAll("#main-menu-title .initial").forEach((el) => {
+      el.style.opacity = "1";
+      el.classList.add("neon-letter-active");
+    });
+
+    const overlay = document.getElementById("menu-black-overlay");
+    if (overlay) overlay.style.display = "none";
+    return;
   }
 
-  window.sotaIntroPlayed = true; // Ставим клеймо
+  window.sotaIntroPlayed = true;
 
   const mainMenu = document.getElementById("main-menu-screen");
   const overlay = document.getElementById("menu-black-overlay");
@@ -693,28 +698,30 @@ function startMainMenuAnimation() {
     killMenuSkip();
   }, 1300);
 
+  // МАЙ: СТАРЫЙ ДОБРЫЙ РАДАР (Работает безотказно!)
   const w = window.innerWidth;
-  let targetLeft, targetTop, targetTranslateX;
+  let targetLeft, targetTop, targetTranslateX, startTop;
 
   if (w <= 1024) {
-    // МАЙ: Телефоны И планшеты теперь едут в центр!
+    // Телефоны и планшеты
     targetLeft = "50%";
     targetTop = "4vh";
-    targetTranslateX = "-50%";
+    targetTranslateX = "-50%"; // Обязательно, чтобы стоял по центру
+    startTop = "50%"; // Стартует из центра экрана
   } else {
-    // Десктоп едет в левый верхний угол
+    // Десктоп
     targetLeft = "10%";
     targetTop = "15%";
     targetTranslateX = "0%";
+    startTop = "50%"; // Стартует из центра экрана
   }
 
-  const titleEl = document.getElementById("main-menu-title");
-  if (titleEl) {
-    titleEl.style.top = "50%";
-    titleEl.style.left = "50%";
-    titleEl.style.transform = "translate(-50%, -50%) scale(1.5)";
+  // Фиксируем заголовок в центре ДО начала анимации, чтобы не прыгал!
+  if (title) {
+    title.style.top = startTop;
+    title.style.left = "50%";
+    title.style.transform = "translate(-50%, -50%) scale(1.5)";
   }
-
 
   introTimeline
     .add({
@@ -724,18 +731,19 @@ function startMainMenuAnimation() {
       duration: 600,
       delay: anime.stagger(150),
     })
-    // МАЙ: Объединенный блок движения. Никаких дубликатов!
     .add(
       {
         targets: "#main-menu-title",
-        top: ["50%", targetTop],
+        top: [startTop, targetTop],
         left: ["50%", targetLeft],
+        // МАЙ: Вот он, фикс планшета! anime.js сам плавно изменит translateX до нужного значения!
         translateX: ["-50%", targetTranslateX],
         translateY: ["-50%", "0%"],
         scale: [1.5, 1],
         duration: 900,
         easing: "easeInOutExpo",
         complete: function () {
+          // Никакого стирания стилей! Оставляем как есть.
           document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
             el.style.maxWidth = "none";
           });
@@ -781,7 +789,7 @@ function startMainMenuAnimation() {
       "-=600",
     );
 
-  // === ЧИСТЫЙ И ИДЕАЛЬНЫЙ СКИП ===
+  // === ЧИСТЫЙ СКИП ===
   const doMenuSkip = () => {
     if (!menuCanSkip) return;
 
@@ -796,11 +804,11 @@ function startMainMenuAnimation() {
       "#menu-black-overlay",
     ]);
 
-    // МАЙ: Опять же, просто стираем инлайн-стили. CSS сделает всё сам!
+    // Жестко ставим на место по радару
     if (title) {
-      title.style.top = "";
-      title.style.left = "";
-      title.style.transform = "";
+      title.style.top = targetTop;
+      title.style.left = targetLeft;
+      title.style.transform = `translate(${targetTranslateX}, 0%) scale(1)`;
     }
 
     document.querySelectorAll("#main-menu-title .initial").forEach((el) => {
@@ -811,7 +819,7 @@ function startMainMenuAnimation() {
 
     document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
       el.style.opacity = "1";
-      el.style.maxWidth = "300px";
+      el.style.maxWidth = "none";
     });
 
     if (overlay) {
