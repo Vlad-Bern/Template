@@ -2306,9 +2306,17 @@ $glass-dark: rgba(10, 12, 18, 0.95);
 
   /* Делаем отступы побольше, чтобы градиент плавно растворялся */
   padding: 40px 30px 10px 50px;
-   /* МАЙ: Жесткий и пуленепробиваемый градиент */
-  background: -webkit-radial-gradient(100% 100% at 100% 100%, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%);
-  background: radial-gradient(100% 100% at 100% 100%, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%);
+  /* МАЙ: Жесткий и пуленепробиваемый градиент */
+  background: -webkit-radial-gradient(
+    100% 100% at 100% 100%,
+    rgba(0, 0, 0, 0.8) 0%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  background: radial-gradient(
+    100% 100% at 100% 100%,
+    rgba(0, 0, 0, 0.8) 0%,
+    rgba(0, 0, 0, 0) 100%
+  );
 
   /* Настройки самого текста */
   color: rgba(255, 255, 255, 0.4); /* Полупрозрачный белый, чтобы не кричал */
@@ -2640,6 +2648,42 @@ $glass-dark: rgba(10, 12, 18, 0.95);
           }
         }
       }
+    }
+    #main-menu-title {
+      font-size: 3.5rem;
+      top: 5vh;
+      left: 4vw;
+    }
+
+    /* Контейнер с кнопками сдвигаем левее и ниже, чтобы освободить центр */
+    .menu-buttons-container {
+      left: 4vw;
+      bottom: 10vh;
+      gap: 12px;
+    }
+
+    /* Кнопки меню делаем чуть меньше */
+    .menu-btn {
+      font-size: 1.1rem;
+      padding: 10px 30px;
+      min-width: 220px;
+    }
+
+    /* Девочку сдвигаем ближе к центру и обрезаем по низу */
+    #main-menu-character-container {
+      right: -5vw;
+      width: 60vw;
+      bottom: -5vh; /* Прячем край юбки за экран */
+    }
+    #main-menu-character-container img {
+      width: 100%;
+      height: auto;
+    }
+
+    /* Вотермарку с версией уменьшаем */
+    .version-watermark {
+      font-size: 12px;
+      padding: 20px 15px 5px 30px;
     }
   }
 }
@@ -3149,6 +3193,71 @@ $glass-dark: rgba(10, 12, 18, 0.95);
     &:active {
       filter: brightness(1.2);
     }
+  }
+  #main-menu-title {
+    font-size: 2.8rem;
+    top: 4vh;
+    left: 50%;
+    transform: translateX(
+      -50%
+    ) !important; /* Отменяем параллакс, если он остался */
+    text-align: center;
+    width: 90vw;
+    white-space: normal; /* Разрешаем перенос строк, если не влезет */
+  }
+
+  /* Девочка теперь занимает весь экран и служит почти фоном */
+  #main-menu-character-container {
+    right: 50%;
+    transform: translateX(50%) !important; /* Центрируем */
+    width: 110vw; /* Делаем её огромной */
+    bottom: -5vh;
+    z-index: 1; /* Опускаем под кнопки */
+    opacity: 0.8; /* Чуть глушим, чтобы не мешала читать кнопки */
+  }
+
+  /* Контейнер кнопок центрируем внизу экрана */
+  .menu-buttons-container {
+    left: 50%;
+    transform: translateX(-50%) !important;
+    bottom: 8vh;
+    width: 85vw;
+    align-items: stretch; /* Кнопки растягиваются на всю ширину */
+    z-index: 10; /* Поверх девочки */
+    gap: 15px;
+  }
+
+  /* Сами кнопки становятся массивными, чтобы удобно тапать пальцем */
+  .menu-btn {
+    font-size: 1.2rem;
+    padding: 15px 20px;
+    width: 100%;
+    text-align: center;
+    background: rgba(
+      0,
+      0,
+      0,
+      0.7
+    ); /* Более плотный фон для читаемости на телефоне */
+    border: 1px solid rgba(0, 255, 255, 0.3); /* Легкий неоновый контур */
+  }
+
+  /* Версия уходит в самый низ по центру */
+  .version-watermark {
+    right: 50%;
+    transform: translateX(50%);
+    bottom: 0;
+    padding: 10px;
+    background: rgba(
+      0,
+      0,
+      0,
+      0.8
+    ); /* Превращаем градиент в плотную темную полоску! */
+    width: 100vw;
+    text-align: center;
+    font-size: 11px;
+    border-radius: 0;
   }
 }
 

@@ -541,7 +541,7 @@ if (gameViewport) gameViewport.style.display = "none";
 if (dialogWrapper) dialogWrapper.style.display = "none";
 
 // === РЕЖИМ БОГА ДЛЯ ТЕСТИРОВКИ ===
-const DEBUG_SKIP_INTRO = true;
+const DEBUG_SKIP_INTRO = false;
 
 function startGame(e) {
   document.removeEventListener("click", startGame);
@@ -562,22 +562,23 @@ function startGame(e) {
 
     // +++ ЧИТ-КОД РАБОТАЕТ ЗДЕСЬ +++
     if (DEBUG_SKIP_INTRO) {
-      // Если мы в режиме отладки — мгновенно показываем уже готовое меню!
       const mainMenu = document.getElementById("main-menu-screen");
       const title = document.getElementById("main-menu-title");
       const overlay = document.getElementById("menu-black-overlay");
 
       if (mainMenu) {
         mainMenu.style.display = "flex";
-        // Выставляем финальные стили без анимации
+
+        // МАЙ: Стираем JS-стили. Позицию теперь контролирует твой CSS!
         if (title) {
-          title.style.top = "15%";
-          title.style.left = "10%";
-          title.style.transform = "translate(0%, 0%) scale(1)";
+          title.style.top = "";
+          title.style.left = "";
+          title.style.transform = "";
         }
         document.querySelectorAll("#main-menu-title .initial").forEach((el) => {
           el.style.opacity = "1";
           el.style.transform = "scale(1)";
+          el.classList.add("neon-letter-active"); // Неон вкл
         });
         document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
           el.style.opacity = "1";
@@ -588,9 +589,7 @@ function startGame(e) {
         window.showRandomMenuCharacter();
       }
     } else {
-      // Обычный старт для игроков
       startMainMenuAnimation();
-
       window.showRandomMenuCharacter();
     }
   };
@@ -599,13 +598,12 @@ function startGame(e) {
     triggerMenu();
   };
 
-  // +++ МГНОВЕННЫЙ ПРОПУСК ДЛЯ ВАС +++
   if (DEBUG_SKIP_INTRO) {
-    triggerMenu(); // Пропускаем таймеры дисклеймера и заставки
-    return; // Выходим, чтобы таймеры ниже не сработали
+    triggerMenu();
+    return;
   }
 
-  // --- ДАЛЬШЕ ИДУТ ВАШИ СТАРЫЕ ТАЙМЕРЫ (2000мс, 1000мс и т.д.) ---
+  // --- ТАЙМЕРЫ ---
   if (disclaimer) {
     disclaimer.style.opacity = "0";
     disclaimer.style.pointerEvents = "none";
@@ -649,7 +647,6 @@ function startMainMenuAnimation() {
     easing: "easeOutExpo",
   });
 
-  // Локальный флаг скипа ТОЛЬКО для анимации меню
   let menuCanSkip = true;
 
   const killMenuSkip = () => {
@@ -658,10 +655,15 @@ function startMainMenuAnimation() {
     document.removeEventListener("keydown", doMenuSkip);
   };
 
-  // ЗАЩИТА: Как только буквы тронутся с места (через 1.3 секунды) - скип отрубается
   const safetyLock = setTimeout(() => {
     killMenuSkip();
   }, 1300);
+
+  // МАЙ: Вычисляем цель для анимации (куда ехать перед тем, как CSS возьмет управление)
+  const isMobile = window.innerWidth <= 768;
+  const targetLeft = isMobile ? "50%" : "10%"; // 10% - твоя старая позиция для ПК
+  const targetTop = isMobile ? "4vh" : "15%"; // 15% - твоя старая позиция для ПК
+  const targetTranslateX = isMobile ? "-50%" : "0%";
 
   introTimeline
     .add({
@@ -671,16 +673,26 @@ function startMainMenuAnimation() {
       duration: 600,
       delay: anime.stagger(150),
     })
+    // МАЙ: Объединенный блок движения. Никаких дубликатов!
     .add(
       {
         targets: "#main-menu-title",
-        top: ["50%", "15%"],
-        left: ["50%", "10%"],
-        translateX: ["-50%", "0%"],
+        top: ["50%", targetTop],
+        left: ["50%", targetLeft],
+        translateX: ["-50%", targetTranslateX],
         translateY: ["-50%", "0%"],
         scale: [1.5, 1],
         duration: 900,
         easing: "easeInOutExpo",
+        complete: function () {
+          // Как только доехали - стираем следы JS, передаем власть CSS
+          const titleEl = document.getElementById("main-menu-title");
+          if (titleEl) {
+            titleEl.style.left = "";
+            titleEl.style.top = "";
+            titleEl.style.transform = "";
+          }
+        },
       },
       "+=500",
     )
@@ -699,7 +711,6 @@ function startMainMenuAnimation() {
         targets: "#main-menu-title .initial",
         duration: 500,
         begin: function () {
-          // Как только эта часть таймлайна начнется, скрипт навесит класс на все первые буквы
           document
             .querySelectorAll("#main-menu-title .initial")
             .forEach((el) => {
@@ -707,7 +718,7 @@ function startMainMenuAnimation() {
             });
         },
       },
-      "-=200", // Запускаем чуть раньше, чем исчезнет черный экран
+      "-=200",
     )
     .add(
       {
@@ -717,21 +728,20 @@ function startMainMenuAnimation() {
         easing: "linear",
         complete: () => {
           if (overlay) overlay.style.display = "none";
-          killMenuSkip(); // Контрольный выстрел в слушатели
+          killMenuSkip();
         },
       },
       "-=600",
     );
 
-  // Сама функция скипа меню
+  // === ЧИСТЫЙ И ИДЕАЛЬНЫЙ СКИП ===
   const doMenuSkip = () => {
     if (!menuCanSkip) return;
 
-    clearTimeout(safetyLock); // Убиваем таймер защиты
-    killMenuSkip(); // Глушим слушатели навсегда
-    introTimeline.pause(); // Тормозим anime.js
+    clearTimeout(safetyLock);
+    killMenuSkip();
+    introTimeline.pause();
 
-    // Вырываем элементы
     anime.remove([
       "#main-menu-title",
       "#main-menu-title .initial",
@@ -739,34 +749,36 @@ function startMainMenuAnimation() {
       "#menu-black-overlay",
     ]);
 
-    // Вбиваем финальные стили
+    // МАЙ: Опять же, просто стираем инлайн-стили. CSS сделает всё сам!
     if (title) {
-      title.style.top = "15%";
-      title.style.left = "10%";
-      title.style.transform = "translate(0%, 0%) scale(1)";
+      title.style.top = "";
+      title.style.left = "";
+      title.style.transform = "";
     }
+
     document.querySelectorAll("#main-menu-title .initial").forEach((el) => {
       el.style.opacity = "1";
       el.style.transform = "scale(1)";
       el.classList.add("neon-letter-active");
     });
+
     document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
       el.style.opacity = "1";
       el.style.maxWidth = "300px";
     });
+
     if (overlay) {
       overlay.style.display = "none";
       overlay.style.opacity = "0";
     }
   };
 
-  // ВАЖНО: Вешаем слушатель скипа меню с небольшой задержкой (чтобы клик из интро не перескочил сюда)
   setTimeout(() => {
     if (menuCanSkip) {
       document.addEventListener("click", doMenuSkip);
       document.addEventListener("keydown", doMenuSkip);
     }
-  }, 400); // 400мс защиты от "сквозного прокликивания"
+  }, 400);
 }
 
 // Вешаем стартовые слушатели
