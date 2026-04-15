@@ -2237,6 +2237,88 @@ $glass-dark: rgba(10, 12, 18, 0.95);
       }
     }
   }
+  @keyframes realistic-neon-flicker {
+    0%,
+    18%,
+    22%,
+    25%,
+    53%,
+    57%,
+    100% {
+      opacity: 1;
+      /* Убрали огромные тени. Теперь свечение плотное и близкое к букве */
+      text-shadow:
+        0 0 1px #ffffff,
+        0 0 3px $ui-accent,
+        0 0 6px $ui-accent,
+        0 0 10px $ui-accent;
+    }
+    20%,
+    24%,
+    55% {
+      opacity: 0.8;
+      text-shadow:
+        0 0 1px #ffffff,
+        0 0 2px $ui-accent,
+        0 0 4px $ui-accent;
+    }
+    21%,
+    23%,
+    56% {
+      opacity: 0.5;
+      text-shadow: none; /* Полное затухание */
+    }
+  }
+
+  .neon-letter-active {
+    color: $ui-accent;
+    animation: realistic-neon-flicker 5s infinite;
+    /* Добавим относительное позиционирование, чтобы свечение не ломало верстку соседей */
+    position: relative;
+    z-index: 2;
+  }
+
+  // Добавь это куда-нибудь в конец style.scss
+  .version {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    z-index: 100; // Поверх персонажей
+    padding: 30px 30px 15px 50px; // Большой отступ сверху и слева для плавного градиента
+    background: radial-gradient(
+      100% 100% at 100% 100%,
+      rgba(0, 0, 0, 0.8) 0%,
+      transparent 100%
+    );
+    color: rgba(255, 255, 255, 0.6);
+    font-family: "Inter", sans-serif;
+    font-size: 14px;
+    letter-spacing: 2px;
+    pointer-events: none;
+  }
+}
+
+.version-watermark {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  z-index: 1000; /* Поверх всех меню и экранов */
+
+  /* Делаем отступы побольше, чтобы градиент плавно растворялся */
+  padding: 40px 30px 10px 50px;
+   /* МАЙ: Жесткий и пуленепробиваемый градиент */
+  background: -webkit-radial-gradient(100% 100% at 100% 100%, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%);
+  background: radial-gradient(100% 100% at 100% 100%, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%);
+
+  /* Настройки самого текста */
+  color: rgba(255, 255, 255, 0.4); /* Полупрозрачный белый, чтобы не кричал */
+  font-family: "Inter", sans-serif; /* Твой строгий корпоративный шрифт */
+  font-size: 14px;
+  letter-spacing: 1px;
+
+  /* Чтобы клики проходили сквозь надпись, если под ней окажутся кнопки */
+  pointer-events: none;
+  user-select: none;
 }
 
 /* === МАЙ: СТИЛИ ГАЛЕРЕИ (СИНСЮ ОС) === */

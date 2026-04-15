@@ -251,19 +251,7 @@ app.innerHTML = `
   <button id="btn-exit"><span class="visual">Выход</span></button>
 </div>
   
-  <div class="version-watermark" style="
-    position: absolute;
-    bottom: 15px;
-    right: 25px;
-    color: rgba(255, 255, 255, 0.4); /* Полупрозрачный белый */
-    font-family: 'Courier New', Courier, monospace; /* Строгий системный шрифт для контраста */
-    font-size: 0.9rem;
-    letter-spacing: 2px;
-    pointer-events: none; /* Чтобы мышка пролетала сквозь него */
-    z-index: 100;
-    text-shadow: 0px 2px 4px rgba(0,0,0,0.8); /* Тень, чтобы читалось на светлом фоне */
-    transition: color 0.3s ease;
-  ">
+  <div class="version-watermark">
     SOTA: Prologue (1.0) | by Vladber
   </div>
 
@@ -488,27 +476,39 @@ window.showRandomMenuCharacter = function () {
   const container = document.getElementById("main-menu-character-container");
   if (!container) return;
 
-  // Ваши пути к спрайтам для меню
+  // Наши пути к спрайтам для меню
   const characters = [
     "/chars/mMenu/celeste_menu.webp",
     "/chars/mMenu/kagami_menu.webp",
     "/chars/mMenu/kaira_menu.webp",
   ];
 
-  // Выбираем случайного
-  const randomIndex = Math.floor(Math.random() * characters.length);
-  const selectedChar = characters[randomIndex];
+  let selectedChar = "";
+
+  // Проверяем, открывал ли игрок меню раньше
+  const hasSeenMenu = localStorage.getItem("sota_has_seen_menu");
+
+  if (!hasSeenMenu) {
+    // ПЕРВЫЙ ЗАПУСК: Игрок еще ни разу не был здесь.
+    // Принудительно показываем Селесту (лицо игры).
+    selectedChar = characters[0];
+    // Ставим клеймо, что он уже видел меню, чтобы в следующий раз работал рандом
+    localStorage.setItem("sota_has_seen_menu", "true");
+    console.log("Май: Первый запуск! Показываем ледяную Селесту.");
+  } else {
+    // ВСЕ ПОСЛЕДУЮЩИЕ ЗАПУСКИ: Работает честная рулетка.
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    selectedChar = characters[randomIndex];
+  }
 
   // Очищаем контейнер
   container.innerHTML = "";
 
   const img = document.createElement("img");
-
   img.src =
     window.sm && window.sm._getOptimizedSpritePath
       ? window.sm._getOptimizedSpritePath(selectedChar)
       : selectedChar;
-
   container.appendChild(img);
 
   // Плавное проявление
@@ -541,7 +541,6 @@ if (gameViewport) gameViewport.style.display = "none";
 if (dialogWrapper) dialogWrapper.style.display = "none";
 
 // === РЕЖИМ БОГА ДЛЯ ТЕСТИРОВКИ ===
-// Поменяйте на true, если устали смотреть заставки!
 const DEBUG_SKIP_INTRO = true;
 
 function startGame(e) {
@@ -697,6 +696,21 @@ function startMainMenuAnimation() {
     )
     .add(
       {
+        targets: "#main-menu-title .initial",
+        duration: 500,
+        begin: function () {
+          // Как только эта часть таймлайна начнется, скрипт навесит класс на все первые буквы
+          document
+            .querySelectorAll("#main-menu-title .initial")
+            .forEach((el) => {
+              el.classList.add("neon-letter-active");
+            });
+        },
+      },
+      "-=200", // Запускаем чуть раньше, чем исчезнет черный экран
+    )
+    .add(
+      {
         targets: "#menu-black-overlay",
         opacity: [1, 0],
         duration: 800,
@@ -734,6 +748,7 @@ function startMainMenuAnimation() {
     document.querySelectorAll("#main-menu-title .initial").forEach((el) => {
       el.style.opacity = "1";
       el.style.transform = "scale(1)";
+      el.classList.add("neon-letter-active");
     });
     document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
       el.style.opacity = "1";
