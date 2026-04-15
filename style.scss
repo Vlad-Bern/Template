@@ -2273,9 +2273,6 @@ $glass-dark: rgba(10, 12, 18, 0.95);
   .neon-letter-active {
     color: $ui-accent;
     animation: realistic-neon-flicker 5s infinite;
-    /* Добавим относительное позиционирование, чтобы свечение не ломало верстку соседей */
-    position: relative;
-    z-index: 2;
   }
 
   // Добавь это куда-нибудь в конец style.scss

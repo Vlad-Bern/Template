@@ -476,7 +476,23 @@ window.showRandomMenuCharacter = function () {
   const container = document.getElementById("main-menu-character-container");
   if (!container) return;
 
-  // Наши пути к спрайтам для меню
+  // МАЙ: ЕСЛИ ДЕВОЧКА УЖЕ ВЫБРАНА И ОТРИСОВАНА В ЭТУ СЕССИЮ — НИЧЕГО НЕ ДЕЛАЕМ!
+  // Это спасет мобилки от перерисовки при закрытии менюшек.
+  if (window.sotaCurrentMenuChar) {
+    // Если картинка почему-то исчезла из контейнера (браузер выгрузил), просто восстановим её из кэша
+    if (container.innerHTML === "") {
+      const img = document.createElement("img");
+      img.src =
+        window.sm && window.sm._getOptimizedSpritePath
+          ? window.sm._getOptimizedSpritePath(window.sotaCurrentMenuChar)
+          : window.sotaCurrentMenuChar;
+      container.appendChild(img);
+      setTimeout(() => img.classList.add("visible"), 100);
+    }
+    return; // УБИВАЕМ РУЛЕТКУ!
+  }
+
+  // Наши пути к спрайтам
   const characters = [
     "/chars/mMenu/celeste_menu.webp",
     "/chars/mMenu/kagami_menu.webp",
@@ -485,25 +501,23 @@ window.showRandomMenuCharacter = function () {
 
   let selectedChar = "";
 
-  // Проверяем, открывал ли игрок меню раньше
+  // Проверка первого запуска (с Селестой), которую мы делали раньше
   const hasSeenMenu = localStorage.getItem("sota_has_seen_menu");
 
   if (!hasSeenMenu) {
-    // ПЕРВЫЙ ЗАПУСК: Игрок еще ни разу не был здесь.
-    // Принудительно показываем Селесту (лицо игры).
     selectedChar = characters[0];
-    // Ставим клеймо, что он уже видел меню, чтобы в следующий раз работал рандом
     localStorage.setItem("sota_has_seen_menu", "true");
-    console.log("Май: Первый запуск! Показываем ледяную Селесту.");
   } else {
-    // ВСЕ ПОСЛЕДУЮЩИЕ ЗАПУСКИ: Работает честная рулетка.
+    // Крутим рулетку
     const randomIndex = Math.floor(Math.random() * characters.length);
     selectedChar = characters[randomIndex];
   }
 
-  // Очищаем контейнер
-  container.innerHTML = "";
+  // МАЙ: ЗАПОМИНАЕМ ВЫПАВШУЮ ДЕВОЧКУ НА ВСЮ СЕССИЮ!
+  window.sotaCurrentMenuChar = selectedChar;
 
+  // Очищаем и рисуем (твой старый код)
+  container.innerHTML = "";
   const img = document.createElement("img");
   img.src =
     window.sm && window.sm._getOptimizedSpritePath
@@ -511,7 +525,6 @@ window.showRandomMenuCharacter = function () {
       : selectedChar;
   container.appendChild(img);
 
-  // Плавное проявление
   setTimeout(() => {
     img.classList.add("visible");
   }, 100);
@@ -641,6 +654,21 @@ function startGame(e) {
 
 // === КИНЕМАТОГРАФИЧНЫЙ ОПЕНИНГ СИНСЮ ===
 function startMainMenuAnimation() {
+  if (window.sotaIntroPlayed) {
+    // Если анимация уже была, просто показываем меню мгновенно!
+    const mainMenu = document.getElementById("main-menu-screen");
+    if (mainMenu) mainMenu.style.display = "flex";
+
+    const title = document.getElementById("main-menu-title");
+    if (title) {
+      title.style.transform = "none";
+      // ... (здесь жестко пропиши финальные стили)
+    }
+    return; // УБИВАЕМ ВЫПОЛНЕНИЕ! anime.js даже не запустится.
+  }
+
+  window.sotaIntroPlayed = true; // Ставим клеймо
+
   const mainMenu = document.getElementById("main-menu-screen");
   const overlay = document.getElementById("menu-black-overlay");
   const title = document.getElementById("main-menu-title");
@@ -668,22 +696,25 @@ function startMainMenuAnimation() {
   const w = window.innerWidth;
   let targetLeft, targetTop, targetTranslateX;
 
-  if (w <= 768) {
-    // Телефон
+  if (w <= 1024) {
+    // МАЙ: Телефоны И планшеты теперь едут в центр!
     targetLeft = "50%";
     targetTop = "4vh";
     targetTranslateX = "-50%";
-  } else if (w <= 1024) {
-    // Планшет
-    targetLeft = "4vw";
-    targetTop = "5vh";
-    targetTranslateX = "0%";
   } else {
-    // Десктоп
+    // Десктоп едет в левый верхний угол
     targetLeft = "10%";
     targetTop = "15%";
     targetTranslateX = "0%";
   }
+
+  const titleEl = document.getElementById("main-menu-title");
+  if (titleEl) {
+    titleEl.style.top = "50%";
+    titleEl.style.left = "50%";
+    titleEl.style.transform = "translate(-50%, -50%) scale(1.5)";
+  }
+
 
   introTimeline
     .add({
@@ -705,13 +736,6 @@ function startMainMenuAnimation() {
         duration: 900,
         easing: "easeInOutExpo",
         complete: function () {
-          // Как только доехали - стираем следы JS, передаем власть CSS
-          const titleEl = document.getElementById("main-menu-title");
-          if (titleEl) {
-            titleEl.style.left = "";
-            titleEl.style.top = "";
-            titleEl.style.transform = "";
-          }
           document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
             el.style.maxWidth = "none";
           });
