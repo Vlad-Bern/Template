@@ -659,11 +659,25 @@ function startMainMenuAnimation() {
     killMenuSkip();
   }, 1300);
 
-  // МАЙ: Вычисляем цель для анимации (куда ехать перед тем, как CSS возьмет управление)
-  const isMobile = window.innerWidth <= 768;
-  const targetLeft = isMobile ? "50%" : "10%"; // 10% - твоя старая позиция для ПК
-  const targetTop = isMobile ? "4vh" : "15%"; // 15% - твоя старая позиция для ПК
-  const targetTranslateX = isMobile ? "-50%" : "0%";
+  const w = window.innerWidth;
+  let targetLeft, targetTop, targetTranslateX;
+
+  if (w <= 768) {
+    // Телефон
+    targetLeft = "50%";
+    targetTop = "4vh";
+    targetTranslateX = "-50%";
+  } else if (w <= 1024) {
+    // Планшет
+    targetLeft = "4vw";
+    targetTop = "5vh";
+    targetTranslateX = "0%";
+  } else {
+    // Десктоп
+    targetLeft = "10%";
+    targetTop = "15%";
+    targetTranslateX = "0%";
+  }
 
   introTimeline
     .add({

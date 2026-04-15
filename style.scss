@@ -2203,10 +2203,10 @@ $glass-dark: rgba(10, 12, 18, 0.95);
 
   #main-menu-title {
     position: absolute;
-    /* Стартовые позиции: жестко по центру */
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(1.5);
+    top: 15%; // Твоя старая позиция по высоте
+    left: 10%; // Твоя старая позиция по ширине
+    transform: translate(0%, 0%) scale(1);
+    text-align: left;
     display: flex;
     gap: 20px;
     z-index: 20;
