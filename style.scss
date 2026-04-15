@@ -2650,9 +2650,23 @@ $glass-dark: rgba(10, 12, 18, 0.95);
       }
     }
     #main-menu-title {
-      font-size: 3.5rem;
-      top: 5vh;
-      left: 4vw;
+      top: 4vh;
+      left: 50%;
+      transform: translateX(-50%) !important;
+      transition: none !important;
+
+      /* МАЙ: Главное исправление! Разрешаем словам прыгать на новую строку */
+      flex-wrap: wrap;
+      justify-content: center; /* Центрируем слова внутри контейнера */
+      width: 95vw;
+      gap: 10px; /* Уменьшаем зазор между словами */
+
+      .initial {
+        font-size: 3rem; /* Уменьшаем буквы для планшета */
+      }
+      .rest {
+        font-size: 2rem;
+      }
     }
 
     /* Контейнер с кнопками сдвигаем левее и ниже, чтобы освободить центр */
@@ -3198,33 +3212,35 @@ $glass-dark: rgba(10, 12, 18, 0.95);
     font-size: 2.8rem;
     top: 4vh;
     left: 50%;
-    transform: translateX(
-      -50%
-    ) !important; /* Отменяем параллакс, если он остался */
+    /* МАЙ: Обязательно translateX(-50%), чтобы стоял ровно по центру! */
+    transform: translateX(-50%) !important;
+    /* МАЙ: Убиваем фантомную "вторую анимацию" от CSS */
+    transition: none !important;
     text-align: center;
     width: 90vw;
-    white-space: normal; /* Разрешаем перенос строк, если не влезет */
+    white-space: normal;
   }
 
-  /* Девочка теперь занимает весь экран и служит почти фоном */
   #main-menu-character-container {
     right: 50%;
-    transform: translateX(50%) !important; /* Центрируем */
-    width: 110vw; /* Делаем её огромной */
+    transform: translateX(50%) !important;
+    width: 110vw;
     bottom: -5vh;
-    z-index: 1; /* Опускаем под кнопки */
-    opacity: 0.8; /* Чуть глушим, чтобы не мешала читать кнопки */
+    z-index: 1;
+    opacity: 0.8;
   }
 
-  /* Контейнер кнопок центрируем внизу экрана */
   .menu-buttons-container {
+    top: auto !important;
     left: 50%;
+    /* МАЙ: Оставляем центрирование и убиваем фантомную анимацию */
     transform: translateX(-50%) !important;
+    transition: none !important;
     bottom: 8vh;
+    gap: 12px;
     width: 85vw;
-    align-items: stretch; /* Кнопки растягиваются на всю ширину */
-    z-index: 10; /* Поверх девочки */
-    gap: 15px;
+    align-items: stretch;
+    z-index: 10;
   }
 
   /* Сами кнопки становятся массивными, чтобы удобно тапать пальцем */

@@ -552,7 +552,7 @@ function startGame(e) {
   const splash = document.getElementById("splash-screen");
   let menuStarted = false;
 
-  const triggerMenu = () => {
+  const triggerMenu = (wasSkipped = false) => {
     if (menuStarted) return;
     menuStarted = true;
     document.removeEventListener("click", forceSkipIntro);
@@ -560,8 +560,8 @@ function startGame(e) {
     if (disclaimer) disclaimer.style.display = "none";
     if (splash) splash.style.display = "none";
 
-    // +++ ЧИТ-КОД РАБОТАЕТ ЗДЕСЬ +++
-    if (DEBUG_SKIP_INTRO) {
+    // МАЙ: Мгновенное появление, если включен чит ИЛИ если игрок скипнул заставку!
+    if (DEBUG_SKIP_INTRO || wasSkipped) {
       const mainMenu = document.getElementById("main-menu-screen");
       const title = document.getElementById("main-menu-title");
       const overlay = document.getElementById("menu-black-overlay");
@@ -569,7 +569,7 @@ function startGame(e) {
       if (mainMenu) {
         mainMenu.style.display = "flex";
 
-        // МАЙ: Стираем JS-стили. Позицию теперь контролирует твой CSS!
+        // Стираем JS-стили. Позицию контролирует CSS!
         if (title) {
           title.style.top = "";
           title.style.left = "";
@@ -578,28 +578,34 @@ function startGame(e) {
         document.querySelectorAll("#main-menu-title .initial").forEach((el) => {
           el.style.opacity = "1";
           el.style.transform = "scale(1)";
-          el.classList.add("neon-letter-active"); // Неон вкл
+          el.classList.add("neon-letter-active");
         });
         document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
           el.style.opacity = "1";
-          el.style.maxWidth = "300px";
+          el.style.maxWidth = "300px"; // Разворачиваем слова
+          // МАЙ: Для планшетов снимаем жесткий лимит ширины
+          setTimeout(() => {
+            el.style.maxWidth = "none";
+          }, 50);
         });
         if (overlay) overlay.style.display = "none";
 
         window.showRandomMenuCharacter();
       }
     } else {
+      // Обычный старт (игрок терпеливо досмотрел заставку до конца)
       startMainMenuAnimation();
       window.showRandomMenuCharacter();
     }
   };
 
   const forceSkipIntro = () => {
-    triggerMenu();
+    triggerMenu(true);
   };
 
+  // Чит-код разработчика
   if (DEBUG_SKIP_INTRO) {
-    triggerMenu();
+    triggerMenu(true); // Передаем true, чтобы меню появилось мгновенно
     return;
   }
 
@@ -620,7 +626,7 @@ function startGame(e) {
 
       setTimeout(() => {
         if (menuStarted) return;
-        triggerMenu();
+        triggerMenu(false);
       }, 1000);
     }, 2000);
   }, 1000);
@@ -706,6 +712,9 @@ function startMainMenuAnimation() {
             titleEl.style.top = "";
             titleEl.style.transform = "";
           }
+          document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
+            el.style.maxWidth = "none";
+          });
         },
       },
       "+=500",
