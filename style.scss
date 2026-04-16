@@ -2652,126 +2652,58 @@ $glass-dark: rgba(10, 12, 18, 0.95);
       }
     }
 
-    #main-menu-title {
-      // МАЙ: Возвращаем центрирование только для планшетов и телефонов!
-      top: 4vh;
-      left: 50%;
+    // ========== ПЛАНШЕТ ==========
+    @media (min-width: 600px) and (max-width: 1024px) {
+      #main-menu-title {
+        top: 3vh;
+        left: 50%;
+        transform: translate(-50%, 0) scale(1);
+        transform-origin: center center;
+        transition: none !important;
 
-      // Возвращаем сдвиг -50% по X для идеального центрирования
-      transform: translate(-50%, var(--title-y-offset))
-        scale(var(--title-scale));
+        gap: 6px;
+        width: 95vw;
+        flex-wrap: wrap;
+        justify-content: center;
+        text-align: center;
 
-      // Возвращаем точку масштабирования в центр
-      transform-origin: center center;
-
-      gap: 10px;
-      width: 95vw;
-      flex-wrap: wrap;
-      justify-content: center;
-      text-align: center;
-
-      .word {
-        .initial {
-          font-size: 3rem;
-        }
-        .rest {
-          font-size: 2rem;
+        .word {
+          .initial {
+            font-size: 2.2rem;
+          }
+          .rest {
+            font-size: 1.5rem;
+          }
         }
       }
-    }
 
-    /* Теперь кнопки, девочка и версия живут сами по себе, на уровне #app */
-    #main-menu-title {
-      transition: none !important; /* Это оставляем, чтобы CSS не дергался */
-      gap: 10px;
-      width: 95vw;
-      flex-wrap: wrap;
-      justify-content: center;
-      text-align: center;
+      .menu-buttons-container {
+        left: 4vw;
+        bottom: 10vh;
+        gap: 12px;
+      }
 
-      .word {
-        .initial {
-          font-size: 3rem;
-        }
-        .rest {
-          font-size: 2rem;
+      .menu-btn {
+        font-size: 1.1rem;
+        padding: 10px 30px;
+        min-width: 220px;
+      }
+
+      #main-menu-character-container {
+        right: -5vw;
+        width: 60vw;
+        bottom: -5vh;
+
+        img {
+          width: 100%;
+          height: auto;
         }
       }
-    }
 
-    #main-menu-title {
-      top: 4vh;
-      left: 50%;
-      /* МАЙ: Жестко центрируем на планшете по умолчанию! */
-      transform: translate(-50%, 0) scale(1);
-
-      gap: 10px;
-      width: 95vw;
-      flex-wrap: wrap;
-      justify-content: center;
-      text-align: center;
-
-      .word {
-        .initial {
-          font-size: 3rem;
-        }
-        .rest {
-          font-size: 2rem;
-        }
+      .version-watermark {
+        font-size: 12px;
+        padding: 20px 15px 5px 30px;
       }
-    }
-
-    .menu-btn {
-      font-size: 1.1rem;
-      padding: 10px 30px;
-      min-width: 220px;
-    }
-
-    #main-menu-character-container {
-      right: -5vw;
-      width: 60vw;
-      bottom: -5vh;
-
-      img {
-        width: 100%;
-        height: auto;
-      }
-    }
-
-    .version-watermark {
-      font-size: 12px;
-      padding: 20px 15px 5px 30px;
-    }
-
-    /* Контейнер с кнопками сдвигаем левее и ниже, чтобы освободить центр */
-    .menu-buttons-container {
-      left: 4vw;
-      bottom: 10vh;
-      gap: 12px;
-    }
-
-    /* Кнопки меню делаем чуть меньше */
-    .menu-btn {
-      font-size: 1.1rem;
-      padding: 10px 30px;
-      min-width: 220px;
-    }
-
-    /* Девочку сдвигаем ближе к центру и обрезаем по низу */
-    #main-menu-character-container {
-      right: -5vw;
-      width: 60vw;
-      bottom: -5vh; /* Прячем край юбки за экран */
-    }
-    #main-menu-character-container img {
-      width: 100%;
-      height: auto;
-    }
-
-    /* Вотермарку с версией уменьшаем */
-    .version-watermark {
-      font-size: 12px;
-      padding: 20px 15px 5px 30px;
     }
   }
 }
@@ -3282,59 +3214,92 @@ $glass-dark: rgba(10, 12, 18, 0.95);
       filter: brightness(1.2);
     }
   }
-  #main-menu-character-container {
-    right: 50%;
-    transform: translateX(50%);
-    width: 110vw;
-    bottom: -5vh;
-    z-index: 1;
-    opacity: 0.8;
-  }
-
-  .menu-buttons-container {
-    top: auto;
-    left: 50%;
-    /* МАЙ: Оставляем центрирование и убиваем фантомную анимацию */
-    transform: translateX(-50%);
-    transition: none;
-    bottom: 8vh;
-    gap: 12px;
-    width: 85vw;
-    align-items: stretch;
-    z-index: 10;
-  }
-
-  /* Сами кнопки становятся массивными, чтобы удобно тапать пальцем */
-  .menu-btn {
-    font-size: 1.2rem;
-    padding: 15px 20px;
-    width: 100%;
-    text-align: center;
-    background: rgba(
-      0,
-      0,
-      0,
-      0.7
-    ); /* Более плотный фон для читаемости на телефоне */
-    border: 1px solid rgba(0, 255, 255, 0.3); /* Легкий неоновый контур */
-  }
-
-  /* Версия уходит в самый низ по центру */
-  .version-watermark {
-    right: 50%;
-    transform: translateX(50%);
-    bottom: 0;
-    padding: 10px;
-    background: rgba(
-      0,
-      0,
-      0,
-      0.8
-    ); /* Превращаем градиент в плотную темную полоску! */
+  #main-menu-screen {
+    aspect-ratio: unset;
     width: 100vw;
-    text-align: center;
-    font-size: 11px;
-    border-radius: 0;
+    height: 100dvh;
+    justify-content: flex-start;
+    align-items: flex-start;
+    overflow: hidden;
+  }
+
+  // Заголовок — маленький, левый верхний угол
+  #main-menu-title {
+    top: 2vh;
+    left: 3vw;
+    transform: translate(0, 0) scale(1);
+    transform-origin: left top;
+    transition: none !important;
+    gap: 3px;
+    width: auto;
+    max-width: 55vw;
+    flex-wrap: nowrap; // В ландшафте умещаем в одну строку
+    justify-content: flex-start;
+    text-align: left;
+
+    .word {
+      .initial {
+        font-size: 1.3rem;
+      }
+      .rest {
+        font-size: 0.85rem;
+      }
+    }
+  }
+
+  // Кнопки — слева, вертикальная колонка
+  .menu-buttons-container {
+    position: absolute;
+    left: 3vw;
+    top: 18vh;
+    bottom: auto;
+    transform: none;
+    width: 42vw;
+    margin-left: 0;
+    gap: 0px;
+    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .menu-buttons-container button {
+    padding: 4px 0;
+    text-align: left;
+  }
+
+  .menu-btn .visual {
+    font-size: 0.85rem;
+    letter-spacing: 3px;
+  }
+
+  // Персонаж — справа, на всю высоту
+  #main-menu-character-container {
+    position: absolute;
+    right: -2vw;
+    bottom: 0;
+    top: 0;
+    left: auto;
+    transform: none;
+    width: 48vw;
+    height: 100%;
+    overflow: hidden;
+    mask-image: linear-gradient(to left, black 60%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to left, black 60%, transparent 100%);
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+    }
+  }
+
+  .version-watermark {
+    font-size: 9px;
+    padding: 4px 6px;
+    bottom: 2px;
+    right: 2px;
+    left: auto;
   }
 }
 
