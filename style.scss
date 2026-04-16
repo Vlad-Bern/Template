@@ -2657,7 +2657,6 @@ $glass-dark: rgba(10, 12, 18, 0.95);
       #main-menu-title {
         top: 3vh;
         left: 50%;
-        transform: translate(-50%, 0) scale(1);
         transform-origin: center center;
         transition: none !important;
 
@@ -2711,7 +2710,6 @@ $glass-dark: rgba(10, 12, 18, 0.95);
 // ==========================================
 // --- MOBILE ---
 // ==========================================
-// Намеренно: мобильные стили перекрывают таблетные при landscape ≤1024px
 @media (max-width: 1024px) and (orientation: landscape),
   (max-height: 500px) and (orientation: landscape) {
   // Усиливаем специфичность через body #app, чтобы перебить ПК-стили красиво
@@ -3221,55 +3219,58 @@ $glass-dark: rgba(10, 12, 18, 0.95);
     justify-content: flex-start;
     align-items: flex-start;
     overflow: hidden;
-  }
 
-  // Заголовок — маленький, левый верхний угол
-  #main-menu-title {
-    top: 2vh;
-    left: 3vw;
-    transform: translate(0, 0) scale(1);
-    transform-origin: left top;
-    transition: none !important;
-    gap: 3px;
-    width: auto;
-    max-width: 55vw;
-    flex-wrap: nowrap; // В ландшафте умещаем в одну строку
-    justify-content: flex-start;
-    text-align: left;
+    // Заголовок внутри #main-menu-screen — специфичность 0-2-0, побеждает базу
+    #main-menu-title {
+      top: 2vh;
+      left: 3vw;
+      // transform НЕ ПИШЕМ — anime.js управляет им сам
+      transform-origin: left top;
+      // transition: none тоже убираем — базовые стили уже ставят none !important
+      gap: 3px;
+      width: auto;
+      max-width: 55vw;
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      text-align: left;
 
-    .word {
-      .initial {
-        font-size: 1.3rem;
+      .word {
+        .initial {
+          font-size: 1.3rem;
+        }
+        .rest {
+          font-size: 0.85rem;
+        }
       }
-      .rest {
-        font-size: 0.85rem;
-      }
+    }
+
+    .menu-buttons-container {
+      position: absolute;
+      left: 3vw;
+      right: auto;
+      top: 16vh;
+      bottom: auto;
+      transform: none;
+      width: 44vw;
+      margin-left: 0;
+      gap: 0;
+      align-items: flex-start;
+      display: flex;
+      flex-direction: column;
     }
   }
 
-  // Кнопки — слева, вертикальная колонка
-  .menu-buttons-container {
-    position: absolute;
-    left: 3vw;
-    top: 18vh;
-    bottom: auto;
-    transform: none;
-    width: 42vw;
-    margin-left: 0;
-    gap: 0px;
-    align-items: flex-start;
-    display: flex;
-    flex-direction: column;
-  }
-
+  // Кнопки — вне #main-menu-screen не нужна высокая специфичность
   .menu-buttons-container button {
-    padding: 4px 0;
+    padding: 3px 0;
     text-align: left;
+    line-height: 1.2;
   }
 
   .menu-btn .visual {
-    font-size: 0.85rem;
-    letter-spacing: 3px;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    line-height: 1.2;
   }
 
   // Персонаж — справа, на всю высоту

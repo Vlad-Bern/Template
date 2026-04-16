@@ -651,26 +651,55 @@ function startGame(e) {
 }
 
 function startMainMenuAnimation() {
-  const isPhone = window.innerWidth < 600;
+  const isPhoneLandscape =
+    window.innerHeight < 500 && window.innerWidth > window.innerHeight;
+  const isPhonePortrait = window.innerWidth < 600 && !isPhoneLandscape;
+  const isPhone = isPhonePortrait || isPhoneLandscape;
   const isTablet = !isPhone && window.innerWidth <= 1024;
-  const isMobile = isPhone || isTablet; // для обратной совместимости
+  const isMobile = isPhone || isTablet;
 
-  const endTop = isPhone ? "4vh" : isTablet ? "3vh" : "15%";
-  const endLeft = isMobile ? "50%" : "10%";
-  const endTranslateX = isMobile ? "-50%" : "0%";
+  const endTop = isPhoneLandscape
+    ? "2vh"
+    : isPhonePortrait
+      ? "4vh"
+      : isTablet
+        ? "3vh"
+        : "15%";
+
+  // ВАЖНО: телефон-портрет и ландшафт — не должны сидеть в центре как конечная точка.
+  // Для них конечную геометрию полностью отдаём CSS (top/left пустые), а transform = 0.
+  const endLeft = isPhoneLandscape
+    ? "3vw" // как и было для ландшафта
+    : isPhonePortrait
+      ? "" // оставляем CSS управлять
+      : isTablet
+        ? "50%" // планшет — как раньше
+        : "10%"; // ПК — как раньше
+
+  const endTranslateX = isPhoneLandscape
+    ? "0%" // ландшафт: без сдвига, ты и так всё настроил
+    : isPhonePortrait
+      ? "0%" // портрет: конечный translateX = 0 (CSS сам ставит нужный текст)
+      : isTablet
+        ? "-50%" // планшет — как раньше
+        : "0%"; // ПК — как раньше
+
+  // ← НОВОЕ: объявляем title здесь, чтобы можно было сбросить стили
+  const title = document.getElementById("main-menu-title");
+  const mainMenu = document.getElementById("main-menu-screen");
+  const overlay = document.getElementById("menu-black-overlay");
 
   // --- Повторный заход ---
   if (window.sotaIntroPlayed) {
-    const mainMenu = document.getElementById("main-menu-screen");
-    const title = document.getElementById("main-menu-title");
     if (mainMenu) mainMenu.style.display = "flex";
     if (title) {
       title.style.top = endTop;
       title.style.left = endLeft;
       anime.set(title, {
         translateX: endTranslateX,
-        translateY: "0%",
+        translateY: "0px",
         scale: 1,
+        opacity: 1,
       });
     }
     document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
@@ -681,22 +710,32 @@ function startMainMenuAnimation() {
       el.style.opacity = "1";
       el.classList.add("neon-letter-active");
     });
-    const overlay = document.getElementById("menu-black-overlay");
     if (overlay) overlay.style.display = "none";
     return;
   }
 
   window.sotaIntroPlayed = true;
-
-  const mainMenu = document.getElementById("main-menu-screen");
-  const overlay = document.getElementById("menu-black-overlay");
-  const title = document.getElementById("main-menu-title");
   if (!mainMenu) return;
   mainMenu.style.display = "flex";
 
-  // Стартовые позиции — на телефоне стартуем снизу, НЕ из масштаба 1.5
-  // (иначе огромный заголовок вылезает за экран)
-  if (isPhone) {
+  if (title) {
+    title.style.top = "";
+    title.style.left = "";
+  }
+
+  // --- Стартовые позиции ---
+  if (isPhoneLandscape) {
+    // Ландшафт: стартуем левее за экраном
+    anime.set("#main-menu-title", {
+      top: endTop,
+      left: "-60%",
+      translateX: "0%",
+      translateY: "-30px",
+      scale: 1,
+      opacity: 1,
+    });
+  } else if (isPhonePortrait) {
+    // Портрет: снизу вверх
     anime.set("#main-menu-title", {
       top: "65%",
       left: "50%",
@@ -706,13 +745,14 @@ function startMainMenuAnimation() {
       opacity: 0,
     });
   } else if (isTablet) {
+    // Планшет: снизу вверх + opacity
     anime.set("#main-menu-title", {
       top: "55%",
       left: "50%",
       translateX: "-50%",
       translateY: "0%",
       scale: 1.1,
-      opacity: 0,
+      opacity: 0, // opacity будет анимироваться явно
     });
   } else {
     // ПК — оригинал
@@ -722,6 +762,7 @@ function startMainMenuAnimation() {
       translateX: "-50%",
       translateY: "-50%",
       scale: 1.5,
+      opacity: 1,
     });
   }
 
@@ -742,14 +783,76 @@ function startMainMenuAnimation() {
   };
   const safetyLock = setTimeout(() => killMenuSkip(), 2500);
 
-  if (isPhone) {
-    // === МОБИЛЬНАЯ АНИМАЦИЯ: снизу вверх ===
+  if (isPhoneLandscape) {
+    // === ЛАНДШАФТНЫЙ ТЕЛЕФОН: влетает слева ===
+    introTimeline
+      .add({
+        targets: "#main-menu-title",
+        left: ["-60%", endLeft],
+        translateY: ["-30px", "0px"], // ← мягкая посадка
+        opacity: [0, 1],
+        duration: 700,
+        easing: "easeOutExpo",
+      })
+      .add(
+        {
+          targets: "#main-menu-title .initial",
+          opacity: 1,
+          scale: 1,
+          duration: 400,
+          delay: anime.stagger(100),
+        },
+        "-=200",
+      )
+      .add(
+        {
+          targets: "#main-menu-title .rest",
+          maxWidth: "200px",
+          opacity: 1,
+          duration: 400,
+          delay: anime.stagger(60),
+          complete: () => {
+            document
+              .querySelectorAll("#main-menu-title .rest")
+              .forEach((el) => {
+                el.style.maxWidth = "none";
+              });
+          },
+        },
+        "-=200",
+      )
+      .add(
+        {
+          targets: "#main-menu-title .initial",
+          duration: 300,
+          begin: () => {
+            document
+              .querySelectorAll("#main-menu-title .initial")
+              .forEach((el) => el.classList.add("neon-letter-active"));
+          },
+        },
+        "-=100",
+      )
+      .add(
+        {
+          targets: "#menu-black-overlay",
+          opacity: [1, 0],
+          duration: 600,
+          easing: "linear",
+          complete: () => {
+            if (overlay) overlay.style.display = "none";
+            killMenuSkip();
+          },
+        },
+        "-=500",
+      );
+  } else if (isPhone) {
+    // === ПОРТРЕТНЫЙ ТЕЛЕФОН: снизу вверх ===
     introTimeline
       .add({
         targets: "#main-menu-title",
         top: ["65%", endTop],
         opacity: [0, 1],
-        scale: [1, 1],
         duration: 750,
         easing: "easeOutExpo",
       })
@@ -806,7 +909,7 @@ function startMainMenuAnimation() {
         "-=600",
       );
   } else {
-    // === ПК + ПЛАНШЕТ — оригинальный флоу ===
+    // === ПК + ПЛАНШЕТ ===
     introTimeline
       .add({
         targets: "#main-menu-title .initial",
@@ -823,7 +926,7 @@ function startMainMenuAnimation() {
           translateX: endTranslateX,
           translateY: "0%",
           scale: 1,
-          opacity: 1,
+          opacity: 1, // ← opacity: 1 явно — фикс планшета
           duration: 1000,
           easing: "easeInOutExpo",
         },
@@ -894,7 +997,7 @@ function startMainMenuAnimation() {
       title.style.left = endLeft;
       anime.set(title, {
         translateX: endTranslateX,
-        translateY: "0%",
+        translateY: "0px",
         scale: 1,
         opacity: 1,
       });
