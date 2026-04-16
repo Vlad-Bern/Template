@@ -2204,15 +2204,16 @@ $glass-dark: rgba(10, 12, 18, 0.95);
   #main-menu-title {
     position: absolute;
     top: 15%;
-    left: 10%; // Твоя родная левая привязка! Никаких центрирований!
-    transform: translate(0, 0); // Убиваем любые мои попытки сдвинуть это
+    left: 10%;
+    transform: translate(0%, 0%) scale(1);
     text-align: left;
     display: flex;
+    flex-wrap: nowrap;
+    width: auto;
     gap: 20px;
     z-index: 20;
     font-family: "Inter", sans-serif;
     text-transform: uppercase;
-    // МАЙ: Удалила width: 95vw, удалила flex-wrap. Всё!
 
     .word {
       display: flex;
@@ -2238,6 +2239,7 @@ $glass-dark: rgba(10, 12, 18, 0.95);
       }
     }
   }
+
   @keyframes realistic-neon-flicker {
     0%,
     18%,
@@ -2647,11 +2649,14 @@ $glass-dark: rgba(10, 12, 18, 0.95);
         }
       }
     }
+    
     #main-menu-title {
       top: 4vh;
       left: 50%;
-      transform: translateX(-50%) !important;
+      /* Строго -50% по X и 0% по Y, чтобы совпадало с JS! */
+      transform: translate(-50%, 0%) scale(1) !important;
       transition: none !important;
+
       gap: 10px;
       width: 95vw;
       flex-wrap: wrap;
@@ -2665,7 +2670,7 @@ $glass-dark: rgba(10, 12, 18, 0.95);
           font-size: 2rem;
         }
       }
-    } // <--- МАЙ: ЗАКРЫЛИ ЗАГОЛОВОК ЗДЕСЬ! ВАЖНО!
+    }
 
     /* Теперь кнопки, девочка и версия живут сами по себе, на уровне #app */
     .menu-buttons-container {

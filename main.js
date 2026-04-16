@@ -570,10 +570,11 @@ function startGame(e) {
     menuStarted = true;
     document.removeEventListener("click", forceSkipIntro);
     document.removeEventListener("keydown", forceSkipIntro);
+
     if (disclaimer) disclaimer.style.display = "none";
     if (splash) splash.style.display = "none";
 
-    // МАЙ: Мгновенное появление, если включен чит ИЛИ если игрок скипнул заставку!
+    // Скип заставки или чит-код
     if (DEBUG_SKIP_INTRO || wasSkipped) {
       const mainMenu = document.getElementById("main-menu-screen");
       const title = document.getElementById("main-menu-title");
@@ -582,31 +583,29 @@ function startGame(e) {
       if (mainMenu) {
         mainMenu.style.display = "flex";
 
-        // Стираем JS-стили. Позицию контролирует CSS!
+        // Передаем абсолютную власть CSS
         if (title) {
           title.style.top = "";
           title.style.left = "";
           title.style.transform = "";
         }
+
         document.querySelectorAll("#main-menu-title .initial").forEach((el) => {
           el.style.opacity = "1";
           el.style.transform = "scale(1)";
           el.classList.add("neon-letter-active");
         });
+
         document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
           el.style.opacity = "1";
-          el.style.maxWidth = "300px"; // Разворачиваем слова
-          // МАЙ: Для планшетов снимаем жесткий лимит ширины
-          setTimeout(() => {
-            el.style.maxWidth = "none";
-          }, 50);
+          el.style.maxWidth = "none"; // Разворачиваем слова на 100%
         });
-        if (overlay) overlay.style.display = "none";
 
+        if (overlay) overlay.style.display = "none";
         window.showRandomMenuCharacter();
       }
     } else {
-      // Обычный старт (игрок терпеливо досмотрел заставку до конца)
+      // Игрок досмотрел до конца — пускаем красивую анимацию
       startMainMenuAnimation();
       window.showRandomMenuCharacter();
     }
@@ -616,9 +615,8 @@ function startGame(e) {
     triggerMenu(true);
   };
 
-  // Чит-код разработчика
   if (DEBUG_SKIP_INTRO) {
-    triggerMenu(true); // Передаем true, чтобы меню появилось мгновенно
+    triggerMenu(true);
     return;
   }
 
@@ -652,11 +650,18 @@ function startGame(e) {
   }, 300);
 }
 
-// === КИНЕМАТОГРАФИЧНЫЙ ОПЕНИНГ ===
+// === КИНЕМАТОГРАФИЧНЫЙ ОПЕНИНГ СИНСЮ ===
 function startMainMenuAnimation() {
   if (window.sotaIntroPlayed) {
     const mainMenu = document.getElementById("main-menu-screen");
+    const title = document.getElementById("main-menu-title");
+
     if (mainMenu) mainMenu.style.display = "flex";
+    if (title) {
+      title.style.top = "";
+      title.style.left = "";
+      title.style.transform = "";
+    }
 
     document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
       el.style.maxWidth = "none";
@@ -679,15 +684,11 @@ function startMainMenuAnimation() {
   const title = document.getElementById("main-menu-title");
 
   if (!mainMenu) return;
-
   mainMenu.style.display = "flex";
 
-  const introTimeline = anime.timeline({
-    easing: "easeOutExpo",
-  });
+  const introTimeline = anime.timeline({ easing: "easeOutExpo" });
 
   let menuCanSkip = true;
-
   const killMenuSkip = () => {
     menuCanSkip = false;
     document.removeEventListener("click", doMenuSkip);
@@ -696,31 +697,27 @@ function startMainMenuAnimation() {
 
   const safetyLock = setTimeout(() => {
     killMenuSkip();
-  }, 1300);
+  }, 2500);
 
-  // МАЙ: СТАРЫЙ ДОБРЫЙ РАДАР (Работает безотказно!)
+  // МАЙ: ИДЕАЛЬНЫЙ РАДАР (Координаты миллиметр-в-миллиметр совпадают с CSS)
   const w = window.innerWidth;
-  let targetLeft, targetTop, targetTranslateX, startTop;
+  const isMobile = w <= 1024;
 
-  if (w <= 1024) {
-    // Телефоны и планшеты
-    targetLeft = "50%";
-    targetTop = "4vh";
-    targetTranslateX = "-50%"; // Обязательно, чтобы стоял по центру
-    startTop = "50%"; // Стартует из центра экрана
-  } else {
-    // Десктоп
-    targetLeft = "10%";
-    targetTop = "15%";
-    targetTranslateX = "0%";
-    startTop = "50%"; // Стартует из центра экрана
-  }
+  const startTop = "50%";
+  const startLeft = "50%";
+  const startTranslateX = "-50%";
+  const startTranslateY = "-50%";
 
-  // Фиксируем заголовок в центре ДО начала анимации, чтобы не прыгал!
+  const endTop = isMobile ? "4vh" : "15%";
+  const endLeft = isMobile ? "50%" : "10%";
+  const endTranslateX = isMobile ? "-50%" : "0%";
+  const endTranslateY = "0%";
+
+  // Жестко прибиваем в центр ДО анимации
   if (title) {
     title.style.top = startTop;
-    title.style.left = "50%";
-    title.style.transform = "translate(-50%, -50%) scale(1.5)";
+    title.style.left = startLeft;
+    title.style.transform = `translate(${startTranslateX}, ${startTranslateY}) scale(1.5)`;
   }
 
   introTimeline
@@ -728,36 +725,43 @@ function startMainMenuAnimation() {
       targets: "#main-menu-title .initial",
       opacity: [0, 1],
       scale: [3, 1],
-      duration: 600,
-      delay: anime.stagger(150),
+      duration: 800,
+      delay: anime.stagger(200),
     })
     .add(
       {
         targets: "#main-menu-title",
-        top: [startTop, targetTop],
-        left: ["50%", targetLeft],
-        // МАЙ: Вот он, фикс планшета! anime.js сам плавно изменит translateX до нужного значения!
-        translateX: ["-50%", targetTranslateX],
-        translateY: ["-50%", "0%"],
+        top: [startTop, endTop],
+        left: [startLeft, endLeft],
+        translateX: [startTranslateX, endTranslateX],
+        translateY: [startTranslateY, endTranslateY],
         scale: [1.5, 1],
-        duration: 900,
+        duration: 1000,
         easing: "easeInOutExpo",
         complete: function () {
-          // Никакого стирания стилей! Оставляем как есть.
-          document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
-            el.style.maxWidth = "none";
-          });
+          // МАГИЯ: Стираем стили JS. CSS подхватывает без прыжков!
+          if (title) {
+            title.style.top = "";
+            title.style.left = "";
+            title.style.transform = "";
+          }
         },
       },
-      "+=500",
-    )
+      "+=400",
+    ) // <- КРАСИВАЯ ПАУЗА В ЦЕНТРЕ
     .add(
       {
         targets: "#main-menu-title .rest",
         maxWidth: ["0px", "300px"],
         opacity: [0, 1],
-        duration: 700,
+        duration: 800,
         delay: anime.stagger(100),
+        complete: function () {
+          // Снимаем лимит ширины, чтобы на планшетах сработал flex-wrap
+          document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
+            el.style.maxWidth = "none";
+          });
+        },
       },
       "-=400",
     )
@@ -786,10 +790,9 @@ function startMainMenuAnimation() {
           killMenuSkip();
         },
       },
-      "-=600",
+      "-=800",
     );
 
-  // === ЧИСТЫЙ СКИП ===
   const doMenuSkip = () => {
     if (!menuCanSkip) return;
 
@@ -804,11 +807,11 @@ function startMainMenuAnimation() {
       "#menu-black-overlay",
     ]);
 
-    // Жестко ставим на место по радару
+    // Передаем власть CSS
     if (title) {
-      title.style.top = targetTop;
-      title.style.left = targetLeft;
-      title.style.transform = `translate(${targetTranslateX}, 0%) scale(1)`;
+      title.style.top = "";
+      title.style.left = "";
+      title.style.transform = "";
     }
 
     document.querySelectorAll("#main-menu-title .initial").forEach((el) => {
