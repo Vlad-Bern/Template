@@ -824,6 +824,7 @@ export const story = {
 
   quiz_q1_warn: {
     id: "quiz_q1_warn",
+        bg: "/bg/common/quiz_room.webp",
     lines: [
       { speaker: "ren", text: "Кагами-сен..." },
       {
@@ -843,7 +844,7 @@ export const story = {
 
   quiz_q1_pick: {
     id: "quiz_q1_pick",
-    bg: "./bg/quiz_room.png",
+    bg: "/bg/common/quiz_room_paper.webp",
     lines: [{ speaker: "", text: "Выбираю наугад." }],
     choices: [
       { text: "А. Кортизол", next: "quiz_q2" },
@@ -864,7 +865,6 @@ export const story = {
   // ============================================
   quiz_q2: {
     id: "quiz_q2",
-    bg: "./bg/quiz_room.png",
     lines: [
       {
         speaker: "",
@@ -880,7 +880,8 @@ export const story = {
       },
       {
         speaker: "",
-        text: "Я поднял глаза на Кагами. Она смотрит то в телефон, то на меня. Это игра глазами? Она знает, что здесь не академические вопросы?",
+            bg: "/bg/common/quiz_room_kagamiPhone.webp",
+        text: "Я поднял глаза на Кагами. Она просто смотрит в телефон. Она знает, что здесь не академические вопросы?",
       },
       {
         speaker: "",
@@ -900,7 +901,6 @@ export const story = {
 
   quiz_q2_stare: {
     id: "quiz_q2_stare",
-    bg: "./bg/quiz_room.png",
     lines: [
       {
         speaker: "",
@@ -908,6 +908,7 @@ export const story = {
       },
       {
         speaker: "",
+            bg: "/bg/common/quiz_room_boobs.webp",
         text: "Я смотрю на её грудь под красной блузкой.",
       },
       {
@@ -919,10 +920,10 @@ export const story = {
         text: "Какой у неё вообще размер? Они не меньше четвёртого.",
       },
       { speaker: "", text: "Какого их потрогать?" },
-      { speaker: "", text: "И сунуть прямо между ними...?" },
+      { speaker: "", text: "Кому-то ведь она в своей жизни давала их полапать?" },
       {
         speaker: "",
-        text: "Хммм, я заметил и тёмный бюстгальтер, который выглядывает из под блузки...",
+        text: "Довольно отчётлево я вижу и тёмный бюстгальтер, который выглядывает из под блузки...",
       },
       { speaker: "", text: "Кагами, да вы меня соблазняете?" },
       {
@@ -931,11 +932,12 @@ export const story = {
       },
       {
         speaker: "",
-        text: "Я приулыбнулся, посмотрел ей в глаза.... 0 эмоций, её не волнует, что ученик прям на тесте раздел её взглядом. Ни возбуждения, ни отвращения.",
+            bg: "/bg/common/quiz_room_kagamiPhone.webp",
+        text: "Я приулыбнулся, посмотрел ей в глаза....",
       },
       {
         speaker: "",
-        text: "0 эмоций, её не волнует, что ученик прям на тесте раздел её взглядом. Ни возбуждения, ни отвращения.",
+        text: "0 эмоций, её кажется ничего не заботит. Ни возбуждения, ни отвращения.",
       },
       { speaker: "", text: "Блять, время, точно!" },
     ],
@@ -944,7 +946,7 @@ export const story = {
 
   quiz_q2_pick: {
     id: "quiz_q2_pick",
-    bg: "./bg/quiz_room.png",
+        bg: "/bg/common/quiz_room_paper.webp",
     lines: [{ speaker: "", text: "Ладно. Ответ..." }],
     choices: [
       {

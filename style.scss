@@ -2204,14 +2204,15 @@ $glass-dark: rgba(10, 12, 18, 0.95);
   #main-menu-title {
     position: absolute;
     top: 15%;
-    left: 10%;
-    transform: translate(0, 0);
+    left: 10%; // Твоя родная левая привязка! Никаких центрирований!
+    transform: translate(0, 0); // Убиваем любые мои попытки сдвинуть это
     text-align: left;
     display: flex;
     gap: 20px;
     z-index: 20;
     font-family: "Inter", sans-serif;
     text-transform: uppercase;
+    // МАЙ: Удалила width: 95vw, удалила flex-wrap. Всё!
 
     .word {
       display: flex;
@@ -2220,9 +2221,9 @@ $glass-dark: rgba(10, 12, 18, 0.95);
       .initial {
         font-size: 4.5rem;
         font-weight: 900;
-        color: #00ffff; /* Синий неон */
+        color: #00ffff;
         text-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
-        opacity: 0; /* Спрятано до команды anime.js */
+        opacity: 0;
       }
 
       .rest {
@@ -2232,7 +2233,7 @@ $glass-dark: rgba(10, 12, 18, 0.95);
         text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
         white-space: nowrap;
         overflow: hidden;
-        max-width: 0; /* Слова сжаты в ноль */
+        max-width: 0;
         opacity: 0;
       }
     }
@@ -2649,19 +2650,52 @@ $glass-dark: rgba(10, 12, 18, 0.95);
     #main-menu-title {
       top: 4vh;
       left: 50%;
-      transform: translateX(-50%) ;
-      transition: none;
-      /* Убираем жесткий gap, чтобы слова могли переноситься */
+      transform: translateX(-50%) !important;
+      transition: none !important;
       gap: 10px;
+      width: 95vw;
       flex-wrap: wrap;
       justify-content: center;
-      width: 95vw;
-      .initial {
-        font-size: 3rem; /* Уменьшаем буквы для планшета */
+
+      .word {
+        .initial {
+          font-size: 3rem;
+        }
+        .rest {
+          font-size: 2rem;
+        }
       }
-      .rest {
-        font-size: 2rem;
+    } // <--- МАЙ: ЗАКРЫЛИ ЗАГОЛОВОК ЗДЕСЬ! ВАЖНО!
+
+    /* Теперь кнопки, девочка и версия живут сами по себе, на уровне #app */
+    .menu-buttons-container {
+      left: 4vw;
+      bottom: 10vh;
+      gap: 12px;
+      top: auto !important; // Убиваем старый top
+      transform: none !important; // Убиваем старое центрирование
+    }
+
+    .menu-btn {
+      font-size: 1.1rem;
+      padding: 10px 30px;
+      min-width: 220px;
+    }
+
+    #main-menu-character-container {
+      right: -5vw;
+      width: 60vw;
+      bottom: -5vh;
+
+      img {
+        width: 100%;
+        height: auto;
       }
+    }
+
+    .version-watermark {
+      font-size: 12px;
+      padding: 20px 15px 5px 30px;
     }
 
     /* Контейнер с кнопками сдвигаем левее и ниже, чтобы освободить центр */
@@ -3203,19 +3237,6 @@ $glass-dark: rgba(10, 12, 18, 0.95);
       filter: brightness(1.2);
     }
   }
-  #main-menu-title {
-    font-size: 2.8rem;
-    top: 4vh;
-    left: 50%;
-    /* МАЙ: Обязательно translateX(-50%), чтобы стоял ровно по центру! */
-    transform: translateX(-50%);
-    /* МАЙ: Убиваем фантомную "вторую анимацию" от CSS */
-    transition: none;
-    text-align: center;
-    width: 90vw;
-    white-space: normal;
-  }
-
   #main-menu-character-container {
     right: 50%;
     transform: translateX(50%);
@@ -3229,8 +3250,8 @@ $glass-dark: rgba(10, 12, 18, 0.95);
     top: auto;
     left: 50%;
     /* МАЙ: Оставляем центрирование и убиваем фантомную анимацию */
-    transform: translateX(-50%) ;
-    transition: none ;
+    transform: translateX(-50%);
+    transition: none;
     bottom: 8vh;
     gap: 12px;
     width: 85vw;
