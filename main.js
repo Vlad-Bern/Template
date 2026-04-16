@@ -658,9 +658,10 @@ function startMainMenuAnimation() {
 
     if (mainMenu) mainMenu.style.display = "flex";
     if (title) {
+      // Стираем все JS-стили, CSS сам поставит куда надо!
+      title.style.transform = "";
       title.style.top = "";
       title.style.left = "";
-      title.style.transform = "";
     }
 
     document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
@@ -692,6 +693,7 @@ function startMainMenuAnimation() {
   const killMenuSkip = () => {
     menuCanSkip = false;
     document.removeEventListener("click", doMenuSkip);
+    document.removeEventListener("touchstart", doMenuSkip);
     document.removeEventListener("keydown", doMenuSkip);
   };
 
@@ -699,67 +701,49 @@ function startMainMenuAnimation() {
     killMenuSkip();
   }, 2500);
 
-  // МАЙ: ИДЕАЛЬНЫЙ РАДАР (Координаты миллиметр-в-миллиметр совпадают с CSS)
-  const w = window.innerWidth;
-  const isMobile = w <= 1024;
+  // МАЙ: Определяем, планшет это или ПК, чтобы правильно двигать контейнер
+  const isMobile = window.innerWidth <= 1024;
 
-  const startTop = "50%";
-  const startLeft = "50%";
-  const startTranslateX = "-50%";
-  const startTranslateY = "-50%";
-
-  const endTop = isMobile ? "4vh" : "15%";
-  const endLeft = isMobile ? "50%" : "10%";
-  const endTranslateX = isMobile ? "-50%" : "0%";
-  const endTranslateY = "0%";
-
-  // Жестко прибиваем в центр ДО анимации
-  if (title) {
-    title.style.top = startTop;
-    title.style.left = startLeft;
-    title.style.transform = `translate(${startTranslateX}, ${startTranslateY}) scale(1.5)`;
-  }
+  // Если это ПК, мы должны сохранить left: 10% (0 сдвиг).
+  // Если планшет, мы должны сохранить left: 50% (-50% сдвиг по X, чтобы не дергалось!)
+  const targetX = isMobile ? "-50%" : "0%";
 
   introTimeline
     .add({
       targets: "#main-menu-title .initial",
       opacity: [0, 1],
-      scale: [3, 1],
+      scale: [3, 1], // Появление гигантских букв S O T A
       duration: 800,
       delay: anime.stagger(200),
     })
     .add(
       {
         targets: "#main-menu-title",
-        top: [startTop, endTop],
-        left: [startLeft, endLeft],
-        translateX: [startTranslateX, endTranslateX],
-        translateY: [startTranslateY, endTranslateY],
+        // МАГИЯ: Двигаем ТОЛЬКО по Y (снизу вверх) из центра экрана!
+        // translateX жестко фиксирует горизонт, чтобы не было прыжков "в бок"!
+        translateY: ["50vh", "0%"],
+        translateX: [targetX, targetX],
         scale: [1.5, 1],
         duration: 1000,
         easing: "easeInOutExpo",
         complete: function () {
-          // МАГИЯ: Стираем стили JS. CSS подхватывает без прыжков!
-          if (title) {
-            title.style.top = "";
-            title.style.left = "";
-            title.style.transform = "";
-          }
+          // Когда приехали, стираем JS-стили, передаем власть CSS
+          if (title) title.style.transform = "";
         },
       },
       "+=400",
-    ) // <- КРАСИВАЯ ПАУЗА В ЦЕНТРЕ
+    ) // Пауза
     .add(
       {
         targets: "#main-menu-title .rest",
+        // РАЗВОРАЧИВАЕМ слова из букв S O T A
         maxWidth: ["0px", "300px"],
         opacity: [0, 1],
         duration: 800,
         delay: anime.stagger(100),
         complete: function () {
-          // Снимаем лимит ширины, чтобы на планшетах сработал flex-wrap
           document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
-            el.style.maxWidth = "none";
+            el.style.maxWidth = "none"; // Чтобы сработал перенос на планшете
           });
         },
       },
@@ -793,7 +777,11 @@ function startMainMenuAnimation() {
       "-=800",
     );
 
-  const doMenuSkip = () => {
+  const doMenuSkip = (e) => {
+    if (e && e.type !== "keydown") {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     if (!menuCanSkip) return;
 
     clearTimeout(safetyLock);
@@ -807,11 +795,11 @@ function startMainMenuAnimation() {
       "#menu-black-overlay",
     ]);
 
-    // Передаем власть CSS
+    // Жесткий сброс стилей
     if (title) {
+      title.style.transform = "";
       title.style.top = "";
       title.style.left = "";
-      title.style.transform = "";
     }
 
     document.querySelectorAll("#main-menu-title .initial").forEach((el) => {
@@ -834,9 +822,10 @@ function startMainMenuAnimation() {
   setTimeout(() => {
     if (menuCanSkip) {
       document.addEventListener("click", doMenuSkip);
+      document.addEventListener("touchstart", doMenuSkip, { passive: false });
       document.addEventListener("keydown", doMenuSkip);
     }
-  }, 400);
+  }, 800);
 }
 
 // Вешаем стартовые слушатели

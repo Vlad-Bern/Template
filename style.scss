@@ -2205,11 +2205,13 @@ $glass-dark: rgba(10, 12, 18, 0.95);
     position: absolute;
     top: 15%;
     left: 10%;
-    transform: translate(0%, 0%) scale(1);
+    transform: translateX(0%) translateY(0%) scale(1);
+
+    transition: none !important;
     text-align: left;
     display: flex;
     flex-wrap: nowrap;
-    width: auto;
+    width: max-content;
     gap: 20px;
     z-index: 20;
     font-family: "Inter", sans-serif;
@@ -2624,7 +2626,7 @@ $glass-dark: rgba(10, 12, 18, 0.95);
           padding-top: 10px;
         }
       }
-    } // <-- ВАЖНО! Закрыли #settings-panel
+    }
 
     // ТЕПЕРЬ пишем Дисклеймер на одном уровне с настройками
     #disclaimer-screen {
@@ -2649,18 +2651,24 @@ $glass-dark: rgba(10, 12, 18, 0.95);
         }
       }
     }
-    
+
     #main-menu-title {
+      // МАЙ: Возвращаем центрирование только для планшетов и телефонов!
       top: 4vh;
       left: 50%;
-      /* Строго -50% по X и 0% по Y, чтобы совпадало с JS! */
-      transform: translate(-50%, 0%) scale(1) !important;
-      transition: none !important;
+
+      // Возвращаем сдвиг -50% по X для идеального центрирования
+      transform: translate(-50%, var(--title-y-offset))
+        scale(var(--title-scale));
+
+      // Возвращаем точку масштабирования в центр
+      transform-origin: center center;
 
       gap: 10px;
       width: 95vw;
       flex-wrap: wrap;
       justify-content: center;
+      text-align: center;
 
       .word {
         .initial {
@@ -2673,12 +2681,44 @@ $glass-dark: rgba(10, 12, 18, 0.95);
     }
 
     /* Теперь кнопки, девочка и версия живут сами по себе, на уровне #app */
-    .menu-buttons-container {
-      left: 4vw;
-      bottom: 10vh;
-      gap: 12px;
-      top: auto !important; // Убиваем старый top
-      transform: none !important; // Убиваем старое центрирование
+    #main-menu-title {
+      transition: none !important; /* Это оставляем, чтобы CSS не дергался */
+      gap: 10px;
+      width: 95vw;
+      flex-wrap: wrap;
+      justify-content: center;
+      text-align: center;
+
+      .word {
+        .initial {
+          font-size: 3rem;
+        }
+        .rest {
+          font-size: 2rem;
+        }
+      }
+    }
+
+    #main-menu-title {
+      top: 4vh;
+      left: 50%;
+      /* МАЙ: Жестко центрируем на планшете по умолчанию! */
+      transform: translate(-50%, 0) scale(1);
+
+      gap: 10px;
+      width: 95vw;
+      flex-wrap: wrap;
+      justify-content: center;
+      text-align: center;
+
+      .word {
+        .initial {
+          font-size: 3rem;
+        }
+        .rest {
+          font-size: 2rem;
+        }
+      }
     }
 
     .menu-btn {
