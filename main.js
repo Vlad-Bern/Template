@@ -734,14 +734,13 @@ function startMainMenuAnimation() {
       opacity: 1,
     });
   } else if (isPhonePortrait) {
-    // Портрет: снизу вверх
     anime.set("#main-menu-title", {
-      top: "65%",
+      top: "50%",
       left: "50%",
       translateX: "-50%",
-      translateY: "0%",
-      scale: 1,
-      opacity: 0,
+      translateY: "-50%",
+      scale: 1.5,
+      opacity: 1, // ← opacity 1, как на ПК
     });
   } else if (isTablet) {
     // Планшет: снизу вверх + opacity
@@ -846,27 +845,137 @@ function startMainMenuAnimation() {
         "-=500",
       );
   } else if (isPhone) {
-    // ВРЕМЕННО: без анимации, только финальная позиция
-    if (title) {
-      title.style.top = endTop;
-      title.style.left = endLeft;
-      anime.set(title, {
-        translateX: endTranslateX,
-        translateY: "0%",
-        scale: 1,
-        opacity: 1,
-      });
-    }
-    document.querySelectorAll("#main-menu-title .initial").forEach((el) => {
-      el.style.opacity = "1";
-      el.classList.add("neon-letter-active");
-    });
-    document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
-      el.style.opacity = "1";
-      el.style.maxWidth = "none";
-    });
-    if (overlay) overlay.style.display = "none";
-    killMenuSkip();
+    // === ПОРТРЕТНЫЙ ТЕЛЕФОН: из центра влево-вверх ===
+    introTimeline
+      .add({
+        targets: "#main-menu-title",
+        top: ["50%", endTop],
+        left: ["50%", endLeft],
+        translateX: ["-50%", "0%"],
+        translateY: ["-50%", "0%"],
+        scale: [1.5, 1],
+        opacity: [1, 1],
+        duration: 900,
+        easing: "easeInOutExpo",
+      })
+      .add(
+        {
+          targets: "#main-menu-title .initial",
+          opacity: 1,
+          scale: 1,
+          duration: 500,
+          delay: anime.stagger(130),
+        },
+        "-=400",
+      )
+      .add(
+        {
+          targets: "#main-menu-title .rest",
+          maxWidth: "200px",
+          opacity: 1,
+          duration: 500,
+          delay: anime.stagger(70),
+          complete: () => {
+            document
+              .querySelectorAll("#main-menu-title .rest")
+              .forEach((el) => {
+                el.style.maxWidth = "none";
+              });
+          },
+        },
+        "-=300",
+      )
+      .add(
+        {
+          targets: "#main-menu-title .initial",
+          duration: 300,
+          begin: () => {
+            document
+              .querySelectorAll("#main-menu-title .initial")
+              .forEach((el) => el.classList.add("neon-letter-active"));
+          },
+        },
+        "-=100",
+      )
+      .add(
+        {
+          targets: "#menu-black-overlay",
+          opacity: [1, 0],
+          duration: 700,
+          easing: "linear",
+          complete: () => {
+            if (overlay) overlay.style.display = "none";
+            killMenuSkip();
+          },
+        },
+        "-=600",
+      );
+
+    // === ПОРТРЕТНЫЙ ТЕЛЕФОН: из центра влево-вверх, как ПК ===
+    introTimeline
+      .add({
+        targets: "#main-menu-title",
+        top: ["50%", endTop],
+        left: ["50%", endLeft],
+        translateX: ["-50%", "0%"],
+        translateY: ["-50%", "0%"],
+        scale: [1.5, 1],
+        opacity: [1, 1],
+        duration: 900,
+        easing: "easeInOutExpo",
+      })
+      .add(
+        {
+          targets: "#main-menu-title .initial",
+          opacity: 1,
+          scale: 1,
+          duration: 500,
+          delay: anime.stagger(130),
+        },
+        "-=400",
+      )
+      .add(
+        {
+          targets: "#main-menu-title .rest",
+          maxWidth: "200px",
+          opacity: 1,
+          duration: 500,
+          delay: anime.stagger(70),
+          complete: () => {
+            document
+              .querySelectorAll("#main-menu-title .rest")
+              .forEach((el) => {
+                el.style.maxWidth = "none";
+              });
+          },
+        },
+        "-=300",
+      )
+      .add(
+        {
+          targets: "#main-menu-title .initial",
+          duration: 300,
+          begin: () => {
+            document
+              .querySelectorAll("#main-menu-title .initial")
+              .forEach((el) => el.classList.add("neon-letter-active"));
+          },
+        },
+        "-=100",
+      )
+      .add(
+        {
+          targets: "#menu-black-overlay",
+          opacity: [1, 0],
+          duration: 700,
+          easing: "linear",
+          complete: () => {
+            if (overlay) overlay.style.display = "none";
+            killMenuSkip();
+          },
+        },
+        "-=600",
+      );
     introTimeline
       .add({
         targets: "#main-menu-title",
