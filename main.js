@@ -480,16 +480,24 @@ window.showRandomMenuCharacter = function () {
   // Это спасет мобилки от перерисовки при закрытии менюшек.
   if (window.sotaCurrentMenuChar) {
     // Если картинка почему-то исчезла из контейнера (браузер выгрузил), просто восстановим её из кэша
-    if (container.innerHTML === "") {
-      const img = document.createElement("img");
-      img.src =
-        window.sm && window.sm._getOptimizedSpritePath
-          ? window.sm._getOptimizedSpritePath(window.sotaCurrentMenuChar)
-          : window.sotaCurrentMenuChar;
-      container.appendChild(img);
-      setTimeout(() => img.classList.add("visible"), 100);
-    }
-    return; // УБИВАЕМ РУЛЕТКУ!
+    container.innerHTML = "";
+    // Снимаем старые классы персонажа
+    container.classList.remove("char-celeste", "char-kagami", "char-kaira");
+    // Вешаем новый по имени файла
+    if (selectedChar.includes("celeste"))
+      container.classList.add("char-celeste");
+    else if (selectedChar.includes("kagami"))
+      container.classList.add("char-kagami");
+    else if (selectedChar.includes("kaira"))
+      container.classList.add("char-kaira");
+
+    const img = document.createElement("img");
+    img.src =
+      window.sm && window.sm._getOptimizedSpritePath
+        ? window.sm._getOptimizedSpritePath(selectedChar)
+        : selectedChar;
+    container.appendChild(img);
+    return;
   }
 
   // Наши пути к спрайтам
@@ -651,39 +659,14 @@ function startGame(e) {
 }
 
 function startMainMenuAnimation() {
-  const isPhoneLandscape =
-    window.innerHeight < 500 && window.innerWidth > window.innerHeight;
-  const isPhonePortrait = window.innerWidth < 600 && !isPhoneLandscape;
-  const isPhone = isPhonePortrait || isPhoneLandscape;
-  const isTablet = !isPhone && window.innerWidth <= 1024;
-  const isMobile = isPhone || isTablet;
+  // Универсальная проверка на мобилки/планшеты
+  const isMobile = window.innerWidth <= 1024;
 
-  const endTop = isPhoneLandscape
-    ? "2vh"
-    : isPhonePortrait
-      ? "4vh"
-      : isTablet
-        ? "3vh"
-        : "15%";
+  // Единые конечные координаты: на ПК - свои, на мобилках - строго левый верхний угол
+  const endTop = isMobile ? "2vh" : "15%";
+  const endLeft = isMobile ? "3vw" : "10%";
+  const endTranslateX = "0%";
 
-  // ВАЖНО: телефон-портрет и ландшафт — не должны сидеть в центре как конечная точка.
-  // Для них конечную геометрию полностью отдаём CSS (top/left пустые), а transform = 0.
-  const endLeft = isPhoneLandscape
-    ? "3vw"
-    : isPhonePortrait
-      ? "3vw"
-      : isTablet
-        ? "50%"
-        : "10%";
-  const endTranslateX = isPhoneLandscape
-    ? "0%"
-    : isPhonePortrait
-      ? "0%"
-      : isTablet
-        ? "-50%"
-        : "0%";
-
-  // ← НОВОЕ: объявляем title здесь, чтобы можно было сбросить стили
   const title = document.getElementById("main-menu-title");
   const mainMenu = document.getElementById("main-menu-screen");
   const overlay = document.getElementById("menu-black-overlay");
@@ -722,391 +705,29 @@ function startMainMenuAnimation() {
     title.style.left = "";
   }
 
-  // --- Стартовые позиции ---
-  if (isPhoneLandscape) {
-    // Ландшафт: стартуем левее за экраном
-    anime.set("#main-menu-title", {
-      top: endTop,
-      left: "-60%",
-      translateX: "0%",
-      translateY: "-30px",
-      scale: 1,
-      opacity: 1,
-    });
-  } else if (isPhonePortrait) {
-    anime.set("#main-menu-title", {
-      top: "50%",
-      left: "50%",
-      translateX: "-50%",
-      translateY: "-50%",
-      scale: 1.5,
-      opacity: 1, // ← opacity 1, как на ПК
-    });
-  } else if (isTablet) {
-    // Планшет: снизу вверх + opacity
-    anime.set("#main-menu-title", {
-      top: "55%",
-      left: "50%",
-      translateX: "-50%",
-      translateY: "0%",
-      scale: 1.1,
-      opacity: 0, // opacity будет анимироваться явно
-    });
-  } else {
-    // ПК — оригинал
-    anime.set("#main-menu-title", {
-      top: "50%",
-      left: "50%",
-      translateX: "-50%",
-      translateY: "-50%",
-      scale: 1.5,
-      opacity: 1,
-    });
-  }
+  // === СТАРТОВЫЕ ПОЗИЦИИ (Единые для всех) ===
+  // Заголовок стартует ровно по центру экрана
+  anime.set("#main-menu-title", {
+    top: "50%",
+    left: "50%",
+    translateX: "-50%",
+    translateY: "-50%",
+    scale: isMobile ? 1.2 : 1.5, // На телефоне чуть меньше
+    opacity: 1,
+  });
 
   anime.set("#main-menu-title .initial", {
     opacity: 0,
-    scale: isPhone ? 1.5 : 3,
+    scale: isMobile ? 1.5 : 3, // Удар буквами
   });
   anime.set("#main-menu-title .rest", { opacity: 0, maxWidth: "0px" });
 
   const introTimeline = anime.timeline({ easing: "easeOutExpo" });
 
   let menuCanSkip = true;
-  const killMenuSkip = () => {
-    menuCanSkip = false;
-    document.removeEventListener("click", doMenuSkip);
-    document.removeEventListener("touchstart", doMenuSkip);
-    document.removeEventListener("keydown", doMenuSkip);
-  };
-  const safetyLock = setTimeout(() => killMenuSkip(), 2500);
+  let skipTouchBlocked = true;
 
-  if (isPhoneLandscape) {
-    // === ЛАНДШАФТНЫЙ ТЕЛЕФОН: влетает слева ===
-    introTimeline
-      .add({
-        targets: "#main-menu-title",
-        left: ["-60%", endLeft],
-        translateY: ["-30px", "0px"], // ← мягкая посадка
-        opacity: [0, 1],
-        duration: 700,
-        easing: "easeOutExpo",
-      })
-      .add(
-        {
-          targets: "#main-menu-title .initial",
-          opacity: 1,
-          scale: 1,
-          duration: 400,
-          delay: anime.stagger(100),
-        },
-        "-=200",
-      )
-      .add(
-        {
-          targets: "#main-menu-title .rest",
-          maxWidth: "200px",
-          opacity: 1,
-          duration: 400,
-          delay: anime.stagger(60),
-          complete: () => {
-            document
-              .querySelectorAll("#main-menu-title .rest")
-              .forEach((el) => {
-                el.style.maxWidth = "none";
-              });
-          },
-        },
-        "-=200",
-      )
-      .add(
-        {
-          targets: "#main-menu-title .initial",
-          duration: 300,
-          begin: () => {
-            document
-              .querySelectorAll("#main-menu-title .initial")
-              .forEach((el) => el.classList.add("neon-letter-active"));
-          },
-        },
-        "-=100",
-      )
-      .add(
-        {
-          targets: "#menu-black-overlay",
-          opacity: [1, 0],
-          duration: 600,
-          easing: "linear",
-          complete: () => {
-            if (overlay) overlay.style.display = "none";
-            killMenuSkip();
-          },
-        },
-        "-=500",
-      );
-  } else if (isPhone) {
-    // === ПОРТРЕТНЫЙ ТЕЛЕФОН: из центра влево-вверх ===
-    introTimeline
-      .add({
-        targets: "#main-menu-title",
-        top: ["50%", endTop],
-        left: ["50%", endLeft],
-        translateX: ["-50%", "0%"],
-        translateY: ["-50%", "0%"],
-        scale: [1.5, 1],
-        opacity: [1, 1],
-        duration: 900,
-        easing: "easeInOutExpo",
-      })
-      .add(
-        {
-          targets: "#main-menu-title .initial",
-          opacity: 1,
-          scale: 1,
-          duration: 500,
-          delay: anime.stagger(130),
-        },
-        "-=400",
-      )
-      .add(
-        {
-          targets: "#main-menu-title .rest",
-          maxWidth: "200px",
-          opacity: 1,
-          duration: 500,
-          delay: anime.stagger(70),
-          complete: () => {
-            document
-              .querySelectorAll("#main-menu-title .rest")
-              .forEach((el) => {
-                el.style.maxWidth = "none";
-              });
-          },
-        },
-        "-=300",
-      )
-      .add(
-        {
-          targets: "#main-menu-title .initial",
-          duration: 300,
-          begin: () => {
-            document
-              .querySelectorAll("#main-menu-title .initial")
-              .forEach((el) => el.classList.add("neon-letter-active"));
-          },
-        },
-        "-=100",
-      )
-      .add(
-        {
-          targets: "#menu-black-overlay",
-          opacity: [1, 0],
-          duration: 700,
-          easing: "linear",
-          complete: () => {
-            if (overlay) overlay.style.display = "none";
-            killMenuSkip();
-          },
-        },
-        "-=600",
-      );
-
-    // === ПОРТРЕТНЫЙ ТЕЛЕФОН: из центра влево-вверх, как ПК ===
-    introTimeline
-      .add({
-        targets: "#main-menu-title",
-        top: ["50%", endTop],
-        left: ["50%", endLeft],
-        translateX: ["-50%", "0%"],
-        translateY: ["-50%", "0%"],
-        scale: [1.5, 1],
-        opacity: [1, 1],
-        duration: 900,
-        easing: "easeInOutExpo",
-      })
-      .add(
-        {
-          targets: "#main-menu-title .initial",
-          opacity: 1,
-          scale: 1,
-          duration: 500,
-          delay: anime.stagger(130),
-        },
-        "-=400",
-      )
-      .add(
-        {
-          targets: "#main-menu-title .rest",
-          maxWidth: "200px",
-          opacity: 1,
-          duration: 500,
-          delay: anime.stagger(70),
-          complete: () => {
-            document
-              .querySelectorAll("#main-menu-title .rest")
-              .forEach((el) => {
-                el.style.maxWidth = "none";
-              });
-          },
-        },
-        "-=300",
-      )
-      .add(
-        {
-          targets: "#main-menu-title .initial",
-          duration: 300,
-          begin: () => {
-            document
-              .querySelectorAll("#main-menu-title .initial")
-              .forEach((el) => el.classList.add("neon-letter-active"));
-          },
-        },
-        "-=100",
-      )
-      .add(
-        {
-          targets: "#menu-black-overlay",
-          opacity: [1, 0],
-          duration: 700,
-          easing: "linear",
-          complete: () => {
-            if (overlay) overlay.style.display = "none";
-            killMenuSkip();
-          },
-        },
-        "-=600",
-      );
-    introTimeline
-      .add({
-        targets: "#main-menu-title",
-        top: ["65%", endTop],
-        left: ["50%", "3vw"], // ← ДОБАВИТЬ: летит влево
-        translateX: ["-50%", "0%"], // ← ДОБАВИТЬ: убираем центрирование
-        opacity: [0, 1],
-        duration: 750,
-        easing: "easeOutExpo",
-      })
-      .add(
-        {
-          targets: "#main-menu-title .initial",
-          opacity: 1,
-          scale: 1,
-          duration: 500,
-          delay: anime.stagger(130),
-        },
-        "-=200",
-      )
-      .add(
-        {
-          targets: "#main-menu-title .rest",
-          maxWidth: "200px",
-          opacity: 1,
-          duration: 500,
-          delay: anime.stagger(70),
-          complete: () => {
-            document
-              .querySelectorAll("#main-menu-title .rest")
-              .forEach((el) => {
-                el.style.maxWidth = "none";
-              });
-          },
-        },
-        "-=250",
-      )
-      .add(
-        {
-          targets: "#main-menu-title .initial",
-          duration: 300,
-          begin: () => {
-            document
-              .querySelectorAll("#main-menu-title .initial")
-              .forEach((el) => el.classList.add("neon-letter-active"));
-          },
-        },
-        "-=100",
-      )
-      .add(
-        {
-          targets: "#menu-black-overlay",
-          opacity: [1, 0],
-          duration: 700,
-          easing: "linear",
-          complete: () => {
-            if (overlay) overlay.style.display = "none";
-            killMenuSkip();
-          },
-        },
-        "-=600",
-      );
-  } else {
-    // === ПК + ПЛАНШЕТ ===
-    introTimeline
-      .add({
-        targets: "#main-menu-title .initial",
-        opacity: 1,
-        scale: 1,
-        duration: 800,
-        delay: anime.stagger(200),
-      })
-      .add(
-        {
-          targets: "#main-menu-title",
-          top: endTop,
-          left: endLeft,
-          translateX: endTranslateX,
-          translateY: "0%",
-          scale: 1,
-          opacity: 1, // ← opacity: 1 явно — фикс планшета
-          duration: 1000,
-          easing: "easeInOutExpo",
-        },
-        "+=400",
-      )
-      .add(
-        {
-          targets: "#main-menu-title .rest",
-          maxWidth: "300px",
-          opacity: 1,
-          duration: 800,
-          delay: anime.stagger(100),
-          complete: () => {
-            document
-              .querySelectorAll("#main-menu-title .rest")
-              .forEach((el) => {
-                el.style.maxWidth = "none";
-              });
-          },
-        },
-        "-=400",
-      )
-      .add(
-        {
-          targets: "#main-menu-title .initial",
-          duration: 500,
-          begin: () => {
-            document
-              .querySelectorAll("#main-menu-title .initial")
-              .forEach((el) => el.classList.add("neon-letter-active"));
-          },
-        },
-        "-=200",
-      )
-      .add(
-        {
-          targets: "#menu-black-overlay",
-          opacity: [1, 0],
-          duration: 800,
-          easing: "linear",
-          complete: () => {
-            if (overlay) overlay.style.display = "none";
-            killMenuSkip();
-          },
-        },
-        "-=800",
-      );
-  }
-
-  // --- Скип ---
+  // 1. СНАЧАЛА объявляем doMenuSkip
   const doMenuSkip = (e) => {
     if (e) {
       e.preventDefault();
@@ -1147,6 +768,87 @@ function startMainMenuAnimation() {
     }
   };
 
+  // 2. ПОТОМ onMenuTouchStart (он видит doMenuSkip)
+  const onMenuTouchStart = (e) => {
+    if (skipTouchBlocked) return;
+    if (e.touches && e.touches.length > 1) return;
+    doMenuSkip(e);
+  };
+
+  // 3. ПОТОМ killMenuSkip (он видит onMenuTouchStart и doMenuSkip)
+  const killMenuSkip = () => {
+    menuCanSkip = false;
+    document.removeEventListener("click", doMenuSkip);
+    document.removeEventListener("keydown", doMenuSkip);
+    document.removeEventListener("touchstart", onMenuTouchStart);
+  };
+
+  const safetyLock = setTimeout(() => killMenuSkip(), 2500);
+
+  // === ТА САМАЯ ПК АНИМАЦИЯ ===
+  introTimeline
+    .add({
+      targets: "#main-menu-title .initial",
+      opacity: 1,
+      scale: 1,
+      duration: 800,
+      delay: anime.stagger(200),
+    })
+    .add(
+      {
+        targets: "#main-menu-title",
+        top: endTop,
+        left: endLeft,
+        translateX: endTranslateX,
+        translateY: "0%",
+        scale: 1,
+        opacity: 1,
+        duration: 1000,
+        easing: "easeInOutExpo",
+      },
+      "+=400",
+    )
+    .add(
+      {
+        targets: "#main-menu-title .rest",
+        maxWidth: "300px",
+        opacity: 1,
+        duration: 800,
+        delay: anime.stagger(100),
+        complete: () => {
+          document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
+            el.style.maxWidth = "none";
+          });
+        },
+      },
+      "-=400",
+    )
+    .add(
+      {
+        targets: "#main-menu-title .initial",
+        duration: 500,
+        begin: () => {
+          document
+            .querySelectorAll("#main-menu-title .initial")
+            .forEach((el) => el.classList.add("neon-letter-active"));
+        },
+      },
+      "-=200",
+    )
+    .add(
+      {
+        targets: "#menu-black-overlay",
+        opacity: [1, 0],
+        duration: 800,
+        easing: "linear",
+        complete: () => {
+          if (overlay) overlay.style.display = "none";
+          killMenuSkip();
+        },
+      },
+      "-=800",
+    );
+
   let skipTouchBlocked = true;
   setTimeout(() => {
     skipTouchBlocked = false;
@@ -1156,15 +858,9 @@ function startMainMenuAnimation() {
     if (!menuCanSkip) return;
     document.addEventListener("click", doMenuSkip);
     document.addEventListener("keydown", doMenuSkip);
-    document.addEventListener(
-      "touchstart",
-      (e) => {
-        if (skipTouchBlocked) return;
-        if (e.touches && e.touches.length > 1) return;
-        doMenuSkip(e);
-      },
-      { passive: false },
-    );
+    document.addEventListener("touchstart", onMenuTouchStart, {
+      passive: false,
+    });
   }, 400);
 }
 // Вешаем слушатели
