@@ -967,7 +967,6 @@ export const story = {
   // ============================================
   quiz_q3: {
     id: "quiz_q3",
-    bg: "./bg/quiz_room.png",
     lines: [
       {
         speaker: "",
@@ -1001,7 +1000,6 @@ export const story = {
   // ============================================
   quiz_q4: {
     id: "quiz_q4",
-    bg: "./bg/quiz_room.png",
     lines: [
       {
         speaker: "",
@@ -1035,7 +1033,6 @@ export const story = {
   // ============================================
   quiz_q5: {
     id: "quiz_q5",
-    bg: "./bg/quiz_room.png",
     lines: [
       {
         speaker: "",
@@ -1069,7 +1066,6 @@ export const story = {
   // ============================================
   quiz_q6: {
     id: "quiz_q6",
-    bg: "./bg/quiz_room.png",
     lines: [
       {
         speaker: "",
@@ -1100,7 +1096,6 @@ export const story = {
   // ============================================
   quiz_q7: {
     id: "quiz_q7",
-    bg: "./bg/quiz_room.png",
     lines: [
       {
         speaker: "",
@@ -1140,7 +1135,6 @@ export const story = {
   // ============================================
   quiz_q8: {
     id: "quiz_q8",
-    bg: "./bg/quiz_room.png",
     lines: [
       { speaker: "", text: "Вопрос 8: Вы провалили тест. Ваши действия?" },
       { speaker: "", text: "A) Потребовать пересдачи" },
@@ -1159,10 +1153,10 @@ export const story = {
     id: "quiz_q8_auto",
     bg: "./bg/quiz_room.png",
     lines: [
-      { speaker: "", text: "Оспорить блядскую правомерность. Я обвёл D." },
+      { speaker: "", text: "Оспорить блядскую правомерность!" },
       {
         speaker: "",
-        text: "Даже не думал.",
+        text: " Я обвёл D.",
       },
     ],
     next: "quiz_end_check",
@@ -1171,9 +1165,8 @@ export const story = {
   // Ветка 2: Доминация НИЗКАЯ (Игрок выбирает сам)
   quiz_q8_manual: {
     id: "quiz_q8_manual",
-    bg: "./bg/quiz_room.png",
     lines: [
-      { speaker: "", text: "Последний вопрос... Нужно выбрать аккуратно." },
+      { speaker: "", text: "Наконец-то последний вопрос." },
     ],
     choices: [
       { text: "A) Потребовать пересдачи", next: "quiz_end_check" },
@@ -1194,7 +1187,7 @@ export const story = {
   // ============================================
   quiz_end_check: {
     id: "quiz_end_check",
-    bg: "./bg/quiz_room.png",
+
     action: () => {
       if (window.quizTimer) {
         window.quizTimer.clear();
@@ -1209,6 +1202,7 @@ export const story = {
       {
         speaker: "",
         text: "Кагами встала со своего места, подошла ко мне и забрала листок с парты.",
+                bg: "/bg/common/quiz_room_nokagami.webp",
       },
       {
         speaker: "",
@@ -1249,7 +1243,7 @@ export const story = {
       {
         speaker: "kagami",
         text: "Поздравляю, ты сдал..",
-        showCharacter: { id: "kagami", emotion: "neutral", position: "center" },
+         ...m.show("Kagami", "neutral2", "center"),
       },
       { speaker: "", text: "Она это сказала с какой-то грустинкой в голосе." },
       { speaker: "", text: "Она разочарована моим поступлением?" },
@@ -1278,11 +1272,7 @@ export const story = {
         action: () => removeFlag("kagamiStare"),
         speaker: "kagami",
         text: "Поздравляю, ты сдал..",
-        showCharacter: {
-          id: "kagami",
-          emotion: "dominant",
-          position: "center",
-        },
+    ...m.show("Kagami", "neutral2", "center"),
       },
       { speaker: "", text: "Она это сказала с лёгкой насмешкой?" },
       {

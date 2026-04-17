@@ -669,20 +669,19 @@ function startMainMenuAnimation() {
   // ВАЖНО: телефон-портрет и ландшафт — не должны сидеть в центре как конечная точка.
   // Для них конечную геометрию полностью отдаём CSS (top/left пустые), а transform = 0.
   const endLeft = isPhoneLandscape
-    ? "3vw" // как и было для ландшафта
+    ? "3vw"
     : isPhonePortrait
-      ? "" // оставляем CSS управлять
+      ? "3vw"
       : isTablet
-        ? "50%" // планшет — как раньше
-        : "10%"; // ПК — как раньше
-
+        ? "50%"
+        : "10%";
   const endTranslateX = isPhoneLandscape
-    ? "0%" // ландшафт: без сдвига, ты и так всё настроил
+    ? "0%"
     : isPhonePortrait
-      ? "0%" // портрет: конечный translateX = 0 (CSS сам ставит нужный текст)
+      ? "0%"
       : isTablet
-        ? "-50%" // планшет — как раньше
-        : "0%"; // ПК — как раньше
+        ? "-50%"
+        : "0%";
 
   // ← НОВОЕ: объявляем title здесь, чтобы можно было сбросить стили
   const title = document.getElementById("main-menu-title");
@@ -847,11 +846,33 @@ function startMainMenuAnimation() {
         "-=500",
       );
   } else if (isPhone) {
-    // === ПОРТРЕТНЫЙ ТЕЛЕФОН: снизу вверх ===
+    // ВРЕМЕННО: без анимации, только финальная позиция
+    if (title) {
+      title.style.top = endTop;
+      title.style.left = endLeft;
+      anime.set(title, {
+        translateX: endTranslateX,
+        translateY: "0%",
+        scale: 1,
+        opacity: 1,
+      });
+    }
+    document.querySelectorAll("#main-menu-title .initial").forEach((el) => {
+      el.style.opacity = "1";
+      el.classList.add("neon-letter-active");
+    });
+    document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
+      el.style.opacity = "1";
+      el.style.maxWidth = "none";
+    });
+    if (overlay) overlay.style.display = "none";
+    killMenuSkip();
     introTimeline
       .add({
         targets: "#main-menu-title",
         top: ["65%", endTop],
+        left: ["50%", "3vw"], // ← ДОБАВИТЬ: летит влево
+        translateX: ["-50%", "0%"], // ← ДОБАВИТЬ: убираем центрирование
         opacity: [0, 1],
         duration: 750,
         easing: "easeOutExpo",
