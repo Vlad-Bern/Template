@@ -573,53 +573,61 @@ function startGame(e) {
   const splash = document.getElementById("splash-screen");
   let menuStarted = false;
 
+  const introStartedAt = performance.now();
+  // МАЙ: Усиливаем защиту от фантомных кликов на телефонах!
+  const isMobileTouch =
+    e && (e.type === "touchstart" || window.innerWidth <= 1024);
+
   const triggerMenu = (wasSkipped = false) => {
     if (menuStarted) return;
     menuStarted = true;
+
     document.removeEventListener("click", forceSkipIntro);
     document.removeEventListener("keydown", forceSkipIntro);
+    document.removeEventListener("touchstart", forceSkipIntro);
 
     if (disclaimer) disclaimer.style.display = "none";
     if (splash) splash.style.display = "none";
 
-    // Скип заставки или чит-код
+    // МАЙ: Если пропустили интро (двойным тапом), всё равно показываем меню
     if (DEBUG_SKIP_INTRO || wasSkipped) {
       const mainMenu = document.getElementById("main-menu-screen");
       const title = document.getElementById("main-menu-title");
       const overlay = document.getElementById("menu-black-overlay");
 
-      if (mainMenu) {
-        mainMenu.style.display = "flex";
+      if (mainMenu) mainMenu.style.display = "flex";
 
-        // Передаем абсолютную власть CSS
-        if (title) {
-          title.style.top = "";
-          title.style.left = "";
-          title.style.transform = "";
-        }
-
-        document.querySelectorAll("#main-menu-title .initial").forEach((el) => {
-          el.style.opacity = "1";
-          el.style.transform = "scale(1)";
-          el.classList.add("neon-letter-active");
-        });
-
-        document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
-          el.style.opacity = "1";
-          el.style.maxWidth = "none"; // Разворачиваем слова на 100%
-        });
-
-        if (overlay) overlay.style.display = "none";
-        window.showRandomMenuCharacter();
+      if (title) {
+        title.style.top = "";
+        title.style.left = "";
+        title.style.transform = "";
       }
+
+      document.querySelectorAll("#main-menu-title .initial").forEach((el) => {
+        el.style.opacity = "1";
+        el.style.transform = "scale(1)";
+        el.classList.add("neon-letter-active");
+      });
+
+      document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
+        el.style.opacity = "1";
+        el.style.maxWidth = "none";
+      });
+
+      if (overlay) overlay.style.display = "none";
+      window.showRandomMenuCharacter();
     } else {
-      // Игрок досмотрел до конца — пускаем красивую анимацию
       startMainMenuAnimation();
       window.showRandomMenuCharacter();
     }
   };
 
-  const forceSkipIntro = () => {
+  const forceSkipIntro = (ev) => {
+    // МАЙ: Блокируем ЛЮБЫЕ скипы в первые 2 секунды (2000мс) на мобилках.
+    // Это убьет фантомные тапы по черному экрану.
+    if (isMobileTouch && performance.now() - introStartedAt < 2000) {
+      return;
+    }
     triggerMenu(true);
   };
 
@@ -628,7 +636,6 @@ function startGame(e) {
     return;
   }
 
-  // --- ТАЙМЕРЫ ---
   if (disclaimer) {
     disclaimer.style.opacity = "0";
     disclaimer.style.pointerEvents = "none";
@@ -654,45 +661,38 @@ function startGame(e) {
     if (!menuStarted) {
       document.addEventListener("click", forceSkipIntro);
       document.addEventListener("keydown", forceSkipIntro);
+      document.addEventListener("touchstart", forceSkipIntro, {
+        passive: true,
+      });
     }
   }, 300);
 }
 
 function startMainMenuAnimation() {
-  // Универсальная проверка на мобилки/планшеты
   const isMobile = window.innerWidth <= 1024;
-
-  // Единые конечные координаты: на ПК - свои, на мобилках - строго левый верхний угол
-  const endTop = isMobile ? "2vh" : "15%";
-  const endLeft = isMobile ? "3vw" : "10%";
-  const endTranslateX = "0%";
-
   const title = document.getElementById("main-menu-title");
   const mainMenu = document.getElementById("main-menu-screen");
   const overlay = document.getElementById("menu-black-overlay");
 
-  // --- Повторный заход ---
+  const endTop = isMobile ? "2vh" : "15%";
+  const endLeft = isMobile ? "3vw" : "10%";
+
   if (window.sotaIntroPlayed) {
     if (mainMenu) mainMenu.style.display = "flex";
     if (title) {
-      title.style.top = endTop;
-      title.style.left = endLeft;
-      anime.set(title, {
-        translateX: endTranslateX,
-        translateY: "0px",
-        scale: 1,
-        opacity: 1,
-      });
+      title.style.cssText = `position: absolute; top: ${endTop}; left: ${endLeft}; opacity: 1; z-index: 3;`;
     }
     document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
-      el.style.maxWidth = "none";
-      el.style.opacity = "1";
+      el.style.cssText = "opacity: 1; max-width: none;";
     });
     document.querySelectorAll("#main-menu-title .initial").forEach((el) => {
       el.style.opacity = "1";
       el.classList.add("neon-letter-active");
     });
-    if (overlay) overlay.style.display = "none";
+    if (overlay) {
+      overlay.style.display = "none";
+      overlay.style.opacity = "0";
+    }
     return;
   }
 
@@ -700,82 +700,39 @@ function startMainMenuAnimation() {
   if (!mainMenu) return;
   mainMenu.style.display = "flex";
 
+  // === ИСПРАВЛЕНИЕ 1: Идеальный старт из центра ===
   if (title) {
-    title.style.top = "";
-    title.style.left = "";
+    title.style.cssText = `
+      position: absolute;
+      top: 50vh;
+      left: 50vw;
+      transform: translateX(-50%) translateY(-50%) scale(${isMobile ? 1.2 : 1.5});
+      width: max-content;
+      white-space: nowrap;
+      margin: 0;
+      z-index: 999999;
+    `;
   }
-
-  // === СТАРТОВЫЕ ПОЗИЦИИ (Единые для всех) ===
-  // Заголовок стартует ровно по центру экрана
-  anime.set("#main-menu-title", {
-    top: "50%",
-    left: "50%",
-    translateX: "-50%",
-    translateY: "-50%",
-    scale: isMobile ? 1.2 : 1.5, // На телефоне чуть меньше
-    opacity: 1,
-  });
 
   anime.set("#main-menu-title .initial", {
     opacity: 0,
-    scale: isMobile ? 1.5 : 3, // Удар буквами
+    scale: isMobile ? 1.5 : 3,
   });
-  anime.set("#main-menu-title .rest", { opacity: 0, maxWidth: "0px" });
 
-  const introTimeline = anime.timeline({ easing: "easeOutExpo" });
+  // === ИСПРАВЛЕНИЕ 2: Убиваем невидимую ширину слов ===
+  // Заставляем <span> реагировать на max-width: 0px, чтобы они не ломали центрирование "S O T A"
+  document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
+    el.style.display = "inline-block";
+    el.style.overflow = "hidden";
+    el.style.verticalAlign = "bottom";
+    el.style.opacity = "0";
+    el.style.maxWidth = "0px";
+  });
 
-  let menuCanSkip = true;
+  let menuCanSkip = false;
   let skipTouchBlocked = true;
+  let safetyLock;
 
-  // 1. СНАЧАЛА объявляем doMenuSkip
-  const doMenuSkip = (e) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    if (!menuCanSkip) return;
-    clearTimeout(safetyLock);
-    killMenuSkip();
-    introTimeline.pause();
-    anime.remove([
-      "#main-menu-title",
-      "#main-menu-title .initial",
-      "#main-menu-title .rest",
-      "#menu-black-overlay",
-    ]);
-    if (title) {
-      title.style.top = endTop;
-      title.style.left = endLeft;
-      anime.set(title, {
-        translateX: endTranslateX,
-        translateY: "0px",
-        scale: 1,
-        opacity: 1,
-      });
-    }
-    document.querySelectorAll("#main-menu-title .initial").forEach((el) => {
-      el.style.opacity = "1";
-      el.style.transform = "scale(1)";
-      el.classList.add("neon-letter-active");
-    });
-    document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
-      el.style.opacity = "1";
-      el.style.maxWidth = "none";
-    });
-    if (overlay) {
-      overlay.style.display = "none";
-      overlay.style.opacity = "0";
-    }
-  };
-
-  // 2. ПОТОМ onMenuTouchStart (он видит doMenuSkip)
-  const onMenuTouchStart = (e) => {
-    if (skipTouchBlocked) return;
-    if (e.touches && e.touches.length > 1) return;
-    doMenuSkip(e);
-  };
-
-  // 3. ПОТОМ killMenuSkip (он видит onMenuTouchStart и doMenuSkip)
   const killMenuSkip = () => {
     menuCanSkip = false;
     document.removeEventListener("click", doMenuSkip);
@@ -783,26 +740,98 @@ function startMainMenuAnimation() {
     document.removeEventListener("touchstart", onMenuTouchStart);
   };
 
-  const safetyLock = setTimeout(() => killMenuSkip(), 2500);
+  const introTimeline = anime.timeline({
+    easing: "easeOutExpo",
+    complete: () => {
+      // === ИСПРАВЛЕНИЕ 3: Блокируем телепортацию ===
+      // Стираем мусор, но ЖЕСТКО возвращаем position: absolute, которого нет в твоем мобильном CSS
+      if (title) {
+        title.style.cssText = "";
+        title.style.position = "absolute";
+        title.style.top = endTop;
+        title.style.left = endLeft;
+        title.style.zIndex = "3";
+        title.style.opacity = "1";
+      }
+      document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
+        el.style.cssText = "opacity: 1; max-width: none;";
+      });
+      killMenuSkip();
+      if (overlay) {
+        overlay.style.display = "none";
+        overlay.style.opacity = "0";
+      }
+    },
+  });
 
-  // === ТА САМАЯ ПК АНИМАЦИЯ ===
+  const doMenuSkip = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (!menuCanSkip) return;
+
+    clearTimeout(safetyLock);
+    killMenuSkip();
+    introTimeline.pause();
+
+    anime.remove([
+      "#main-menu-title",
+      "#main-menu-title .initial",
+      "#main-menu-title .rest",
+      "#menu-black-overlay",
+    ]);
+
+    // При пропуске тоже жестко фиксируем absolute
+    if (title) {
+      title.style.cssText = "";
+      title.style.position = "absolute";
+      title.style.top = endTop;
+      title.style.left = endLeft;
+      title.style.zIndex = "3";
+      title.style.opacity = "1";
+    }
+
+    document.querySelectorAll("#main-menu-title .initial").forEach((el) => {
+      el.style.opacity = "1";
+      el.classList.add("neon-letter-active");
+    });
+
+    document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
+      el.style.cssText = "opacity: 1; max-width: none;";
+    });
+
+    if (overlay) {
+      overlay.style.display = "none";
+      overlay.style.opacity = "0";
+    }
+  };
+
+  const onMenuTouchStart = (e) => {
+    if (skipTouchBlocked) return;
+    if (e.touches && e.touches.length > 1) return;
+    doMenuSkip(e);
+  };
+
+  safetyLock = setTimeout(() => killMenuSkip(), 2500);
+
   introTimeline
     .add({
       targets: "#main-menu-title .initial",
-      opacity: 1,
-      scale: 1,
+      opacity: [0, 1],
+      scale: [isMobile ? 1.5 : 3, 1],
       duration: 800,
       delay: anime.stagger(200),
     })
     .add(
       {
-        targets: "#main-menu-title",
-        top: endTop,
-        left: endLeft,
-        translateX: endTranslateX,
-        translateY: "0%",
-        scale: 1,
-        opacity: 1,
+        targets: title,
+        top: ["50vh", endTop],
+        left: ["50vw", endLeft],
+        translateX: ["-50%", "0%"],
+        translateY: ["-50%", "0%"],
+        scale: [isMobile ? 1.2 : 1.5, 1],
+        opacity: [1, 1],
         duration: 1000,
         easing: "easeInOutExpo",
       },
@@ -811,15 +840,10 @@ function startMainMenuAnimation() {
     .add(
       {
         targets: "#main-menu-title .rest",
-        maxWidth: "300px",
-        opacity: 1,
+        maxWidth: isMobile ? "200px" : "300px",
+        opacity: [0, 1],
         duration: 800,
         delay: anime.stagger(100),
-        complete: () => {
-          document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
-            el.style.maxWidth = "none";
-          });
-        },
       },
       "-=400",
     )
@@ -830,7 +854,9 @@ function startMainMenuAnimation() {
         begin: () => {
           document
             .querySelectorAll("#main-menu-title .initial")
-            .forEach((el) => el.classList.add("neon-letter-active"));
+            .forEach((el) => {
+              el.classList.add("neon-letter-active");
+            });
         },
       },
       "-=200",
@@ -841,21 +867,16 @@ function startMainMenuAnimation() {
         opacity: [1, 0],
         duration: 800,
         easing: "linear",
-        complete: () => {
-          if (overlay) overlay.style.display = "none";
-          killMenuSkip();
-        },
       },
       "-=800",
     );
 
-  let skipTouchBlocked = true;
   setTimeout(() => {
+    menuCanSkip = true;
     skipTouchBlocked = false;
-  }, 500);
+  }, 1000);
 
   setTimeout(() => {
-    if (!menuCanSkip) return;
     document.addEventListener("click", doMenuSkip);
     document.addEventListener("keydown", doMenuSkip);
     document.addEventListener("touchstart", onMenuTouchStart, {
@@ -863,6 +884,7 @@ function startMainMenuAnimation() {
     });
   }, 400);
 }
+
 // Вешаем слушатели
 document.addEventListener("click", startGame);
 document.addEventListener("keydown", startGame);

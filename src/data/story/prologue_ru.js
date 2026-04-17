@@ -4,7 +4,7 @@ import { state, setFlag, getFlag, removeFlag } from "../../core/state.js";
 export const story = {
   prologue_interrogation: {
     id: "prologue_interrogation",
-    bg: "./bg/cg/prologue/dream_man.webp",
+    bg: "./bg/common/dream_man.webp",
     ...m.bgm("Zero Rank", 0.5),
 
     lines: [
@@ -231,7 +231,7 @@ export const story = {
 
   meet_kagami: {
     id: "meet_kagami",
-   
+
     bg: "/bg/common/synsu_enterence.webp",
     audio: [
       { type: "sfx", id: "rain", volume: 0.2, loop: true },
@@ -240,7 +240,7 @@ export const story = {
     ],
     lines: [
       {
-         ...m.show("kagami", "neutral", "center", "fadeIn"),
+        ...m.show("kagami", "neutral", "center", "fadeIn"),
         speaker: "",
         text: "Стоило мне выйти из автобуса, как меня встретила она...",
       },
@@ -824,13 +824,13 @@ export const story = {
 
   quiz_q1_warn: {
     id: "quiz_q1_warn",
-        bg: "/bg/common/quiz_room.webp",
+        bg: "/bg/common/quiz_room_kagamiSpeak.webp",
     lines: [
       { speaker: "ren", text: "Кагами-сен..." },
       {
         speaker: "",
         text: "Кагами стукнула по столу. Не сильно, не от злости, а просто, чтобы заткнуть меня.",
-         shake: "medium"
+        shake: "medium",
       },
       { speaker: "kagami", text: "Ещё раз нарушишь правило и провалишь." },
       {
@@ -880,7 +880,7 @@ export const story = {
       },
       {
         speaker: "",
-            bg: "/bg/common/quiz_room_kagamiPhone.webp",
+        bg: "/bg/common/quiz_room_kagamiPhone.webp",
         text: "Я поднял глаза на Кагами. Она просто смотрит в телефон. Она знает, что здесь не академические вопросы?",
       },
       {
@@ -908,8 +908,9 @@ export const story = {
       },
       {
         speaker: "",
-            bg: "/bg/common/quiz_room_boobs.webp",
         text: "Я смотрю на её грудь под красной блузкой.",
+                bg: "/bg/cg/prologue/quiz_room_boobs.webp",
+        dialogStyle: "transparent",
       },
       {
         speaker: "",
@@ -920,7 +921,10 @@ export const story = {
         text: "Какой у неё вообще размер? Они не меньше четвёртого.",
       },
       { speaker: "", text: "Какого их потрогать?" },
-      { speaker: "", text: "Кому-то ведь она в своей жизни давала их полапать?" },
+      {
+        speaker: "",
+        text: "Кому-то ведь она в своей жизни давала их полапать?",
+      },
       {
         speaker: "",
         text: "Довольно отчётлево я вижу и тёмный бюстгальтер, который выглядывает из под блузки...",
@@ -932,8 +936,9 @@ export const story = {
       },
       {
         speaker: "",
-            bg: "/bg/common/quiz_room_kagamiPhone.webp",
         text: "Я приулыбнулся, посмотрел ей в глаза....",
+                bg: "/bg/common/quiz_room_kagamiPhone.webp",
+        dialogStyle: "normal",
       },
       {
         speaker: "",
@@ -946,7 +951,7 @@ export const story = {
 
   quiz_q2_pick: {
     id: "quiz_q2_pick",
-        bg: "/bg/common/quiz_room_paper.webp",
+    bg: "/bg/common/quiz_room_paper.webp",
     lines: [{ speaker: "", text: "Ладно. Ответ..." }],
     choices: [
       {
@@ -1165,9 +1170,7 @@ export const story = {
   // Ветка 2: Доминация НИЗКАЯ (Игрок выбирает сам)
   quiz_q8_manual: {
     id: "quiz_q8_manual",
-    lines: [
-      { speaker: "", text: "Наконец-то последний вопрос." },
-    ],
+    lines: [{ speaker: "", text: "Наконец-то последний вопрос." }],
     choices: [
       { text: "A) Потребовать пересдачи", next: "quiz_end_check" },
       {
@@ -1202,7 +1205,7 @@ export const story = {
       {
         speaker: "",
         text: "Кагами встала со своего места, подошла ко мне и забрала листок с парты.",
-                bg: "/bg/common/quiz_room_nokagami.webp",
+        bg: "/bg/common/quiz_room_noKagami.webp",
       },
       {
         speaker: "",
@@ -1238,12 +1241,11 @@ export const story = {
   // ============================================
   quiz_pass_clean: {
     id: "quiz_pass_clean",
-    bg: "./bg/quiz_room.png",
     lines: [
       {
         speaker: "kagami",
         text: "Поздравляю, ты сдал..",
-         ...m.show("Kagami", "neutral2", "center"),
+        ...m.show("Kagami", "neutral2", "center"),
       },
       { speaker: "", text: "Она это сказала с какой-то грустинкой в голосе." },
       { speaker: "", text: "Она разочарована моим поступлением?" },
@@ -1251,7 +1253,6 @@ export const story = {
         speaker: "",
         text: "Кагами открыла дверь из этой комнаты и выключила свет.",
         fx: { darkness: 0.8, duration: 1000 },
-        audio: { type: "sfx", id: "door_open" }, // Замени на свой ID звука, если есть
       },
       {
         speaker: "kagami",
@@ -1266,18 +1267,19 @@ export const story = {
   // ============================================
   quiz_pass_stared: {
     id: "quiz_pass_stared",
-    bg: "./bg/quiz_room.png",
     lines: [
       {
         action: () => removeFlag("kagamiStare"),
         speaker: "kagami",
         text: "Поздравляю, ты сдал..",
-    ...m.show("Kagami", "neutral2", "center"),
+        ...m.show("Kagami", "neutral2", "center"),
       },
       { speaker: "", text: "Она это сказала с лёгкой насмешкой?" },
       {
         speaker: "",
         text: "Кагами подошла к своему столу и взяла оттуда толстую металлическую линейку, сантиметров на 50.",
+        hideCharacter: "kagami",
+        bg: "/bg/common/quiz_room_kagamiRuler1.webp",
       },
       {
         speaker: "kagami",
@@ -1286,7 +1288,7 @@ export const story = {
       {
         speaker: "",
         text: "Она встала прямо напротив меня с линейкой в руке.",
-        showCharacter: { id: "kagami", emotion: "cold", position: "center" },
+        ...m.show("Kagami", "neutral", "center"),
       },
       {
         speaker: "kagami",
@@ -1311,12 +1313,13 @@ export const story = {
 
   quiz_punishment_kneel: {
     id: "quiz_punishment_kneel",
-    bg: "./bg/quiz_room.png",
+    bg: "/bg/cg/prologue/quiz_room_kagamiRuler2.webp",
     lines: [
       {
         speaker: "",
-        text: "Моё тело само начало двигаться. Я сполз со стула и нехотя опустился на колени перед ней.",
+        text: "Моё тело нехотя само начало двигаться. Я сполз со стула и нехотя опустился на колени перед ней.",
         ...m.sfx("clothes_rustle"),
+        hideCharacter: "kagami",
       },
       { speaker: "ren", text: "Эмм..Простите, Кагами." },
       {
@@ -1325,7 +1328,7 @@ export const story = {
       },
       {
         speaker: "kagami",
-        text: "Смотри в глаза, Рен. Не на грудь. Не на ноги.",
+        text: "Смотри в глаза, Рен, а не на грудь.",
       },
       {
         speaker: "",
@@ -1350,11 +1353,16 @@ export const story = {
       },
       {
         speaker: "",
-        text: "Она убрала линейку и брезгливо протерла её салфеткой.",
+        text: "Она убрала линейку, положив её на место",
+        bg: "/bg/common/quiz_room.webp",
       },
       {
         speaker: "",
-        text: "Блять... Унизительно. Но член в штанах почему-то стал только тверже.",
+        text: "Блять... Мой мозг не успевает за ситуацией...",
+      },
+      {
+        speaker: "",
+        text: "Но член в штанах почему-то стал только тверже.",
         ...m.sanity(-5),
       },
       {
@@ -1363,7 +1371,7 @@ export const story = {
       },
       {
         speaker: "",
-        text: "Кагами выключила свет в комнате... Я поднялся с колен и оттряхнулся. Сердце всё ещё колотится.",
+        text: "Я поднялся с колен и оттряхнулся. Сердце всё ещё колотится.",
       },
       {
         speaker: "",
@@ -1378,7 +1386,6 @@ export const story = {
   // ============================================
   quiz_fail: {
     id: "quiz_fail",
-    bg: "./bg/quiz_room.png",
     lines: [
       {
         speaker: "",
@@ -1389,7 +1396,8 @@ export const story = {
         speaker: "ren",
         text: "Агх!",
         shake: "medium",
-        audio: { type: "sfx", id: "hit_chair" }, 
+        audio: { type: "sfx", id: "hit_chair" },
+        action: () => m.fx({ darkness: 1, noise: 0, duration: 500 }),
       },
       {
         speaker: "",
@@ -1398,17 +1406,14 @@ export const story = {
       {
         speaker: "",
         text: "Кагами встала надо мной, расставив ноги по бокам от меня.",
-        showCharacter: {
-          id: "kagami",
-          emotion: "dominant",
-          position: "center",
-        },
+        bg: "/bg/cg/prologue/quiz_room_kagami.webp",
+        action: () => m.fx({ darkness: 0, noise: 0, duration: 500 }),
       },
       { speaker: "ren", text: "Какого ху… Что вы делаете?!" },
       { speaker: "kagami", text: "Рен Амано, ты провалил тест." },
       {
         speaker: "kagami",
-        text: "Ты проявил себя как ничтожество в первые же минуты своего прибытия.",
+        text: "Ты проявил себя как слабак в первые же минуты своего прибытия.",
       },
       {
         speaker: "kagami",
@@ -1416,27 +1421,35 @@ export const story = {
       },
       {
         speaker: "kagami",
-        text: "Твоя жизнь на этом закончилась.",
-        effects: { sanity: -5 }, // Мощный удар по рассудку
+        text: "Твоя жизнь на этом закончится",
+        effects: { sanity: -5 },
       },
-      { speaker: "", text: "…. Уже конец? Так просто?" },
+      { speaker: "", text: "…. Уже конец?" },
       { speaker: "", text: "Так просто всё кончится?" },
       {
         speaker: "",
         text: "(Флешбек с сестренкой проносится перед глазами... Я не могу всё потерять.)",
-        fx: { noise: 0.5, duration: 500 }, // Глитч-эффект для флешбека
+        bg: "/bg/common/rin.webp",
+        action: () => m.fx({ vignette: 1, duration: 1500 }),
       },
       {
         speaker: "kagami",
         text: "Не расстраивайся, Рен Амано, у меня есть вариант для таких как ты.",
-        fx: { noise: 0, duration: 500 }, // Убираем глитч
+        bg: "/bg/cg/prologue/quiz_room_kagami.webp",
+        action: () => m.fx({ vignette: 0, duration: 3000 }),
       },
-      { speaker: "ren", text: "… Я вас слушаю..." },
+      { speaker: "ren", text: "… Я вас слушаю." },
       {
         speaker: "",
         text: "Кагами сняла правый каблук и понесла ногу прямо над моим лицом.",
       },
-      { speaker: "kagami", text: "Лижи." },
+      {
+        speaker: "kagami",
+        text: "Лижи.",
+        bg: "/bg/cg/prologue/quiz_room_footLicking1.webp",
+        bgSpeed: 50,
+        dialogStyle: "transparent",
+      },
       { speaker: "ren", text: "Лизать?" },
       {
         speaker: "kagami",
@@ -1461,35 +1474,41 @@ export const story = {
 
   quiz_fail_lick: {
     id: "quiz_fail_lick",
-    bg: "./bg/quiz_room.png",
+
     lines: () => [
       { speaker: "", text: "… не могу поверить, что делаю это." },
       {
         speaker: "",
         text: "Я медленно приближаюсь лицом к её ступне и высовываю язык.",
+        bg: "/bg/cg/prologue/quiz_room_footLicking2.webp",
+        bgSpeed: 50,
       },
       {
         speaker: "",
-        text: "Запах ударяет сразу — смесь тёплой кожи, кожи туфель и едва уловимого аромата её лосьона",
+        text: "Вкус ударяет сразу — смесь тёплой кожи, кожи туфель и едва уловимого аромата её лосьона",
       },
       {
         speaker: "",
-        text: "Я еле-еле упёрся языком в нейлон и слегка провёл по центру свода.",
+        text: "Я еле-еле упёрся языком в нейлон и слегка провёл.",
         ...m.sfx("clothes_rustle"),
       },
       {
         speaker: "kagami",
-        text: "Ты издеваешься?",
-        showCharacter: { id: "kagami", emotion: "cold", position: "center" },
+        text: "Ты издеваешься?",  
       },
       { speaker: "kagami", text: "По-твоему так просят о пощаде?" },
       { speaker: "", text: "Она посильнее надавила носочком на мой язык." },
-      { speaker: "", text: "Её большой палец окозался у меня во рту." },
+      {
+        speaker: "",
+        text: "Её большой палец оказался у меня на губах",
+        bg: "/bg/cg/prologue/quiz_room_footLicking3.webp",
+        bgSpeed: 50,
+      },
       {
         speaker: "kagami",
         text: "Вот так, каждый пальчик по очереди как следует обработай.",
       },
-      { speaker: "", text: "Как же это унизительно!", ...m.sanity(-5) },
+      { speaker: "", text: "Да что за нахуй...", ...m.sanity(-5) },
       { speaker: "", text: "Не дай бог кто-то зайдёт." },
       { speaker: "", text: "…" },
       { speaker: "", text: "…" },
@@ -1500,12 +1519,12 @@ export const story = {
         text: "Я действительно начал пытаться удовлетворить её желания.",
       },
       { speaker: "", text: "Я начал лизать пальцы её ног ещё быстрее." },
-      { speaker: "", text: "Но как бы это не было низко для меня…" },
+      { speaker: "", text: "Но каким бы пиздецом это не было..." },
       { speaker: "", text: "Мой член…" },
       {
         speaker: "",
         text: "Он начал натягивать резину на штанах.",
-        ...m.sanity(-10),
+        ...m.sanity(-1),
       },
 
       ...(getFlag("kagamiStare")
@@ -1513,11 +1532,8 @@ export const story = {
             {
               speaker: "kagami",
               text: "Давай, Рен усерднее, тебе ведь так понравилось безнаказанно пялиться на меня, верно? Тебе ведь нравится вкус?",
-              showCharacter: {
-                id: "kagami",
-                emotion: "dominant",
-                position: "center",
-              },
+              bg: "/bg/cg/prologue/quiz_room_kagamiSmirk.webp",
+              bgSpeed: 50
             },
             { speaker: "", text: "Я конечно и правда пялился." },
             { speaker: "", text: "Но неужели это соразмерное наказание?" },
@@ -1529,14 +1545,24 @@ export const story = {
         action: () => removeFlag("kagamiStare"),
         speaker: "",
         text: "Кагами на секунду вынула ножку.",
+        bg: "/bg/cg/prologue/quiz_room_footLicking4.webp",
+        bgSpeed: 50 
       },
       {
         speaker: "",
         text: "Слюна струной протянулась от её стопы до моих губ.",
       },
+      {
+        speaker: "",
+        text: "Что за мерзость...",
+      },
+      {
+        speaker: "",
+        text: "Её чёрный нейлоновый носок... Он насквозь промок... Я вижу красный лак на её пальцах сквозь носок.",
+      },
       { speaker: "ren", text: "Почему вы вообще себе позволяете такое?" },
-      { speaker: "", text: "Её нога опять у меня во рту." },
-      { speaker: "", text: "Я обвожу её языком кругами." },
+      { speaker: "", text: "Её нога опять у моего рта" },
+      { speaker: "", text: "Я медленно обвожу её языком кругами." },
       { speaker: "kagami", text: "Чувствую, что тебе нравится, да, Рен?" },
       { speaker: "ren", text: "Хмпф.." },
       {
@@ -1546,21 +1572,19 @@ export const story = {
       { speaker: "", text: "Но ощущалось оно намного дольше." },
       {
         speaker: "",
-        text: "Я сам для себя не могу определиться, нравится мне вкус её ножки или нет?",
+        text: "Я сам для себя не могу определиться, меня пугает ситуация или мой стояк?",
       },
       {
         speaker: "",
-        text: "Одно могу сказать верно... Унижение и похоть во мне заиграли новыми красками.",
+        text: "Унижение и похоть разрывают меня.",
         ...m.sanity(-5),
       },
       { speaker: "", text: "Кагами высунула ногу, я начал отдышиваться." },
       {
-        speaker: "",
-        text: "Её чёрный нейлоновый носок... Он насквозь промок... Я вижу красный лак на её пальцах сквозь носок.",
-      },
-      {
         speaker: "kagami",
         text: "На этом всё, так уж и быть, тест будет засчитан пройденным.",
+        bg: "/bg/cg/prologue/quiz_room_kagami.webp",
+        dialogStyle: "normal",
       },
       {
         speaker: "kagami",
@@ -1569,11 +1593,11 @@ export const story = {
       {
         speaker: "",
         text: "Кагами сняла оба носка, даже тот, что она не использовала, и выкинула их в урну.",
+        bg: "/bg/common/quiz_room.webp",
       },
       {
         speaker: "",
-        text: "Затем она открыла дверь и выключила в комнате свет.",
-        action: () => m.fx({ darkness: 0.8, duration: 1000 }),
+        text: "Затем она открыла дверь и вышла со своим зонтом.",
       },
       { speaker: "kagami", text: "Идём дальше." },
       { speaker: "", text: "Я встал и отряхнулся." },
@@ -1616,12 +1640,12 @@ export const story = {
         bg: "/bg/cg/prologue/kagami_bonus_1.webp",
         dialogStyle: "transparent",
       },
-      { speaker: "", text: " ", bg: "/bg/cg/prologue/kagami_bonus_2.webp" },
-      { speaker: "", text: " ", bg: "/bg/cg/prologue/kagami_bonus_3.webp" },
-      { speaker: "", text: " ", bg: "/bg/cg/prologue/kagami_bonus_4.webp" },
-      { speaker: "", text: " ", bg: "/bg/cg/prologue/kagami_bonus_5.webp" },
+      { speaker: "", text: " ", bg: "/bg/cg/prologue/kagami_bonus_2.webp", bgSpeed: 50 },
+      { speaker: "", text: " ", bg: "/bg/cg/prologue/kagami_bonus_3.webp", bgSpeed: 50  },
+      { speaker: "", text: " ", bg: "/bg/cg/prologue/kagami_bonus_4.webp", bgSpeed: 50  },
+      { speaker: "", text: " ", bg: "/bg/cg/prologue/kagami_bonus_5.webp", bgSpeed: 50  },
       {
-        speaker: "narrator",
+        speaker: "",
         text: "И напиши потом в комментариях какая тебе больше всего понравилась и на какую ты кончил!",
       },
       { speaker: "narrator", text: "А теперь пиздуй на экран Game Over." },
@@ -1633,8 +1657,8 @@ export const story = {
     id: "corridor_intro",
     bg: "./bg/dorm_exterior.png",
     lines: () => [
-      { speaker: "", text: "Мы вновь взяли наши зонтики и вышли на улицу." },
-      { speaker: "", text: "Я послушно пошёл за Кагами." },
+      { speaker: "", text: "Мы на улице" },
+      { speaker: "", text: "Я послушно шёл за Кагами." },
       {
         speaker: "kagami",
         text: "Рен, сейчас мы идём в общежитие. Там ты будешь жить.",
