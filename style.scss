@@ -2205,39 +2205,35 @@ $glass-dark: rgba(10, 12, 18, 0.95);
     position: absolute;
     top: 15%;
     left: 10%;
-    transform: translateX(0%) translateY(0%) scale(1);
+    z-index: 3;
 
-    transition: none !important;
-    text-align: left;
     display: flex;
     flex-wrap: nowrap;
-    width: max-content;
     gap: 20px;
-    z-index: 20;
+
     font-family: "Inter", sans-serif;
     text-transform: uppercase;
 
+    // МАЙ: Чистая жесткая обводка для букв везде!
+    -webkit-text-stroke: 1px rgba(0, 0, 0, 0.8);
+    text-shadow: 0 0 15px rgba(0, 0, 0, 0.9);
+
     .word {
       display: flex;
-      align-items: flex-end;
+      align-items: baseline;
 
       .initial {
-        font-size: 4.5rem;
-        font-weight: 900;
+        font-size: 5rem;
+        font-weight: 300;
         color: #00ffff;
-        text-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
-        opacity: 0;
+        // У первых букв обводка чуть толще
+        -webkit-text-stroke: 2px rgba(0, 0, 0, 0.9);
+        text-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
       }
-
       .rest {
         font-size: 3rem;
         font-weight: 300;
         color: #ffffff;
-        text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-        white-space: nowrap;
-        overflow: hidden;
-        max-width: 0;
-        opacity: 0;
       }
     }
   }
@@ -2653,7 +2649,7 @@ $glass-dark: rgba(10, 12, 18, 0.95);
     }
 
     #main-menu-title {
-      top: 3vh;
+      top: 1vh;
       left: 50%;
       transform-origin: center center;
       transition: none !important;
@@ -3318,7 +3314,7 @@ $glass-dark: rgba(10, 12, 18, 0.95);
       }
     }
   }
-  
+
   .menu-buttons-container {
     position: absolute;
     left: 3vw;
