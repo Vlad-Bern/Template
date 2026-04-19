@@ -566,13 +566,26 @@ const DEBUG_SKIP_INTRO = false;
 
 // === АБСОЛЮТНАЯ БРОНЯ: Вызываем её при ЛЮБОМ скипе или окончании анимации ===
 window.applySotaFinalState = function () {
-  const isMobile = window.innerWidth <= 1200;
-  const endTop = isMobile ? "2vh" : "15%";
-  const endLeft = isMobile ? "2vw" : "10%";
+  const w = window.innerWidth;
+
+  let endTop = "15%";
+  let endLeft = "10%";
+  let finalTransform = "none"; // ПК не центрируем
+
+  if (w <= 1200 && w > 768) {
+    // Планшет
+    endTop = "5vh";
+    endLeft = "50%";
+    finalTransform = "translateX(-50%)"; // Центрируем!
+  } else if (w <= 768) {
+    // Телефон
+    endTop = "5vh";
+    endLeft = "50%";
+    finalTransform = "translateX(-50%)"; // Центрируем!
+  }
 
   const title = document.getElementById("main-menu-title");
   if (title) {
-    // ВАЖНО: setAttribute полностью уничтожает багованный transform от Anime.js!
     title.setAttribute(
       "style",
       `
@@ -583,11 +596,12 @@ window.applySotaFinalState = function () {
       opacity: 1 !important;
       margin: 0 !important;
       width: max-content !important;
-      max-width: 95vw !important; /* Убивает баг 48vw */
-      transform: none !important; /* Сжигает хвосты анимации */
+      max-width: 95vw !important;
+      transform: ${finalTransform} !important; 
       display: flex !important;
-      flex-wrap: nowrap !important;
-    `,
+      flex-wrap: wrap !important;
+      justify-content: ${w <= 1200 ? "center" : "flex-start"} !important;
+      `,
     );
   }
 
@@ -600,7 +614,7 @@ window.applySotaFinalState = function () {
       min-width: 0px !important;
       overflow: visible !important;
       display: inline-block !important;
-    `,
+      `,
     );
   });
 
@@ -710,12 +724,23 @@ function startMainMenuAnimation() {
   const title = document.getElementById("main-menu-title");
   const mainMenu = document.getElementById("main-menu-screen");
 
-  const endTop = isMobile ? "2vh" : "15%";
-  const endLeft = isMobile ? "2vw" : "10%";
+  const w = window.innerWidth;
 
-  // 🎯 ВОТ ОНА - ЕДИНСТВЕННАЯ ИЗМЕНЕННАЯ ЦИФРА (45vw).
-  // Сдвигает SOTA левее, компенсируя фантомную ширину флексбокса.
-  const startLeft = isMobile ? "50vw" : "50vw";
+  let startLeft = "40vw",
+    endTop = "15%",
+    endLeft = "10%";
+
+  if (w <= 1200 && w > 768) {
+    // Планшет
+    startLeft = "50vw"; // Начинаем из центра
+    endTop = "5vh";
+    endLeft = "50%"; // Заканчиваем в центре
+  } else if (w <= 768) {
+    // Телефон
+    startLeft = "50vw"; // Начинаем из центра
+    endTop = "5vh";
+    endLeft = "50%"; // Заканчиваем в центре
+  }
 
   // ПОВТОРНЫЙ ЗАХОД
   if (window.sotaIntroPlayed) {
@@ -1163,8 +1188,7 @@ if (btnGallery) {
       } catch (e) {}
 
       if (gallery.length === 0) {
-        grid.innerHTML =
-          "<p style='color:#aaa;'>...</p>";
+        grid.innerHTML = "<p style='color:#aaa;'>...</p>";
       } else {
         // Отрисовываем всё, что накопили
         gallery.forEach((path, index) => {
