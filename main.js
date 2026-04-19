@@ -1164,18 +1164,36 @@ if (btnSettingsMenu) {
 // 4. Кнопка: Галерея
 const btnGallery = document.getElementById("btn-gallery");
 const closeGalleryBtn = document.getElementById("close-gallery-btn");
+const galleryModal = document.getElementById("gallery-modal");
 
+// --- ОБЩАЯ ФУНКЦИЯ ЗАКРЫТИЯ (которая убивает фокус) ---
+const closeGallerySmart = () => {
+  const lightboxOverlay = document.getElementById("cg-lightbox-overlay");
+  const isLightboxOpen =
+    lightboxOverlay && lightboxOverlay.style.display === "flex";
+
+  // Если открыта фотка на весь экран — не трогаем саму галерею!
+  if (
+    !isLightboxOpen &&
+    galleryModal &&
+    galleryModal.style.display === "flex"
+  ) {
+    if (window.playUISound) window.playUISound("click");
+    galleryModal.style.display = "none";
+    if (document.activeElement) document.activeElement.blur(); // МАЙ: Убиваем фокус!
+  }
+};
+
+// --- ОТКРЫТИЕ ГАЛЕРЕИ ---
 if (btnGallery) {
   btnGallery.addEventListener("click", () => {
-    // ВСТАВЬТЕ this.blur() ПРЯМО СЮДА:
-    btnGallery.blur(); // Снимаем фокус с кнопки "Галерея"
-
+    btnGallery.blur(); // Снимаем фокус на всякий случай
     if (window.playUISound) window.playUISound("click");
+
     if (galleryModal) {
       galleryModal.style.display = "flex";
-
       const grid = document.getElementById("gallery-grid");
-      grid.innerHTML = ""; // Очищаем старые миниатюры
+      grid.innerHTML = "";
 
       let gallery = [];
       try {
@@ -1183,25 +1201,19 @@ if (btnGallery) {
       } catch (e) {}
 
       if (gallery.length === 0) {
-        grid.innerHTML = "<p style='color:#aaa;'>...</p>";
+        grid.innerHTML = "\n\n...\n\n";
       } else {
-        // Отрисовываем всё, что накопили
         gallery.forEach((path, index) => {
           const img = document.createElement("img");
-          // Наш мобильный оптимизатор (оставили из прошлого шага)
           img.src =
             window.sm && window.sm._getOptimizedBgPath
               ? window.sm._getOptimizedBgPath(path)
               : path;
-
-          // Вся магия теперь в классе!
           img.className = "sota-gallery-item";
-
           img.onclick = () => {
             if (window.playUISound) window.playUISound("click");
             window.showLightbox(index);
           };
-
           grid.appendChild(img);
         });
       }
@@ -1209,97 +1221,25 @@ if (btnGallery) {
   });
 }
 
-// === МАЙ: УМНОЕ ЗАКРЫТИЕ ГАЛЕРЕИ ===
-const galleryModal = document.getElementById("gallery-modal");
-
+// --- ЗАКРЫТИЕ ГАЛЕРЕИ (3 способа) ---
 if (galleryModal) {
-  // 1. Закрытие по Правой Кнопке Мыши (ПКМ)
+  // 1. По ПКМ
   galleryModal.addEventListener("contextmenu", (e) => {
-    e.preventDefault(); // Безжалостно убиваем стандартное белое меню браузера!
-
-    // Снова проверяем, не открыта ли в этот момент большая картинка
-    const lightboxOverlay = document.getElementById("cg-lightbox-overlay");
-    const isLightboxOpen =
-      lightboxOverlay && lightboxOverlay.style.display === "flex";
-
-    if (!isLightboxOpen) {
-      if (window.playUISound) window.playUISound("click");
-      galleryModal.style.display = "none";
-    }
+    e.preventDefault();
+    closeGallerySmart();
   });
 }
 
-// 2. Закрытие по клавише Esc
+// 2. По Esc
 document.addEventListener("keydown", (e) => {
-  if (
-    e.key === "Escape" &&
-    galleryModal &&
-    galleryModal.style.display === "flex"
-  ) {
-    // Проверяем, не открыт ли сейчас наш полноэкранный слайдер
-    const lightboxOverlay = document.getElementById("cg-lightbox-overlay");
-    const isLightboxOpen =
-      lightboxOverlay && lightboxOverlay.style.display === "flex";
-
-    // Если слайдер ЗАКРЫТ, значит мы имеем право закрыть саму галерею
-    if (!isLightboxOpen) {
-      if (window.playUISound) window.playUISound("click"); // Или звук закрытия окна
-      galleryModal.style.display = "none";
-    }
+  if (e.key === "Escape") {
+    closeGallerySmart();
   }
 });
 
+// 3. По крестику
 if (closeGalleryBtn) {
-  closeGalleryBtn.addEventListener("click", () => {
-    if (window.playUISound) window.playUISound("click");
-    if (galleryModal) galleryModal.style.display = "none";
-  });
-}
-
-// 5. Кнопка: Выход (С кинематографичным затемнением)
-const btnExit = document.getElementById("btn-exit");
-if (btnExit) {
-  btnExit.addEventListener("click", () => {
-    // 1. Звук клика (если есть)
-    if (window.playUISound) window.playUISound("click");
-
-    // 2. Блокируем весь экран, чтобы игрок больше никуда не нажал
-    const blackoutLayer = document.createElement("div");
-    blackoutLayer.style.position = "fixed";
-    blackoutLayer.style.inset = "0";
-    blackoutLayer.style.backgroundColor = "black";
-    blackoutLayer.style.zIndex = "999999"; // Поверх вообще всего
-    blackoutLayer.style.display = "flex";
-    blackoutLayer.style.justifyContent = "center";
-    blackoutLayer.style.alignItems = "center";
-    blackoutLayer.style.opacity = "0";
-    blackoutLayer.style.transition = "opacity 2s ease-in-out"; // Плавное затемнение на 2 секунды
-    blackoutLayer.style.pointerEvents = "all"; // Перехватываем клики
-
-    // 3. Добавляем кровавую надпись
-    const exitText = document.createElement("h1");
-    exitText.innerText = "Я БУДУ ЖДАТЬ ТВОЕГО ВОЗВРАЩЕНИЯ...";
-    exitText.style.color = "#8b0000"; // Ваш $blood-red
-    exitText.style.fontFamily = "'Inter', sans-serif";
-    exitText.style.fontSize = "3rem";
-    exitText.style.letterSpacing = "10px";
-    exitText.style.textShadow = "0 0 20px rgba(150, 0, 0, 0.8)";
-
-    blackoutLayer.appendChild(exitText);
-    document.body.appendChild(blackoutLayer);
-
-    // 4. Запускаем анимацию затемнения через микро-задержку (чтобы сработал CSS transition)
-    setTimeout(() => {
-      blackoutLayer.style.opacity = "1";
-    }, 50);
-
-    // 5. Ждем окончания анимации (2 секунды) и убиваем процесс, если мы на ПК
-    setTimeout(() => {
-      if (typeof nw !== "undefined") {
-        nw.App.quit(); // Беспощадно рубим питание
-      }
-    }, 2050);
-  });
+  closeGalleryBtn.addEventListener("click", closeGallerySmart);
 }
 
 // === МАЙ: ПРИВАТНЫЙ СЛАЙДЕР ДЛЯ CG (LIGHTBOX) ===
