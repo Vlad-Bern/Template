@@ -2649,16 +2649,6 @@ $glass-dark: rgba(10, 12, 18, 0.95);
     }
 
     #main-menu-title {
-      top: 1vh;
-      left: 50%;
-      transform-origin: center center;
-      transition: none !important;
-
-      gap: 6px;
-      width: 95vw;
-      flex-wrap: wrap;
-      justify-content: center;
-      text-align: center;
 
       .word {
         .initial {

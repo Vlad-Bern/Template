@@ -566,48 +566,29 @@ const DEBUG_SKIP_INTRO = false;
 
 // === АБСОЛЮТНАЯ БРОНЯ: Вызываем её при ЛЮБОМ скипе или окончании анимации ===
 window.applySotaFinalState = function () {
-  const isMobile = window.innerWidth <= 1024;
-  const title = document.getElementById("main-menu-title");
+  const isMobile = window.innerWidth <= 1200;
+  const endTop = isMobile ? "2vh" : "15%";
+  const endLeft = isMobile ? "2vw" : "10%";
 
+  const title = document.getElementById("main-menu-title");
   if (title) {
-    if (isMobile) {
-      // МАЙ: Для мобилок жестко центрируем и поднимаем наверх!
-      title.setAttribute(
-        "style",
-        `
-        position: absolute !important;
-        top: 2vh !important;
-        left: 50% !important;
-        z-index: 3 !important;
-        opacity: 1 !important;
-        margin: 0 !important;
-        width: max-content !important;
-        max-width: 95vw !important;
-        transform: translateX(-50%) !important; 
-        display: flex !important;
-        flex-wrap: wrap !important;
-        justify-content: center !important;
-        `,
-      );
-    } else {
-      // Для ПК оставляем как было
-      title.setAttribute(
-        "style",
-        `
-        position: absolute !important;
-        top: 15% !important;
-        left: 10% !important;
-        z-index: 3 !important;
-        opacity: 1 !important;
-        margin: 0 !important;
-        width: max-content !important;
-        max-width: 95vw !important;
-        transform: none !important;
-        display: flex !important;
-        flex-wrap: nowrap !important;
-        `,
-      );
-    }
+    // ВАЖНО: setAttribute полностью уничтожает багованный transform от Anime.js!
+    title.setAttribute(
+      "style",
+      `
+      position: absolute !important;
+      top: ${endTop} !important;
+      left: ${endLeft} !important;
+      z-index: 3 !important;
+      opacity: 1 !important;
+      margin: 0 !important;
+      width: max-content !important;
+      max-width: 95vw !important; /* Убивает баг 48vw */
+      transform: none !important; /* Сжигает хвосты анимации */
+      display: flex !important;
+      flex-wrap: nowrap !important;
+    `,
+    );
   }
 
   document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
@@ -619,7 +600,7 @@ window.applySotaFinalState = function () {
       min-width: 0px !important;
       overflow: visible !important;
       display: inline-block !important;
-      `,
+    `,
     );
   });
 
@@ -725,16 +706,16 @@ function startGame(e) {
 
 // === САМА АНИМАЦИЯ ===
 function startMainMenuAnimation() {
-  const isMobile = window.innerWidth <= 1024;
+  const isMobile = window.innerWidth <= 1200;
   const title = document.getElementById("main-menu-title");
   const mainMenu = document.getElementById("main-menu-screen");
 
-  const endTop = isMobile ? "0vh" : "15%";
+  const endTop = isMobile ? "2vh" : "15%";
   const endLeft = isMobile ? "2vw" : "10%";
 
   // 🎯 ВОТ ОНА - ЕДИНСТВЕННАЯ ИЗМЕНЕННАЯ ЦИФРА (45vw).
   // Сдвигает SOTA левее, компенсируя фантомную ширину флексбокса.
-  const startLeft = isMobile ? "40vw" : "50vw";
+  const startLeft = isMobile ? "50vw" : "50vw";
 
   // ПОВТОРНЫЙ ЗАХОД
   if (window.sotaIntroPlayed) {
@@ -1183,7 +1164,7 @@ if (btnGallery) {
 
       if (gallery.length === 0) {
         grid.innerHTML =
-          "<p style='color:#aaa;'>Вы еще не открыли ни одной пикантной сцены, хозяин...</p>";
+          "<p style='color:#aaa;'>...</p>";
       } else {
         // Отрисовываем всё, что накопили
         gallery.forEach((path, index) => {
