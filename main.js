@@ -568,14 +568,15 @@ const DEBUG_SKIP_INTRO = false;
 window.applySotaFinalState = function () {
   const w = window.innerWidth;
 
-  // Финальные точки (всегда СЛЕВА, над кнопками)
+  // Финальные точки
   let endTop = "15%",
     endLeft = "10%"; // ПК
   if (w <= 1200) {
-    endTop = "5vh"; // Высота над кнопками на планшете/телефоне
-    endLeft = "5vw"; // Слева, ровно по уровню кнопок
+    endTop = "5vh";
+    endLeft = "5%"; // МАЙ: Идеальные 5%
   }
 
+  // --- МАЙ: ВОТ ЭТОТ БЛОК ПОТЕРЯЛСЯ! МЫ ВОЗВРАЩАЕМ ЕГО ---
   const title = document.getElementById("main-menu-title");
   if (title) {
     title.setAttribute(
@@ -589,13 +590,14 @@ window.applySotaFinalState = function () {
       margin: 0 !important;
       width: max-content !important;
       max-width: 95vw !important;
-      transform: none !important; /* УБИРАЕТ ТЕЛЕПОРТАЦИЮ, так как анимация тоже заканчивается на 0% */
+      transform: none !important;
       display: flex !important;
       flex-wrap: wrap !important;
-      justify-content: flex-start !important; /* Выравниваем по левому краю кнопок */
+      justify-content: flex-start !important;
       `,
     );
   }
+  // ---------------------------------------------------------
 
   document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
     el.setAttribute(
@@ -715,20 +717,26 @@ function startMainMenuAnimation() {
   const isMobile = window.innerWidth <= 1200;
   const title = document.getElementById("main-menu-title");
   const mainMenu = document.getElementById("main-menu-screen");
-
   const w = window.innerWidth;
 
-  let startLeft = "50%"; // МАЙ: Это игнорирует "челку" айфона и центрирует ровно по игре!
-  let startTop = "50vh";
-
-  // Финал должен ТОЧНО совпадать с applySotaFinalState, чтобы не было прыжков!
+  // МАЙ: ВСЮДУ СТАВИМ ПРОЦЕНТЫ (%), ЧТОБЫ ANIME.JS НЕ ВЫЧИСЛЯЛ ЧЕЛКУ АЙФОНА
+  let startLeft = "50%"; // Старт ВСЕГДА ровно по центру контейнера
   let endTop = "15%",
-    endLeft = "10%";
-  if (w <= 1200) {
+    endLeft = "10%"; // Финал для ПК тоже в процентах
+
+  if (w <= 1200 && w > 768) {
+    // Планшет
+    startLeft = "50%"; // Старт из центра
     endTop = "5vh";
-    endLeft = "5vw";
+    endLeft = "5%"; // Финал слева в процентах (ВМЕСТО 5vw)
+  } else if (w <= 768) {
+    // Телефон
+    startLeft = "50%"; // Старт из центра
+    endTop = "5vh";
+    endLeft = "5%"; // Финал слева в процентах (ВМЕСТО 5vw)
   }
 
+  // ... дальше идет ваш код (if (window.sotaIntroPlayed) ...)
   // ПОВТОРНЫЙ ЗАХОД
   if (window.sotaIntroPlayed) {
     if (mainMenu) mainMenu.style.display = "flex";
