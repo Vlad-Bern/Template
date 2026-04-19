@@ -564,6 +564,62 @@ if (dialogWrapper) dialogWrapper.style.display = "none";
 // === РЕЖИМ БОГА ДЛЯ ТЕСТИРОВКИ ===
 const DEBUG_SKIP_INTRO = false;
 
+// === АБСОЛЮТНАЯ БРОНЯ: Вызываем её при ЛЮБОМ скипе или окончании анимации ===
+window.applySotaFinalState = function () {
+  const isMobile = window.innerWidth <= 1024;
+  const endTop = isMobile ? "2vh" : "15%";
+  const endLeft = isMobile ? "2vw" : "10%";
+
+  const title = document.getElementById("main-menu-title");
+  if (title) {
+    // ВАЖНО: setAttribute полностью уничтожает багованный transform от Anime.js!
+    title.setAttribute(
+      "style",
+      `
+      position: absolute !important;
+      top: ${endTop} !important;
+      left: ${endLeft} !important;
+      z-index: 3 !important;
+      opacity: 1 !important;
+      margin: 0 !important;
+      width: max-content !important;
+      max-width: 95vw !important; /* Убивает баг 48vw */
+      transform: none !important; /* Сжигает хвосты анимации */
+      display: flex !important;
+      flex-wrap: nowrap !important;
+    `,
+    );
+  }
+
+  document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
+    el.setAttribute(
+      "style",
+      `
+      opacity: 1 !important;
+      max-width: none !important;
+      min-width: 0px !important;
+      overflow: visible !important;
+      display: inline-block !important;
+    `,
+    );
+  });
+
+  document.querySelectorAll("#main-menu-title .initial").forEach((el) => {
+    el.setAttribute(
+      "style",
+      "opacity: 1 !important; transform: none !important;",
+    );
+    el.classList.add("neon-letter-active");
+  });
+
+  const overlay = document.getElementById("menu-black-overlay");
+  if (overlay) {
+    overlay.style.display = "none";
+    overlay.style.opacity = "0";
+  }
+};
+
+// === ЛОГИКА ЗАПУСКА ИГРЫ ===
 function startGame(e) {
   document.removeEventListener("click", startGame);
   document.removeEventListener("keydown", startGame);
@@ -574,7 +630,6 @@ function startGame(e) {
   let menuStarted = false;
 
   const introStartedAt = performance.now();
-  // МАЙ: Усиливаем защиту от фантомных кликов на телефонах!
   const isMobileTouch =
     e && (e.type === "touchstart" || window.innerWidth <= 1024);
 
@@ -589,32 +644,15 @@ function startGame(e) {
     if (disclaimer) disclaimer.style.display = "none";
     if (splash) splash.style.display = "none";
 
-    // МАЙ: Если пропустили интро (двойным тапом), всё равно показываем меню
+    // ЕСЛИ ИГРОК СКИПНУЛ ЗАСТАВКУ (твой случай)
     if (DEBUG_SKIP_INTRO || wasSkipped) {
       const mainMenu = document.getElementById("main-menu-screen");
-      const title = document.getElementById("main-menu-title");
-      const overlay = document.getElementById("menu-black-overlay");
-
       if (mainMenu) mainMenu.style.display = "flex";
 
-      if (title) {
-        title.style.top = "";
-        title.style.left = "";
-        title.style.transform = "";
-      }
+      // Активируем нашу ядерную броню
+      window.applySotaFinalState();
 
-      document.querySelectorAll("#main-menu-title .initial").forEach((el) => {
-        el.style.opacity = "1";
-        el.style.transform = "scale(1)";
-        el.classList.add("neon-letter-active");
-      });
-
-      document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
-        el.style.opacity = "1";
-        el.style.maxWidth = "none";
-      });
-
-      if (overlay) overlay.style.display = "none";
+      window.sotaIntroPlayed = true;
       window.showRandomMenuCharacter();
     } else {
       startMainMenuAnimation();
@@ -623,8 +661,6 @@ function startGame(e) {
   };
 
   const forceSkipIntro = (ev) => {
-    // МАЙ: Блокируем ЛЮБЫЕ скипы в первые 2 секунды (2000мс) на мобилках.
-    // Это убьет фантомные тапы по черному экрану.
     if (isMobileTouch && performance.now() - introStartedAt < 2000) {
       return;
     }
@@ -668,31 +704,23 @@ function startGame(e) {
   }, 300);
 }
 
+// === САМА АНИМАЦИЯ ===
 function startMainMenuAnimation() {
   const isMobile = window.innerWidth <= 1024;
   const title = document.getElementById("main-menu-title");
   const mainMenu = document.getElementById("main-menu-screen");
-  const overlay = document.getElementById("menu-black-overlay");
 
   const endTop = isMobile ? "2vh" : "15%";
-  const endLeft = isMobile ? "3vw" : "10%";
+  const endLeft = isMobile ? "2vw" : "10%";
 
+  // 🎯 ВОТ ОНА - ЕДИНСТВЕННАЯ ИЗМЕНЕННАЯ ЦИФРА (45vw).
+  // Сдвигает SOTA левее, компенсируя фантомную ширину флексбокса.
+  const startLeft = isMobile ? "40vw" : "50vw";
+
+  // ПОВТОРНЫЙ ЗАХОД
   if (window.sotaIntroPlayed) {
     if (mainMenu) mainMenu.style.display = "flex";
-    if (title) {
-      title.style.cssText = `position: absolute; top: ${endTop}; left: ${endLeft}; opacity: 1; z-index: 3;`;
-    }
-    document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
-      el.style.cssText = "opacity: 1; max-width: none;";
-    });
-    document.querySelectorAll("#main-menu-title .initial").forEach((el) => {
-      el.style.opacity = "1";
-      el.classList.add("neon-letter-active");
-    });
-    if (overlay) {
-      overlay.style.display = "none";
-      overlay.style.opacity = "0";
-    }
+    window.applySotaFinalState();
     return;
   }
 
@@ -700,33 +728,47 @@ function startMainMenuAnimation() {
   if (!mainMenu) return;
   mainMenu.style.display = "flex";
 
-  // === ИСПРАВЛЕНИЕ 1: Идеальный старт из центра ===
   if (title) {
-    title.style.cssText = `
+    title.setAttribute(
+      "style",
+      `
       position: absolute;
       top: 50vh;
-      left: 50vw;
-      transform: translateX(-50%) translateY(-50%) scale(${isMobile ? 1.2 : 1.5});
-      width: max-content;
-      white-space: nowrap;
+      left: ${startLeft};
       margin: 0;
       z-index: 999999;
-    `;
+      width: max-content;
+      display: flex;
+      flex-wrap: nowrap;
+    `,
+    );
   }
+
+  anime.set(title, {
+    translateX: "-50%",
+    translateY: "-50%",
+    scale: isMobile ? 1.2 : 1.5,
+    opacity: 1,
+  });
+
+  document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
+    el.setAttribute(
+      "style",
+      `
+      display: inline-block;
+      overflow: hidden;
+      max-width: 0px;
+      min-width: 0px; 
+      opacity: 0;
+      margin: 0;
+      padding: 0;
+    `,
+    );
+  });
 
   anime.set("#main-menu-title .initial", {
     opacity: 0,
     scale: isMobile ? 1.5 : 3,
-  });
-
-  // === ИСПРАВЛЕНИЕ 2: Убиваем невидимую ширину слов ===
-  // Заставляем <span> реагировать на max-width: 0px, чтобы они не ломали центрирование "S O T A"
-  document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
-    el.style.display = "inline-block";
-    el.style.overflow = "hidden";
-    el.style.verticalAlign = "bottom";
-    el.style.opacity = "0";
-    el.style.maxWidth = "0px";
   });
 
   let menuCanSkip = false;
@@ -740,30 +782,7 @@ function startMainMenuAnimation() {
     document.removeEventListener("touchstart", onMenuTouchStart);
   };
 
-  const introTimeline = anime.timeline({
-    easing: "easeOutExpo",
-    complete: () => {
-      // === ИСПРАВЛЕНИЕ 3: Блокируем телепортацию ===
-      // Стираем мусор, но ЖЕСТКО возвращаем position: absolute, которого нет в твоем мобильном CSS
-      if (title) {
-        title.style.cssText = "";
-        title.style.position = "absolute";
-        title.style.top = endTop;
-        title.style.left = endLeft;
-        title.style.zIndex = "3";
-        title.style.opacity = "1";
-      }
-      document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
-        el.style.cssText = "opacity: 1; max-width: none;";
-      });
-      killMenuSkip();
-      if (overlay) {
-        overlay.style.display = "none";
-        overlay.style.opacity = "0";
-      }
-    },
-  });
-
+  // СКИП ВО ВРЕМЯ АНИМАЦИИ
   const doMenuSkip = (e) => {
     if (e) {
       e.preventDefault();
@@ -782,29 +801,7 @@ function startMainMenuAnimation() {
       "#menu-black-overlay",
     ]);
 
-    // При пропуске тоже жестко фиксируем absolute
-    if (title) {
-      title.style.cssText = "";
-      title.style.position = "absolute";
-      title.style.top = endTop;
-      title.style.left = endLeft;
-      title.style.zIndex = "3";
-      title.style.opacity = "1";
-    }
-
-    document.querySelectorAll("#main-menu-title .initial").forEach((el) => {
-      el.style.opacity = "1";
-      el.classList.add("neon-letter-active");
-    });
-
-    document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
-      el.style.cssText = "opacity: 1; max-width: none;";
-    });
-
-    if (overlay) {
-      overlay.style.display = "none";
-      overlay.style.opacity = "0";
-    }
+    window.applySotaFinalState();
   };
 
   const onMenuTouchStart = (e) => {
@@ -814,6 +811,15 @@ function startMainMenuAnimation() {
   };
 
   safetyLock = setTimeout(() => killMenuSkip(), 2500);
+
+  const introTimeline = anime.timeline({
+    easing: "easeOutExpo",
+    complete: () => {
+      // ФИНИШ АНИМАЦИИ
+      window.applySotaFinalState();
+      killMenuSkip();
+    },
+  });
 
   introTimeline
     .add({
@@ -827,7 +833,7 @@ function startMainMenuAnimation() {
       {
         targets: title,
         top: ["50vh", endTop],
-        left: ["50vw", endLeft],
+        left: [startLeft, endLeft],
         translateX: ["-50%", "0%"],
         translateY: ["-50%", "0%"],
         scale: [isMobile ? 1.2 : 1.5, 1],
@@ -840,7 +846,7 @@ function startMainMenuAnimation() {
     .add(
       {
         targets: "#main-menu-title .rest",
-        maxWidth: isMobile ? "200px" : "300px",
+        maxWidth: ["0px", "300px"],
         opacity: [0, 1],
         duration: 800,
         delay: anime.stagger(100),
