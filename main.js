@@ -1166,13 +1166,12 @@ const btnGallery = document.getElementById("btn-gallery");
 const closeGalleryBtn = document.getElementById("close-gallery-btn");
 const galleryModal = document.getElementById("gallery-modal");
 
-// --- ОБЩАЯ ФУНКЦИЯ ЗАКРЫТИЯ (которая убивает фокус) ---
+// --- ОБЩАЯ ФУНКЦИЯ ЗАКРЫТИЯ ---
 const closeGallerySmart = () => {
   const lightboxOverlay = document.getElementById("cg-lightbox-overlay");
   const isLightboxOpen =
     lightboxOverlay && lightboxOverlay.style.display === "flex";
 
-  // Если открыта фотка на весь экран — не трогаем саму галерею!
   if (
     !isLightboxOpen &&
     galleryModal &&
@@ -1180,9 +1179,32 @@ const closeGallerySmart = () => {
   ) {
     if (window.playUISound) window.playUISound("click");
     galleryModal.style.display = "none";
-    if (document.activeElement) document.activeElement.blur(); // МАЙ: Убиваем фокус!
+    if (document.activeElement) document.activeElement.blur();
   }
 };
+
+// --- ЗАКРЫТИЕ ГАЛЕРЕИ (3 способа) ---
+if (galleryModal) {
+  // 1. По ПКМ
+  galleryModal.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+    // МАЙ: Ждем 50 миллисекунд. Даем браузеру понять, что клик закончился,
+    // и только потом прячем окно. Это убивает "фантомный" клик!
+    setTimeout(() => {
+      closeGallerySmart();
+    }, 50);
+  });
+}
+
+// 2. По Esc
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closeGallerySmart();
+});
+
+// 3. По крестику
+if (closeGalleryBtn) {
+  closeGalleryBtn.addEventListener("click", closeGallerySmart);
+}
 
 // --- ОТКРЫТИЕ ГАЛЕРЕИ ---
 if (btnGallery) {
@@ -1223,10 +1245,18 @@ if (btnGallery) {
 
 // --- ЗАКРЫТИЕ ГАЛЕРЕИ (3 способа) ---
 if (galleryModal) {
-  // 1. По ПКМ
+  // 1. По ПКМ (Обходим баг браузера с проглатыванием клика!)
   galleryModal.addEventListener("contextmenu", (e) => {
-    e.preventDefault();
-    closeGallerySmart();
+    e.preventDefault(); // Только блокируем системное меню, не закрываем тут!
+  });
+
+  // А само закрытие вешаем на отпускание ПКМ!
+  galleryModal.addEventListener("mouseup", (e) => {
+    if (e.button === 2) {
+      // 2 - это код правой кнопки мыши
+      e.preventDefault();
+      closeGallerySmart();
+    }
   });
 }
 
