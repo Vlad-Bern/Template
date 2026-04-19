@@ -568,20 +568,12 @@ const DEBUG_SKIP_INTRO = false;
 window.applySotaFinalState = function () {
   const w = window.innerWidth;
 
-  let endTop = "15%";
-  let endLeft = "10%";
-  let finalTransform = "none"; // ПК не центрируем
-
-  if (w <= 1200 && w > 768) {
-    // Планшет
-    endTop = "5vh";
-    endLeft = "50%";
-    finalTransform = "translateX(-50%)"; // Центрируем!
-  } else if (w <= 768) {
-    // Телефон
-    endTop = "5vh";
-    endLeft = "50%";
-    finalTransform = "translateX(-50%)"; // Центрируем!
+  // Финальные точки (всегда СЛЕВА, над кнопками)
+  let endTop = "15%",
+    endLeft = "10%"; // ПК
+  if (w <= 1200) {
+    endTop = "5vh"; // Высота над кнопками на планшете/телефоне
+    endLeft = "5vw"; // Слева, ровно по уровню кнопок
   }
 
   const title = document.getElementById("main-menu-title");
@@ -597,10 +589,10 @@ window.applySotaFinalState = function () {
       margin: 0 !important;
       width: max-content !important;
       max-width: 95vw !important;
-      transform: ${finalTransform} !important; 
+      transform: none !important; /* УБИРАЕТ ТЕЛЕПОРТАЦИЮ, так как анимация тоже заканчивается на 0% */
       display: flex !important;
       flex-wrap: wrap !important;
-      justify-content: ${w <= 1200 ? "center" : "flex-start"} !important;
+      justify-content: flex-start !important; /* Выравниваем по левому краю кнопок */
       `,
     );
   }
@@ -726,20 +718,15 @@ function startMainMenuAnimation() {
 
   const w = window.innerWidth;
 
-  let startLeft = "40vw",
-    endTop = "15%",
-    endLeft = "10%";
+  let startLeft = "50%"; // МАЙ: Это игнорирует "челку" айфона и центрирует ровно по игре!
+  let startTop = "50vh";
 
-  if (w <= 1200 && w > 768) {
-    // Планшет
-    startLeft = "50vw"; // Начинаем из центра
+  // Финал должен ТОЧНО совпадать с applySotaFinalState, чтобы не было прыжков!
+  let endTop = "15%",
+    endLeft = "10%";
+  if (w <= 1200) {
     endTop = "5vh";
-    endLeft = "50%"; // Заканчиваем в центре
-  } else if (w <= 768) {
-    // Телефон
-    startLeft = "50vw"; // Начинаем из центра
-    endTop = "5vh";
-    endLeft = "50%"; // Заканчиваем в центре
+    endLeft = "5vw";
   }
 
   // ПОВТОРНЫЙ ЗАХОД
