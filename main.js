@@ -1179,37 +1179,13 @@ const closeGallerySmart = () => {
   ) {
     if (window.playUISound) window.playUISound("click");
     galleryModal.style.display = "none";
-    if (document.activeElement) document.activeElement.blur();
   }
 };
-
-// --- ЗАКРЫТИЕ ГАЛЕРЕИ (3 способа) ---
-if (galleryModal) {
-  // 1. По ПКМ
-  galleryModal.addEventListener("contextmenu", (e) => {
-    e.preventDefault();
-    // МАЙ: Ждем 50 миллисекунд. Даем браузеру понять, что клик закончился,
-    // и только потом прячем окно. Это убивает "фантомный" клик!
-    setTimeout(() => {
-      closeGallerySmart();
-    }, 50);
-  });
-}
-
-// 2. По Esc
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") closeGallerySmart();
-});
-
-// 3. По крестику
-if (closeGalleryBtn) {
-  closeGalleryBtn.addEventListener("click", closeGallerySmart);
-}
 
 // --- ОТКРЫТИЕ ГАЛЕРЕИ ---
 if (btnGallery) {
   btnGallery.addEventListener("click", () => {
-    btnGallery.blur(); // Снимаем фокус на всякий случай
+    btnGallery.blur();
     if (window.playUISound) window.playUISound("click");
 
     if (galleryModal) {
@@ -1243,31 +1219,44 @@ if (btnGallery) {
   });
 }
 
-// --- ЗАКРЫТИЕ ГАЛЕРЕИ (3 способа) ---
-if (galleryModal) {
-  // 1. По ПКМ (Обходим баг браузера с проглатыванием клика!)
-  galleryModal.addEventListener("contextmenu", (e) => {
-    e.preventDefault(); // Только блокируем системное меню, не закрываем тут!
-  });
+// --- ЗАКРЫТИЕ ГАЛЕРЕИ ПО ПКМ НА УРОВНЕ ДОКУМЕНТА (КАК В HISTORY MANAGER) ---
+document.addEventListener(
+  "contextmenu",
+  (e) => {
+    const lightboxOverlay = document.getElementById("cg-lightbox-overlay");
+    const isLightboxOpen =
+      lightboxOverlay && lightboxOverlay.style.display === "flex";
 
-  // А само закрытие вешаем на отпускание ПКМ!
-  galleryModal.addEventListener("mouseup", (e) => {
-    if (e.button === 2) {
-      // 2 - это код правой кнопки мыши
-      e.preventDefault();
+    // Если открыта галерея, но НЕ открыт полноэкранный просмотр
+    if (
+      galleryModal &&
+      galleryModal.style.display === "flex" &&
+      !isLightboxOpen
+    ) {
+      e.preventDefault(); // Блокируем системное меню браузера
+      e.stopPropagation(); // Останавливаем всплытие, чтобы другие слои не реагировали
+      closeGallerySmart();
+    }
+  },
+  { capture: true },
+); // capture: true гарантирует, что мы поймаем клик первыми
+
+// --- ЗАКРЫТИЕ ПО КЛИКУ В ПУСТОТУ (КАК В ИСТОРИИ) ---
+if (galleryModal) {
+  galleryModal.addEventListener("click", (e) => {
+    // Проверяем, что кликнули ИМЕННО по темному фону, а не по белому блоку внутри
+    if (e.target === galleryModal) {
       closeGallerySmart();
     }
   });
 }
 
-// 2. По Esc
+// --- ЗАКРЫТИЕ ПО ESC ---
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") {
-    closeGallerySmart();
-  }
+  if (e.key === "Escape") closeGallerySmart();
 });
 
-// 3. По крестику
+// --- ЗАКРЫТИЕ ПО КРЕСТИКУ ---
 if (closeGalleryBtn) {
   closeGalleryBtn.addEventListener("click", closeGallerySmart);
 }
