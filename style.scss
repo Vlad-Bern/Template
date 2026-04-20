@@ -2396,17 +2396,6 @@ $glass-dark: rgba(10, 12, 18, 0.95);
   }
 }
 
-// Эффекты для кнопок соцсетей в меню
-.menu-social-btn:hover {
-  transform: scale(1.15) translateY(-5px);
-}
-.menu-social-btn.boosty:hover {
-  box-shadow: 0 0 20px rgba(241, 95, 44, 0.8) !important;
-}
-.menu-social-btn.patreon:hover {
-  background: #ff424d !important;
-  box-shadow: 0 0 20px rgba(255, 66, 77, 0.8) !important;
-}
 
 .sota-gallery-grid {
   flex: 1;
@@ -2498,6 +2487,74 @@ $glass-dark: rgba(10, 12, 18, 0.95);
         background: #ff424d;
         transform: scale(1.05);
         box-shadow: 0 0 25px rgba(255, 66, 77, 0.6);
+      }
+    }
+  }
+}
+
+#main-menu-socials {
+  position: absolute;
+  bottom: 40px;
+  right: 2vw;
+  display: flex;
+  gap: 15px;
+  z-index: 10;
+
+  .menu-social-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    transition:
+      transform 0.3s ease,
+      box-shadow 0.3s ease;
+
+    // Убиваем мобильные обводки и залипания фокуса
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+    text-decoration: none;
+
+    img {
+      width: 20px;
+      height: 20px;
+      filter: brightness(0) invert(1);
+    }
+
+    // === ЖЕСТКАЯ ПРОВЕРКА НА МЫШЬ ===
+    // Сработает только на устройствах с точным курсором
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        transform: scale(1.15);
+      }
+    }
+
+    // Сочное вдавливание при таче (оно отпускается сразу после касания)
+    &:active {
+      transform: scale(0.95);
+    }
+
+    &.boosty {
+      background: linear-gradient(135deg, #f15f2c, #e23b24);
+      box-shadow: 0 0 10px rgba(241, 95, 44, 0.4);
+
+      @media (hover: hover) and (pointer: fine) {
+        &:hover {
+          box-shadow: 0 0 20px rgba(241, 95, 44, 0.8);
+        }
+      }
+    }
+
+    &.patreon {
+      background: #000;
+      border: 1px solid #ff424d;
+      box-shadow: 0 0 10px rgba(255, 66, 77, 0.4);
+
+      @media (hover: hover) and (pointer: fine) {
+        &:hover {
+          box-shadow: 0 0 20px rgba(255, 66, 77, 0.8);
+        }
       }
     }
   }

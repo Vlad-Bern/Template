@@ -264,15 +264,15 @@ app.innerHTML = `
   <button id="btn-gallery"><span class="visual">Галерея</span></button>
   <button id="btn-exit"><span class="visual">Выход</span></button>
 </div>
-  
-<div id="main-menu-socials" style="position: absolute; bottom: 40px; right: 2vw; display: flex; gap: 15px; z-index: 10;">
-          <a href="https://boosty.to/" target="_blank" class="menu-social-btn boosty" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #f15f2c, #e23b24); transition: transform 0.3s, box-shadow 0.3s; box-shadow: 0 0 10px rgba(241, 95, 44, 0.4);">
-            <img src="icons/boosty.svg" alt="Boosty" style="width: 20px; height: 20px; filter: brightness(0) invert(1);">
-          </a>
-          <a href="https://patreon.com/" target="_blank" class="menu-social-btn patreon" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: #000; border: 1px solid #ff424d; transition: transform 0.3s, box-shadow 0.3s; box-shadow: 0 0 10px rgba(255, 66, 77, 0.4);">
-            <img src="icons/patreon.svg" alt="Patreon" style="width: 20px; height: 20px; filter: brightness(0) invert(1);">
-          </a>
-        </div>
+
+<div id="main-menu-socials">
+  <a href="https://boosty.to/" target="_blank" class="menu-social-btn boosty">
+    <img src="icons/boosty.svg" alt="Boosty">
+  </a>
+  <a href="https://patreon.com/" target="_blank" class="menu-social-btn patreon">
+    <img src="icons/patreon.svg" alt="Patreon">
+  </a>
+</div>
 
   <div class="version-watermark">
     SOTA: Prologue (1.0) | by Vladber
@@ -492,6 +492,13 @@ window.returnToMenuLogic = (skipConfirm = false) => {
         window.showRandomMenuCharacter();
       }
 
+      if (
+        window.audioManager &&
+        typeof window.audioManager.playBGM === "function"
+      ) {
+        window.audioManager.playBGM("Last Destination");
+      }
+
       // 5. Растворяем затемнение
       blackoutLayer.style.opacity = "0";
       setTimeout(() => blackoutLayer.remove(), 1500);
@@ -607,19 +614,6 @@ window.showRandomMenuCharacter = function () {
     img.classList.add("visible");
   }, 100);
 };
-
-// Заглушка для браузерных тестов (просит повернуть телефон)
-if (sm.isMobile) {
-  const handleOrientation = () => {
-    const prompt = document.getElementById("rotate-prompt");
-    if (!prompt) return;
-    const isPortrait = window.innerHeight > window.innerWidth;
-    const isTablet = Math.min(window.innerWidth, window.innerHeight) >= 600;
-    prompt.style.display = isPortrait && !isTablet ? "flex" : "none";
-  };
-  window.addEventListener("resize", handleOrientation);
-  requestAnimationFrame(() => requestAnimationFrame(handleOrientation));
-}
 
 // Функция запуска игры (сработает только один раз)
 // === ЛОГИКА ДИСКЛЕЙМЕРА И ЗАПУСКА ИГРЫ (SPA) ===
@@ -1655,3 +1649,14 @@ function handleSwipeGesture() {
     prevLightboxImg();
   }
 }
+
+// === МАЙ: Запуск музыки при загрузке страницы ===
+window.addEventListener("DOMContentLoaded", () => {
+  // Музыка начнет играть, как только страница отрисуется (вместе с Дисклеймером)
+  if (
+    window.audioManager &&
+    typeof window.audioManager.playBGM === "function"
+  ) {
+    window.audioManager.playBGM("Last Destination");
+  }
+});
