@@ -380,7 +380,7 @@ export class SceneManager {
 
       // === ФАЗА 3: ЧИСТАЯ ИГРА (МЕНЮ И ОКНА ЗАКРЫТЫ) ===
       if (e.code === "ControlLeft" || e.code === "ControlRight") {
-        if (!e.repeat && !this.uiHidden && (!this.cs || !this.cs.isActive)) {
+        if (!e.repeat && !this.uiHidden) {
           this.isFastForwarding = true;
           this.handleFastForward();
         }
@@ -498,6 +498,13 @@ export class SceneManager {
     this.isRestoringSave = isRestoring;
     this.currentSceneId = sceneId;
     this.currentLineIndex = startLineIndex;
+
+    // МАЙ: Добавьте этот сброс!
+    this.isFastForwarding = false;
+    if (this.fastForwardTimeoutId) {
+      clearTimeout(this.fastForwardTimeoutId);
+      this.fastForwardTimeoutId = null;
+    }
 
     this.currentPlayId = Symbol();
     const loadPlayId = this.currentPlayId;
@@ -768,6 +775,8 @@ export class SceneManager {
         this.am,
       ); // Передаем scene целиком и this.am
     } else if (scene.choices && scene.choices.length > 0) {
+      this.isFastForwarding = false;
+      if (this.fastForwardTimeoutId) clearTimeout(this.fastForwardTimeoutId);
       this.cs.showChoices(
         scene.choices,
         (nextId) => this.loadScene(nextId),

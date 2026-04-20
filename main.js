@@ -435,6 +435,19 @@ window.returnToMenuLogic = (skipConfirm = false) => {
       const dialogWrapper = document.getElementById("dialog-wrapper");
       if (gameViewport) gameViewport.style.display = "none";
       if (dialogWrapper) dialogWrapper.style.display = "none";
+      ["bg-1", "bg-2", "gbg-1", "gbg-2"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.style.backgroundImage = "none";
+          el.style.opacity = "0";
+        }
+      });
+
+      // И на всякий случай очищаем контейнер персонажей сцены
+      const sceneCharContainer = document.getElementById(
+        "characters-container",
+      );
+      if (sceneCharContainer) sceneCharContainer.innerHTML = "";
 
       // 2. Глушим печатную машинку
       if (window.sm && window.sm.navController) {
@@ -986,24 +999,13 @@ window.startCredits = function (creditsArray) {
       if (currentIndex >= creditsArray.length) {
         creditsScreen.style.display = "none";
         creditsLogo.style.opacity = "0";
-        creditsScreen.onclick = null; // Снимаем обработчик, чтобы не стрелял повторно
+        creditsScreen.onclick = null; // Снимаем обработчик
 
+        // === МАЙ: ТОЛЬКО ЭТОТ КОД! ВСЁ ОСТАЛЬНОЕ УДАЛИТЬ! ===
         if (typeof window.returnToMenuLogic === "function") {
-          window.returnToMenuLogic(true);
+          window.returnToMenuLogic(true); // Тихий выход
         }
-        return;
-
-        // МАЙ: Вызываем returnToMenuLogic через скрытую кнопку, которая НЕ покажет confirm.
-        // Напрямую вызываем логику без диалога подтверждения:
-        if (window.sm && typeof window.sm.returnToMenu === "function") {
-          window.sm.returnToMenu(); // Если у sceneManager есть свой метод
-        } else {
-          // МАЙ: Вешаем временный флаг, что выход из титров — это "тихий" возврат
-          window._creditsReturn = true;
-          document.getElementById("open-mainmenu-btn")?.click();
-          window._creditsReturn = false;
-        }
-        return;
+        return; // Конец функции
       }
 
       // Подставляем новый текст и показываем
@@ -1016,11 +1018,12 @@ window.startCredits = function (creditsArray) {
 
   // Вешаем обработчик клика на весь экран
   // Используем onclick, чтобы потом его удалить (перезаписать)
-  creditsScreen.onclick = () => {
-    if (window.playUISound) window.playUISound("open");
-    if (e.target.closest("a")) return;
+  creditsScreen.onclick = (e) => {
+    // <-- МАЙ: Обязательно (e)
+    // Если игрок кликнул по ссылке, позволяем ему перейти и НЕ перелистываем титры!
+    if (e.target && e.target.closest && e.target.closest("a")) return;
 
-    if (window.playUISound) window.playUISound("click");
+    if (window.playUISound) window.playUISound("open");
     showNextText();
   };
 };

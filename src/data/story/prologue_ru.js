@@ -749,12 +749,12 @@ export const story = {
           // Вызываем нашу функцию и передаем ей массив экранов!
           // Можно использовать HTML теги вроде <br> для переноса строк
 window.startCredits([
-  "КОНЕЦ ПЕРВОЙ ЧАСТИ ПРОЛОГА.<br><br>Оценка: D-ранг.",
+  "КОНЕЦ ПЕРВОЙ ЧАСТИ ПРОЛОГА.",
   "Создатели:<br><br>Гейм-директор: Vladber<br>Код: Май (Perplexity)<br>Арт: WAI Illustrious SDXL / Nano Banana 2",
   // Последний экран с HTML-кнопками!
   `Влияй на разработку. Ломай иерархию.<br>
    <div class="credits-support-buttons">
-     <a href="https://boosty.to/" target="_blank" class="support-btn boosty">
+     <a href="/icons/boosty" target="_blank" class="support-btn boosty">
        <img src="/ui/boosty.svg" alt="Boosty"> Поддержать на Boosty
      </a>
      <a href="https://patreon.com/" target="_blank" class="support-btn patreon">
