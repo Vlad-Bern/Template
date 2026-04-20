@@ -518,10 +518,37 @@ document
     returnToMenuLogic();
   });
 
+// === МАЙ: ПЛАВНОЕ ЗАТУХАНИЕ МУЗЫКИ ПРИ ВЫХОДЕ ИЗ МЕНЮ ===
+document.addEventListener("DOMContentLoaded", () => {
+  const btnNewGame = document.getElementById("btn-new-game");
+
+  if (btnNewGame) {
+    btnNewGame.addEventListener("click", () => {
+      if (
+        window.audioManager &&
+        typeof window.audioManager.fadeOutBGM === "function"
+      ) {
+        window.audioManager.fadeOutBGM(1.5); // Затухание 1.5 секунды
+      }
+    });
+  }
+
+  // Если у вас есть функция, которая вызывается при загрузке сейва из слота,
+  // добавьте такой же вызов fadeOutBGM(1.5) туда!
+});
+
 // === МАЙ: ПОЯВЛЕНИЕ СЛУЧАЙНОГО ПЕРСОНАЖА ===
 window.showRandomMenuCharacter = function () {
   const container = document.getElementById("main-menu-character-container");
   if (!container) return;
+
+  // === МАЙ: МУЗЫКА ГЛАВНОГО МЕНЮ ===
+  if (
+    window.audioManager &&
+    typeof window.audioManager.playBGM === "function"
+  ) {
+    window.audioManager.playBGM("Last Destination", { loop: true, fade: 2000 });
+  }
 
   // МАЙ: ЕСЛИ ДЕВОЧКА УЖЕ ВЫБРАНА И ОТРИСОВАНА В ЭТУ СЕССИЮ — НИЧЕГО НЕ ДЕЛАЕМ!
   // Это спасет мобилки от перерисовки при закрытии менюшек.
