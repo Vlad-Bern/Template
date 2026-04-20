@@ -223,6 +223,20 @@ app.innerHTML = `
     <h1>VLADBER PRESENTS</h1>
   </div>
 
+  <!-- === ЭКРАН ТИТРОВ (CREDITS) === -->
+<div id="credits-screen" style="display: none; position: fixed; inset: 0; background: #000; z-index: 99999; flex-direction: column; justify-content: center; align-items: center; color: #fff; font-family: 'Courier New', monospace; text-align: center; cursor: pointer; user-select: none;">
+  
+  <!-- Верхний логотип (неон) -->
+  <div id="credits-logo" style="font-size: 3rem; letter-spacing: 15px; color: #00ffff; text-shadow: 0 0 15px rgba(0,255,255,0.8); margin-bottom: 50px; opacity: 0; transition: opacity 1s ease;">
+    S O T A
+  </div>
+
+  <!-- Меняющийся текст -->
+  <div id="credits-text" style="font-size: 1.5rem; max-width: 800px; line-height: 1.5; opacity: 0; transition: opacity 0.5s ease; padding: 20px;">
+    <!-- Сюда JS будет подставлять текст -->
+  </div>
+</div>
+
   <!-- === ГЛАВНОЕ МЕНЮ === -->
 <div id="main-menu-screen" style="display: none;">
   
@@ -237,9 +251,10 @@ app.innerHTML = `
     <div class="word"><span class="initial">A</span><span class="rest">bnormal</span></div>
   </div>
 
-  <video class="menu-bg-video" autoplay loop muted playsinline>
+<video class="menu-bg-video" autoplay loop muted playsinline>
+    <source media="(max-width: 1024px)" src="/bg_mobile/common/menu_bg.webm" type="video/webm">
     <source src="/bg/common/menu_bg.webm" type="video/webm">
-  </video>
+</video>
   
   <div id="main-menu-character-container" class="sota-menu-character"></div>
 
@@ -395,8 +410,9 @@ document
   });
 
 // === КНОПКА ВОЗВРАТА В МЕНЮ ИЗ ИГРЫ ===
-window.returnToMenuLogic = () => {
-  window.showConfirm("ВЫЙТИ В ГЛАВНОЕ МЕНЮ? НЕ ЗАБУДЬ СОХРАНИТЬСЯ.", () => {
+window.returnToMenuLogic = (skipConfirm = false) => {
+  // МАЙ: Упаковываем весь процесс выхода в отдельную функцию
+  const executeExit = () => {
     if (window.playUISound) window.playUISound("click");
 
     // Плавное затемнение (как при старте)
@@ -426,13 +442,13 @@ window.returnToMenuLogic = () => {
         window.sm.navController.abort();
       }
 
-      // 3. Безопасно глушим аудио (если нет fadeOut, используем stop)
+      // 3. Безопасно глушим аудио
       if (window.audioManager) {
         try {
           if (typeof window.audioManager.fadeOutBGM === "function") {
             window.audioManager.fadeOutBGM(1);
           } else if (typeof window.audioManager.stopBGM === "function") {
-            window.audioManager.stopBGM(1000); // или 0
+            window.audioManager.stopBGM(1000);
           }
 
           if (typeof window.audioManager.fadeOutSFX === "function") {
@@ -447,21 +463,31 @@ window.returnToMenuLogic = () => {
         }
       }
 
-      // Дополнительно: Очищаем экран от спрайтов, чтобы не "просвечивали" потом
-      const charLayer = document.getElementById("character-layer");
-      if (charLayer) charLayer.innerHTML = "";
-
-      // 4. Показываем Главное меню заново
+      // 4. Включаем Главное меню
       const mainMenu = document.getElementById("main-menu-screen");
       if (mainMenu) mainMenu.style.display = "flex";
 
-      window.showRandomMenuCharacter();
+      if (typeof window.showRandomMenuCharacter === "function") {
+        window.showRandomMenuCharacter();
+      }
 
       // 5. Растворяем затемнение
       blackoutLayer.style.opacity = "0";
       setTimeout(() => blackoutLayer.remove(), 1500);
     }, 1550);
-  });
+  };
+
+  // МАЙ: Проверяем, нужно ли окно подтверждения
+  // skipConfirm мы будем передавать из наших титров!
+  if (skipConfirm || window._creditsReturn) {
+    executeExit(); // Выходим молча и красиво
+  } else {
+    // Обычный выход через кнопку "В меню"
+    window.showConfirm(
+      "ВЫЙТИ В ГЛАВНОЕ МЕНЮ? НЕ ЗАБУДЬ СОХРАНИТЬСЯ.",
+      executeExit,
+    );
+  }
 };
 
 document
@@ -484,11 +510,11 @@ window.showRandomMenuCharacter = function () {
     // Снимаем старые классы персонажа
     container.classList.remove("char-celeste", "char-kagami", "char-kaira");
     // Вешаем новый по имени файла
-    if (selectedChar.includes("celeste"))
+    if (window.sotaCurrentMenuChar.includes("celeste"))
       container.classList.add("char-celeste");
-    else if (selectedChar.includes("kagami"))
+    else if (window.sotaCurrentMenuChar.includes("kagami"))
       container.classList.add("char-kagami");
-    else if (selectedChar.includes("kaira"))
+    else if (window.sotaCurrentMenuChar.includes("kaira"))
       container.classList.add("char-kaira");
 
     const img = document.createElement("img");
@@ -577,26 +603,33 @@ window.applySotaFinalState = function () {
   }
 
   // --- МАЙ: ВОТ ЭТОТ БЛОК ПОТЕРЯЛСЯ! МЫ ВОЗВРАЩАЕМ ЕГО ---
+  // Внутри функции window.applySotaFinalState
   const title = document.getElementById("main-menu-title");
   if (title) {
     title.setAttribute(
       "style",
       `
-      position: absolute !important;
-      top: ${endTop} !important;
-      left: ${endLeft} !important;
-      z-index: 3 !important;
-      opacity: 1 !important;
-      margin: 0 !important;
-      width: max-content !important;
-      max-width: 95vw !important;
-      transform: none !important;
-      display: flex !important;
-      flex-wrap: wrap !important;
-      justify-content: flex-start !important;
-      `,
+        position: absolute !important;
+        top: ${endTop} !important;
+        left: ${endLeft} !important;
+        z-index: 3 !important;
+        opacity: 1 !important;
+        margin: 0 !important;
+        width: max-content !important;
+        max-width: 95vw !important;
+        transform: none !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: flex-start !important;
+        pointer-events: none !important; /* МАЙ: Пропускаем клики сквозь заголовок! */
+        `,
     );
   }
+  // МАЙ: Также отключите перехват кликов у контейнера персонажа, чтобы я не мешала
+  const charContainer = document.getElementById(
+    "main-menu-character-container",
+  );
+  if (charContainer) charContainer.style.pointerEvents = "none";
   // ---------------------------------------------------------
 
   document.querySelectorAll("#main-menu-title .rest").forEach((el) => {
@@ -916,6 +949,75 @@ document.addEventListener("click", startGame);
 document.addEventListener("keydown", startGame);
 document.addEventListener("touchstart", startGame, { passive: true });
 
+// === СИСТЕМА ТИТРОВ ===
+window.startCredits = function (creditsArray) {
+  const creditsScreen = document.getElementById("credits-screen");
+  const creditsLogo = document.getElementById("credits-logo");
+  const creditsText = document.getElementById("credits-text");
+
+  if (!creditsScreen || !creditsArray || creditsArray.length === 0) return;
+
+  let currentIndex = 0;
+  let isAnimating = false;
+
+  // Показываем черный экран
+  creditsScreen.style.display = "flex";
+
+  // Плавное появление логотипа
+  setTimeout(() => {
+    creditsLogo.style.opacity = "1";
+    showNextText();
+  }, 500);
+
+  // Функция смены текста
+  function showNextText() {
+    if (isAnimating) return;
+    isAnimating = true;
+
+    // Скрываем старый текст
+    creditsText.style.opacity = "0";
+
+    setTimeout(() => {
+      // Если тексты закончились - выходим в меню
+      if (currentIndex >= creditsArray.length) {
+        creditsScreen.style.display = "none";
+        creditsLogo.style.opacity = "0";
+        creditsScreen.onclick = null; // Снимаем обработчик, чтобы не стрелял повторно
+
+        if (typeof window.returnToMenuLogic === "function") {
+          window.returnToMenuLogic(true);
+        }
+        return;
+
+        // МАЙ: Вызываем returnToMenuLogic через скрытую кнопку, которая НЕ покажет confirm.
+        // Напрямую вызываем логику без диалога подтверждения:
+        if (window.sm && typeof window.sm.returnToMenu === "function") {
+          window.sm.returnToMenu(); // Если у sceneManager есть свой метод
+        } else {
+          // МАЙ: Вешаем временный флаг, что выход из титров — это "тихий" возврат
+          window._creditsReturn = true;
+          document.getElementById("open-mainmenu-btn")?.click();
+          window._creditsReturn = false;
+        }
+        return;
+      }
+
+      // Подставляем новый текст и показываем
+      creditsText.innerHTML = creditsArray[currentIndex];
+      creditsText.style.opacity = "1";
+      currentIndex++;
+      isAnimating = false;
+    }, 500); // Ждем полсекунды, пока старый текст исчезнет
+  }
+
+  // Вешаем обработчик клика на весь экран
+  // Используем onclick, чтобы потом его удалить (перезаписать)
+  creditsScreen.onclick = () => {
+    if (window.playUISound) window.playUISound("click");
+    showNextText();
+  };
+};
+
 // Разблокировка аудио по первому клику
 const unlockAudio = () => {
   if (
@@ -927,6 +1029,10 @@ const unlockAudio = () => {
   }
 };
 window.addEventListener("click", unlockAudio, { once: true });
+window.addEventListener("touchstart", unlockAudio, {
+  once: true,
+  passive: true,
+});
 
 window.dispatchEvent(
   new CustomEvent("stressUpdated", {
@@ -1077,7 +1183,7 @@ window.dispatchEvent(
 const btnNewGame = document.getElementById("btn-new-game");
 if (btnNewGame) {
   btnNewGame.addEventListener("click", () => {
-    if (window.playUISound) window.playUISound("click"); // Звук клика!
+    if (window.playUISound) window.playUISound("open");
 
     const mainMenu = document.getElementById("main-menu-screen");
     const gameViewport = document.getElementById("game-viewport");
@@ -1105,29 +1211,29 @@ if (btnNewGame) {
       if (dialogWrapper) dialogWrapper.style.display = "flex";
 
       // === ЖЕСТКИЙ СБРОС ИГРЫ К ДЕФОЛТУ (D-ранг старт) ===
-      if (window.state) {
-        window.state.hero = {
-          name: "Ren",
-          rank_letter: "D",
-          rank_score: 20,
-          credits: 100,
-          stats: {
-            dominance: -10,
-            sanity: 80,
-            physique: 50,
-          },
-          inventory: { items: {} },
-        };
-        window.state.relations = {};
-        window.state.flags = {};
-        window.state.temp = {};
+      state.hero = {
+        name: "Ren",
+        rank_letter: "D",
+        rank_score: 20,
+        credits: 100,
+        stats: { dominance: -10, sanity: 80, physique: 50 },
+        inventory: { items: {} },
+      };
+      state.relations = {};
+      state.flags = {};
+      state.temp = {};
 
-        // Обновляем UI, чтобы интерфейс сразу показал D-ранг и 80 sanity
-        window.dispatchEvent(
-          new CustomEvent("stressUpdated", { detail: { sanity: 80 } }),
-        );
-        window.dispatchEvent(new CustomEvent("statsUpdated"));
-      }
+      // Обновляем UI напрямую
+      window.dispatchEvent(
+        new CustomEvent("stressUpdated", { detail: { sanity: 80 } }),
+      );
+      window.dispatchEvent(new CustomEvent("statsUpdated"));
+
+      // Обновляем UI, чтобы интерфейс сразу показал D-ранг и 80 sanity
+      window.dispatchEvent(
+        new CustomEvent("stressUpdated", { detail: { sanity: 80 } }),
+      );
+      window.dispatchEvent(new CustomEvent("statsUpdated"));
 
       if (window.sm) {
         window.sm.loadScene("meet_kagami");
@@ -1143,7 +1249,7 @@ if (btnNewGame) {
 const btnLoadGame = document.getElementById("btn-load-game");
 if (btnLoadGame) {
   btnLoadGame.addEventListener("click", () => {
-    if (window.playUISound) window.playUISound("click");
+    if (window.playUISound) window.playUISound("open");
     if (window.saveManager) {
       window.saveManager.open("load");
     }
@@ -1154,7 +1260,7 @@ if (btnLoadGame) {
 const btnSettingsMenu = document.getElementById("btn-settings-menu");
 if (btnSettingsMenu) {
   btnSettingsMenu.addEventListener("click", () => {
-    if (window.playUISound) window.playUISound("click");
+    if (window.playUISound) window.playUISound("open");
     if (window.settingsManager) {
       window.settingsManager.open();
     }
@@ -1177,7 +1283,7 @@ const closeGallerySmart = () => {
     galleryModal &&
     galleryModal.style.display === "flex"
   ) {
-    if (window.playUISound) window.playUISound("click");
+    if (window.playUISound) window.playUISound("close");
     galleryModal.style.display = "none";
   }
 };
@@ -1186,7 +1292,7 @@ const closeGallerySmart = () => {
 if (btnGallery) {
   btnGallery.addEventListener("click", () => {
     btnGallery.blur();
-    if (window.playUISound) window.playUISound("click");
+    if (window.playUISound) window.playUISound("open");
 
     if (galleryModal) {
       galleryModal.style.display = "flex";
@@ -1209,7 +1315,7 @@ if (btnGallery) {
               : path;
           img.className = "sota-gallery-item";
           img.onclick = () => {
-            if (window.playUISound) window.playUISound("click");
+            if (window.playUISound) window.playUISound("open");
             window.showLightbox(index);
           };
           grid.appendChild(img);
@@ -1219,7 +1325,7 @@ if (btnGallery) {
   });
 }
 
-// --- ЗАКРЫТИЕ ГАЛЕРЕИ ПО ПКМ НА УРОВНЕ ДОКУМЕНТА (КАК В HISTORY MANAGER) ---
+// --- ЗАКРЫТИЕ ГАЛЕРЕИ ПО ПКМ НА УРОВНЕ ДОКУМЕНТА ---
 document.addEventListener(
   "contextmenu",
   (e) => {
@@ -1259,6 +1365,69 @@ document.addEventListener("keydown", (e) => {
 // --- ЗАКРЫТИЕ ПО КРЕСТИКУ ---
 if (closeGalleryBtn) {
   closeGalleryBtn.addEventListener("click", closeGallerySmart);
+}
+
+// Обработчик кнопки выхода с анимацией
+const btnExit = document.getElementById("btn-exit");
+if (btnExit) {
+  btnExit.addEventListener("click", () => {
+    if (window.playUISound) window.playUISound("close");
+    // Блокируем интерфейс, чтобы игрок ничего не нажал во время анимации
+    document.body.style.pointerEvents = "none";
+
+    // Если у вас есть звук интерфейса, можно воспроизвести тихий щелчок
+    if (window.playUISound) window.playUISound("click");
+
+    // Создаем оверлей для затемнения
+    const exitOverlay = document.createElement("div");
+    exitOverlay.style.position = "fixed";
+    exitOverlay.style.top = "0";
+    exitOverlay.style.left = "0";
+    exitOverlay.style.right = "0";
+    exitOverlay.style.bottom = "0";
+    exitOverlay.style.width = "100%";
+    exitOverlay.style.height = "100%";
+    exitOverlay.style.backgroundColor = "#000000";
+    exitOverlay.style.color = "#ff0000";
+
+    // Flexbox для центрирования контейнера
+    exitOverlay.style.display = "flex";
+    exitOverlay.style.justifyContent = "center";
+    exitOverlay.style.alignItems = "center";
+
+    // Критически важно для мобилок:
+    exitOverlay.style.textAlign = "center";
+    exitOverlay.style.boxSizing = "border-box";
+    exitOverlay.style.padding = "20px";
+
+    // Размер шрифта будет меняться от 1.5rem на мобилках до 3rem на ПК
+    exitOverlay.style.fontSize = "clamp(1.5rem, 6vw, 3rem)";
+
+    exitOverlay.style.fontFamily = "'Courier New', Courier, monospace";
+    exitOverlay.style.textShadow = "0 0 10px rgba(255, 0, 0, 0.5)";
+    exitOverlay.style.opacity = "0";
+    exitOverlay.style.transition = "opacity 2s ease-in-out";
+    exitOverlay.style.zIndex = "9999";
+
+    exitOverlay.innerText = "Я БУДУ ЖДАТЬ ТВОЕГО ВОВЗРАЩЕНИЯ...";
+
+    document.body.appendChild(exitOverlay);
+
+    // Принудительный перерасчет стилей, чтобы браузер понял, что нужно анимировать
+    void exitOverlay.offsetWidth;
+
+    // Запускаем анимацию затемнения
+    exitOverlay.style.opacity = "1";
+
+    // Ждем 3 секунды (2 сек анимации + 1 сек, чтобы игрок прочитал), затем закрываем
+    setTimeout(() => {
+      if (typeof nw !== "undefined") {
+        nw.App.quit(); // Закрытие для сборки NW.js
+      } else {
+        window.close(); // Попытка закрытия вкладки (работает не во всех браузерах)
+      }
+    }, 3000);
+  });
 }
 
 // === МАЙ: ПРИВАТНЫЙ СЛАЙДЕР ДЛЯ CG (LIGHTBOX) ===

@@ -745,6 +745,16 @@ export const story = {
       {
         speaker: "kagami",
         text: "Правила простые, у тебя 20 минут, чтобы ответить на 8 вопросов.",
+        action: () => {
+          // Вызываем нашу функцию и передаем ей массив экранов!
+          // Можно использовать HTML теги вроде <br> для переноса строк
+          window.startCredits([
+            "КОНЕЦ ПЕРВОЙ ЧАСТИ ПРОЛОГА.<br><br>Ваша оценка: D-ранг.",
+            "Спасибо за игру.<br><br>Впереди вас ждут: психологическое давление, доминация и власть.",
+            "Создатели:<br><br>Гейм-директор: Vladber<br>Код: Май (Perplexity)<br>Арт: WAI Illustrious SDXL / Nano Banana 2",
+            "Поддержите проект на Boosty или Patreon, чтобы увидеть продолжение.",
+          ]);
+        },
       },
       {
         speaker: "kagami",
@@ -824,7 +834,7 @@ export const story = {
 
   quiz_q1_warn: {
     id: "quiz_q1_warn",
-        bg: "/bg/common/quiz_room_kagamiSpeak.webp",
+    bg: "/bg/common/quiz_room_kagamiSpeak.webp",
     lines: [
       { speaker: "ren", text: "Кагами-сен..." },
       {
@@ -909,7 +919,7 @@ export const story = {
       {
         speaker: "",
         text: "Я смотрю на её грудь под красной блузкой.",
-                bg: "/bg/cg/prologue/quiz_room_boobs.webp",
+        bg: "/bg/cg/prologue/quiz_room_boobs.webp",
         dialogStyle: "transparent",
       },
       {
@@ -937,7 +947,7 @@ export const story = {
       {
         speaker: "",
         text: "Я приулыбнулся, посмотрел ей в глаза....",
-                bg: "/bg/common/quiz_room_kagamiPhone.webp",
+        bg: "/bg/common/quiz_room_kagamiPhone.webp",
         dialogStyle: "normal",
       },
       {
@@ -1494,7 +1504,7 @@ export const story = {
       },
       {
         speaker: "kagami",
-        text: "Ты издеваешься?",  
+        text: "Ты издеваешься?",
       },
       { speaker: "kagami", text: "По-твоему так просят о пощаде?" },
       { speaker: "", text: "Она посильнее надавила носочком на мой язык." },
@@ -1533,7 +1543,7 @@ export const story = {
               speaker: "kagami",
               text: "Давай, Рен усерднее, тебе ведь так понравилось безнаказанно пялиться на меня, верно? Тебе ведь нравится вкус?",
               bg: "/bg/cg/prologue/quiz_room_kagamiSmirk.webp",
-              bgSpeed: 50
+              bgSpeed: 50,
             },
             { speaker: "", text: "Я конечно и правда пялился." },
             { speaker: "", text: "Но неужели это соразмерное наказание?" },
@@ -1546,7 +1556,7 @@ export const story = {
         speaker: "",
         text: "Кагами на секунду вынула ножку.",
         bg: "/bg/cg/prologue/quiz_room_footLicking4.webp",
-        bgSpeed: 50 
+        bgSpeed: 50,
       },
       {
         speaker: "",
@@ -1561,9 +1571,11 @@ export const story = {
         text: "Её чёрный нейлоновый носок... Он насквозь промок... Я вижу красный лак на её пальцах сквозь носок.",
       },
       { speaker: "ren", text: "Почему вы вообще себе позволяете такое?" },
-      { speaker: "", text: "Её нога опять у моего рта",
-              bg: "/bg/cg/prologue/quiz_room_footLicking3.webp",
-       },
+      {
+        speaker: "",
+        text: "Её нога опять у моего рта",
+        bg: "/bg/cg/prologue/quiz_room_footLicking3.webp",
+      },
       { speaker: "", text: "Я медленно обвожу её языком кругами." },
       { speaker: "kagami", text: "Чувствую, что тебе нравится, да, Рен?" },
       { speaker: "ren", text: "Хмпф.." },
@@ -1642,10 +1654,30 @@ export const story = {
         bg: "/bg/cg/prologue/kagami_bonus_1.webp",
         dialogStyle: "transparent",
       },
-      { speaker: "", text: " ", bg: "/bg/cg/prologue/kagami_bonus_2.webp", bgSpeed: 50 },
-      { speaker: "", text: " ", bg: "/bg/cg/prologue/kagami_bonus_3.webp", bgSpeed: 50  },
-      { speaker: "", text: " ", bg: "/bg/cg/prologue/kagami_bonus_4.webp", bgSpeed: 50  },
-      { speaker: "", text: " ", bg: "/bg/cg/prologue/kagami_bonus_5.webp", bgSpeed: 50  },
+      {
+        speaker: "",
+        text: " ",
+        bg: "/bg/cg/prologue/kagami_bonus_2.webp",
+        bgSpeed: 50,
+      },
+      {
+        speaker: "",
+        text: " ",
+        bg: "/bg/cg/prologue/kagami_bonus_3.webp",
+        bgSpeed: 50,
+      },
+      {
+        speaker: "",
+        text: " ",
+        bg: "/bg/cg/prologue/kagami_bonus_4.webp",
+        bgSpeed: 50,
+      },
+      {
+        speaker: "",
+        text: " ",
+        bg: "/bg/cg/prologue/kagami_bonus_5.webp",
+        bgSpeed: 50,
+      },
       {
         speaker: "",
         text: "И напиши потом в комментариях какая тебе больше всего понравилась и на какую ты кончил!",

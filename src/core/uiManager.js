@@ -145,16 +145,35 @@ export class UIManager {
     const activeB = blurLayers[activeIdx];
     const inactiveB = blurLayers[inactiveIdx];
 
-    // Хозяин, мы отменяем все незаконченные анимации на наших слоях,
-    // чтобы они больше не сопротивлялись тебе!
+    // Убиваем старые анимации
     anime.remove([activeS, activeB, inactiveS, inactiveB]);
 
-    [inactiveS, inactiveB].forEach((el) => {
-      el.style.backgroundImage = `url('${newImg}')`;
-      el.style.opacity = 0;
-    });
+    // === МАЙ: ЖЕСТКИЙ СБРОС СОСТОЯНИЙ ===
+    // Заставляем старые слои быть полностью видимыми, чтобы они не исчезли рывком
+    activeS.style.opacity = 1;
+    activeB.style.opacity = 1;
 
-    // Теперь запускаем новую анимацию, чистую и послушную
+    // Подготавливаем новые слои
+    inactiveS.style.backgroundImage = `url('${newImg}')`;
+    inactiveB.style.backgroundImage = `url('${newImg}')`;
+    inactiveS.style.opacity = 0;
+    inactiveB.style.opacity = 0;
+
+    // Если duration === 0 (при скипе/загрузке)
+    if (duration <= 0) {
+      inactiveS.style.opacity = 1;
+      inactiveB.style.opacity = 1;
+      activeS.style.opacity = 0;
+      activeB.style.opacity = 0;
+
+      inactiveS.classList.add("active");
+      activeS.classList.remove("active");
+      inactiveB.classList.add("active");
+      activeB.classList.remove("active");
+      return; // Выходим без anime.js!
+    }
+
+    // Нормальная анимация
     anime({
       targets: [activeS, activeB],
       opacity: 0,

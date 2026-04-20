@@ -1770,28 +1770,35 @@ $glass-dark: rgba(10, 12, 18, 0.95);
   }
 
   #dialog-box-container {
-    background: transparent !important;
+    /* МАЙ: Плавный градиент от черного к прозрачному! */
+    /* Текст внизу будет читаться идеально, а пикантные детали сверху не перекроются */
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.9) 0%,
+      /* Темный низ под текстом */ rgba(0, 0, 0, 0.5) 60%,
+      /* Полупрозрачная середина */ transparent 100%
+        /* Полностью прозрачный верх */
+    ) !important;
+
     backdrop-filter: none !important;
     border: none !important;
     box-shadow: none !important;
 
     &::before {
-      display: none !important; /* Убираем диагональные блики */
+      display: none !important; /* Убираем блики */
     }
-    /* &::after НЕ трогаем, левая полоска остается! */
   }
 
   #name-tag {
     background: transparent !important;
     border: none !important;
-    /* Убираем тень, чтобы имя было чистым корпоративным цветом */
-    text-shadow: none;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 1) !important; // Тень для читаемости имени
   }
 
   #dialog-box {
-    /* Легкая, чистая тень вместо грязной обводки. 
-       Текст читается, но выглядит аккуратно. */
-    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.9) !important;
+    text-shadow:
+      1px 1px 3px rgba(0, 0, 0, 1),
+      0 0 8px rgba(0, 0, 0, 0.8) !important; // Тень для самого текста
   }
 
   .sl-slot-btn .delete-save-btn {
@@ -2134,6 +2141,7 @@ $glass-dark: rgba(10, 12, 18, 0.95);
       text-align: left;
       padding: 10px 0; /* Это наш неподвижный Хитбокс! Растягиваем зону клика */
       width: 100%; /* Чтобы мышка цепляла кнопку даже справа */
+      max-width: 400px;
 
       /* Визуальный слой: Текст, который будет двигаться */
       .visual {
@@ -2649,7 +2657,6 @@ $glass-dark: rgba(10, 12, 18, 0.95);
     }
 
     #main-menu-title {
-
       .word {
         .initial {
           font-size: 2.2rem;
@@ -3250,7 +3257,6 @@ $glass-dark: rgba(10, 12, 18, 0.95);
       bottom: auto;
       right: auto;
       transform: none;
-      width: 44vw;
       margin-left: 0;
       gap: 0;
       align-items: flex-start;
@@ -3308,31 +3314,37 @@ $glass-dark: rgba(10, 12, 18, 0.95);
   .menu-buttons-container {
     position: absolute;
     left: 3vw;
-    top: 10vh; // ← Подняли выше (было 16vh)
+    top: 10vh;
     bottom: auto;
     right: auto;
     transform: none;
-    width: 44vw;
+
+    /* МАЙ: Жестко обжимаем контейнер по самой широкой кнопке! Больше никаких 44vw */
+    width: max-content;
+
     margin-left: 0;
-    gap: 0; // ← Убираем gap, используем padding в кнопках
-    align-items: flex-start;
+    gap: 0;
+    align-items: flex-start; /* Прижимаем кнопки к левому краю контейнера */
     display: flex;
     flex-direction: column;
     z-index: 3;
 
     button {
-      padding: 0; // ← Убираем padding
-      margin-bottom: 2vh; // ← Делаем отступ относительным
+      margin-bottom: 2vh;
       text-align: left;
-      line-height: 1; // ← Жмем строки
-      min-height: 30px; // ← Чтобы легче попадать пальцем
+      line-height: 1;
+      min-height: 30px;
+      width: max-content; /* Сама кнопка тоже строго по тексту */
+      max-width: none;
+      /* Padding создает приятную зону клика прямо вокруг букв, не пуская случайные нажатия */
+      padding: 15px 20px;
     }
   }
 
   .menu-btn .visual {
     font-size: 0.78rem;
     letter-spacing: 2px;
-    line-height: 1.2;
+    line-height: 1.2; /* МАЙ: Дописала за вас то, что оборвалось~ */
   }
 }
 
