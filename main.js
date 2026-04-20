@@ -265,6 +265,15 @@ app.innerHTML = `
   <button id="btn-exit"><span class="visual">Выход</span></button>
 </div>
   
+<div id="main-menu-socials" style="position: absolute; bottom: 40px; right: 2vw; display: flex; gap: 15px; z-index: 10;">
+          <a href="https://boosty.to/" target="_blank" class="menu-social-btn boosty" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #f15f2c, #e23b24); transition: transform 0.3s, box-shadow 0.3s; box-shadow: 0 0 10px rgba(241, 95, 44, 0.4);">
+            <img src="icons/boosty.svg" alt="Boosty" style="width: 20px; height: 20px; filter: brightness(0) invert(1);">
+          </a>
+          <a href="https://patreon.com/" target="_blank" class="menu-social-btn patreon" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: #000; border: 1px solid #ff424d; transition: transform 0.3s, box-shadow 0.3s; box-shadow: 0 0 10px rgba(255, 66, 77, 0.4);">
+            <img src="icons/patreon.svg" alt="Patreon" style="width: 20px; height: 20px; filter: brightness(0) invert(1);">
+          </a>
+        </div>
+
   <div class="version-watermark">
     SOTA: Prologue (1.0) | by Vladber
   </div>
@@ -974,56 +983,99 @@ window.startCredits = function (creditsArray) {
 
   if (!creditsScreen || !creditsArray || creditsArray.length === 0) return;
 
+  // === 1. ИДЕЯ ХОЗЯИНА: ПОЛНОЕ УБИЙСТВО ИГРЫ ===
+  // Жестко глушим скип, если игрок зажал Ctrl перед титрами
+  if (window.sm) {
+    window.sm.isFastForwarding = false;
+    if (window.sm.fastForwardTimeoutId)
+      clearTimeout(window.sm.fastForwardTimeoutId);
+  }
+
+  // Сразу запускаем выход в главное меню (игра умрет под черным экраном титров)
+  if (typeof window.returnToMenuLogic === "function") {
+    window.returnToMenuLogic(true);
+  }
+
   let currentIndex = 0;
   let isAnimating = false;
+  window.sotaIsCreditsActive = true;
 
-  // Показываем черный экран
+  // === 2. БЛОКИРОВКА КЛАВИАТУРЫ ===
+  const blockHotkeys = (e) => {
+    if (e.type === "keydown" || e.type === "keyup") {
+      if (e.code !== "Space" && e.code !== "Enter") {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        return;
+      }
+
+      e.preventDefault();
+      e.stopImmediatePropagation();
+
+      if (e.type === "keydown") {
+        if (window.playUISound) window.playUISound("click");
+        showNextText();
+      }
+    }
+  };
+
+  window.addEventListener("keydown", blockHotkeys, true);
+  window.addEventListener("keyup", blockHotkeys, true);
+
+  // === 3. ПОКАЗЫВАЕМ ТИТРЫ ПОВЕРХ МЕНЮ ===
+  // Делаем z-index огромным, чтобы перекрыть слой затемнения от вызова меню
+  creditsScreen.style.zIndex = "9999999";
   creditsScreen.style.display = "flex";
+  // Убедимся, что экран непрозрачный (на случай повторного вызова)
+  creditsScreen.style.opacity = "1";
+  creditsScreen.style.transition = "opacity 1s ease-in-out"; // Для красивого финала
 
-  // Плавное появление логотипа
   setTimeout(() => {
     creditsLogo.style.opacity = "1";
     showNextText();
   }, 500);
 
-  // Функция смены текста
   function showNextText() {
     if (isAnimating) return;
     isAnimating = true;
 
-    // Скрываем старый текст
     creditsText.style.opacity = "0";
 
     setTimeout(() => {
-      // Если тексты закончились - выходим в меню
+      // === 4. КОНЕЦ ТИТРОВ ===
       if (currentIndex >= creditsArray.length) {
-        creditsScreen.style.display = "none";
-        creditsLogo.style.opacity = "0";
-        creditsScreen.onclick = null; // Снимаем обработчик
+        // Плавное исчезновение самих титров, обнажающее Главное Меню!
+        creditsScreen.style.opacity = "0";
 
-        // === МАЙ: ТОЛЬКО ЭТОТ КОД! ВСЁ ОСТАЛЬНОЕ УДАЛИТЬ! ===
-        if (typeof window.returnToMenuLogic === "function") {
-          window.returnToMenuLogic(true); // Тихий выход
-        }
-        return; // Конец функции
+        setTimeout(() => {
+          creditsScreen.style.display = "none";
+          creditsLogo.style.opacity = "0";
+        }, 1000); // Ждем секунду, пока титры растворятся
+
+        creditsScreen.onclick = null;
+        window.sotaIsCreditsActive = false;
+        window.removeEventListener("keydown", blockHotkeys, true);
+        window.removeEventListener("keyup", blockHotkeys, true);
+
+        // МАЙ: Нам больше не нужно вызывать меню здесь! Мы УЖЕ в нем!
+        return;
       }
 
-      // Подставляем новый текст и показываем
+      // Подставляем новый текст
       creditsText.innerHTML = creditsArray[currentIndex];
       creditsText.style.opacity = "1";
       currentIndex++;
       isAnimating = false;
-    }, 500); // Ждем полсекунды, пока старый текст исчезнет
+    }, 500);
   }
 
-  // Вешаем обработчик клика на весь экран
-  // Используем onclick, чтобы потом его удалить (перезаписать)
+  // Обработчик клика
   creditsScreen.onclick = (e) => {
-    // <-- МАЙ: Обязательно (e)
-    // Если игрок кликнул по ссылке, позволяем ему перейти и НЕ перелистываем титры!
+    // Разрешаем переход по ссылкам!
     if (e.target && e.target.closest && e.target.closest("a")) return;
 
-    if (window.playUISound) window.playUISound("open");
+    if (window.playUISound) window.playUISound("click");
     showNextText();
   };
 };

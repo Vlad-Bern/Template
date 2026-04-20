@@ -749,16 +749,20 @@ export const story = {
           // Вызываем нашу функцию и передаем ей массив экранов!
           // Можно использовать HTML теги вроде <br> для переноса строк
 window.startCredits([
-  "КОНЕЦ ПЕРВОЙ ЧАСТИ ПРОЛОГА.",
-  "Создатели:<br><br>Гейм-директор: Vladber<br>Код: Май (Perplexity)<br>Арт: WAI Illustrious SDXL / Nano Banana 2",
-  // Последний экран с HTML-кнопками!
-  `Влияй на разработку. Ломай иерархию.<br>
+  `КОНЕЦ ПЕРВОЙ ЧАСТИ ПРОЛОГА.<br><br>
+   <span style="color: #ff4d4d; font-size: 1.2rem; text-shadow: 0 0 10px rgba(255,0,0,0.5);">
+     Вы всё ещё на самом дне этого мира.<br>
+     Впереди — лишь больше грязи и безумия.<br>
+     Пройдёте ли вы путь к успеху?
+   </span>`,
+  "Создатели:<br><br>Гейм-директор / Сценарист: Vladber<br>Код / Ассистент: Май (Perplexity AI)<br>Арт: WAI Illustrious SDXL / Nano Banana 2",
+  `Влияй на разработку! Голосуй в опросах!<br>Общайся с создателем!<br>
    <div class="credits-support-buttons">
-     <a href="/icons/boosty" target="_blank" class="support-btn boosty">
-       <img src="/ui/boosty.svg" alt="Boosty"> Поддержать на Boosty
+     <a href="https://boosty.to/" target="_blank" class="support-btn boosty">
+       <img src="icons/boosty.svg" alt="Boosty" style="width: 24px; height: 24px; filter: brightness(0) invert(1);"> Поддержать на Boosty
      </a>
      <a href="https://patreon.com/" target="_blank" class="support-btn patreon">
-       <img src="/ui/patreon.svg" alt="Patreon"> Поддержать на Patreon
+       <img src="icons/patreon.svg" alt="Patreon" style="width: 24px; height: 24px; filter: brightness(0) invert(1);"> Поддержать на Patreon
      </a>
    </div>
    <div style="font-size: 1rem; color: #666; margin-top: 40px; font-weight: 300;">(Кликните в любом пустом месте для выхода)</div>`

@@ -2396,6 +2396,18 @@ $glass-dark: rgba(10, 12, 18, 0.95);
   }
 }
 
+// Эффекты для кнопок соцсетей в меню
+.menu-social-btn:hover {
+  transform: scale(1.15) translateY(-5px);
+}
+.menu-social-btn.boosty:hover {
+  box-shadow: 0 0 20px rgba(241, 95, 44, 0.8) !important;
+}
+.menu-social-btn.patreon:hover {
+  background: #ff424d !important;
+  box-shadow: 0 0 20px rgba(255, 66, 77, 0.8) !important;
+}
+
 .sota-gallery-grid {
   flex: 1;
   display: grid;
@@ -2466,9 +2478,7 @@ $glass-dark: rgba(10, 12, 18, 0.95);
     border: 1px solid rgba(255, 255, 255, 0.2);
 
     img {
-      width: 24px; // Размер SVG иконки
-      height: 24px;
-      fill: currentColor; // Если SVG настроен правильно
+      transition: all 0.3s ease;
     }
 
     &.boosty {
