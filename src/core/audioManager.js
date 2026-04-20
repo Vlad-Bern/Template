@@ -38,8 +38,13 @@ export class AudioManager {
     if (this.bgmId === trackId && this.bgm && this.bgm.playing()) return;
     this.stopBGM();
 
-    this.currentBgmBaseVolume = volume; // Запоминаем базу
-    const targetVol = volume * this.bgmMaster; // Высчитываем реальную громкость
+    // Защита от дурака (или глупой горничной), если volume передали как объект
+    let cleanVolume = typeof volume === "number" ? volume : 0.5;
+    this.currentBgmBaseVolume = cleanVolume;
+
+    // Защита: если bgmMaster почему-то не прогрузился, ставим 1
+    let masterVol = typeof this.bgmMaster === "number" ? this.bgmMaster : 1;
+    const targetVol = cleanVolume * masterVol;
 
     const src = `${this.basePaths.bgm}${trackId}.ogg`;
     this.bgmId = trackId;
@@ -84,6 +89,19 @@ export class AudioManager {
           this.bgm = null;
         }
       }, fadeDuration + 50);
+    }
+  }
+
+  // Плавное затухание и остановка
+  fadeOutBGM(durationInSeconds = 1.5) {
+    if (this.bgm && this.bgm.playing()) {
+      const currentVol = this.bgm.volume();
+      this.bgm.fade(currentVol, 0, durationInSeconds * 1000);
+
+      // Ждем окончания фейда и выключаем трек полностью
+      setTimeout(() => {
+        if (this.bgm) this.bgm.stop();
+      }, durationInSeconds * 1000);
     }
   }
 

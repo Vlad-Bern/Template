@@ -542,16 +542,7 @@ window.showRandomMenuCharacter = function () {
   const container = document.getElementById("main-menu-character-container");
   if (!container) return;
 
-  // === МАЙ: МУЗЫКА ГЛАВНОГО МЕНЮ ===
-  if (
-    window.audioManager &&
-    typeof window.audioManager.playBGM === "function"
-  ) {
-    window.audioManager.playBGM("Last Destination", { loop: true, fade: 2000 });
-  }
-
   // МАЙ: ЕСЛИ ДЕВОЧКА УЖЕ ВЫБРАНА И ОТРИСОВАНА В ЭТУ СЕССИЮ — НИЧЕГО НЕ ДЕЛАЕМ!
-  // Это спасет мобилки от перерисовки при закрытии менюшек.
   if (window.sotaCurrentMenuChar) {
     container.innerHTML = "";
     container.classList.remove("char-celeste", "char-kagami", "char-kaira");
