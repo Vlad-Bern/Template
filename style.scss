@@ -2442,6 +2442,57 @@ $glass-dark: rgba(10, 12, 18, 0.95);
   }
 }
 
+// === КНОПКИ ПОДДЕРЖКИ В ТИТРАХ ===
+.credits-support-buttons {
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 40px;
+
+  a.support-btn {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 30px;
+    font-family: "Inter", sans-serif;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: #fff;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+
+    img {
+      width: 24px; // Размер SVG иконки
+      height: 24px;
+      fill: currentColor; // Если SVG настроен правильно
+    }
+
+    &.boosty {
+      background: linear-gradient(135deg, #f15f2c 0%, #e23b24 100%);
+      box-shadow: 0 0 15px rgba(241, 95, 44, 0.3);
+      &:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 25px rgba(241, 95, 44, 0.6);
+      }
+    }
+
+    &.patreon {
+      background: #000;
+      border-color: #ff424d;
+      box-shadow: 0 0 15px rgba(255, 66, 77, 0.3);
+      &:hover {
+        background: #ff424d;
+        transform: scale(1.05);
+        box-shadow: 0 0 25px rgba(255, 66, 77, 0.6);
+      }
+    }
+  }
+}
+
 // ==========================================
 // --- TABLET ADAPTATION (Clean & Safe) ---
 // ==========================================

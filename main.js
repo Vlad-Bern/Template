@@ -224,16 +224,15 @@ app.innerHTML = `
   </div>
 
   <!-- === ЭКРАН ТИТРОВ (CREDITS) === -->
-<div id="credits-screen" style="display: none; position: fixed; inset: 0; background: #000; z-index: 99999; flex-direction: column; justify-content: center; align-items: center; color: #fff; font-family: 'Courier New', monospace; text-align: center; cursor: pointer; user-select: none;">
+<div id="credits-screen" style="display: none; position: fixed; inset: 0; background: #000; z-index: 99999; justify-content: center; align-items: center; color: #fff; text-align: center; user-select: none;">
   
-  <!-- Верхний логотип (неон) -->
-  <div id="credits-logo" style="font-size: 3rem; letter-spacing: 15px; color: #00ffff; text-shadow: 0 0 15px rgba(0,255,255,0.8); margin-bottom: 50px; opacity: 0; transition: opacity 1s ease;">
+  <!-- Открепленный логотип SOTA (прибит к верху) -->
+  <div id="credits-logo" style="position: absolute; top: 10%; left: 50%; transform: translateX(-50%); font-size: 3rem; letter-spacing: 15px; color: #00ffff; text-shadow: 0 0 15px rgba(0,255,255,0.8); opacity: 0; transition: opacity 1s ease; font-family: 'Courier New', monospace; pointer-events: none;">
     S O T A
   </div>
 
-  <!-- Меняющийся текст -->
-  <div id="credits-text" style="font-size: 1.5rem; max-width: 800px; line-height: 1.5; opacity: 0; transition: opacity 0.5s ease; padding: 20px;">
-    <!-- Сюда JS будет подставлять текст -->
+  <!-- Меняющийся текст (всегда строго по центру) -->
+  <div id="credits-text" style="font-family: 'Courier New', monospace; font-size: 1.5rem; max-width: 800px; line-height: 1.5; opacity: 0; transition: opacity 0.5s ease; padding: 20px;">
   </div>
 </div>
 
@@ -505,11 +504,9 @@ window.showRandomMenuCharacter = function () {
   // МАЙ: ЕСЛИ ДЕВОЧКА УЖЕ ВЫБРАНА И ОТРИСОВАНА В ЭТУ СЕССИЮ — НИЧЕГО НЕ ДЕЛАЕМ!
   // Это спасет мобилки от перерисовки при закрытии менюшек.
   if (window.sotaCurrentMenuChar) {
-    // Если картинка почему-то исчезла из контейнера (браузер выгрузил), просто восстановим её из кэша
     container.innerHTML = "";
-    // Снимаем старые классы персонажа
     container.classList.remove("char-celeste", "char-kagami", "char-kaira");
-    // Вешаем новый по имени файла
+
     if (window.sotaCurrentMenuChar.includes("celeste"))
       container.classList.add("char-celeste");
     else if (window.sotaCurrentMenuChar.includes("kagami"))
@@ -520,9 +517,16 @@ window.showRandomMenuCharacter = function () {
     const img = document.createElement("img");
     img.src =
       window.sm && window.sm._getOptimizedSpritePath
-        ? window.sm._getOptimizedSpritePath(selectedChar)
-        : selectedChar;
+        ? window.sm._getOptimizedSpritePath(window.sotaCurrentMenuChar)
+        : window.sotaCurrentMenuChar;
+
     container.appendChild(img);
+
+    // МАЙ: ДОБАВЛЯЕМ ЭТО! Иначе девочка останется прозрачной (opacity: 0)
+    setTimeout(() => {
+      img.classList.add("visible");
+    }, 50);
+
     return;
   }
 
@@ -1013,6 +1017,9 @@ window.startCredits = function (creditsArray) {
   // Вешаем обработчик клика на весь экран
   // Используем onclick, чтобы потом его удалить (перезаписать)
   creditsScreen.onclick = () => {
+    if (window.playUISound) window.playUISound("open");
+    if (e.target.closest("a")) return;
+
     if (window.playUISound) window.playUISound("click");
     showNextText();
   };

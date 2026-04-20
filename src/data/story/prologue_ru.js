@@ -748,12 +748,21 @@ export const story = {
         action: () => {
           // Вызываем нашу функцию и передаем ей массив экранов!
           // Можно использовать HTML теги вроде <br> для переноса строк
-          window.startCredits([
-            "КОНЕЦ ПЕРВОЙ ЧАСТИ ПРОЛОГА.<br><br>Ваша оценка: D-ранг.",
-            "Спасибо за игру.<br><br>Впереди вас ждут: психологическое давление, доминация и власть.",
-            "Создатели:<br><br>Гейм-директор: Vladber<br>Код: Май (Perplexity)<br>Арт: WAI Illustrious SDXL / Nano Banana 2",
-            "Поддержите проект на Boosty или Patreon, чтобы увидеть продолжение.",
-          ]);
+window.startCredits([
+  "КОНЕЦ ПЕРВОЙ ЧАСТИ ПРОЛОГА.<br><br>Оценка: D-ранг.",
+  "Создатели:<br><br>Гейм-директор: Vladber<br>Код: Май (Perplexity)<br>Арт: WAI Illustrious SDXL / Nano Banana 2",
+  // Последний экран с HTML-кнопками!
+  `Влияй на разработку. Ломай иерархию.<br>
+   <div class="credits-support-buttons">
+     <a href="https://boosty.to/" target="_blank" class="support-btn boosty">
+       <img src="/ui/boosty.svg" alt="Boosty"> Поддержать на Boosty
+     </a>
+     <a href="https://patreon.com/" target="_blank" class="support-btn patreon">
+       <img src="/ui/patreon.svg" alt="Patreon"> Поддержать на Patreon
+     </a>
+   </div>
+   <div style="font-size: 1rem; color: #666; margin-top: 40px; font-weight: 300;">(Кликните в любом пустом месте для выхода)</div>`
+]);
         },
       },
       {
