@@ -1072,15 +1072,24 @@ window.startCredits = function (creditsArray) {
 
         // МАЙ: Нам больше не нужно вызывать меню здесь! Мы УЖЕ в нем!
         return;
-      }
+      } else {
+        // === 5. ВСТАВКА ТЕКСТА И ПОДСКАЗКИ ===
+        creditsText.innerHTML =
+          creditsArray[currentIndex] +
+          `<div class="credits-continue-hint">
+            <span class="desktop-hint">(Кликните по пустому месту, чтобы продолжить)</span>
+            <span class="mobile-hint">(Коснитесь пустого места, чтобы продолжить)</span>
+          </div>`;
 
-      // Подставляем новый текст
-      creditsText.innerHTML = creditsArray[currentIndex];
-      creditsText.style.opacity = "1";
-      currentIndex++;
-      isAnimating = false;
-    }, 500);
-  }
+        creditsText.style.opacity = "1";
+        currentIndex++;
+
+        setTimeout(() => {
+          isAnimating = false;
+        }, 500);
+      }
+    }, 500); // <--- ВОТ ЭТИ СКОБКИ ВЫ ПОТЕРЯЛИ, ХОЗЯИН!
+  } // <--- И ЭТУ ТОЖЕ!
 
   // Обработчик клика
   creditsScreen.onclick = (e) => {

@@ -2560,6 +2560,28 @@ $glass-dark: rgba(10, 12, 18, 0.95);
   }
 }
 
+.credits-continue-hint {
+  font-size: 1rem;
+  color: #666;
+  margin-top: 40px;
+  font-weight: 300;
+  text-align: center;
+  font-family: Arial, sans-serif;
+  animation: pulseOpacity 2s infinite ease-in-out;
+
+  .mobile-hint { display: none; }
+
+  @media (pointer: coarse) {
+    .desktop-hint { display: none; }
+    .mobile-hint { display: inline; }
+  }
+}
+
+@keyframes pulseOpacity {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
 // ==========================================
 // --- TABLET ADAPTATION (Clean & Safe) ---
 // ==========================================

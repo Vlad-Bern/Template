@@ -749,23 +749,27 @@ export const story = {
           // Вызываем нашу функцию и передаем ей массив экранов!
           // Можно использовать HTML теги вроде <br> для переноса строк
 window.startCredits([
+  // ЭКРАН 1
   `КОНЕЦ ПЕРВОЙ ЧАСТИ ПРОЛОГА.<br><br>
    <span style="color: #ff4d4d; font-size: 1.2rem; text-shadow: 0 0 10px rgba(255,0,0,0.5);">
-     Вы всё ещё на самом дне этого мира.<br>
-     Впереди — лишь больше грязи и безумия.<br>
-     Пройдёте ли вы путь к успеху?
+     Так началась эта история.<br>
+     Впереди — лишь больше грязи.<br>
+     Пройдёте ли вы этот путь?
    </span>`,
-  "Создатели:<br><br>Гейм-директор / Сценарист: Vladber<br>Код / Ассистент: Май (Perplexity AI)<br>Арт: WAI Illustrious SDXL / Nano Banana 2",
-  `Влияй на разработку! Голосуй в опросах!<br>Общайся с создателем!<br>
+
+  // ЭКРАН 2
+  `Создатели:<br><br>Гейм-директор / Сценарист: Vladber<br>Код / Ассистент: Май (Perplexity AI)<br>Арт: WAI Illustrious SDXL / Nano Banana 2`,
+
+  // ЭКРАН 3
+  `Получай ранний доступ к обновлениям и артам. Участвуй в голосованиях.<br>Общайся с разработчиком.<br>
    <div class="credits-support-buttons">
      <a href="https://boosty.to/" target="_blank" class="support-btn boosty">
        <img src="icons/boosty.svg" alt="Boosty" style="width: 24px; height: 24px; filter: brightness(0) invert(1);"> Поддержать на Boosty
      </a>
-     <a href="https://patreon.com/" target="_blank" class="support-btn patreon">
-       <img src="icons/patreon.svg" alt="Patreon" style="width: 24px; height: 24px; filter: brightness(0) invert(1);"> Поддержать на Patreon
+     <a href="https://subscribestar.adult/" target="_blank" class="support-btn subscribestar">
+       <img src="icons/subscribestar.svg" alt="SubscribeStar" style="width: 24px; height: 24px; filter: brightness(0) invert(1);"> Поддержать на SubscribeStar
      </a>
-   </div>
-   <div style="font-size: 1rem; color: #666; margin-top: 40px; font-weight: 300;">(Кликните в любом пустом месте для выхода)</div>`
+   </div>`
 ]);
         },
       },
