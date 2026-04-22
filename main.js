@@ -266,11 +266,11 @@ app.innerHTML = `
 </div>
 
 <div id="main-menu-socials">
-  <a href="https://boosty.to/" target="_blank" class="menu-social-btn boosty">
-    <img src="icons/boosty.svg" alt="Boosty">
-  </a>
   <a href="https://patreon.com/" target="_blank" class="menu-social-btn patreon">
     <img src="icons/patreon.svg" alt="Patreon">
+  </a>
+    <a href="https://boosty.to/" target="_blank" class="menu-social-btn boosty">
+    <img src="icons/boosty.svg" alt="Boosty">
   </a>
 </div>
 

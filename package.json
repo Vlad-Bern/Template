@@ -7,8 +7,10 @@
     "height": 720,
     "min_width": 800,
     "min_height": 600,
+    "fullscreen": true,
     "frame": true,
-    "resizable": true
+    "resizable": true,
+    "icon": "icons/icon.png"
   },
   "devDependencies": {
     "nw-builder": "^4.11.0",

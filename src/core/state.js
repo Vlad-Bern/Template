@@ -75,18 +75,28 @@ export function updateRankLetter() {
 }
 
 export function setFlag(flagName, value = true) {
-  state.flags[flagName] = value;
-}
-
-// +++ ФИКС: было === true, теперь ловим любое truthy-значение
-export function getFlag(flagName) {
-  return !!state.flags[flagName];
+  // Проверяем, изменилось ли значение
+  const oldValue = state.flags[flagName];
+  if (oldValue !== value) {
+    state.flags[flagName] = value;
+    // +++ МАЙ: Логируем изменение флага в консоль для дебага
+    console.log(
+      `[STATE] 🚩 Флаг изменён: "${flagName}" | Было: ${oldValue} -> Стало: ${value}`,
+    );
+  }
 }
 
 export function removeFlag(flagName) {
   if (Object.hasOwn(state.flags, flagName)) {
     delete state.flags[flagName];
+    // +++ МАЙ: Логируем удаление флага
+    console.log(`[STATE] 🗑️ Флаг удалён: "${flagName}"`);
   }
+}
+
+// +++ ФИКС: было === true, теперь ловим любое truthy-значение
+export function getFlag(flagName) {
+  return !!state.flags[flagName];
 }
 
 // +++ ФИКС: rank_letter теперь инициализируется корректно из rank_score, не хардкодом

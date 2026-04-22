@@ -2396,7 +2396,6 @@ $glass-dark: rgba(10, 12, 18, 0.95);
   }
 }
 
-
 .sota-gallery-grid {
   flex: 1;
   display: grid;
@@ -2464,123 +2463,177 @@ $glass-dark: rgba(10, 12, 18, 0.95);
     color: #fff;
     border-radius: 5px;
     transition: all 0.3s ease;
+
+    // БАЗОВОЕ СОСТОЯНИЕ (Вариант А: Тёмные, стелс)
+    background: rgba(0, 0, 0, 0.5);
     border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: none;
 
     img {
       transition: all 0.3s ease;
+      opacity: 0.8; // Чуть приглушаем иконку до ховера
     }
 
+    // BOOSTY (Вспыхивает оранжевым при наведении)
     &.boosty {
-      background: linear-gradient(135deg, #f15f2c 0%, #e23b24 100%);
-      box-shadow: 0 0 15px rgba(241, 95, 44, 0.3);
-      &:hover {
-        transform: scale(1.05);
-        box-shadow: 0 0 25px rgba(241, 95, 44, 0.6);
+      @media (hover: hover) and (pointer: fine) {
+        &:hover {
+          background: linear-gradient(135deg, #f15f2c 0%, #e23b24 100%);
+          border-color: transparent;
+          transform: scale(1.05);
+          box-shadow: 0 0 25px rgba(241, 95, 44, 0.6);
+          img {
+            opacity: 1;
+          }
+        }
+      }
+      &:active {
+        transform: scale(0.95);
       }
     }
 
+    // PATREON (Вспыхивает коралловым при наведении)
     &.patreon {
-      background: #000;
-      border-color: #ff424d;
-      box-shadow: 0 0 15px rgba(255, 66, 77, 0.3);
-      &:hover {
-        background: #ff424d;
-        transform: scale(1.05);
-        box-shadow: 0 0 25px rgba(255, 66, 77, 0.6);
+      @media (hover: hover) and (pointer: fine) {
+        &:hover {
+          background: linear-gradient(135deg, #ff424d, #d1363f);
+          border-color: transparent;
+          transform: scale(1.05);
+          box-shadow: 0 0 25px rgba(255, 66, 77, 0.6);
+          img {
+            opacity: 1;
+          }
+        }
+      }
+      &:active {
+        transform: scale(0.95);
       }
     }
   }
 }
 
-#main-menu-socials {
-  position: absolute;
-  bottom: 40px;
-  right: 2vw;
-  display: flex;
-  gap: 15px;
+// === МАЙ: Прибиваем надпись к полу в титрах ===
+.credits-continue-hint {
+  position: fixed;
+  bottom: 4vh; /* Отступ снизу (4% от высоты экрана) */
+  left: 50%;
+  transform: translateX(-50%); /* Идеальное центрирование */
+  width: 100%;
   z-index: 10;
 
-  .menu-social-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    transition:
-      transform 0.3s ease,
-      box-shadow 0.3s ease;
-
-    // Убиваем мобильные обводки и залипания фокуса
-    -webkit-tap-highlight-color: transparent;
-    outline: none;
-    text-decoration: none;
-
-    img {
-      width: 20px;
-      height: 20px;
-      filter: brightness(0) invert(1);
-    }
-
-    // === ЖЕСТКАЯ ПРОВЕРКА НА МЫШЬ ===
-    // Сработает только на устройствах с точным курсором
-    @media (hover: hover) and (pointer: fine) {
-      &:hover {
-        transform: scale(1.15);
-      }
-    }
-
-    // Сочное вдавливание при таче (оно отпускается сразу после касания)
-    &:active {
-      transform: scale(0.95);
-    }
-
-    &.boosty {
-      background: linear-gradient(135deg, #f15f2c, #e23b24);
-      box-shadow: 0 0 10px rgba(241, 95, 44, 0.4);
-
-      @media (hover: hover) and (pointer: fine) {
-        &:hover {
-          box-shadow: 0 0 20px rgba(241, 95, 44, 0.8);
-        }
-      }
-    }
-
-    &.patreon {
-      background: #000;
-      border: 1px solid #ff424d;
-      box-shadow: 0 0 10px rgba(255, 66, 77, 0.4);
-
-      @media (hover: hover) and (pointer: fine) {
-        &:hover {
-          box-shadow: 0 0 20px rgba(255, 66, 77, 0.8);
-        }
-      }
-    }
-  }
-}
-
-.credits-continue-hint {
   font-size: 1rem;
   color: #666;
-  margin-top: 40px;
   font-weight: 300;
   text-align: center;
   font-family: Arial, sans-serif;
   animation: pulseOpacity 2s infinite ease-in-out;
 
-  .mobile-hint { display: none; }
+  // Логика переключения Клик/Касание
+  .mobile-hint {
+    display: none;
+  }
+  .desktop-hint {
+    display: inline;
+  }
 
   @media (pointer: coarse) {
-    .desktop-hint { display: none; }
-    .mobile-hint { display: inline; }
+    .desktop-hint {
+      display: none;
+    }
+    .mobile-hint {
+      display: inline;
+    }
   }
 }
 
+// Сама анимация мигания (если у тебя её вдруг не было в глобальных стилях)
 @keyframes pulseOpacity {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 1; }
+  0% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.3;
+  }
 }
+
+// === КНОПКИ СОЦСЕТЕЙ В ГЛАВНОМ МЕНЮ ===
+  #main-menu-socials {
+    position: absolute;
+    bottom: 40px;
+    right: 2vw;
+    display: flex;
+    gap: 15px;
+    z-index: 10;
+
+    .menu-social-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease,
+        background 0.3s ease,
+        border-color 0.3s ease;
+
+      -webkit-tap-highlight-color: transparent;
+      outline: none;
+      text-decoration: none;
+
+      // БАЗОВОЕ СОСТОЯНИЕ (Вариант А: Тёмные, стелс)
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: none;
+
+      img {
+        width: 20px;
+        height: 20px;
+        filter: brightness(0) invert(1);
+        opacity: 0.7; // Слегка приглушаем на тёмном фоне
+        transition: opacity 0.3s ease;
+      }
+
+      &:active {
+        transform: scale(0.95);
+      }
+
+      // BOOSTY (Вспыхивает оранжевым)
+      &.boosty {
+        @media (hover: hover) and (pointer: fine) {
+          &:hover {
+            transform: scale(1.15);
+            background: linear-gradient(135deg, #f15f2c, #e23b24);
+            border-color: transparent;
+            box-shadow: 0 0 20px rgba(241, 95, 44, 0.8);
+            img {
+              opacity: 1;
+            }
+          }
+        }
+      }
+
+      // PATREON (Вспыхивает коралловым)
+      &.patreon {
+        @media (hover: hover) and (pointer: fine) {
+          &:hover {
+            transform: scale(1.15);
+            background: linear-gradient(135deg, #ff424d, #d1363f);
+            border-color: transparent;
+            box-shadow: 0 0 20px rgba(255, 66, 77, 0.8);
+            img {
+              opacity: 1;
+            }
+          }
+        }
+      }
+    }
+  }
+
 
 // ==========================================
 // --- TABLET ADAPTATION (Clean & Safe) ---
