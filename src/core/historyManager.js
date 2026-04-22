@@ -37,11 +37,12 @@ export class HistoryManager {
     document.addEventListener(
       "wheel",
       (e) => {
+        // +++ МАЙ: Блокируем колесо в главном меню +++
         if (
           document.getElementById("main-menu-screen")?.style.display !== "none"
         )
           return;
-        // БЛОКИРУЕМ КОЛЕСИКО, ЕСЛИ ОТКРЫТЫ СОХРАНЕНИЯ ИЛИ НАСТРОЙКИ!
+
         if (
           window.saveManager?.modalOpen ||
           window.settingsManager?.modalOpen
@@ -53,7 +54,6 @@ export class HistoryManager {
         if (window.sm && window.sm.cs && window.sm.cs.isActive) return;
         if (this.modalOpen && e.target.closest("#history-content")) return;
         if (isScrolling) return;
-
         if (e.deltaY < -20 && !this.modalOpen) {
           isScrolling = true;
           this.showHistory();

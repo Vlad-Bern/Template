@@ -116,23 +116,19 @@ export class SceneManager {
     );
 
     // Возвращение скрытого UI по левому клику ИЛИ ТАПУ (перехватчик)
-    // Возвращение скрытого UI по левому клику ИЛИ ТАПУ (перехватчик)
     document.addEventListener(
       "click",
       (e) => {
-        // Если интерфейс скрыт — любой клик/тап по экрану обязан его вернуть!
         if (this.uiHidden) {
           e.preventDefault();
           e.stopPropagation();
           e.stopImmediatePropagation();
-
-          this.toggleUI(); // Вызываем скрытие напрямую!
+          this.toggleUI();
           return;
         }
-        // А вот если UI открыт, и это тап пальцем - не лезем, пусть работает базовая логика
-        if (e.pointerType === "touch" || window.sm?.isMobile) return;
+        // +++ МАЙ: Убрали return для тача — теперь кнопки главного меню работают! +++
       },
-      true, // true = ловим событие самым первым
+      true,
     );
 
     // Правый клик (скрыть/показать UI или закрыть окна)
@@ -243,8 +239,10 @@ export class SceneManager {
 
         const galleryModal = document.getElementById("gallery-modal");
         const isGalleryOpen =
-          galleryModal && galleryModal.classList.contains("active");
-
+          galleryModal &&
+          (galleryModal.classList.contains("active") ||
+            galleryModal.style.display === "flex" ||
+            galleryModal.style.display === "block");
         const isModalOpen =
           isGalleryOpen ||
           this.hm?.modalOpen ||
