@@ -158,7 +158,6 @@ export class SceneManager {
       }
     });
 
-    // === ГЛОБАЛЬНЫЕ СВАЙПЫ (Скрытие UI и Промотка) ===
     // === ГЛОБАЛЬНЫЕ ЖЕСТЫ (Hold-to-Skip и Скрытие UI) ===
     let touchStartX = 0;
     let touchStartY = 0;
@@ -172,16 +171,12 @@ export class SceneManager {
           document.getElementById("main-menu-screen")?.style.display !== "none"
         )
           return;
-
         touchStartX = e.touches[0].clientX;
         touchStartY = e.touches[0].clientY;
 
-        // Очищаем старый таймер на всякий случай
         clearTimeout(holdSkipTimer);
 
-        // Запускаем таймер: если игрок держит палец 500мс, начинается СКИП
         holdSkipTimer = setTimeout(() => {
-          // Блокируем скип, если открыты менюшки или UI скрыт
           if (
             this.hm?.modalOpen ||
             window.saveManager?.modalOpen ||
@@ -193,7 +188,7 @@ export class SceneManager {
           isHolding = true;
           this.isFastForwarding = true;
           this.handleFastForward();
-          if (window.playUISound) window.playUISound("open"); // Звук активации промотки
+          if (window.playUISound) window.playUISound("open");
         }, 500);
       },
       { passive: true },
@@ -206,11 +201,17 @@ export class SceneManager {
           document.getElementById("main-menu-screen")?.style.display !== "none"
         )
           return;
-        // Если палец сдвинулся больше чем на 15 пикселей (это свайп, а не удержание) — отменяем таймер скипа!
         const dx = Math.abs(e.touches[0].clientX - touchStartX);
         const dy = Math.abs(e.touches[0].clientY - touchStartY);
         if (dx > 15 || dy > 15) {
           clearTimeout(holdSkipTimer);
+          // +++ МАЙ: Обязательно вырубаем скип, если палец пополз! +++
+          if (isHolding) {
+            this.isFastForwarding = false;
+            isHolding = false;
+            if (this.fastForwardTimeoutId)
+              clearTimeout(this.fastForwardTimeoutId);
+          }
         }
       },
       { passive: true },
@@ -219,15 +220,19 @@ export class SceneManager {
     document.addEventListener(
       "touchend",
       (e) => {
-        // Игрок убрал палец — сразу убиваем таймер
         clearTimeout(holdSkipTimer);
 
-        // Если мы были в режиме удержания (скипали), ТО НЕМЕДЛЕННО ОСТАНАВЛИВАЕМ СКИП!
         if (isHolding) {
+          // +++ МАЙ: Убиваем скип наглухо! +++
           this.isFastForwarding = false;
           isHolding = false;
-          // Предотвращаем срабатывание обычного клика после удержания
-          e.preventDefault();
+          if (this.fastForwardTimeoutId)
+            clearTimeout(this.fastForwardTimeoutId);
+
+          // ФИКС ОШИБКИ ИНТЕРВЕНЦИИ БРАУЗЕРА:
+          if (e.cancelable) {
+            e.preventDefault();
+          }
           return;
         }
 
@@ -238,13 +243,12 @@ export class SceneManager {
           window.settingsManager?.modalOpen
         )
           return;
-        if (this.cs?.isActive) return;
 
         const touchEndX = e.changedTouches[0].clientX;
         const touchEndY = e.changedTouches[0].clientY;
         const deltaY = touchStartY - touchEndY;
 
-        // Если провели пальцем снизу ВВЕРХ
+        // Если это свайп вверх
         if (
           deltaY > 50 &&
           Math.abs(deltaY) > Math.abs(touchStartX - touchEndX)
@@ -252,7 +256,7 @@ export class SceneManager {
           this.toggleUI();
         }
       },
-      { passive: false },
+      { passive: false }, // passive: false нужен, чтобы preventDefault сработал
     );
 
     window.addEventListener("loadScene", (e) => {
