@@ -158,84 +158,66 @@ export class SceneManager {
       }
     });
 
-    // === ГЛОБАЛЬНЫЕ ЖЕСТЫ (Hold-to-Skip и Скрытие UI) ===
+    // === ГЛОБАЛЬНЫЕ ЖЕСТЫ (Hold-to-Skip, UI, History, Modals) ===
     let touchStartX = 0;
     let touchStartY = 0;
     let holdSkipTimer = null;
     let isHolding = false;
 
     document.addEventListener(
-      "touchend",
+      "touchstart",
       (e) => {
+        if (
+          document.getElementById("main-menu-screen")?.style.display !== "none"
+        )
+          return;
+
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+
         clearTimeout(holdSkipTimer);
 
-        // 1. Обработка удержания (Skip)
-        if (isHolding) {
-          this.isFastForwarding = false;
-          isHolding = false;
-          if (this.fastForwardTimeoutId)
-            clearTimeout(this.fastForwardTimeoutId);
-          if (e.cancelable) e.preventDefault();
+        holdSkipTimer = setTimeout(() => {
+          if (
+            this.hm?.modalOpen ||
+            window.saveManager?.modalOpen ||
+            window.settingsManager?.modalOpen
+          )
+            return;
+          if (this.cs?.isActive || this.uiHidden) return;
+
+          isHolding = true;
+          this.isFastForwarding = true;
+          this.handleFastForward();
+          if (window.playUISound) window.playUISound("open");
+        }, 500);
+      },
+      { passive: true },
+    );
+
+    document.addEventListener(
+      "touchmove",
+      (e) => {
+        if (
+          document.getElementById("main-menu-screen")?.style.display !== "none"
+        )
           return;
-        }
 
-        // Вычисляем дистанцию и направление свайпа
-        const touchEndX = e.changedTouches[0].clientX;
-        const touchEndY = e.changedTouches[0].clientY;
-        const deltaX = touchEndX - touchStartX; // Вправо > 0, Влево < 0
-        const deltaY = touchEndY - touchStartY; // Вниз > 0, Вверх < 0
-        const absX = Math.abs(deltaX);
-        const absY = Math.abs(deltaY);
+        const dx = Math.abs(e.touches[0].clientX - touchStartX);
+        const dy = Math.abs(e.touches[0].clientY - touchStartY);
 
-        // +++ ДОБАВЛЕНО: Проверяем, открыта ли Галерея +++
-        const galleryModal = document.getElementById("gallery-modal");
-        const isGalleryOpen =
-          galleryModal && galleryModal.classList.contains("active");
+        if (dx > 15 || dy > 15) {
+          clearTimeout(holdSkipTimer);
 
-        // Проверяем, открыто ли хоть одно окно (включая Галерею!)
-        const isModalOpen =
-          isGalleryOpen ||
-          this.hm?.modalOpen ||
-          window.saveManager?.modalOpen ||
-          window.settingsManager?.modalOpen;
-
-        // === 2. ЛОГИКА ЗАКРЫТИЯ ОКОН (ГОРИЗОНТАЛЬНЫЙ СВАЙП) ===
-        if (isModalOpen) {
-          // Если свайпнули по горизонтали больше чем на 50px (влево или вправо)
-          if (absX > 50 && absX > absY) {
-            // +++ ДОБАВЛЕНО: Закрываем Галерею свайпом +++
-            if (isGalleryOpen && typeof window.closeGallery === "function") {
-              window.closeGallery();
-            }
-
-            if (this.hm?.modalOpen && typeof this.hm.hideHistory === "function")
-              this.hm.hideHistory();
-            if (window.saveManager?.modalOpen) window.saveManager.close();
-            if (window.settingsManager?.modalOpen)
-              window.settingsManager.close();
-          }
-          return; // Блокируем остальные игровые свайпы, пока открыто меню
-        }
-
-        // === 3. ЛОГИКА ИГРЫ (ВЕРТИКАЛЬНЫЕ СВАЙПЫ) ===
-        // Если свайпнули по вертикали больше чем на 50px
-        if (absY > 50 && absY > absX) {
-          if (deltaY < 0) {
-            // Свайп ВВЕРХ (отрицательный Y) -> Скрыть/Показать UI
-            this.toggleUI();
-          } else {
-            // Свайп ВНИЗ (положительный Y) -> Открыть Историю
-            if (
-              this.hm &&
-              !this.hm.modalOpen &&
-              typeof this.hm.showHistory === "function"
-            ) {
-              this.hm.showHistory();
-            }
+          if (isHolding) {
+            this.isFastForwarding = false;
+            isHolding = false;
+            if (this.fastForwardTimeoutId)
+              clearTimeout(this.fastForwardTimeoutId);
           }
         }
       },
-      { passive: false },
+      { passive: true },
     );
 
     document.addEventListener(
@@ -243,7 +225,6 @@ export class SceneManager {
       (e) => {
         clearTimeout(holdSkipTimer);
 
-        // 1. Обработка удержания (Skip)
         if (isHolding) {
           this.isFastForwarding = false;
           isHolding = false;
@@ -253,51 +234,69 @@ export class SceneManager {
           return;
         }
 
-        // Вычисляем дистанцию и направление свайпа
         const touchEndX = e.changedTouches[0].clientX;
         const touchEndY = e.changedTouches[0].clientY;
-        const deltaX = touchEndX - touchStartX; // Вправо > 0, Влево < 0
-        const deltaY = touchEndY - touchStartY; // Вниз > 0, Вверх < 0
+        const deltaX = touchEndX - touchStartX;
+        const deltaY = touchEndY - touchStartY;
         const absX = Math.abs(deltaX);
         const absY = Math.abs(deltaY);
 
-        // Проверяем, открыто ли хоть одно окно
+        const galleryModal = document.getElementById("gallery-modal");
+        const isGalleryOpen =
+          galleryModal && galleryModal.classList.contains("active");
+
         const isModalOpen =
+          isGalleryOpen ||
           this.hm?.modalOpen ||
           window.saveManager?.modalOpen ||
           window.settingsManager?.modalOpen;
 
-        // === 2. ЛОГИКА ЗАКРЫТИЯ ОКОН (ГОРИЗОНТАЛЬНЫЙ СВАЙП) ===
+        // Закрытие модалок горизонтальным свайпом
         if (isModalOpen) {
-          // Если свайпнули по горизонтали больше чем на 50px
           if (absX > 50 && absX > absY) {
-            // Закрываем то окно, которое сейчас открыто
+            if (isGalleryOpen) {
+              if (typeof window.closeGallery === "function") {
+                window.closeGallery();
+              } else {
+                galleryModal.classList.remove("active");
+              }
+            }
+
             if (
               this.hm?.modalOpen &&
-              typeof this.hm.toggleHistory === "function"
-            )
-              this.hm.toggleHistory();
-            if (window.saveManager?.modalOpen) window.saveManager.closeModal();
-            if (window.settingsManager?.modalOpen)
-              window.settingsManager.closeModal();
+              typeof this.hm.hideHistory === "function"
+            ) {
+              this.hm.hideHistory();
+            }
+
+            if (
+              window.saveManager?.modalOpen &&
+              typeof window.saveManager.close === "function"
+            ) {
+              window.saveManager.close();
+            }
+
+            if (
+              window.settingsManager?.modalOpen &&
+              typeof window.settingsManager.close === "function"
+            ) {
+              window.settingsManager.close();
+            }
           }
-          return; // Блокируем остальные игровые свайпы, пока открыто меню
+          return;
         }
 
-        // === 3. ЛОГИКА ИГРЫ (ВЕРТИКАЛЬНЫЕ СВАЙПЫ) ===
-        // Если свайпнули по вертикали больше чем на 50px
+        // Игровые вертикальные свайпы
         if (absY > 50 && absY > absX) {
           if (deltaY < 0) {
-            // Свайп ВВЕРХ (отрицательный Y) -> Скрыть/Показать UI
-            this.toggleUI();
+            this.toggleUI(); // вверх
           } else {
-            // Свайп ВНИЗ (положительный Y) -> Открыть Историю
             if (
               this.hm &&
               !this.hm.modalOpen &&
-              typeof this.hm.toggleHistory === "function"
+              typeof this.hm.showHistory === "function"
             ) {
-              this.hm.toggleHistory();
+              this.hm.showHistory(); // вниз
             }
           }
         }

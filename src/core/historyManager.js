@@ -64,36 +64,6 @@ export class HistoryManager {
       },
       { passive: false },
     );
-
-    let touchStartY = 0;
-    document.addEventListener(
-      "touchstart",
-      (e) => {
-        touchStartY = e.touches[0].clientY;
-      },
-      { passive: true },
-    );
-
-    document.addEventListener(
-      "touchmove",
-      (e) => {
-        if (
-          document.getElementById("main-menu-screen")?.style.display !== "none"
-        )
-          return;
-        // БЛОКИРУЕМ СВАЙП, ЕСЛИ ОТКРЫТЫ СОХРАНЕНИЯ ИЛИ НАСТРОЙКИ!
-        if (window.saveManager?.modalOpen || window.settingsManager?.modalOpen)
-          return;
-        if (this.modalOpen) return;
-        if (window.sm?.cs?.isActive) return;
-
-        const deltaY = touchStartY - e.touches[0].clientY;
-
-        // СВАЙП ВНИЗ (палец идет от верхнего края к нижнему) открывает историю!
-        if (deltaY < -40) this.showHistory();
-      },
-      { passive: true },
-    );
   }
 
   addToHistory(speakerKey, text) {

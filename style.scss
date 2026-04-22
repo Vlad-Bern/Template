@@ -2125,27 +2125,25 @@ $glass-dark: rgba(10, 12, 18, 0.95);
     }
   }
 
-  // === СТИЛИ КНОПОК ===
   .menu-buttons-container {
     position: relative;
     z-index: 1;
     display: flex;
     flex-direction: column;
     gap: 30px;
-    margin-left: 10%; /* Отступ от левого края */
+    margin-left: 10%;
 
     button {
       background: transparent;
       border: none;
       cursor: pointer;
       text-align: left;
-      padding: 10px 0; /* Это наш неподвижный Хитбокс! Растягиваем зону клика */
-      width: 100%; /* Чтобы мышка цепляла кнопку даже справа */
+      padding: 10px 0;
+      width: 100%;
       max-width: 400px;
 
-      /* Визуальный слой: Текст, который будет двигаться */
       .visual {
-        display: inline-block; /* Обязательно, чтобы работал transform! */
+        display: inline-block;
         color: rgba(255, 255, 255, 0.6);
         font-family: "Inter", sans-serif;
         font-size: 2rem;
@@ -2155,7 +2153,6 @@ $glass-dark: rgba(10, 12, 18, 0.95);
         position: relative;
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 
-        /* Линия подчеркивания теперь привязана к тексту */
         &::after {
           content: "";
           position: absolute;
@@ -2169,17 +2166,23 @@ $glass-dark: rgba(10, 12, 18, 0.95);
         }
       }
 
-      /* МАГИЯ ROCKSTAR: При наведении на неподвижную кнопку двигается ТОЛЬКО .visual */
-      &:hover .visual {
-        color: #fff;
-        text-shadow: 0 0 15px rgba($ui-accent, 0.6);
-        transform: translateX(
-          20px
-        ); /* Текст уехал, а хитбокс остался на месте! */
+      // === HOVER ТОЛЬКО ДЛЯ МЫШИ! НА ТАЧСКРИНАХ НЕ ЗАЛИПАЕТ ===
+      @media (hover: hover) and (pointer: fine) {
+        &:hover .visual {
+          color: #fff;
+          text-shadow: 0 0 15px rgba($ui-accent, 0.6);
+          transform: translateX(20px);
 
-        &::after {
-          width: 100%;
+          &::after {
+            width: 100%;
+          }
         }
+      }
+
+      // === ВДАВЛИВАНИЕ ПРИ ТАПЕ (ВМЕСТО HOVER) ===
+      &:active .visual {
+        color: #fff;
+        transform: scale(0.97);
       }
 
       /* Стили для красной кнопки выхода */
@@ -2560,80 +2563,79 @@ $glass-dark: rgba(10, 12, 18, 0.95);
 }
 
 // === КНОПКИ СОЦСЕТЕЙ В ГЛАВНОМ МЕНЮ ===
-  #main-menu-socials {
-    position: absolute;
-    bottom: 40px;
-    right: 2vw;
+#main-menu-socials {
+  position: absolute;
+  bottom: 40px;
+  right: 2vw;
+  display: flex;
+  gap: 15px;
+  z-index: 10;
+
+  .menu-social-btn {
     display: flex;
-    gap: 15px;
-    z-index: 10;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    transition:
+      transform 0.3s ease,
+      box-shadow 0.3s ease,
+      background 0.3s ease,
+      border-color 0.3s ease;
 
-    .menu-social-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      transition:
-        transform 0.3s ease,
-        box-shadow 0.3s ease,
-        background 0.3s ease,
-        border-color 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+    text-decoration: none;
 
-      -webkit-tap-highlight-color: transparent;
-      outline: none;
-      text-decoration: none;
+    // БАЗОВОЕ СОСТОЯНИЕ (Вариант А: Тёмные, стелс)
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: none;
 
-      // БАЗОВОЕ СОСТОЯНИЕ (Вариант А: Тёмные, стелс)
-      background: rgba(0, 0, 0, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      box-shadow: none;
+    img {
+      width: 20px;
+      height: 20px;
+      filter: brightness(0) invert(1);
+      opacity: 0.7; // Слегка приглушаем на тёмном фоне
+      transition: opacity 0.3s ease;
+    }
 
-      img {
-        width: 20px;
-        height: 20px;
-        filter: brightness(0) invert(1);
-        opacity: 0.7; // Слегка приглушаем на тёмном фоне
-        transition: opacity 0.3s ease;
-      }
+    &:active {
+      transform: scale(0.95);
+    }
 
-      &:active {
-        transform: scale(0.95);
-      }
-
-      // BOOSTY (Вспыхивает оранжевым)
-      &.boosty {
-        @media (hover: hover) and (pointer: fine) {
-          &:hover {
-            transform: scale(1.15);
-            background: linear-gradient(135deg, #f15f2c, #e23b24);
-            border-color: transparent;
-            box-shadow: 0 0 20px rgba(241, 95, 44, 0.8);
-            img {
-              opacity: 1;
-            }
+    // BOOSTY (Вспыхивает оранжевым)
+    &.boosty {
+      @media (hover: hover) and (pointer: fine) {
+        &:hover {
+          transform: scale(1.15);
+          background: linear-gradient(135deg, #f15f2c, #e23b24);
+          border-color: transparent;
+          box-shadow: 0 0 20px rgba(241, 95, 44, 0.8);
+          img {
+            opacity: 1;
           }
         }
       }
+    }
 
-      // PATREON (Вспыхивает коралловым)
-      &.patreon {
-        @media (hover: hover) and (pointer: fine) {
-          &:hover {
-            transform: scale(1.15);
-            background: linear-gradient(135deg, #ff424d, #d1363f);
-            border-color: transparent;
-            box-shadow: 0 0 20px rgba(255, 66, 77, 0.8);
-            img {
-              opacity: 1;
-            }
+    // PATREON (Вспыхивает коралловым)
+    &.patreon {
+      @media (hover: hover) and (pointer: fine) {
+        &:hover {
+          transform: scale(1.15);
+          background: linear-gradient(135deg, #ff424d, #d1363f);
+          border-color: transparent;
+          box-shadow: 0 0 20px rgba(255, 66, 77, 0.8);
+          img {
+            opacity: 1;
           }
         }
       }
     }
   }
-
+}
 
 // ==========================================
 // --- TABLET ADAPTATION (Clean & Safe) ---
