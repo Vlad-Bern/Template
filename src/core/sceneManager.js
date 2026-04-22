@@ -164,7 +164,6 @@ export class SceneManager {
     let holdSkipTimer = null;
     let isHolding = false;
 
-
     document.addEventListener(
       "touchend",
       (e) => {
@@ -188,8 +187,14 @@ export class SceneManager {
         const absX = Math.abs(deltaX);
         const absY = Math.abs(deltaY);
 
-        // Проверяем, открыто ли хоть одно окно
+        // +++ ДОБАВЛЕНО: Проверяем, открыта ли Галерея +++
+        const galleryModal = document.getElementById("gallery-modal");
+        const isGalleryOpen =
+          galleryModal && galleryModal.classList.contains("active");
+
+        // Проверяем, открыто ли хоть одно окно (включая Галерею!)
         const isModalOpen =
+          isGalleryOpen ||
           this.hm?.modalOpen ||
           window.saveManager?.modalOpen ||
           window.settingsManager?.modalOpen;
@@ -198,6 +203,11 @@ export class SceneManager {
         if (isModalOpen) {
           // Если свайпнули по горизонтали больше чем на 50px (влево или вправо)
           if (absX > 50 && absX > absY) {
+            // +++ ДОБАВЛЕНО: Закрываем Галерею свайпом +++
+            if (isGalleryOpen && typeof window.closeGallery === "function") {
+              window.closeGallery();
+            }
+
             if (this.hm?.modalOpen && typeof this.hm.hideHistory === "function")
               this.hm.hideHistory();
             if (window.saveManager?.modalOpen) window.saveManager.close();
