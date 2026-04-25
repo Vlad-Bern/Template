@@ -1,0 +1,251 @@
+@media (max-width: 1024px) and (orientation: landscape),
+  (orientation: portrait) {
+  body #app {
+    // 1. Убираем черные рамки и привязку к 16:9
+    #game-viewport,
+    #game-ui {
+      aspect-ratio: auto;
+      width: 100vw;
+      height: 100vh;
+      max-width: 100vw;
+      max-height: 100vh;
+    }
+
+    // 2. Адаптируем UI-контейнер
+    #game-ui {
+      padding: 20px;
+      justify-content: flex-end;
+    }
+
+    // 3. Диалоговое окно
+    #dialog-wrapper {
+      width: 100%;
+      max-width: none;
+      height: 35vh;
+      min-height: 250px;
+      max-height: 400px;
+      margin-bottom: 0;
+    }
+
+    #dialog-box-container {
+      padding: 30px 20px 20px 20px;
+    }
+
+    #dialog-box {
+      font-size: 22px;
+      line-height: 1.5;
+    }
+
+    // 4. Плашка с именем (Защита от переносов)
+    #name-tag {
+      top: -35px;
+      height: 35px;
+      width: auto;
+      min-width: 180px;
+      padding: 0 20px;
+      font-size: 16px;
+      letter-spacing: 2px;
+      white-space: nowrap; // Важно!
+    }
+
+    // 5. КНОПКИ ВЫБОРОВ (Подняли выше!)
+    #choice-container {
+      width: 90%;
+      max-width: 700px; // На планшете кнопки не должны быть на всю 1000px ширину
+      top: 35%; // Сдвинули выше, чтобы не наезжать на диалог
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .choice-wrapper {
+      .choice-btn {
+        padding: 18px 20px;
+        font-size: 18px;
+      }
+      .choice-info {
+        right: 50%;
+        top: 100%;
+        transform: translateX(50%) translateY(-10px) scale(0.9);
+      }
+      .choice-btn.selected ~ .choice-info {
+        transform: translateX(50%) translateY(5px) scale(1);
+      }
+    }
+
+    // 6. ОКНО ИСТОРИИ (ЛОГ ДИАЛОГОВ)
+    #history-panel {
+      width: 95vw;
+      height: 90vh;
+    }
+
+    #history-header {
+      padding: 15px 20px;
+      #close-history {
+        width: 44px;
+        height: 44px;
+        font-size: 22px;
+      }
+    }
+
+    #history-content {
+      padding: 20px;
+    }
+
+    .history-entry span {
+      font-size: 18px;
+    }
+
+    // 7. 3D-ДОКУМЕНТЫ
+    #document-overlay {
+      width: 90vw;
+      max-width: none;
+      min-height: 50vh;
+      transform: translate(-50%, -50%); // Выпрямили
+      padding: 8% 6%;
+
+      .doc-header {
+        font-size: 24px;
+        border-bottom-width: 2px;
+        letter-spacing: 2px;
+      }
+      .doc-body {
+        font-size: 18px;
+      }
+      .doc-stamp {
+        font-size: 24px;
+        border-width: 2px;
+      }
+    }
+
+    // 8. КНОПКА LOG ВНИЗУ ЭКРАНА
+    #dialog-footer {
+      gap: 8px;
+      padding-top: 8px;
+
+      .dialog-footer-btn {
+        font-size: 11px;
+        padding: 6px 10px;
+      }
+    }
+
+    #sl-inner-content {
+      padding: 25px;
+      max-width: 95%;
+    }
+
+    #sl-slots-container {
+      grid-template-columns: repeat(2, 1fr); // 2 колонки для планшетов
+      gap: 12px;
+    }
+
+    .sl-slot-btn {
+      padding: 15px;
+      min-height: 120px;
+
+      .slot-title {
+        font-size: 16px;
+        margin-bottom: 8px;
+      }
+      .slot-rank {
+        font-size: 13px;
+      }
+      .slot-stats {
+        font-size: 12px;
+        margin-bottom: 10px;
+      }
+      .slot-date {
+        font-size: 11px;
+        bottom: 15px;
+        left: 15px;
+      }
+    }
+    #settings-panel {
+      #settings-inner {
+        width: 95vw;
+        height: 90vh;
+        padding: 30px;
+        overflow-y: auto;
+      }
+
+      .settings-layout {
+        flex-direction: column;
+        gap: 30px;
+        height: auto;
+
+        .settings-left {
+          border-right: none;
+          padding-right: 0;
+          border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+          padding-bottom: 30px;
+        }
+
+        .settings-right {
+          padding-top: 10px;
+        }
+      }
+    }
+
+    // ТЕПЕРЬ пишем Дисклеймер на одном уровне с настройками
+    #disclaimer-screen {
+      #disclaimer-title {
+        font-size: 4rem;
+        letter-spacing: 15px;
+
+        .typewriter-burst {
+          border-right: 8px solid #00ffff;
+        }
+      }
+
+      #disclaimer-body {
+        p {
+          font-size: 1.1rem;
+        }
+
+        .click-to-continue {
+          &::before {
+            content: "[ Коснитесь экрана, чтобы продолжить ]";
+          }
+        }
+      }
+    }
+
+    #main-menu-title {
+      .word {
+        .initial {
+          font-size: 2.2rem;
+        }
+        .rest {
+          font-size: 1.5rem;
+        }
+      }
+    }
+
+    .menu-buttons-container {
+      left: 4vw;
+      bottom: 10vh;
+      gap: 12px;
+    }
+
+    .menu-btn {
+      font-size: 1.1rem;
+      padding: 10px 30px;
+      min-width: 220px;
+    }
+
+    #main-menu-character-container {
+      right: -5vw;
+      width: 60vw;
+      bottom: -5vh;
+
+      img {
+        width: 100%;
+        height: auto;
+      }
+    }
+
+    .version-watermark {
+      font-size: 12px;
+      padding: 20px 15px 5px 30px;
+    }
+  }
+}
