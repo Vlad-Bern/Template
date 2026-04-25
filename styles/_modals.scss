@@ -1,7 +1,4 @@
 // --- HISTORY MODAL (S-Rank) ---
-$history-cyan: #66b2ff;
-$history-red: #ff4d4d;
-$glass-dark: rgba(10, 12, 18, 0.95);
 
 // 1. Бэкдроп (теперь перекрывает UI, z-index 10000)
 #modal-backdrop {
@@ -56,7 +53,6 @@ $glass-dark: rgba(10, 12, 18, 0.95);
     pointer-events: none;
     z-index: 10;
   }
-  // ... остальной код панели (заголовки, контент и т.д.)
 }
 
 // 3. Шапка модалки

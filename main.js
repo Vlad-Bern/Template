@@ -421,7 +421,7 @@ document
 window.returnToMenuLogic = (skipConfirm = false) => {
   // МАЙ: Упаковываем весь процесс выхода в отдельную функцию
   const executeExit = () => {
-    if (window.playUISound) window.playUISound("click");
+    if (window.playUISound) window.playUISound("open");
 
     // Плавное затемнение (как при старте)
     const blackoutLayer = document.createElement("div");
@@ -444,6 +444,11 @@ window.returnToMenuLogic = (skipConfirm = false) => {
       const dialogWrapper = document.getElementById("dialog-wrapper");
       if (gameViewport) gameViewport.style.display = "none";
       if (dialogWrapper) dialogWrapper.style.display = "none";
+      
+      if (window.sm && window.sm.choiceSystem) {
+        window.sm.choiceSystem.forceClose();
+      }
+
       ["bg-1", "bg-2", "gbg-1", "gbg-2"].forEach((id) => {
         const el = document.getElementById(id);
         if (el) {

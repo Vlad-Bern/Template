@@ -274,10 +274,24 @@ export class ChoiceSystem {
     }
   }
 
-  // СТАРЫЙ МЕТОД: Удаляет слушатели И очищает массив (вызывается перед рендером и после клика)
   cleanupNavigation() {
     this.removeEventListeners();
     this.navButtons = [];
+  }
+
+  // === МАЙ: Полное уничтожение выборов при выходе в меню ===
+  forceClose() {
+    this.isActive = false;
+    this.cleanupNavigation();
+
+    if (this.choiceContainer) {
+      this.choiceContainer.innerHTML = "";
+      this.choiceContainer.style.display = "none";
+    }
+    if (this.interactionLayer) {
+      this.interactionLayer.innerHTML = "";
+      this.interactionLayer.style.display = "none";
+    }
   }
 
   // ==========================================
