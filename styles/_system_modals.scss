@@ -1,0 +1,521 @@
+// === SAVE / LOAD MODAL STYLES ===
+
+#save-load-panel {
+  display: none; // Скрыто по умолчанию
+  position: absolute;
+  inset: 0;
+  z-index: 10005; // Перекрывает ВСЁ
+  background: rgba(5, 5, 5, 0.7); // Темная подложка
+  backdrop-filter: blur(10px); // Размытие фона игры
+  padding: 30px;
+  color: #fff;
+  font-family: "Inter", sans-serif;
+  justify-content: center; // Центровка по горизонтали
+  align-items: center; // Центровка по вертикали
+
+  // Анимация плавного появления окна
+  &.active {
+    display: flex !important;
+    animation: fadeInModal 0.3s ease forwards;
+  }
+
+  // Внутреннее окно (наследуем ваш фирменный миксин glass)
+  #sl-inner-content {
+    @include glass;
+    width: 100%;
+    max-width: 900px;
+    padding: 40px;
+    border-radius: 4px;
+    position: relative;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    animation: slideUpModal 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  // Шапка (Заголовок и крестик)
+  .sl-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba($ui-accent, 0.3);
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+
+    #sl-title {
+      margin: 0;
+      color: $ui-accent;
+      font-family: "Lora", serif;
+      font-weight: 400;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-shadow: 0 0 10px rgba($ui-accent, 0.4); // Легкое неоновое свечение
+    }
+
+    #close-sl-btn {
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 24px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        color: $ui-accent;
+        transform: scale(1.2);
+        text-shadow: 0 0 8px $ui-accent;
+      }
+    }
+  }
+
+  // Пагинация (страницы)
+  .sl-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 30px;
+
+    button {
+      background: transparent;
+      color: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 10px 25px;
+      cursor: pointer;
+      font-family: "Inter", sans-serif;
+      font-size: 16px;
+      border-radius: 2px;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: rgba($ui-accent, 0.1);
+        border-color: $ui-accent;
+        color: $ui-accent;
+        box-shadow: 0 0 10px rgba($ui-accent, 0.2);
+      }
+    }
+
+    span {
+      margin: 0 25px;
+      font-size: 16px;
+      letter-spacing: 1px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+  }
+
+  // Сетка слотов сохранения
+  #sl-slots-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 15px;
+  }
+
+  // Сами кнопки (слоты)
+  .sl-slot-btn {
+    background: rgba(10, 10, 10, 0.6);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    min-height: 140px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+
+    &:hover {
+      border-color: $ui-accent;
+      background: rgba(20, 20, 20, 0.9);
+      box-shadow:
+        inset 0 0 20px rgba($ui-accent, 0.05),
+        0 0 10px rgba($ui-accent, 0.2);
+      transform: translateY(
+        -2px
+      ); // Кнопка слегка "приподнимается" при наведении
+    }
+
+    .slot-title {
+      color: $ui-accent;
+      font-family: "Lora", serif;
+      font-weight: bold;
+      font-size: 18px;
+      margin-bottom: 12px;
+      letter-spacing: 1px;
+    }
+
+    .slot-rank {
+      font-size: 14px;
+      color: #fff;
+      font-family: "Inter", sans-serif;
+      margin-bottom: 6px;
+
+      span.rank-letter {
+        color: #ff4444; // Выделяем букву ранга красным/ярким
+        font-weight: bold;
+      }
+    }
+
+    .slot-stats {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 15px;
+    }
+
+    .slot-date {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.4);
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+    }
+
+    // Если слот пустой
+    &.empty {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.3);
+
+      .slot-title {
+        color: rgba(255, 255, 255, 0.4);
+        margin-bottom: 5px;
+      }
+    }
+
+    .delete-save-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: transparent;
+      border: none;
+      color: rgba(255, 60, 60, 0.3); // Тускло-красный по умолчанию
+      font-family: "Inter", sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      z-index: 10;
+
+      &:hover {
+        color: #ff4444; // Ярко-красный при наведении!
+        text-shadow: 0 0 10px rgba(255, 60, 60, 0.8);
+        transform: scale(1.1);
+      }
+    }
+  }
+}
+
+// === УНИВЕРСАЛЬНОЕ ОКНО ПОДТВЕРЖДЕНИЯ ===
+#confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 5, 5, 0.85);
+  backdrop-filter: blur(15px);
+  z-index: 20000; // Поверх ВООБЩЕ всего!
+  display: none;
+  justify-content: center;
+  align-items: center;
+
+  &.active {
+    display: flex;
+    animation: fadeInModal 0.2s ease forwards;
+  }
+
+  #confirm-box {
+    @include glass;
+    padding: 30px 50px;
+    border-top: 2px solid rgba(255, 60, 60, 0.6); // Опасный красный акцент
+    text-align: center;
+    box-shadow:
+      0 20px 50px rgba(0, 0, 0, 0.9),
+      inset 0 0 20px rgba(255, 60, 60, 0.05);
+    animation: slideUpModal 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+    // +++ ФИКС: Ограничитель, чтобы на мобилках оно смотрелось аккуратно
+    max-width: 400px;
+    width: 100%;
+    margin: 0 auto;
+
+    #confirm-text {
+      color: #fff;
+      font-family: "Inter", sans-serif;
+      font-size: 16px;
+      letter-spacing: 2px;
+      margin-bottom: 25px;
+      text-transform: uppercase;
+      text-shadow: 0 0 10px rgba(255, 60, 60, 0.4);
+    }
+
+    .confirm-btns {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+
+      button {
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: rgba(255, 255, 255, 0.6);
+        padding: 8px 20px;
+        font-family: "Inter", sans-serif;
+        font-size: 12px;
+        letter-spacing: 3px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &#confirm-yes:hover {
+          color: #ff4444;
+          border-color: #ff4444;
+          box-shadow: 0 0 15px rgba(255, 60, 60, 0.3);
+        }
+
+        &#confirm-no:hover {
+          color: $ui-accent;
+          border-color: $ui-accent;
+          box-shadow: 0 0 15px rgba($ui-accent, 0.3);
+        }
+      }
+    }
+  }
+}
+
+.save-slot.auto-save {
+  border-color: $ui-accent; // Наш красивый тревожный красный
+  box-shadow: inset 0 0 15px rgba($ui-accent, 0.1);
+
+  .slot-title {
+    color: $ui-accent;
+    font-weight: bold;
+    letter-spacing: 1px;
+  }
+}
+
+// === SETTINGS MODAL STYLES ===
+#settings-panel {
+  display: none; // Скрыто по умолчанию
+  position: fixed;
+  inset: 0;
+  z-index: 10010; // Выше всего!
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(5px);
+  justify-content: center;
+  align-items: center;
+  font-family: "Inter", sans-serif;
+  color: #fff;
+
+  &.active {
+    display: flex !important;
+    animation: fadeInModal 0.3s ease forwards;
+  }
+
+  // Внутреннее стеклянное окно
+  #settings-inner {
+    background: rgba(15, 15, 20, 0.85); // Стеклянный фон вместо миксина
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(0, 255, 255, 0.2); // Неоновая обводка
+    width: min(900px, 90vw);
+    height: min(600px, 80vh);
+    position: relative;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow:
+      0 20px 60px rgba(0, 0, 0, 0.9),
+      0 0 20px rgba(0, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+
+    // Техно-сетка на фоне
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 100% 4px;
+      pointer-events: none;
+      z-index: -1;
+    }
+  }
+
+  // Кнопка закрытия [ x ]
+  #close-settings-btn {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
+
+    &:hover {
+      color: #ff3333; // Красный при наведении
+      transform: scale(1.2) rotate(90deg);
+      text-shadow: 0 0 10px rgba(255, 51, 51, 0.8);
+    }
+  }
+
+  // Две колонки (Настройки слева, Справочник справа)
+  .settings-layout {
+    display: flex;
+    gap: 40px;
+    height: 100%;
+
+    .settings-left {
+      flex: 3;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid rgba(0, 255, 255, 0.2);
+      padding-right: 40px;
+    }
+
+    .settings-right {
+      flex: 2;
+      display: flex;
+      flex-direction: column;
+    }
+  }
+
+  // Заголовки разделов
+  .modal-header,
+  .manual-header {
+    color: #00ffff; // Неоновый циан
+    font-family: "Lora", serif;
+    font-size: 22px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
+    margin-bottom: 30px;
+    border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+    padding-bottom: 10px;
+  }
+
+  .group-title {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 12px;
+    letter-spacing: 2px;
+    margin-bottom: 15px;
+  }
+
+  .settings-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+
+    .settings-label {
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.9);
+    }
+  }
+
+  // ТУМБЛЕРЫ (Язык, Окно)
+  .toggle-group {
+    display: flex;
+    gap: 5px;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 3px;
+    border-radius: 4px;
+    border: 1px solid rgba(0, 255, 255, 0.2);
+
+    .toggle-btn {
+      background: transparent;
+      color: rgba(255, 255, 255, 0.5);
+      border: none;
+      padding: 6px 15px;
+      font-size: 13px;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: all 0.2s ease;
+
+      &:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      &.active {
+        background: rgba(0, 255, 255, 0.2);
+        color: #00ffff;
+        font-weight: bold;
+        box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.3);
+      }
+    }
+  }
+
+  // ПОЛЗУНКИ
+  .settings-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 200px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    outline: none;
+
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      background: #00ffff;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+      transition: transform 0.1s;
+    }
+
+    &::-webkit-slider-thumb:hover {
+      transform: scale(1.3);
+      background: #fff;
+    }
+  }
+
+  // СПРАВОЧНИК
+  .manual-content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    .hotkey-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+      padding-bottom: 5px;
+
+      .key {
+        color: #00ffff;
+        font-family: monospace;
+        font-size: 14px;
+        background: rgba(0, 255, 255, 0.1);
+        padding: 2px 6px;
+        border-radius: 3px;
+      }
+
+      .desc {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 13px;
+      }
+    }
+  }
+
+  // КНОПКА СБРОСА
+  .reset-btn {
+    margin-top: auto;
+    align-self: flex-start;
+    background: transparent;
+    border: 1px solid rgba(255, 51, 51, 0.5);
+    color: rgba(255, 51, 51, 0.8);
+    padding: 8px 20px;
+    font-size: 12px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(255, 51, 51, 0.2);
+      color: #fff;
+      box-shadow: 0 0 15px rgba(255, 51, 51, 0.4);
+    }
+  }
+}

@@ -1,0 +1,452 @@
+// === ДИСКЛЕЙМЕР (INTRO SCREEN) ===
+#disclaimer-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 99999; // Поверх вообще всего во вселенной!
+  background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  font-family: "Inter", sans-serif;
+  transition: opacity 1s ease-in-out; // Плавное затухание при клике
+
+  &.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .disclaimer-content {
+    text-align: center;
+    max-width: 800px;
+    padding: 20px;
+  }
+
+  // Заголовок "ВНИМАНИЕ!"
+  #disclaimer-title {
+    font-family: "Inter", sans-serif; // Более технический шрифт
+    font-weight: 900; // Максимально жирный
+    font-size: 6rem; // Огромный!
+    letter-spacing: 25px;
+    margin-bottom: 40px;
+    position: relative;
+    display: inline-block;
+    text-transform: uppercase;
+
+    // ЭФФЕКТ ГОЛОГРАФИЧЕСКИХ ПОЛОС
+    color: transparent; // Прячем обычный цвет
+    background: repeating-linear-gradient(
+      0deg,
+      #00ffff 0px,
+      #00ffff 4px,
+      // Толщина светящейся линии
+      transparent 4px,
+      transparent 8px // Толщина пустой (темной) линии
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+
+    // Легкое свечение вокруг букв
+    filter: drop-shadow(0 0 15px rgba(0, 255, 255, 0.6));
+
+    // Вспышка и исчезновение (резкий цифровой сбой)
+    animation: flashOut 0.15s cubic-bezier(0.1, 0.9, 0.2, 1) 0.8s forwards;
+
+    .typewriter-burst {
+      display: inline-block;
+      overflow: hidden;
+      white-space: nowrap;
+      border-right: 12px solid #00ffff; // Синяя толстая каретка терминала
+      width: 0;
+
+      // Печать за 0.25с (еще быстрее!)
+      animation:
+        burstType 0.25s steps(9, end) forwards,
+        blinkCaret 0.08s step-end infinite;
+    }
+  }
+
+  // Основной текст (резко бьет по глазам после вспышки)
+  #disclaimer-body {
+    opacity: 0;
+    transform: scale(1.1); // Слегка увеличен
+    filter: blur(10px); // Размыт
+    // Резко фокусируется через 0.9с (сразу после вспышки заголовка)
+    animation: slamDown 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.9s
+      forwards;
+
+    p {
+      font-size: 1.2rem;
+      line-height: 1.8;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 15px;
+    }
+
+    .click-to-continue {
+      margin-top: 50px;
+      font-size: 1rem;
+      color: #00ffff;
+      letter-spacing: 4px;
+      animation: pulseText 1.5s infinite ease-in-out 0.5s;
+
+      // На ПК показываем этот текст
+      &::before {
+        content: "[ Нажмите любую кнопку, чтобы продолжить ]";
+      }
+    }
+  }
+}
+
+#splash-screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #000;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99998; /* Чуть ниже дисклеймера */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1s ease-in-out;
+
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 300;
+    letter-spacing: 0.8rem;
+    text-transform: uppercase;
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  }
+}
+
+// === ГЛАВНОЕ МЕНЮ ===
+#main-menu-screen {
+  /* Запираем видео в 16:9 */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100vw;
+  height: 100vh;
+  max-width: calc(100vh * (16 / 9));
+  aspect-ratio: 16 / 9;
+
+  display: flex;
+  justify-content: flex-start; /* Прижимаем контент влево */
+  align-items: center;
+  overflow: hidden;
+  z-index: 10;
+  background-color: #000;
+  box-shadow: 0 0 100px 30px rgba(0, 0, 0, 0.95);
+
+  .menu-bg-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
+    pointer-events: none;
+    filter: brightness(0.6); /* Слегка гасим фон, чтобы кнопки читались лучше */
+  }
+
+  /* МАЙ: Случайный персонаж в главном меню */
+  .sota-menu-character {
+    position: absolute;
+    right: 5%; /* Отступ от правого края */
+    bottom: -5%; /* Немного опускаем спрайт вниз, чтобы он выглядел естественно */
+    height: 95%; /* Персонаж почти во всю высоту экрана */
+    width: auto;
+    z-index: 2; /* Между фоном и кнопками */
+    pointer-events: none; /* Чтобы спрайт не мешал кликать, если случайно перекроет что-то */
+    mask-image: linear-gradient(to top, transparent 0%, black 10%);
+
+    img {
+      height: 100%;
+      width: auto;
+      object-fit: contain;
+      filter: drop-shadow(
+        -10px 10px 20px rgba(0, 0, 0, 0.8)
+      ); /* Красивая тень */
+      opacity: 0; /* Изначально прозрачный для плавной анимации */
+      transform: translateX(30px); /* Слегка сдвинут вправо */
+      transition:
+        opacity 1.5s ease-in-out,
+        transform 1.5s ease-out; /* Плавное появление */
+
+      &.visible {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+  }
+
+  .menu-buttons-container {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    margin-left: 10%;
+
+    button {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+      padding: 10px 0;
+      width: 100%;
+      max-width: 400px;
+
+      .visual {
+        display: inline-block;
+        color: rgba(255, 255, 255, 0.6);
+        font-family: "Inter", sans-serif;
+        font-size: 2rem;
+        font-weight: 300;
+        letter-spacing: 5px;
+        text-transform: uppercase;
+        position: relative;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+        &::after {
+          content: "";
+          position: absolute;
+          bottom: -5px;
+          left: 0;
+          width: 0%;
+          height: 2px;
+          background: $ui-accent;
+          transition: width 0.3s ease;
+          box-shadow: 0 0 10px rgba($ui-accent, 0.8);
+        }
+      }
+
+      // === HOVER ТОЛЬКО ДЛЯ МЫШИ! НА ТАЧСКРИНАХ НЕ ЗАЛИПАЕТ ===
+      @media (hover: hover) and (pointer: fine) {
+        &:hover .visual {
+          color: #fff;
+          text-shadow: 0 0 15px rgba($ui-accent, 0.6);
+          transform: translateX(20px);
+
+          &::after {
+            width: 100%;
+          }
+        }
+      }
+
+      // === ВДАВЛИВАНИЕ ПРИ ТАПЕ (ВМЕСТО HOVER) ===
+      &:active .visual {
+        color: #fff;
+        transform: scale(0.97);
+      }
+
+      /* Стили для красной кнопки выхода */
+      &#btn-exit {
+        margin-top: 50px;
+
+        .visual {
+          font-size: 1.5rem;
+          &::after {
+            background: rgba(150, 0, 0, 0.8);
+            box-shadow: 0 0 10px rgba(150, 0, 0, 0.8);
+          }
+        }
+
+        &:hover .visual {
+          color: #ff4d4d;
+          text-shadow: 0 0 15px rgba(150, 0, 0, 0.8);
+        }
+      }
+    }
+  }
+
+  #menu-black-overlay {
+    position: absolute;
+    inset: 0;
+    background: #000;
+    z-index: 15;
+  }
+
+  #main-menu-title {
+    position: absolute;
+    top: 15%;
+    left: 10%;
+    z-index: 3;
+
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 20px;
+
+    font-family: "Inter", sans-serif;
+    text-transform: uppercase;
+
+    // МАЙ: Чистая жесткая обводка для букв везде!
+    -webkit-text-stroke: 1px rgba(0, 0, 0, 0.8);
+    text-shadow: 0 0 15px rgba(0, 0, 0, 0.9);
+
+    .word {
+      display: flex;
+      align-items: baseline;
+
+      .initial {
+        font-size: 5rem;
+        font-weight: 300;
+        color: #00ffff;
+        // У первых букв обводка чуть толще
+        -webkit-text-stroke: 2px rgba(0, 0, 0, 0.9);
+        text-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+      }
+      .rest {
+        font-size: 3rem;
+        font-weight: 300;
+        color: #ffffff;
+      }
+    }
+  }
+
+  .neon-letter-active {
+    color: $ui-accent;
+    animation: realistic-neon-flicker 5s infinite;
+  }
+
+  // Добавь это куда-нибудь в конец style.scss
+  .version {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    z-index: 100; // Поверх персонажей
+    padding: 30px 30px 15px 50px; // Большой отступ сверху и слева для плавного градиента
+    background: radial-gradient(
+      100% 100% at 100% 100%,
+      rgba(0, 0, 0, 0.8) 0%,
+      transparent 100%
+    );
+    color: rgba(255, 255, 255, 0.6);
+    font-family: "Inter", sans-serif;
+    font-size: 14px;
+    letter-spacing: 2px;
+    pointer-events: none;
+  }
+}
+
+.version-watermark {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  z-index: 1000; /* Поверх всех меню и экранов */
+
+  /* Делаем отступы побольше, чтобы градиент плавно растворялся */
+  padding: 40px 30px 10px 50px;
+  /* МАЙ: Жесткий и пуленепробиваемый градиент */
+  background: -webkit-radial-gradient(
+    100% 100% at 100% 100%,
+    rgba(0, 0, 0, 0.8) 0%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  background: radial-gradient(
+    100% 100% at 100% 100%,
+    rgba(0, 0, 0, 0.8) 0%,
+    rgba(0, 0, 0, 0) 100%
+  );
+
+  /* Настройки самого текста */
+  color: rgba(255, 255, 255, 0.4); /* Полупрозрачный белый, чтобы не кричал */
+  font-family: "Inter", sans-serif; /* Твой строгий корпоративный шрифт */
+  font-size: 14px;
+  letter-spacing: 1px;
+
+  /* Чтобы клики проходили сквозь надпись, если под ней окажутся кнопки */
+  pointer-events: none;
+  user-select: none;
+}
+
+// === КНОПКИ СОЦСЕТЕЙ В ГЛАВНОМ МЕНЮ ===
+#main-menu-socials {
+  position: absolute;
+  bottom: 40px;
+  right: 2vw;
+  display: flex;
+  gap: 15px;
+  z-index: 10;
+
+  .menu-social-btn {
+    @media (min-width: 768px) {
+      width: 55px;
+      height: 55px;
+
+      img {
+        width: 28px;
+        height: 28px;
+      }
+    }
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    transition:
+      transform 0.3s ease,
+      box-shadow 0.3s ease,
+      background 0.3s ease,
+      border-color 0.3s ease;
+
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+    text-decoration: none;
+
+    // БАЗОВОЕ СОСТОЯНИЕ (Вариант А: Тёмные, стелс)
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: none;
+
+    img {
+      width: 20px;
+      height: 20px;
+      filter: brightness(0) invert(1);
+      opacity: 0.7; // Слегка приглушаем на тёмном фоне
+      transition: opacity 0.3s ease;
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+
+    // BOOSTY (Вспыхивает оранжевым)
+    &.boosty {
+      @media (hover: hover) and (pointer: fine) {
+        &:hover {
+          transform: scale(1.15);
+          background: linear-gradient(135deg, #f15f2c, #e23b24);
+          border-color: transparent;
+          box-shadow: 0 0 20px rgba(241, 95, 44, 0.8);
+          img {
+            opacity: 1;
+          }
+        }
+      }
+    }
+
+    // PATREON (Вспыхивает коралловым)
+    &.patreon {
+      @media (hover: hover) and (pointer: fine) {
+        &:hover {
+          transform: scale(1.15);
+          background: linear-gradient(135deg, #ff424d, #d1363f);
+          border-color: transparent;
+          box-shadow: 0 0 20px rgba(255, 66, 77, 0.8);
+          img {
+            opacity: 1;
+          }
+        }
+      }
+    }
+  }
+}
