@@ -2423,6 +2423,13 @@ $glass-dark: rgba(10, 12, 18, 0.95);
   &::-webkit-scrollbar-thumb:hover {
     background: #777;
   }
+
+  /* === МАЙ: Фикс жестов (чтобы картинки не цеплялись пальцем) === */
+  img {
+    -webkit-user-drag: none; /* Этого достаточно для всех мобилок */
+    -webkit-user-select: none;
+    user-select: none;
+  }
 }
 
 .sota-gallery-item {
