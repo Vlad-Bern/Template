@@ -1,0 +1,373 @@
+@keyframes shimmer-dialog {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes pulse-ctc-inline {
+  0% {
+    opacity: 0.3;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes heart-beat {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: scale(1.05);
+    filter: brightness(1.3);
+  }
+}
+
+@keyframes border-chaos {
+  0%,
+  100% {
+    border-radius: 0;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  }
+  25% {
+    border-radius: 8px 0 8px 0;
+    clip-path: polygon(0 0, 98% 2%, 100% 100%, 2% 98%);
+  }
+  50% {
+    border-radius: 0 12px 0 12px;
+    clip-path: polygon(2% 0, 100% 0, 98% 100%, 0 98%);
+  }
+  75% {
+    border-radius: 6px;
+    clip-path: polygon(0 2%, 100% 0, 100% 98%, 0 100%);
+  }
+}
+
+@keyframes name-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 0.85;
+  }
+}
+
+@keyframes heavy-shiver {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  20% {
+    transform: translate(-5px, 5px) rotate(-1deg);
+  }
+  40% {
+    transform: translate(5px, -5px) rotate(1deg);
+  }
+  60% {
+    transform: translate(-3px, 3px) rotate(0deg);
+  }
+  80% {
+    transform: translate(3px, -3px) rotate(0deg);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes normal-grain {
+  0% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(-2%, -5%);
+  }
+  50% {
+    transform: translate(4%, 2%);
+  }
+  75% {
+    transform: translate(-3%, 4%);
+  }
+  100% {
+    transform: translate(2%, -2%);
+  }
+}
+
+@keyframes button-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    border-color: rgba(255, 0, 0, 0.4);
+  }
+  50% {
+    transform: scale(1.02);
+    border-color: rgba(255, 0, 0, 1);
+    box-shadow: 0 0 15px red;
+  }
+}
+
+@keyframes jitter-fast {
+  0% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(-3px, 3px);
+  }
+  50% {
+    transform: translate(3px, -3px);
+  }
+  75% {
+    transform: translate(-2px, 2px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes micro-glitch {
+  0%,
+  100% {
+    transform: translate(0, 0);
+    opacity: 1;
+  }
+  20% {
+    transform: translate(-2px, 1px);
+    opacity: 0.7;
+  }
+  40% {
+    transform: translate(2px, -1px);
+    color: rgba(255, 0, 0, 0.8);
+  }
+  60% {
+    transform: translate(-1px, 1px);
+    color: rgba(0, 255, 255, 0.8);
+  }
+}
+
+// Хозяин забыл анимацию для invalid-click, добавила
+@keyframes invalid-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20%,
+  60% {
+    transform: translateX(-5px);
+  }
+  40%,
+  80% {
+    transform: translateX(5px);
+  }
+}
+
+@keyframes burstType {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+// 2. Агрессивное мигание каретки
+@keyframes blinkCaret {
+  from,
+  to {
+    border-color: transparent;
+  }
+  50% {
+    border-color: #ff3333;
+  }
+}
+
+// 3. Вспышка и исчезновение заголовка (взрыв)
+@keyframes flashOut {
+  0% {
+    transform: scale(1);
+    filter: brightness(1) blur(0);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    filter: brightness(3) blur(5px);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.5);
+    filter: brightness(5) blur(20px);
+    opacity: 0;
+    display: none;
+  }
+}
+
+// 4. Резкий удар текста по экрану (фокус)
+@keyframes slamDown {
+  0% {
+    opacity: 0;
+    transform: scale(1.2);
+    filter: blur(10px);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(0.98);
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+}
+
+// 5. Пульсация кнопки
+@keyframes pulseText {
+  0%,
+  100% {
+    opacity: 0.3;
+    text-shadow: none;
+  }
+  50% {
+    opacity: 1;
+    text-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+  }
+}
+
+// --- АНИМАЦИИ ДЛЯ ДИСКЛЕЙМЕРА ---
+@keyframes swipeRight {
+  0% {
+    clip-path: polygon(0 0, 0 0, 0 100%, 0% 100%);
+  }
+  40% {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.1);
+    filter: blur(10px);
+    display: none;
+  } // Резко исчезает с блюром!
+}
+
+@keyframes fadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseText {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.8;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  }
+}
+
+  @keyframes realistic-neon-flicker {
+    0%,
+    18%,
+    22%,
+    25%,
+    53%,
+    57%,
+    100% {
+      opacity: 1;
+      /* Убрали огромные тени. Теперь свечение плотное и близкое к букве */
+      text-shadow:
+        0 0 1px #ffffff,
+        0 0 3px $ui-accent,
+        0 0 6px $ui-accent,
+        0 0 10px $ui-accent;
+    }
+    20%,
+    24%,
+    55% {
+      opacity: 0.8;
+      text-shadow:
+        0 0 1px #ffffff,
+        0 0 2px $ui-accent,
+        0 0 4px $ui-accent;
+    }
+    21%,
+    23%,
+    56% {
+      opacity: 0.5;
+      text-shadow: none; /* Полное затухание */
+    }
+  }
+
+    // Обновляем анимацию мигания каретки под синий цвет
+  @keyframes blinkCaret {
+    from,
+    to {
+      border-color: transparent;
+    }
+    50% {
+      border-color: #00ffff;
+    }
+  }
+
+  // Ключевые кадры анимаций
+@keyframes fadeInModal {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+  @keyframes slideUpModal {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes slideUpCenterModal {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -45%) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+// Сама анимация мигания (если у тебя её вдруг не было в глобальных стилях)
+@keyframes pulseOpacity {
+  0% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.3;
+  }
+}
