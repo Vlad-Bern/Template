@@ -5,7 +5,7 @@ export class SettingsManager {
 
     // --- УМНОЕ ОПРЕДЕЛЕНИЕ ЯЗЫКА СИСТЕМЫ ---
     const getSystemLanguage = () => {
-      // Поддерживаемые языки в Синсю 
+      // Поддерживаемые языки в Синсю
       const supportedLangs = ["ru", "en", "ja"];
 
       // Берем язык из системы (например, 'ru-RU' или 'en-US')
@@ -227,14 +227,14 @@ export class SettingsManager {
     }
 
     // --- АДАПТАЦИЯ ПОД МОБИЛЬНЫЕ УСТРОЙСТВА ---
-    const isMobile =
-      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent,
-      ) ||
+    const isTouchDevice =
+      "ontouchstart" in window ||
+      navigator.maxTouchPoints > 0 ||
+      navigator.msMaxTouchPoints > 0 ||
       !!window.cordova ||
       !!window.Capacitor;
 
-    if (isMobile) {
+    if (isTouchDevice) {
       const fsRow = panel.querySelector("#row-fullscreen");
       if (fsRow) fsRow.style.display = "none";
 

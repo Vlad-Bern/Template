@@ -163,17 +163,20 @@ export class SceneManager {
     document.addEventListener(
       "touchstart",
       (e) => {
-        if (
-          document.getElementById("main-menu-screen")?.style.display !== "none"
-        )
-          return;
-
+        // МАЙ: Координаты записываем ВСЕГДА! Чтобы модалки знали, откуда начался свайп.
         touchStartX = e.touches[0].clientX;
         touchStartY = e.touches[0].clientY;
 
         clearTimeout(holdSkipTimer);
 
+        // МАЙ: А вот долгий тап (перемотку) запрещаем в главном меню
+        if (
+          document.getElementById("main-menu-screen")?.style.display !== "none"
+        )
+          return;
+
         holdSkipTimer = setTimeout(() => {
+          // ... тут твой код перемотки ...
           if (
             this.hm?.modalOpen ||
             window.saveManager?.modalOpen ||
@@ -194,11 +197,6 @@ export class SceneManager {
     document.addEventListener(
       "touchmove",
       (e) => {
-        if (
-          document.getElementById("main-menu-screen")?.style.display !== "none"
-        )
-          return;
-
         const dx = Math.abs(e.touches[0].clientX - touchStartX);
         const dy = Math.abs(e.touches[0].clientY - touchStartY);
 
@@ -249,14 +247,14 @@ export class SceneManager {
           window.saveManager?.modalOpen ||
           window.settingsManager?.modalOpen;
 
-        // Закрытие модалок горизонтальным свайпом
+        // Закрытие модалок горизонтальным свайпом (РАБОТАЕТ ТЕПЕРЬ ВЕЗДЕ!)
         if (isModalOpen) {
-          if (absX > 50 && absX > absY) {
+          if (absX > 50 && absX > absY * 2) {
             if (isGalleryOpen) {
               if (typeof window.closeGallery === "function") {
                 window.closeGallery();
               } else {
-                galleryModal.classList.remove("active");
+                galleryModal.style.display = "none";
               }
             }
 
@@ -286,6 +284,15 @@ export class SceneManager {
 
         // Игровые вертикальные свайпы
         if (absY > 50 && absY > absX) {
+          // === МАЙ: ВОТ ЗАЩИТА! ===
+          // Игровые свайпы интерфейса блокируются, если мы в главном меню!
+          if (
+            document.getElementById("main-menu-screen")?.style.display !==
+            "none"
+          ) {
+            return;
+          }
+
           if (deltaY < 0) {
             this.toggleUI(); // вверх
           } else {

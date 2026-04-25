@@ -2402,12 +2402,19 @@ $glass-dark: rgba(10, 12, 18, 0.95);
 .sota-gallery-grid {
   flex: 1;
   display: grid;
-  /* Умная сетка: карточки сами заполняют пространство (минимум 280px шириной) */
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 25px;
   padding: 40px;
   overflow-y: auto;
   align-content: start;
+
+  // === МАЙ: ФИКС СВАЙПОВ В ГАЛЕРЕЕ ===
+  // 1. Разрешаем браузеру скроллить только вверх-вниз (pan-y).
+  // Горизонтальные свайпы браузер игнорирует и отдаёт нашему JavaScript!
+  touch-action: pan-y;
+
+  // 2. Отключаем "резиновую" прокрутку на iOS (чтобы не было bounce-эффекта)
+  overscroll-behavior-y: contain;
 
   /* === Корпоративный кастомный скроллбар (Chrome/Safari/NW.js) === */
   &::-webkit-scrollbar {
@@ -2426,7 +2433,7 @@ $glass-dark: rgba(10, 12, 18, 0.95);
 
   /* === МАЙ: Фикс жестов (чтобы картинки не цеплялись пальцем) === */
   img {
-    -webkit-user-drag: none; /* Этого достаточно для всех мобилок */
+    -webkit-user-drag: none;
     -webkit-user-select: none;
     user-select: none;
   }
@@ -2579,6 +2586,16 @@ $glass-dark: rgba(10, 12, 18, 0.95);
   z-index: 10;
 
   .menu-social-btn {
+    @media (min-width: 768px) {
+      width: 55px;
+      height: 55px;
+
+      img {
+        width: 28px;
+        height: 28px;
+      }
+    }
+
     display: flex;
     align-items: center;
     justify-content: center;
