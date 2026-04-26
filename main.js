@@ -136,6 +136,25 @@ window.unlockCG = (bgPath) => {
   }
 };
 
+window.isAnyModalOpen = () => {
+  // 1. Проверяем окно подтверждения (выход, перезапись сейва)
+  const confirmBox = document.getElementById("confirm-backdrop");
+  if (confirmBox && confirmBox.style.display === "flex") return true;
+
+  // 2. Проверяем игровые менеджеры (История, Сохранения, Настройки)
+  if (window.sm) {
+    if (window.sm.hm?.modalOpen) return true;
+  }
+  if (window.saveManager?.modalOpen) return true;
+  if (window.settingsManager?.modalOpen) return true;
+
+  // 4. Главное меню
+  const mainMenu = document.getElementById("main-menu-screen");
+  if (mainMenu && mainMenu.style.display !== "none") return true;
+
+  return false;
+};
+
 // Глобальный класс для паузируемых таймеров (используется в сценариях)
 window.PausableTimeout = class {
   constructor(callback, delay) {
@@ -144,18 +163,46 @@ window.PausableTimeout = class {
     this.timerId = null;
     this.start = Date.now();
 
+    // МАЙ: Флаг принудительной паузы из-за модалок
+    this.isModalPaused = false;
+
     this.resume();
 
-    // Раз игра уже следит за фокусом, мы просто подвязываем таймер к видимостям окна:
+    // Следим за фокусом вкладки браузера
     this.handleVisibility = () => {
       if (document.hidden) {
         this.pause();
       } else {
-        this.resume();
+        // Восстанавливаем, только если не открыта модалка
+        if (!this.isModalPaused) this.resume();
       }
     };
-
     document.addEventListener("visibilitychange", this.handleVisibility);
+
+    // === МАЙ: Умный наблюдатель за модалками ===
+    this.checkModals = () => {
+      // Если таймер уже удалён/выполнен, прекращаем следить
+      if (this.isCleared) return;
+
+      const modalOpen = window.isAnyModalOpen && window.isAnyModalOpen();
+
+      if (modalOpen && !this.isModalPaused) {
+        // Игрок открыл окно! Паузим таймер.
+        this.isModalPaused = true;
+        this.pause();
+      } else if (!modalOpen && this.isModalPaused && !document.hidden) {
+        // Игрок закрыл окно. Снимаем паузу.
+        this.isModalPaused = false;
+        this.resume();
+      }
+
+      // Проверяем следующий кадр
+      this.rafId = requestAnimationFrame(this.checkModals);
+    };
+
+    // Запускаем слежку
+    this.isCleared = false;
+    this.rafId = requestAnimationFrame(this.checkModals);
   }
 
   pause() {
@@ -170,16 +217,21 @@ window.PausableTimeout = class {
     if (!this.timerId && this.remaining > 0) {
       this.start = Date.now();
       this.timerId = setTimeout(() => {
-        document.removeEventListener("visibilitychange", this.handleVisibility);
+        this.clear(); // МАЙ: Убираем за собой мусор перед выполнением
         this.callback();
       }, this.remaining);
     }
   }
 
   clear() {
+    this.isCleared = true;
     if (this.timerId) {
       clearTimeout(this.timerId);
       this.timerId = null;
+    }
+    if (this.rafId) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
     }
     document.removeEventListener("visibilitychange", this.handleVisibility);
   }
@@ -421,12 +473,18 @@ document
 window.returnToMenuLogic = (skipConfirm = false) => {
   // МАЙ: Упаковываем весь процесс выхода в отдельную функцию
   const executeExit = () => {
+    // Внимание! Исправленное имя переменной: sm.cs
+    if (window.sm && window.sm.cs) {
+      window.sm.cs.forceClose();
+    }
+
     if (window.playUISound) window.playUISound("open");
 
     // Плавное затемнение (как при старте)
     const blackoutLayer = document.createElement("div");
     blackoutLayer.style.position = "fixed";
     blackoutLayer.style.inset = "0";
+    // ... дальше всё как у тебя ...
     blackoutLayer.style.backgroundColor = "black";
     blackoutLayer.style.zIndex = "999999";
     blackoutLayer.style.opacity = "0";
@@ -444,7 +502,7 @@ window.returnToMenuLogic = (skipConfirm = false) => {
       const dialogWrapper = document.getElementById("dialog-wrapper");
       if (gameViewport) gameViewport.style.display = "none";
       if (dialogWrapper) dialogWrapper.style.display = "none";
-      
+
       if (window.sm && window.sm.choiceSystem) {
         window.sm.choiceSystem.forceClose();
       }

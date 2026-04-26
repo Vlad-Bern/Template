@@ -219,8 +219,10 @@ export class SceneManager {
       (e) => {
         clearTimeout(holdSkipTimer);
 
+        // МАЙ: Жёстко выключаем скип при ЛЮБОМ отпускании пальца
+        this.isFastForwarding = false;
+
         if (isHolding) {
-          this.isFastForwarding = false;
           isHolding = false;
           if (this.fastForwardTimeoutId)
             clearTimeout(this.fastForwardTimeoutId);
@@ -307,6 +309,21 @@ export class SceneManager {
         }
       },
       { passive: false },
+    );
+
+    // === МАЙ: Защита от залипания скипа на мобилках ===
+    // Если браузер или система перехватила долгое нажатие
+    document.addEventListener(
+      "touchcancel",
+      () => {
+        clearTimeout(holdSkipTimer);
+        isHolding = false;
+        this.isFastForwarding = false;
+        if (this.fastForwardTimeoutId) {
+          clearTimeout(this.fastForwardTimeoutId);
+        }
+      },
+      { passive: true },
     );
 
     window.addEventListener("loadScene", (e) => {

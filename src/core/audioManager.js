@@ -3,6 +3,8 @@ export class AudioManager {
   constructor() {
     this.bgm = null;
     this.bgmId = null;
+    this.stems = {}; // МАЙ: Хранилище слоёв для адаптивной музыки
+    this.activeStem = null; // Имя текущего играющего слоя (чтобы знать, куда возвращаться)
     this.currentBgmBaseVolume = 0.5; // Память о громкости текущего трека по сценарию
 
     this.activeLoops = {};
@@ -72,23 +74,54 @@ export class AudioManager {
   }
 
   stopBGM(fadeDuration = 1000) {
+    // 1. Останавливаем обычную музыку (если она играла)
     if (this.bgm) {
       if (!fadeDuration || fadeDuration <= 0) {
         this.bgm.stop();
         this.bgm.unload();
         this.bgm = null;
-        return;
+      } else {
+        const currentVol =
+          typeof this.bgm.volume() === "number" ? this.bgm.volume() : 1.0;
+        this.bgm.fade(currentVol, 0, fadeDuration);
+        setTimeout(() => {
+          if (this.bgm) {
+            this.bgm.stop();
+            this.bgm.unload();
+            this.bgm = null;
+          }
+        }, fadeDuration + 50);
       }
-      const currentVol =
-        typeof this.bgm.volume() === "number" ? this.bgm.volume() : 1.0;
-      this.bgm.fade(currentVol, 0, fadeDuration);
-      setTimeout(() => {
-        if (this.bgm) {
-          this.bgm.stop();
-          this.bgm.unload();
-          this.bgm = null;
+    }
+
+    // 2. === МАЙ: Останавливаем ВСЕ адаптивные слои (stems) ===
+    if (this.stems) {
+      Object.keys(this.stems).forEach((layerName) => {
+        const howl = this.stems[layerName];
+        if (!fadeDuration || fadeDuration <= 0) {
+          howl.stop();
+          howl.unload();
+        } else {
+          const currentVol =
+            typeof howl.volume() === "number" ? howl.volume() : 1.0;
+          howl.fade(currentVol, 0, fadeDuration);
+          setTimeout(() => {
+            howl.stop();
+            howl.unload();
+          }, fadeDuration + 50);
         }
-      }, fadeDuration + 50);
+      });
+
+      // Очищаем хранилище слоёв
+      if (!fadeDuration || fadeDuration <= 0) {
+        this.stems = {};
+        this.activeStem = null;
+      } else {
+        setTimeout(() => {
+          this.stems = {};
+          this.activeStem = null;
+        }, fadeDuration + 50);
+      }
     }
   }
 
@@ -103,6 +136,91 @@ export class AudioManager {
         if (this.bgm) this.bgm.stop();
       }, durationInSeconds * 1000);
     }
+  }
+
+  // =========================================
+  // === МАЙ: АДАПТИВНАЯ МУЗЫКА (STEMS) ===
+  // =========================================
+
+  /**
+   * Запускает сразу несколько треков синхронно.
+   * @param {Object} stemTracks - Объект вида { base: "track1", tension: "track2" }
+   * @param {string} initialLayer - Какой слой звучит со старта (например, "base")
+   * @param {number} volume - Общая базовая громкость
+   */
+  playStemBGM(stemTracks, initialLayer = "base", volume = 0.5) {
+    this.stopBGM(); // Убиваем старую обычную музыку, если была
+    this.currentBgmBaseVolume = volume;
+    this.stems = {};
+    this.activeStem = initialLayer;
+
+    const masterVol = typeof this.bgmMaster === "number" ? this.bgmMaster : 1;
+    const targetVol = volume * masterVol;
+
+    console.log(`[Audio] 🎵 Запускаем стемы:`, stemTracks);
+
+    Object.keys(stemTracks).forEach((layerName) => {
+      const trackId = stemTracks[layerName];
+      // ВАЖНО: Если у тебя файлы .mp3, замени .ogg на .mp3 в следующей строке!
+      const src = `${this.basePaths.bgm}${trackId}.ogg`;
+
+      this.stems[layerName] = new Howl({
+        src: [src],
+        html5: false, // Обязательно false для идеальной синхронизации!
+        loop: true,
+        volume: 0,
+      });
+
+      // Запускаем сразу. Howler сам дождётся их загрузки и стартанёт их в одну миллисекунду
+      this.stems[layerName].play();
+
+      // Выводим из тишины только начальный слой
+      if (layerName === initialLayer) {
+        this.stems[layerName].fade(0, targetVol, 2000);
+      }
+    });
+  }
+
+  /**
+   * Плавный переход (кроссфейд) между запущенными слоями
+   * @param {string} targetLayer - В какой слой переходим (например, "tension")
+   * @param {number} duration - Длительность перехода в мс
+   */
+  crossfadeStems(targetLayer, duration = 2000) {
+    console.log(`[Audio] 🎚️ Кроссфейд в слой: ${targetLayer}`);
+      console.log(`[Audio] 🔍 Сейчас в памяти лежат слои:`, this.stems);
+
+    if (!this.stems || !this.stems[targetLayer]) {
+      console.warn(
+        `[Audio] ❌ Слой ${targetLayer} не найден! Проверь опечатки в макросе.`,
+      );
+      return;
+    }
+
+    if (targetLayer === this.activeStem) {
+      console.warn(
+        `[Audio] ⚠️ Мы уже находимся на слое ${targetLayer}. Игнорирую.`,
+      );
+      return;
+    }
+
+    const masterVol = typeof this.bgmMaster === "number" ? this.bgmMaster : 1;
+    const targetVol = this.currentBgmBaseVolume * masterVol;
+
+    Object.keys(this.stems).forEach((layerName) => {
+      const howl = this.stems[layerName];
+      let currentVol = howl.volume(); // Получаем текущую громкость
+
+      if (layerName !== targetLayer) {
+        // Глушим все остальные слои (базовый уйдёт в 0)
+        howl.fade(currentVol, 0, duration);
+      } else {
+        // Поднимаем нужный слой (приглушённый выйдет на targetVol)
+        howl.fade(currentVol, targetVol, duration);
+      }
+    });
+
+    this.activeStem = targetLayer;
   }
 
   playSFX(trackId, volume = 1.0, loop = false) {

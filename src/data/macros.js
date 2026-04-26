@@ -193,6 +193,25 @@ export const m = {
   }),
 };
 
+// === МАЙ: МАКРОСЫ ДЛЯ АДАПТИВНОЙ МУЗЫКИ ===
+export const audioMacros = {
+  // Запуск адаптивной музыки. Пример:
+  // action: () => audioMacros.playStems({ calm: "bgm_school", scary: "bgm_school_tension" }, "calm")
+  playStems: (stemTracks, initialLayer = "calm", volume = 0.5) => {
+    if (window.audioManager) {
+      window.audioManager.playStemBGM(stemTracks, initialLayer, volume);
+    }
+  },
+
+  // Плавный переход в другой слой. Пример:
+  // action: () => audioMacros.fadeToStem("scary", 3000)
+  fadeToStem: (targetLayer, durationMs = 2000) => {
+    if (window.audioManager) {
+      window.audioManager.crossfadeStems(targetLayer, durationMs);
+    }
+  },
+};
+
 // --- СОКРАЩЕНИЯ ДЛЯ НАПИСАНИЯ ИСТОРИЙ ---
 
 // Нарраторская реплика (без персонажа)

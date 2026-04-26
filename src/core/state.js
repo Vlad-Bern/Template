@@ -29,6 +29,56 @@ export function updateStat(stat, value) {
     return;
   }
 
+  let newValue = 0; // МАЙ: Сюда сохраним итоговое значение для лога
+
+  if (state.hero.stats && Object.hasOwn(state.hero.stats, stat)) {
+    state.hero.stats[stat] += value;
+    if (STAT_LIMITS[stat]) {
+      const { min, max } = STAT_LIMITS[stat];
+      state.hero.stats[stat] = Math.max(
+        min,
+        Math.min(max, state.hero.stats[stat]),
+      );
+    }
+    newValue = state.hero.stats[stat]; // Запомнили
+  } else if (Object.hasOwn(state.hero, stat)) {
+    state.hero[stat] += value;
+    if (STAT_LIMITS[stat]) {
+      const { min, max } = STAT_LIMITS[stat];
+      state.hero[stat] = Math.max(min, Math.min(max, state.hero[stat]));
+    }
+    newValue = state.hero[stat]; // Запомнили
+  } else {
+    console.warn(`Стат ${stat} не найден!`);
+    return;
+  }
+
+  // === МАЙ: Красивый лог изменения статов ===
+  // Если значение прибавилось, цвет зелёный. Если убавилось — красный.
+  const color = value > 0 ? "#4ade80" : "#ff4d4f";
+  const sign = value > 0 ? "+" : "";
+  console.log(
+    `%c[Статы] %c${stat.toUpperCase()} %c${sign}${value} %c(Стало: ${newValue})`,
+    "color: #a78bfa; font-weight: bold;", // Цвет тега [Статы]
+    "color: #fff;", // Цвет имени стата
+    `color: ${color}; font-weight: bold;`, // Цвет изменения (+/-)
+    "color: #9ca3af; font-style: italic;", // Цвет итогового значения
+  );
+
+  // === Твоя старая логика событий ===
+  if (stat === "sanity") {
+    // +++ ФИКС: больше не лезем в DOM из state — диспатчим событие
+    window.dispatchEvent(
+      new CustomEvent("stressUpdated", {
+        detail: { sanity: state.hero.stats.sanity },
+      }),
+    );
+  }
+
+  if (stat === "rank_score") {
+    updateRankLetter();
+  }
+
   if (state.hero.stats && Object.hasOwn(state.hero.stats, stat)) {
     state.hero.stats[stat] += value;
     if (STAT_LIMITS[stat]) {
