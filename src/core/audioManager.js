@@ -168,7 +168,47 @@ export class AudioManager {
    * @param {string} initialLayer - Какой слой звучит со старта (например, "base")
    * @param {number} volume - Общая базовая громкость
    */
+
   playStemBGM(stemTracks, initialLayer = "base", volume = 0.5) {
+    // === МАЙ: ПРОВЕРКА НА БЕСШОВНОСТЬ ===
+    // Если у нас уже есть стемы, и мы просим запустить ТЕ ЖЕ САМЫЕ треки — ничего не делаем!
+    if (this.stems && Object.keys(this.stems).length > 0) {
+      let isSame = true;
+      const currentLayerNames = Object.keys(this.stems);
+      const newLayerNames = Object.keys(stemTracks);
+
+      if (currentLayerNames.length === newLayerNames.length) {
+        for (let layerName of currentLayerNames) {
+          // Вытаскиваем имя играющего трека (например, "Willbreaker") из пути файла
+          const howlObj = this.stems[layerName];
+          const srcArray = howlObj._src || (howlObj._srcs && howlObj._srcs[0]);
+          const srcPath = Array.isArray(srcArray) ? srcArray[0] : srcArray;
+          const currentTrackName = srcPath
+            ? srcPath.split("/").pop().replace(".ogg", "")
+            : "";
+
+          // Если хоть один трек не совпадает — это новые стемы, нужно перезапускать
+          if (currentTrackName !== stemTracks[layerName]) {
+            isSame = false;
+            break;
+          }
+        }
+      } else {
+        isSame = false;
+      }
+
+      // Если это те же самые стемы — просто выходим! Музыка продолжает литься бесшовно.
+      if (isSame) {
+        console.log(`[Audio] 🎵 Сгемы уже играют, продолжаем бесшовно.`);
+        // Если нас попросили стартовать с другого слоя — делаем кроссфейд
+        if (this.activeStem !== initialLayer) {
+          this.crossfadeStems(initialLayer, 2000);
+        }
+        return;
+      }
+    }
+
+    // Если это НОВЫЕ стемы — убиваем старую музыку и запускаем их
     this.stopBGM(0);
     this.currentBgmBaseVolume = volume;
     this.stems = {};
@@ -176,8 +216,6 @@ export class AudioManager {
 
     const masterVol = typeof this.bgmMaster === "number" ? this.bgmMaster : 1;
     const targetVol = volume * masterVol;
-
-    // МАЙ: Проверяем, скипает ли игрок текст прямо сейчас
     const isSkipping = window.sm && window.sm.isFastForwarding;
 
     console.log(`[Audio] 🎵 Запускаем стемы:`, stemTracks);

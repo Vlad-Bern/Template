@@ -20,6 +20,11 @@ window._confirmRmbHandler = null;
 window.showConfirm = function (message, onConfirm) {
   if (window.playUISound) window.playUISound("open");
 
+  // === МАЙ: СТАВИМ НА ПАУЗУ ПРИ ОТКРЫТИИ ===
+  if (window.quizTimer) {
+    window.quizTimer.pause();
+  }
+
   let backdrop = document.getElementById("confirm-backdrop");
   if (!backdrop) {
     backdrop = document.createElement("div");
@@ -52,6 +57,11 @@ window.showConfirm = function (message, onConfirm) {
     backdrop.classList.remove("active");
     window.removeEventListener("keydown", window._confirmKeyHandler, true);
     window.removeEventListener("contextmenu", window._confirmRmbHandler, true);
+
+    // === МАЙ: ВОЗОБНОВЛЯЕМ ТАЙМЕР ПРИ ЗАКРЫТИИ ===
+    if (window.quizTimer) {
+      window.quizTimer.resume();
+    }
   };
 
   // Защита кнопок клавиатуры
@@ -476,6 +486,11 @@ window.returnToMenuLogic = (skipConfirm = false) => {
     // Внимание! Исправленное имя переменной: sm.cs
     if (window.sm && window.sm.cs) {
       window.sm.cs.forceClose();
+    }
+
+    if (window.quizTimer) {
+      window.quizTimer.clear();
+      window.quizTimer = null;
     }
 
     if (window.playUISound) window.playUISound("open");
@@ -1089,7 +1104,7 @@ window.startCredits = function (creditsArray) {
       e.stopImmediatePropagation();
 
       if (e.type === "keydown") {
-        if (window.playUISound) window.playUISound("click");
+        if (window.playUISound) window.playUISound("open");
         showNextText();
       }
     }
@@ -1159,7 +1174,7 @@ window.startCredits = function (creditsArray) {
     // Разрешаем переход по ссылкам!
     if (e.target && e.target.closest && e.target.closest("a")) return;
 
-    if (window.playUISound) window.playUISound("click");
+    if (window.playUISound) window.playUISound("open");
     showNextText();
   };
 };
@@ -1522,7 +1537,7 @@ if (btnExit) {
     document.body.style.pointerEvents = "none";
 
     // Если у вас есть звук интерфейса, можно воспроизвести тихий щелчок
-    if (window.playUISound) window.playUISound("click");
+    if (window.playUISound) window.playUISound("open");
 
     // Создаем оверлей для затемнения
     const exitOverlay = document.createElement("div");
@@ -1646,7 +1661,7 @@ window.showLightbox = function (index) {
 };
 
 function closeLightbox() {
-  if (window.playUISound) window.playUISound("click");
+  if (window.playUISound) window.playUISound("open");
   lightboxOverlay.style.display = "none";
 }
 
@@ -1712,12 +1727,12 @@ lightboxOverlay.addEventListener(
 function handleSwipeGesture() {
   // Если провели пальцем влево (следующая картинка)
   if (touchendX < touchstartX - 50) {
-    if (window.playUISound) window.playUISound("click");
+    if (window.playUISound) window.playUISound("open");
     nextLightboxImg();
   }
   // Если провели пальцем вправо (предыдущая картинка)
   if (touchendX > touchstartX + 50) {
-    if (window.playUISound) window.playUISound("click");
+    if (window.playUISound) window.playUISound("open");
     prevLightboxImg();
   }
 }

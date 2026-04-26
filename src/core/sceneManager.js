@@ -666,10 +666,56 @@ export class SceneManager {
     }
 
     // === МАЙ: УБИВАЕМ СТАРУЮ МУЗЫКУ (ДО ЗАПУСКА НОВОЙ) ===
-    this.am.stopBGM(0);
-    Object.keys(this.am.activeLoops).forEach((key) => this.am.stopSFX(key, 0));
+    // === МАЙ: УМНАЯ ОСТАНОВКА И ПЕРЕНОС АДАПТИВНОГО ЗВУКА ===
 
-    // === МАЙ: ЗАПУСКАЕМ КОРНЕВОЙ ЭКШЕН (Только если обычная игра) ===
+    // Сохраняем текущее состояние стемов ДО остановки
+    let carryOverStems = null;
+    let carryOverActiveStem = null;
+    let carryOverVolume = 0.5;
+
+    // Если прямо сейчас играют стемы, и мы НЕ восстанавливаем сейв (то есть это обычный переход между сценами)
+    if (
+      !this.isRestoringSave &&
+      this.am.stems &&
+      Object.keys(this.am.stems).length > 0
+    ) {
+      carryOverStems = {};
+      Object.keys(this.am.stems).forEach((layer) => {
+        // Осторожно достаем имя файла из объекта Howler
+        const howlObj = this.am.stems[layer];
+        const srcArray = howlObj._src || (howlObj._srcs && howlObj._srcs[0]);
+        const srcPath = Array.isArray(srcArray) ? srcArray[0] : srcArray;
+
+        if (srcPath && typeof srcPath === "string") {
+          const trackName = srcPath.split("/").pop().replace(".ogg", "");
+          carryOverStems[layer] = trackName;
+        }
+      });
+      carryOverActiveStem = this.am.activeStem;
+      carryOverVolume = this.am.currentBgmBaseVolume;
+    }
+
+    // === МАЙ: УМНАЯ ОСТАНОВКА МУЗЫКИ ===
+    // Мы убиваем старую музыку ТОЛЬКО ЕСЛИ в новой сцене прописана ДРУГАЯ музыка.
+    // Если в новой сцене нет музыки (currentBGM = null) и нет макросов (audioActions пуст) —
+    // значит, музыка должна продолжать играть из прошлой сцены!
+    
+    let isNewMusicTriggered = currentBGM !== null || audioActions.length > 0;
+
+    if (isNewMusicTriggered || this.isRestoringSave) {
+      // Если есть новая музыка или грузимся из сейва — убиваем старьё
+      this.am.stopBGM(0);
+      Object.keys(this.am.activeLoops).forEach((key) =>
+        this.am.stopSFX(key, 0),
+      );
+    } else {
+      // Если новой музыки нет — убиваем только зацикленные звуки, а BGM (и стемы) оставляем жить!
+      Object.keys(this.am.activeLoops).forEach((key) =>
+        this.am.stopSFX(key, 0),
+      );
+    }
+
+    // Запускаем корневой экшен сцены
     if (!this.isRestoringSave && typeof scene.action === "function") {
       try {
         scene.action();
@@ -688,7 +734,6 @@ export class SceneManager {
         }
       });
     }
-
     // Включаем стандартную музыку
     if (currentBGM) this.am.handleAudio(currentBGM);
     if (currentSFX) this.am.handleAudio(currentSFX);
@@ -1009,7 +1054,7 @@ export class SceneManager {
         }
       }
     };
-    
+
     handleVisibilityChange();
 
     // Слушаем стандартные браузерные события (в NW.js они работают отлично)
