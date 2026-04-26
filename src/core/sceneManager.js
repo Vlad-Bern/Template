@@ -17,18 +17,15 @@ export class PausableTimeout {
     this.remaining = delay;
     this.resume();
   }
-
   pause() {
     clearTimeout(this.timerId);
     this.remaining -= Date.now() - this.startTime;
   }
-
   resume() {
     this.startTime = Date.now();
     clearTimeout(this.timerId);
     this.timerId = setTimeout(this.callback, this.remaining);
   }
-
   clear() {
     clearTimeout(this.timerId);
   }
@@ -63,7 +60,6 @@ export class SceneManager {
       this.initStripFill();
     }
 
-    // Продвинутый детектор: проверяем Android или запуск внутри Capacitor/Cordova
     this.isMobile =
       /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
         navigator.userAgent,
@@ -73,7 +69,6 @@ export class SceneManager {
   }
 
   initGlobalEvents() {
-    // Полноэкранный режим по двойному клику
     document.addEventListener("dblclick", (e) => {
       if (e.target.closest("#game-ui")) {
         if (!document.fullscreenElement) {
@@ -84,22 +79,15 @@ export class SceneManager {
       }
     });
 
-    // Скролл мыши для продвижения текста (открытие истории теперь в historyManager.js)
     let isScrolling = false;
     document.addEventListener(
       "wheel",
       (e) => {
-        if (this.uiHidden) {
-          return;
-        }
-
+        if (this.uiHidden) return;
         if (this.cs && this.cs.isActive) return;
-
         if (this.hm && this.hm.modalOpen) return;
         if (window.saveManager && window.saveManager.modalOpen) return;
-
         if (isScrolling) return;
-
         if (e.deltaY > 20) {
           isScrolling = true;
           const skipEvent = new KeyboardEvent("keydown", {
@@ -115,7 +103,6 @@ export class SceneManager {
       { passive: false },
     );
 
-    // Возвращение скрытого UI по левому клику ИЛИ ТАПУ (перехватчик)
     document.addEventListener(
       "click",
       (e) => {
@@ -126,20 +113,14 @@ export class SceneManager {
           this.toggleUI();
           return;
         }
-        // +++ МАЙ: Убрали return для тача — теперь кнопки главного меню работают! +++
       },
       true,
     );
 
-    // Правый клик (скрыть/показать UI или закрыть окна)
     document.addEventListener("contextmenu", (e) => {
-      e.preventDefault(); // Убиваем стандартное меню браузера
-
-      // Игнорируем на мобилках (там свайпы)
+      e.preventDefault();
       if (e.isTrusted && (e.pointerType === "touch" || window.sm?.isMobile))
         return;
-
-      // Если открыты модалки - закрываем их
       if (
         this.hm?.modalOpen ||
         window.saveManager?.modalOpen ||
@@ -149,12 +130,10 @@ export class SceneManager {
         if (window.saveManager?.modalOpen) window.saveManager.close();
         if (window.settingsManager?.modalOpen) window.settingsManager.close();
       } else {
-        // Если всё чисто — скрываем/показываем интерфейс
         this.toggleUI();
       }
     });
 
-    // === ГЛОБАЛЬНЫЕ ЖЕСТЫ (Hold-to-Skip, UI, History, Modals) ===
     let touchStartX = 0;
     let touchStartY = 0;
     let holdSkipTimer = null;
@@ -163,20 +142,16 @@ export class SceneManager {
     document.addEventListener(
       "touchstart",
       (e) => {
-        // МАЙ: Координаты записываем ВСЕГДА! Чтобы модалки знали, откуда начался свайп.
         touchStartX = e.touches[0].clientX;
         touchStartY = e.touches[0].clientY;
-
         clearTimeout(holdSkipTimer);
 
-        // МАЙ: А вот долгий тап (перемотку) запрещаем в главном меню
         if (
           document.getElementById("main-menu-screen")?.style.display !== "none"
         )
           return;
 
         holdSkipTimer = setTimeout(() => {
-          // ... тут твой код перемотки ...
           if (
             this.hm?.modalOpen ||
             window.saveManager?.modalOpen ||
@@ -184,7 +159,6 @@ export class SceneManager {
           )
             return;
           if (this.cs?.isActive || this.uiHidden) return;
-
           isHolding = true;
           this.isFastForwarding = true;
           this.handleFastForward();
@@ -199,10 +173,8 @@ export class SceneManager {
       (e) => {
         const dx = Math.abs(e.touches[0].clientX - touchStartX);
         const dy = Math.abs(e.touches[0].clientY - touchStartY);
-
         if (dx > 15 || dy > 15) {
           clearTimeout(holdSkipTimer);
-
           if (isHolding) {
             this.isFastForwarding = false;
             isHolding = false;
@@ -218,8 +190,6 @@ export class SceneManager {
       "touchend",
       (e) => {
         clearTimeout(holdSkipTimer);
-
-        // МАЙ: Жёстко выключаем скип при ЛЮБОМ отпускании пальца
         this.isFastForwarding = false;
 
         if (isHolding) {
@@ -249,79 +219,57 @@ export class SceneManager {
           window.saveManager?.modalOpen ||
           window.settingsManager?.modalOpen;
 
-        // Закрытие модалок горизонтальным свайпом (РАБОТАЕТ ТЕПЕРЬ ВЕЗДЕ!)
         if (isModalOpen) {
           if (absX > 50 && absX > absY * 2) {
             if (isGalleryOpen) {
-              if (typeof window.closeGallery === "function") {
+              if (typeof window.closeGallery === "function")
                 window.closeGallery();
-              } else {
-                galleryModal.style.display = "none";
-              }
+              else galleryModal.style.display = "none";
             }
-
-            if (
-              this.hm?.modalOpen &&
-              typeof this.hm.hideHistory === "function"
-            ) {
+            if (this.hm?.modalOpen && typeof this.hm.hideHistory === "function")
               this.hm.hideHistory();
-            }
-
             if (
               window.saveManager?.modalOpen &&
               typeof window.saveManager.close === "function"
-            ) {
+            )
               window.saveManager.close();
-            }
-
             if (
               window.settingsManager?.modalOpen &&
               typeof window.settingsManager.close === "function"
-            ) {
+            )
               window.settingsManager.close();
-            }
           }
           return;
         }
 
-        // Игровые вертикальные свайпы
         if (absY > 50 && absY > absX) {
-          // === МАЙ: ВОТ ЗАЩИТА! ===
-          // Игровые свайпы интерфейса блокируются, если мы в главном меню!
           if (
             document.getElementById("main-menu-screen")?.style.display !==
             "none"
-          ) {
+          )
             return;
-          }
-
           if (deltaY < 0) {
-            this.toggleUI(); // вверх
+            this.toggleUI();
           } else {
             if (
               this.hm &&
               !this.hm.modalOpen &&
               typeof this.hm.showHistory === "function"
-            ) {
-              this.hm.showHistory(); // вниз
-            }
+            )
+              this.hm.showHistory();
           }
         }
       },
       { passive: false },
     );
 
-    // === МАЙ: Защита от залипания скипа на мобилках ===
-    // Если браузер или система перехватила долгое нажатие
     document.addEventListener(
       "touchcancel",
       () => {
         clearTimeout(holdSkipTimer);
         isHolding = false;
         this.isFastForwarding = false;
-        if (this.fastForwardTimeoutId) {
-          clearTimeout(this.fastForwardTimeoutId);
-        }
+        if (this.fastForwardTimeoutId) clearTimeout(this.fastForwardTimeoutId);
       },
       { passive: true },
     );
@@ -331,21 +279,16 @@ export class SceneManager {
       if (sceneId) this.loadScene(sceneId);
     });
 
-    // Клавиатура (горячие клавиши)
     window.addEventListener("keydown", (e) => {
-      // 0. Собираем состояния всех окон
       const isSave = window.saveManager && window.saveManager.modalOpen;
       const isSettings =
         window.settingsManager && window.settingsManager.modalOpen;
       const isHistory = this.hm && this.hm.modalOpen;
       const isModalOpen = isSave || isSettings || isHistory;
-
-      // Самая надежная проверка на Главное меню (не обмануть даже через CSS!)
       const mainMenu = document.getElementById("main-menu-screen");
       const isMainMenuActive =
         mainMenu && window.getComputedStyle(mainMenu).display !== "none";
 
-      // Игровые клавиши, которые мы берем под жесткий контроль
       const gameHotkeys = [
         "KeyO",
         "KeyS",
@@ -361,9 +304,7 @@ export class SceneManager {
         "ControlRight",
       ];
 
-      // === ФАЗА 1: МЫ В ГЛАВНОМ МЕНЮ ===
       if (isMainMenuActive) {
-        // Escape всегда может закрыть всплывшие поверх меню настройки или загрузку
         if (e.code === "Escape") {
           if (isSettings) window.settingsManager.close();
           if (isSave) window.saveManager.close();
@@ -371,9 +312,6 @@ export class SceneManager {
           e.stopImmediatePropagation();
           return;
         }
-
-        // Блокируем ТОЛЬКО игровые кнопки (O, S, L, H, Пробел и т.д.)
-        // Чтобы нельзя было открыть историю или запустить диалог из меню.
         if (gameHotkeys.includes(e.code)) {
           e.preventDefault();
           e.stopImmediatePropagation();
@@ -381,14 +319,9 @@ export class SceneManager {
         return;
       }
 
-      // === ФАЗА 2: МЫ В ИГРЕ, НО ОТКРЫТО ОКНО (Настройки, Сохранения, Лог) ===
       if (isModalOpen) {
-        // Разрешаем стрелки ТОЛЬКО для окна сохранений (листать страницы)
-        if (isSave && (e.code === "ArrowLeft" || e.code === "ArrowRight")) {
+        if (isSave && (e.code === "ArrowLeft" || e.code === "ArrowRight"))
           return;
-        }
-
-        // Закрытие на Escape
         if (e.code === "Escape") {
           if (isSettings) window.settingsManager.close();
           if (isSave) window.saveManager.close();
@@ -396,8 +329,6 @@ export class SceneManager {
           e.stopImmediatePropagation();
           return;
         }
-
-        // --- ВЗАИМОЗАМЕНЯЕМОЕ ПЕРЕКЛЮЧЕНИЕ ОКОН ---
         if (e.code === "KeyO" && !e.repeat) {
           isSettings
             ? window.settingsManager.close()
@@ -440,8 +371,6 @@ export class SceneManager {
           e.stopImmediatePropagation();
           return;
         }
-
-        // Жестко глушим пробелы, энтеры и прочее, чтобы игра не шла на фоне открытых настроек!
         if (gameHotkeys.includes(e.code)) {
           e.preventDefault();
           e.stopImmediatePropagation();
@@ -449,7 +378,6 @@ export class SceneManager {
         return;
       }
 
-      // === ФАЗА 3: ЧИСТАЯ ИГРА (МЕНЮ И ОКНА ЗАКРЫТЫ) ===
       if (e.code === "ControlLeft" || e.code === "ControlRight") {
         if (!e.repeat && !this.uiHidden) {
           this.isFastForwarding = true;
@@ -484,26 +412,20 @@ export class SceneManager {
         e.stopImmediatePropagation();
         return;
       }
-
-      // Выход в меню на ESCAPE!
       if (e.code === "Escape") {
         e.preventDefault();
         e.stopImmediatePropagation();
-
-        // Вызываем нашу красивую функцию возврата в меню из main.js!
-        if (typeof window.returnToMenuLogic === "function") {
+        if (typeof window.returnToMenuLogic === "function")
           window.returnToMenuLogic();
-        }
         return;
       }
     });
 
     window.addEventListener("keyup", (e) => {
       if (this.cs && this.cs.isActive) {
-        this.isFastForwarding = false; // На всякий случай сбрасываем скип
+        this.isFastForwarding = false;
         return;
       }
-
       if (e.code === "ControlLeft" || e.code === "ControlRight") {
         this.isFastForwarding = false;
       }
@@ -540,9 +462,7 @@ export class SceneManager {
 
   handleFastForward() {
     if (!this.isFastForwarding) return;
-    if (this.fastForwardTimeoutId) {
-      clearTimeout(this.fastForwardTimeoutId);
-    }
+    if (this.fastForwardTimeoutId) clearTimeout(this.fastForwardTimeoutId);
     this.skipToNextChoice();
     if (this.isFastForwarding) {
       this.fastForwardTimeoutId = setTimeout(
@@ -564,13 +484,11 @@ export class SceneManager {
     }
   }
 
-  // +++ НОВЫЙ МЕТОД ДЛЯ БЕЗОПАСНОЙ ЗАГРУЗКИ СЕЙВОВ +++
   async loadScene(sceneId, startLineIndex = 0, isRestoring = false) {
     this.isRestoringSave = isRestoring;
     this.currentSceneId = sceneId;
     this.currentLineIndex = startLineIndex;
 
-    // МАЙ: Добавьте этот сброс!
     this.isFastForwarding = false;
     if (this.fastForwardTimeoutId) {
       clearTimeout(this.fastForwardTimeoutId);
@@ -586,17 +504,9 @@ export class SceneManager {
     }
     if (this.navController) this.navController.abort();
 
-    this.isFastForwarding = false;
-    if (this.fastForwardTimeoutId) {
-      clearTimeout(this.fastForwardTimeoutId);
-      this.fastForwardTimeoutId = null;
-    }
-    if (this.navController) this.navController.abort();
-
     const scene = story[sceneId];
     if (!scene) return console.error(`[SM] Scene not found: ${sceneId}`);
 
-    // 1. ОЧИСТКА ДОМА (Фикс "прибитых" спрайтов)
     this.ui.handleFx({ darkness: 0, noise: 0, vignette: 0, duration: 0 });
 
     const interLayer = document.getElementById("interaction-layer");
@@ -608,14 +518,26 @@ export class SceneManager {
       interLayer.style.display = "none";
     }
     if (dialogWrapper) dialogWrapper.style.display = "flex";
-    if (charLayer) charLayer.innerHTML = ""; // Жестко удаляем старые спрайты
+    if (charLayer) charLayer.innerHTML = "";
 
-    // 2. Сюжетные скрипты запускаем ТОЛЬКО если это не загрузка сейва
     if (!this.isRestoringSave && typeof scene.action === "function") {
       try {
         scene.action();
       } catch (e) {
         console.error("Scene action error:", e);
+      }
+    } else if (this.isRestoringSave && typeof scene.action === "function") {
+      const actionStr = scene.action.toString();
+      if (
+        actionStr.includes("playStems") ||
+        actionStr.includes("fadeToStem") ||
+        actionStr.includes("playBGM")
+      ) {
+        try {
+          scene.action();
+        } catch (e) {
+          console.error("Scene audio-action error on restore:", e);
+        }
       }
     }
 
@@ -623,53 +545,39 @@ export class SceneManager {
       typeof scene.lines === "function" ? scene.lines() : scene.lines;
     sceneLines = sceneLines || [];
 
-    // 3. ВОССТАНОВЛЕНИЕ ВИЗУАЛЬНОГО СОСТОЯНИЯ
     let targetBg = scene.bg || null;
     let activeChars = {};
-    let targetFx = {}; // Собираем нужные эффекты
+    let targetFx = {};
 
-    // Прогоняем скрипт до точки сохранения в фоновом режиме
     for (let i = 0; i < startLineIndex && i < sceneLines.length; i++) {
       const l = sceneLines[i];
       if (l.bg) targetBg = l.bg;
       if (l.showCharacter) activeChars[l.showCharacter.id] = l.showCharacter;
       if (l.hideCharacter) delete activeChars[l.hideCharacter];
-
-      // Если на строке был эффект, наслаиваем его поверх старых
       if (l.fx) Object.assign(targetFx, l.fx);
     }
 
-    // Применяем финальный фон (скорость 0 = мгновенно)
-    // Применяем финальный фон (скорость 0 = мгновенно)
     if (targetBg) {
       const optimizedBg = this._getOptimizedBgPath(targetBg);
       this.ui.updateBackground(optimizedBg, 0);
-
       if (window.unlockCG) window.unlockCG(targetBg);
     }
 
-    // Мгновенно натягиваем правильные эффекты без анимации
     if (Object.keys(targetFx).length > 0) {
       targetFx.duration = 0;
       this.ui.handleFx(targetFx);
     }
 
-    // Прогоняем скрипт до точки сохранения, чтобы найти последнюю музыку
     let currentBGM =
       scene.audio && scene.audio.type === "bgm" ? scene.audio : null;
     let currentSFX =
       scene.audio && scene.audio.type === "sfx" && scene.audio.loop
         ? scene.audio
         : null;
-
-    // МАЙ: Собираем последний вызванный аудио-макрос
     let lastAudioAction = null;
 
-    // Прогоняем скрипт до точки сохранения, чтобы найти последнюю музыку и макросы
     for (let i = 0; i <= startLineIndex && i < sceneLines.length; i++) {
       const l = sceneLines[i];
-
-      // 1. Стандартный аудио-объект
       if (l.audio) {
         let audios = Array.isArray(l.audio) ? l.audio : [l.audio];
         for (let a of audios) {
@@ -680,123 +588,32 @@ export class SceneManager {
         }
       }
 
-      // 2. === МАЙ: УМНЫЙ ЗАПУСК КОРНЕВОГО ACTION ===
-      // Если это новая игра, запускаем весь action целиком
-      if (!this.isRestoringSave && typeof scene.action === "function") {
-        try {
-          scene.action();
-        } catch (e) {
-          console.error("Scene action error:", e);
-        }
-      }
-      // Если это загрузка сейва, ищем в корневом action ТОЛЬКО аудио-макросы!
-      else if (this.isRestoringSave && typeof scene.action === "function") {
-        const actionStr = scene.action.toString();
+      if (typeof l.action === "function") {
+        const actionStr = l.action.toString();
         if (
           actionStr.includes("playStems") ||
-          actionStr.includes("fadeToStem")
+          actionStr.includes("fadeToStem") ||
+          actionStr.includes("playBGM")
         ) {
-          try {
-            scene.action(); // Запускаем, так как там только аудио
-          } catch (e) {
-            console.error("Scene audio-action error on restore:", e);
-          }
-        }
-      }
-
-      let sceneLines =
-        typeof scene.lines === "function" ? scene.lines() : scene.lines;
-      sceneLines = sceneLines || [];
-
-      // 3. ВОССТАНОВЛЕНИЕ ВИЗУАЛЬНОГО СОСТОЯНИЯ
-      let targetBg = scene.bg || null;
-      let activeChars = {};
-      let targetFx = {};
-
-      // Прогоняем скрипт до точки сохранения в фоновом режиме
-      for (let i = 0; i < startLineIndex && i < sceneLines.length; i++) {
-        const l = sceneLines[i];
-        if (l.bg) targetBg = l.bg;
-        if (l.showCharacter) activeChars[l.showCharacter.id] = l.showCharacter;
-        if (l.hideCharacter) delete activeChars[l.hideCharacter];
-        if (l.fx) Object.assign(targetFx, l.fx);
-      }
-
-      if (targetBg) {
-        const optimizedBg = this._getOptimizedBgPath(targetBg);
-        this.ui.updateBackground(optimizedBg, 0);
-        if (window.unlockCG) window.unlockCG(targetBg);
-      }
-
-      if (Object.keys(targetFx).length > 0) {
-        targetFx.duration = 0;
-        this.ui.handleFx(targetFx);
-      }
-
-      let currentBGM =
-        scene.audio && scene.audio.type === "bgm" ? scene.audio : null;
-      let currentSFX =
-        scene.audio && scene.audio.type === "sfx" && scene.audio.loop
-          ? scene.audio
-          : null;
-
-      // === МАЙ: ИЩЕМ МУЗЫКУ В ПРОШЛЫХ СТРОКАХ ===
-      let lastAudioAction = null;
-
-      for (let i = 0; i <= startLineIndex && i < sceneLines.length; i++) {
-        const l = sceneLines[i];
-        if (l.audio) {
-          let audios = Array.isArray(l.audio) ? l.audio : [l.audio];
-          for (let a of audios) {
-            if (a.type === "bgm") currentBGM = a;
-            if (a.type === "stop") currentBGM = null;
-            if (a.type === "sfx" && a.loop) currentSFX = a;
-            if (a.type === "stop_sfx") currentSFX = null;
-          }
-        }
-
-        // Парсим action на наличие аудио-макросов
-        if (typeof l.action === "function") {
-          const actionStr = l.action.toString();
-          if (
-            actionStr.includes("playStems") ||
-            actionStr.includes("fadeToStem") ||
-            actionStr.includes("playBGM")
-          ) {
-            lastAudioAction = l.action;
-          }
-        }
-      }
-
-      // Останавливаем всё старое перед загрузкой нового
-      this.am.stopBGM(0);
-      Object.keys(this.am.activeLoops).forEach((key) =>
-        this.am.stopSFX(key, 0),
-      );
-
-      // Включаем стандартную музыку
-      if (currentBGM) this.am.handleAudio(currentBGM);
-      if (currentSFX) this.am.handleAudio(currentSFX);
-
-      // Включаем музыку из строк (если она перебивает корневую)
-      if (this.isRestoringSave && lastAudioAction) {
-        try {
-          lastAudioAction();
-        } catch (e) {
-          console.warn("[SM] Ошибка при восстановлении аудио-макроса:", e);
+          lastAudioAction = l.action;
         }
       }
     }
 
-    // Останавливаем всё старое перед загрузкой нового
     this.am.stopBGM(0);
     Object.keys(this.am.activeLoops).forEach((key) => this.am.stopSFX(key, 0));
 
-    // Включаем то, что должно играть на момент сохранения
     if (currentBGM) this.am.handleAudio(currentBGM);
     if (currentSFX) this.am.handleAudio(currentSFX);
 
-    // Восстанавливаем персонажей мгновенно (пустая функция вместо анимации)
+    if (this.isRestoringSave && lastAudioAction) {
+      try {
+        lastAudioAction();
+      } catch (e) {
+        console.warn("[SM] Ошибка при восстановлении аудио-макроса:", e);
+      }
+    }
+
     Object.values(activeChars).forEach((char) => {
       if (this.cm && this.cm.show) {
         this.cm.show(char.id, char.emotion, char.position, () => {});
@@ -805,7 +622,6 @@ export class SceneManager {
 
     this.currentScene = scene;
 
-    // 4. ЗАПУСК ДИАЛОГА ИЛИ ВЫБОРОВ
     if (sceneLines && sceneLines.length > 0) {
       await this.playLines(sceneLines, startLineIndex, isRestoring);
     }
@@ -819,7 +635,6 @@ export class SceneManager {
     }
   }
 
-  // +++ ИСПРАВЛЕННЫЙ PLAYLINES +++
   async playLines(lines, startIndex = 0) {
     const playId = this.currentPlayId;
     const db = document.getElementById("dialog-box");
@@ -841,7 +656,6 @@ export class SceneManager {
         this.bgManager.preload(bgsToPreload);
       }
 
-      // ФИКС ДУБЛИРОВАНИЯ: Не меняем статы и не вызываем action, если строка восстановлена
       if (!isRestoredLine && line.effects) {
         Object.entries(line.effects).forEach(([stat, val]) =>
           updateStat(stat, val),
@@ -857,7 +671,6 @@ export class SceneManager {
         }
       }
 
-      // Визуал, эффекты и аудио применяем всегда
       if (!isRestoredLine && line.audio) this.am.handleAudio(line.audio);
       if (line.shake) this.ui.shakeScreen(line.shake);
       if (line.fx) this.ui.handleFx(line.fx);
@@ -875,7 +688,6 @@ export class SceneManager {
 
         const optimizedLineBg = this._getOptimizedBgPath(line.bg);
         const speed = line.bgSpeed !== undefined ? line.bgSpeed : 400;
-        // Мгновенная смена фона при загрузке сейва
         this.ui.updateBackground(optimizedLineBg, isRestoredLine ? 0 : speed);
         if (window.unlockCG) window.unlockCG(line.bg);
       }
@@ -885,7 +697,6 @@ export class SceneManager {
 
       this.currentLineIndex = i;
 
-      // Не дублируем логи в истории
       if (!isRestoredLine) {
         this.hm.addToHistory(line.speaker, displayText);
       }
@@ -917,7 +728,6 @@ export class SceneManager {
 
       let typePromise;
       if (isRestoredLine) {
-        // Мгновенно выводим текст при загрузке, без печатной машинки!
         db.innerHTML = displayText;
         typePromise = Promise.resolve();
       } else {
@@ -957,7 +767,7 @@ export class SceneManager {
         scene,
         (nextId) => this.loadScene(nextId),
         this.am,
-      ); // Передаем scene целиком и this.am
+      );
     } else if (scene.choices && scene.choices.length > 0) {
       this.isFastForwarding = false;
       if (this.fastForwardTimeoutId) clearTimeout(this.fastForwardTimeoutId);
@@ -965,7 +775,7 @@ export class SceneManager {
         scene.choices,
         (nextId) => this.loadScene(nextId),
         this.am,
-      ); // Передаем this.am
+      );
     } else if (scene.next) {
       const nextSceneId =
         typeof scene.next === "function" ? scene.next() : scene.next;
@@ -982,24 +792,21 @@ export class SceneManager {
       this.navController = new AbortController();
       const { signal } = this.navController;
 
-      // 2. ГЛАВНОЕ: Если этот контроллер прервут извне (через abort), мы ОБЯЗАТЕЛЬНО резолвим этот промис!
       signal.addEventListener(
         "abort",
         () => {
-          resolve(); // Теперь промис не повиснет в памяти
+          resolve();
         },
         { once: true },
       );
 
       const advance = (e) => {
-        // === ЗАМОК МАЙ: ЕСЛИ ВИСИТ ОКНО ПОДТВЕРЖДЕНИЯ - ИГНОРИРУЕМ ВСЁ! ===
         const confirmBackdrop = document.getElementById("confirm-backdrop");
         if (confirmBackdrop && confirmBackdrop.classList.contains("active")) {
           e.stopPropagation();
           return;
         }
 
-        // Если открыто ХОТЯ БЫ ОДНО меню - убиваем событие на месте
         if (document.activeElement) document.activeElement.blur();
         if (
           (window.saveManager && window.saveManager.modalOpen) ||
@@ -1010,21 +817,19 @@ export class SceneManager {
             e.preventDefault();
             e.stopPropagation();
           }
-          return; // Не пускаем клик дальше!
+          return;
         }
 
         if (this.uiHidden) return;
 
-        // Игнорируем клики по кнопкам UI (чтобы не перелистывать текст)
         if (e.target && e.target.closest) {
           if (
             e.target.id === "modal-backdrop" ||
-            e.target.closest(".modal-close-btn") || // Универсальная кнопка закрытия
-            e.target.closest(".footer-btn") || // Универсальные кнопки внизу (Save, Load, Opt, History)
+            e.target.closest(".modal-close-btn") ||
+            e.target.closest(".footer-btn") ||
             e.target.closest("#close-history")
-          ) {
+          )
             return;
-          }
         }
 
         if (e.repeat) return;
@@ -1033,7 +838,6 @@ export class SceneManager {
         if (e.type === "keydown" && !allowed.includes(e.code)) return;
         if (e.code === "Space") e.preventDefault();
 
-        // Пропускаем текст или идем дальше
         if (this.tw && this.tw.isTyping) {
           this.tw.skip();
         } else {
@@ -1058,8 +862,6 @@ export class SceneManager {
     if (!this.isMobile || !originalPath || typeof originalPath !== "string") {
       return originalPath;
     }
-    // Заменяем "/bg/" на "/bg_mobile/" (используем replaceAll на всякий случай)
-    // Ищем именно папку bg со слэшами, чтобы случайно не сломать имя файла, в котором есть буквы "bg"
     if (originalPath.includes("/bg/")) {
       return originalPath.replaceAll("/bg/", "/bg_mobile/");
     }
@@ -1070,18 +872,12 @@ export class SceneManager {
     const handleVisibilityChange = () => {
       if (document.hidden || !document.hasFocus()) {
         window.isGamePaused = true;
-
-        // 1. Глушим весь звук и музыку через Howler
         if (this.am && typeof Howler !== "undefined") {
           Howler.mute(true);
         }
-
-        // 2. Замораживаем печать текста (в typewriter.js есть while(this.isPaused))
         if (this.tw) {
           this.tw.isPaused = true;
         }
-
-        // 3. Останавливаем таймер викторины (если он есть)
         if (window.quizTimer) {
           if (typeof window.quizTimer.pause === "function") {
             window.quizTimer.pause();
@@ -1091,29 +887,18 @@ export class SceneManager {
           }
         }
       } else {
-        // ==========================================
-        // --- ОКНО АКТИВНО (ВОЗОБНОВЛЕНИЕ)
-        // ==========================================
         window.isGamePaused = false;
-
-        // 1. Возвращаем звук
         if (this.am && typeof Howler !== "undefined") {
           Howler.mute(false);
         }
-
-        // 2. Снимаем текст с паузы (он продолжит печататься с того же символа)
         if (this.tw) {
           this.tw.isPaused = false;
         }
-
-        // 3. Возобновляем таймер
         if (window.quizTimer && typeof window.quizTimer.resume === "function") {
           window.quizTimer.resume();
         }
       }
     };
-
-    // Слушаем стандартные браузерные события (в NW.js они работают отлично)
     document.addEventListener("visibilitychange", handleVisibilityChange);
     window.addEventListener("blur", handleVisibilityChange);
     window.addEventListener("focus", handleVisibilityChange);
