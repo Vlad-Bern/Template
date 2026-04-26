@@ -188,19 +188,22 @@ export class AudioManager {
    */
   crossfadeStems(targetLayer, duration = 2000) {
     console.log(`[Audio] 🎚️ Кроссфейд в слой: ${targetLayer}`);
-      console.log(`[Audio] 🔍 Сейчас в памяти лежат слои:`, this.stems);
 
-    if (!this.stems || !this.stems[targetLayer]) {
+    // Если стемы утеряны или ещё загружаются (быстрый скип текста)
+    if (!this.stems || Object.keys(this.stems).length === 0) {
+      console.warn(`[Audio] ⚠️ Слои были утеряны! Пытаюсь восстановить...`);
+      return;
+    }
+
+    if (!this.stems[targetLayer]) {
       console.warn(
-        `[Audio] ❌ Слой ${targetLayer} не найден! Проверь опечатки в макросе.`,
+        `[Audio] ❌ Слой ${targetLayer} не найден! Проверь опечатки.`,
       );
       return;
     }
 
     if (targetLayer === this.activeStem) {
-      console.warn(
-        `[Audio] ⚠️ Мы уже находимся на слое ${targetLayer}. Игнорирую.`,
-      );
+      console.warn(`[Audio] ⚠️ Мы уже на слое ${targetLayer}.`);
       return;
     }
 
@@ -209,14 +212,25 @@ export class AudioManager {
 
     Object.keys(this.stems).forEach((layerName) => {
       const howl = this.stems[layerName];
-      let currentVol = howl.volume(); // Получаем текущую громкость
 
-      if (layerName !== targetLayer) {
-        // Глушим все остальные слои (базовый уйдёт в 0)
-        howl.fade(currentVol, 0, duration);
+      // Если Howler ещё не успел прогрузить аудио (быстрый клик игрока)
+      if (howl.state() === "unloaded" || howl.state() === "loading") {
+        howl.once("load", () => {
+          let currentVol = howl.volume();
+          if (layerName !== targetLayer) {
+            howl.fade(currentVol, 0, duration);
+          } else {
+            howl.fade(currentVol, targetVol, duration);
+          }
+        });
       } else {
-        // Поднимаем нужный слой (приглушённый выйдет на targetVol)
-        howl.fade(currentVol, targetVol, duration);
+        // Если уже загружено
+        let currentVol = howl.volume();
+        if (layerName !== targetLayer) {
+          howl.fade(currentVol, 0, duration);
+        } else {
+          howl.fade(currentVol, targetVol, duration);
+        }
       }
     });
 

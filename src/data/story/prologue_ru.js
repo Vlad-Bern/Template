@@ -719,15 +719,7 @@ export const story = {
     id: "quiz_intro",
     hideCharacter: "kagami",
     bg: "/bg/common/quiz_room.webp",
-    lines: [
-      {
-        speaker: "",
-        text: "Мы вошли внутрь... Стерильное место, белые стены.",
-      },
-      {
-        speaker: "",
-        text: "Они отражают эту комнату.",
-        action: () =>
+      action: () =>
           audioMacros.playStems(
             {
               base: "Willbreaker",
@@ -736,6 +728,14 @@ export const story = {
             "base",
             0.5,
           ),
+    lines: [
+      {
+        speaker: "",
+        text: "Мы вошли внутрь... Стерильное место, белые стены.",
+      },
+      {
+        speaker: "",
+        text: "Они отражают эту комнату.",
       },
       {
         speaker: "",

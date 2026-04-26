@@ -654,6 +654,7 @@ export class SceneManager {
       this.ui.handleFx(targetFx);
     }
 
+    // Прогоняем скрипт до точки сохранения, чтобы найти последнюю музыку
     let currentBGM =
       scene.audio && scene.audio.type === "bgm" ? scene.audio : null;
     let currentSFX =
@@ -661,9 +662,14 @@ export class SceneManager {
         ? scene.audio
         : null;
 
-    // Прогоняем скрипт до точки сохранения, чтобы найти последнюю музыку
+    // МАЙ: Собираем последний вызванный аудио-макрос
+    let lastAudioAction = null;
+
+    // Прогоняем скрипт до точки сохранения, чтобы найти последнюю музыку и макросы
     for (let i = 0; i <= startLineIndex && i < sceneLines.length; i++) {
       const l = sceneLines[i];
+
+      // 1. Стандартный аудио-объект
       if (l.audio) {
         let audios = Array.isArray(l.audio) ? l.audio : [l.audio];
         for (let a of audios) {
@@ -671,6 +677,113 @@ export class SceneManager {
           if (a.type === "stop") currentBGM = null;
           if (a.type === "sfx" && a.loop) currentSFX = a;
           if (a.type === "stop_sfx") currentSFX = null;
+        }
+      }
+
+      // 2. === МАЙ: УМНЫЙ ЗАПУСК КОРНЕВОГО ACTION ===
+      // Если это новая игра, запускаем весь action целиком
+      if (!this.isRestoringSave && typeof scene.action === "function") {
+        try {
+          scene.action();
+        } catch (e) {
+          console.error("Scene action error:", e);
+        }
+      }
+      // Если это загрузка сейва, ищем в корневом action ТОЛЬКО аудио-макросы!
+      else if (this.isRestoringSave && typeof scene.action === "function") {
+        const actionStr = scene.action.toString();
+        if (
+          actionStr.includes("playStems") ||
+          actionStr.includes("fadeToStem")
+        ) {
+          try {
+            scene.action(); // Запускаем, так как там только аудио
+          } catch (e) {
+            console.error("Scene audio-action error on restore:", e);
+          }
+        }
+      }
+
+      let sceneLines =
+        typeof scene.lines === "function" ? scene.lines() : scene.lines;
+      sceneLines = sceneLines || [];
+
+      // 3. ВОССТАНОВЛЕНИЕ ВИЗУАЛЬНОГО СОСТОЯНИЯ
+      let targetBg = scene.bg || null;
+      let activeChars = {};
+      let targetFx = {};
+
+      // Прогоняем скрипт до точки сохранения в фоновом режиме
+      for (let i = 0; i < startLineIndex && i < sceneLines.length; i++) {
+        const l = sceneLines[i];
+        if (l.bg) targetBg = l.bg;
+        if (l.showCharacter) activeChars[l.showCharacter.id] = l.showCharacter;
+        if (l.hideCharacter) delete activeChars[l.hideCharacter];
+        if (l.fx) Object.assign(targetFx, l.fx);
+      }
+
+      if (targetBg) {
+        const optimizedBg = this._getOptimizedBgPath(targetBg);
+        this.ui.updateBackground(optimizedBg, 0);
+        if (window.unlockCG) window.unlockCG(targetBg);
+      }
+
+      if (Object.keys(targetFx).length > 0) {
+        targetFx.duration = 0;
+        this.ui.handleFx(targetFx);
+      }
+
+      let currentBGM =
+        scene.audio && scene.audio.type === "bgm" ? scene.audio : null;
+      let currentSFX =
+        scene.audio && scene.audio.type === "sfx" && scene.audio.loop
+          ? scene.audio
+          : null;
+
+      // === МАЙ: ИЩЕМ МУЗЫКУ В ПРОШЛЫХ СТРОКАХ ===
+      let lastAudioAction = null;
+
+      for (let i = 0; i <= startLineIndex && i < sceneLines.length; i++) {
+        const l = sceneLines[i];
+        if (l.audio) {
+          let audios = Array.isArray(l.audio) ? l.audio : [l.audio];
+          for (let a of audios) {
+            if (a.type === "bgm") currentBGM = a;
+            if (a.type === "stop") currentBGM = null;
+            if (a.type === "sfx" && a.loop) currentSFX = a;
+            if (a.type === "stop_sfx") currentSFX = null;
+          }
+        }
+
+        // Парсим action на наличие аудио-макросов
+        if (typeof l.action === "function") {
+          const actionStr = l.action.toString();
+          if (
+            actionStr.includes("playStems") ||
+            actionStr.includes("fadeToStem") ||
+            actionStr.includes("playBGM")
+          ) {
+            lastAudioAction = l.action;
+          }
+        }
+      }
+
+      // Останавливаем всё старое перед загрузкой нового
+      this.am.stopBGM(0);
+      Object.keys(this.am.activeLoops).forEach((key) =>
+        this.am.stopSFX(key, 0),
+      );
+
+      // Включаем стандартную музыку
+      if (currentBGM) this.am.handleAudio(currentBGM);
+      if (currentSFX) this.am.handleAudio(currentSFX);
+
+      // Включаем музыку из строк (если она перебивает корневую)
+      if (this.isRestoringSave && lastAudioAction) {
+        try {
+          lastAudioAction();
+        } catch (e) {
+          console.warn("[SM] Ошибка при восстановлении аудио-макроса:", e);
         }
       }
     }
