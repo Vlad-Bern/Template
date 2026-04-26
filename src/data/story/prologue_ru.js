@@ -740,9 +740,12 @@ export const story = {
       {
         speaker: "",
         text: "Два стола стоят напротив друг друга и одна доска.",
-        action: () => audioMacros.fadeToStem("muffled", 2000),
+        action: () => audioMacros.fadeToStem("muffled", 1000),
       },
-      { speaker: "kagami", text: "Присаживайся." },
+      {
+        speaker: "kagami",
+        text: "Присаживайся.",
+      },
       { speaker: "", text: "На парте уже лежит бумага и ручка." },
       { speaker: "kagami", text: "Пока что не переворачивай листок." },
       {

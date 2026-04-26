@@ -149,7 +149,7 @@ export class AudioManager {
    * @param {number} volume - Общая базовая громкость
    */
   playStemBGM(stemTracks, initialLayer = "base", volume = 0.5) {
-    this.stopBGM(); // Убиваем старую обычную музыку, если была
+    this.stopBGM(0);
     this.currentBgmBaseVolume = volume;
     this.stems = {};
     this.activeStem = initialLayer;
@@ -157,26 +157,47 @@ export class AudioManager {
     const masterVol = typeof this.bgmMaster === "number" ? this.bgmMaster : 1;
     const targetVol = volume * masterVol;
 
+    // МАЙ: Проверяем, скипает ли игрок текст прямо сейчас
+    const isSkipping = window.sm && window.sm.isFastForwarding;
+
     console.log(`[Audio] 🎵 Запускаем стемы:`, stemTracks);
 
     Object.keys(stemTracks).forEach((layerName) => {
       const trackId = stemTracks[layerName];
-      // ВАЖНО: Если у тебя файлы .mp3, замени .ogg на .mp3 в следующей строке!
       const src = `${this.basePaths.bgm}${trackId}.ogg`;
 
       this.stems[layerName] = new Howl({
         src: [src],
-        html5: false, // Обязательно false для идеальной синхронизации!
+        html5: false,
         loop: true,
         volume: 0,
       });
 
-      // Запускаем сразу. Howler сам дождётся их загрузки и стартанёт их в одну миллисекунду
+      // МАЙ: Запоминаем конечную цель. Если игрок скипнет, цель изменится!
+      this.stems[layerName]._maiTargetVol =
+        layerName === initialLayer ? targetVol : 0;
       this.stems[layerName].play();
 
-      // Выводим из тишины только начальный слой
-      if (layerName === initialLayer) {
-        this.stems[layerName].fade(0, targetVol, 2000);
+      // Если файл ещё скачивается
+      if (this.stems[layerName].state() !== "loaded") {
+        this.stems[layerName].once("load", () => {
+          const neededVol = this.stems[layerName]._maiTargetVol;
+          if (neededVol > 0) {
+            // Если к моменту загрузки всё ещё идёт скип — рубим громкость мгновенно
+            if (window.sm && window.sm.isFastForwarding) {
+              this.stems[layerName].volume(neededVol);
+            } else {
+              this.stems[layerName].fade(0, neededVol, 2000);
+            }
+          }
+        });
+      } else {
+        // Если файл загрузился мгновенно из кэша
+        const neededVol = this.stems[layerName]._maiTargetVol;
+        if (neededVol > 0) {
+          if (isSkipping) this.stems[layerName].volume(neededVol);
+          else this.stems[layerName].fade(0, neededVol, 2000);
+        }
       }
     });
   }
@@ -186,50 +207,34 @@ export class AudioManager {
    * @param {string} targetLayer - В какой слой переходим (например, "tension")
    * @param {number} duration - Длительность перехода в мс
    */
+
   crossfadeStems(targetLayer, duration = 2000) {
     console.log(`[Audio] 🎚️ Кроссфейд в слой: ${targetLayer}`);
 
-    // Если стемы утеряны или ещё загружаются (быстрый скип текста)
-    if (!this.stems || Object.keys(this.stems).length === 0) {
-      console.warn(`[Audio] ⚠️ Слои были утеряны! Пытаюсь восстановить...`);
-      return;
-    }
-
-    if (!this.stems[targetLayer]) {
-      console.warn(
-        `[Audio] ❌ Слой ${targetLayer} не найден! Проверь опечатки.`,
-      );
-      return;
-    }
-
-    if (targetLayer === this.activeStem) {
-      console.warn(`[Audio] ⚠️ Мы уже на слое ${targetLayer}.`);
-      return;
-    }
+    if (!this.stems || Object.keys(this.stems).length === 0) return;
+    if (!this.stems[targetLayer]) return;
 
     const masterVol = typeof this.bgmMaster === "number" ? this.bgmMaster : 1;
     const targetVol = this.currentBgmBaseVolume * masterVol;
 
+    // МАЙ: Если скипаем — длительность фейда равна 0 (Мгновенно)
+    const isSkipping = window.sm && window.sm.isFastForwarding;
+    const actualDuration = isSkipping ? 0 : duration;
+
     Object.keys(this.stems).forEach((layerName) => {
       const howl = this.stems[layerName];
+      const isTarget = layerName === targetLayer;
+      const neededVol = isTarget ? targetVol : 0;
 
-      // Если Howler ещё не успел прогрузить аудио (быстрый клик игрока)
-      if (howl.state() === "unloaded" || howl.state() === "loading") {
-        howl.once("load", () => {
-          let currentVol = howl.volume();
-          if (layerName !== targetLayer) {
-            howl.fade(currentVol, 0, duration);
-          } else {
-            howl.fade(currentVol, targetVol, duration);
-          }
-        });
-      } else {
-        // Если уже загружено
-        let currentVol = howl.volume();
-        if (layerName !== targetLayer) {
-          howl.fade(currentVol, 0, duration);
+      // Обновляем цель (на случай, если файл ещё качается)
+      howl._maiTargetVol = neededVol;
+
+      if (howl.state() === "loaded") {
+        // Если скипаем - ставим грубо и чётко. Если читаем - плавно.
+        if (actualDuration === 0) {
+          howl.volume(neededVol);
         } else {
-          howl.fade(currentVol, targetVol, duration);
+          howl.fade(howl.volume(), neededVol, actualDuration);
         }
       }
     });

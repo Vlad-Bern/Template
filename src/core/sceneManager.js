@@ -574,7 +574,6 @@ export class SceneManager {
     const scene = story[sceneId];
     if (!scene) return console.error(`[SM] Scene not found: ${sceneId}`);
 
-    // 1. ОЧИСТКА ДОМА (Фикс "прибитых" спрайтов)
     this.ui.handleFx({ darkness: 0, noise: 0, vignette: 0, duration: 0 });
 
     const interLayer = document.getElementById("interaction-layer");
@@ -586,23 +585,21 @@ export class SceneManager {
       interLayer.style.display = "none";
     }
     if (dialogWrapper) dialogWrapper.style.display = "flex";
-    if (charLayer) charLayer.innerHTML = ""; // Жестко удаляем старые спрайты
+    if (charLayer) charLayer.innerHTML = "";
 
     let sceneLines =
       typeof scene.lines === "function" ? scene.lines() : scene.lines;
     sceneLines = sceneLines || [];
 
-    // === МАЙ: СБОР ВСЕХ АУДИО МАКРОСОВ В ПРАВИЛЬНОМ ПОРЯДКЕ ===
+    // === МАЙ: СБОР ВСЕХ АУДИО МАКРОСОВ В МАССИВ ===
     let audioActions = [];
 
-    // Сначала берём корневой экшен сцены (если там есть музыка)
+    // Сначала берём корневой экшен сцены (если там playStems)
     if (typeof scene.action === "function") {
       const actionStr = scene.action.toString();
       if (
         actionStr.includes("audioMacros") ||
-        actionStr.includes("playStems") ||
-        actionStr.includes("fadeToStem") ||
-        actionStr.includes("playBGM")
+        actionStr.includes("playStems")
       ) {
         audioActions.push(scene.action);
       }
@@ -681,7 +678,7 @@ export class SceneManager {
       }
     }
 
-    // === МАЙ: ВОССТАНАВЛИВАЕМ АУДИО-МАГИЮ СЕЙВОВ ===
+    // === МАЙ: ВОССТАНАВЛИВАЕМ АУДИО-МАГИЮ СЕЙВОВ ИЗ МАССИВА ===
     if (this.isRestoringSave) {
       audioActions.forEach((act) => {
         try {
@@ -696,7 +693,7 @@ export class SceneManager {
     if (currentBGM) this.am.handleAudio(currentBGM);
     if (currentSFX) this.am.handleAudio(currentSFX);
 
-    // Восстанавливаем персонажей мгновенно (пустая функция вместо анимации)
+    // Восстанавливаем персонажей мгновенно
     Object.values(activeChars).forEach((char) => {
       if (this.cm && this.cm.show) {
         this.cm.show(char.id, char.emotion, char.position, () => {});
