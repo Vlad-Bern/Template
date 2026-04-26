@@ -2,7 +2,8 @@ export class BgManager {
   constructor(containerId, blurLayerId = "ultra-wide-blur-layer") {
     this.container = document.getElementById(containerId);
     this.blurLayer = document.getElementById(blurLayerId);
-    this.cache = new Set();
+    this.cache = new Map(); // ключ → timestamp последнего использования
+    this.cacheLimit = 30;
   }
 
   setBackground(url) {
@@ -14,6 +15,7 @@ export class BgManager {
       this.blurLayer.style.backgroundImage = `url('${url}')`;
       this.blurLayer.style.backgroundSize = "cover";
       this.blurLayer.style.backgroundPosition = "center";
+      if (this.cache.has(url)) this.cache.set(url, Date.now());
     }
   }
 
@@ -26,15 +28,22 @@ export class BgManager {
           new Promise((resolve) => {
             const img = new Image();
             img.onload = () => {
-              this.cache.add(url);
+              this._addToCache(url);
               resolve();
             };
-            img.onerror = () => {
-              resolve();
-            };
+            img.onerror = () => resolve();
             img.src = url;
           }),
       );
     return Promise.all(promises);
+  }
+
+  _addToCache(url) {
+    this.cache.set(url, Date.now());
+    if (this.cache.size > this.cacheLimit) {
+      // Выкидываем самый старый по LRU
+      const oldest = [...this.cache.entries()].sort((a, b) => a[1] - b[1])[0];
+      if (oldest) this.cache.delete(oldest[0]);
+    }
   }
 }

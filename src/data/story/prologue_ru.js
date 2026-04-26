@@ -804,13 +804,13 @@ export const story = {
             window.quizTimer.clear();
           }
 
-          // --- ТАЙМЕР НА 20 МИНУТ (1 200 000 мс) ---
+          // --- ТАЙМЕР НА 20 МИНУТ (1200000 мс) ---
           window.quizTimer = new PausableTimeout(() => {
             window.quizTimer = null; // Подчищаем за собой
             window.dispatchEvent(
               new CustomEvent("loadScene", { detail: "quiz_afk_fail" }),
             );
-          }, 5000);
+          }, 1200000);
         },
         next: "quiz_q1",
       },

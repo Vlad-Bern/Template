@@ -8,31 +8,9 @@ import { UIManager } from "./uiManager.js";
 import { BgManager } from "./bgManager.js";
 import { ChoiceSystem } from "./choiceSystem.js";
 import { HistoryManager } from "./historyManager.js";
+import { PausableTimeout } from "./pausableTimeout.js";
 
 const nm = new NotificationManager();
-
-export class PausableTimeout {
-  constructor(callback, delay) {
-    this.callback = callback;
-    this.remaining = delay;
-    this.resume();
-  }
-
-  pause() {
-    clearTimeout(this.timerId);
-    this.remaining -= Date.now() - this.startTime;
-  }
-
-  resume() {
-    this.startTime = Date.now();
-    clearTimeout(this.timerId);
-    this.timerId = setTimeout(this.callback, this.remaining);
-  }
-
-  clear() {
-    clearTimeout(this.timerId);
-  }
-}
 
 export class SceneManager {
   constructor(tw) {
@@ -699,7 +677,7 @@ export class SceneManager {
     // Мы убиваем старую музыку ТОЛЬКО ЕСЛИ в новой сцене прописана ДРУГАЯ музыка.
     // Если в новой сцене нет музыки (currentBGM = null) и нет макросов (audioActions пуст) —
     // значит, музыка должна продолжать играть из прошлой сцены!
-    
+
     let isNewMusicTriggered = currentBGM !== null || audioActions.length > 0;
 
     if (isNewMusicTriggered || this.isRestoringSave) {

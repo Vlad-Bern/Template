@@ -78,40 +78,7 @@ export function updateStat(stat, value) {
   if (stat === "rank_score") {
     updateRankLetter();
   }
-
-  if (state.hero.stats && Object.hasOwn(state.hero.stats, stat)) {
-    state.hero.stats[stat] += value;
-    if (STAT_LIMITS[stat]) {
-      const { min, max } = STAT_LIMITS[stat];
-      state.hero.stats[stat] = Math.max(
-        min,
-        Math.min(max, state.hero.stats[stat]),
-      );
-    }
-  } else if (Object.hasOwn(state.hero, stat)) {
-    state.hero[stat] += value;
-    if (STAT_LIMITS[stat]) {
-      const { min, max } = STAT_LIMITS[stat];
-      state.hero[stat] = Math.max(min, Math.min(max, state.hero[stat]));
-    }
-  } else {
-    console.warn(`Стат ${stat} не найден!`);
-    return;
-  }
-
-  if (stat === "sanity") {
-    // +++ ФИКС: больше не лезем в DOM из state — диспатчим событие
-    window.dispatchEvent(
-      new CustomEvent("stressUpdated", {
-        detail: { sanity: state.hero.stats.sanity },
-      }),
-    );
-  }
-
-  if (stat === "rank_score") {
-    updateRankLetter();
-  }
-
+  
   window.dispatchEvent(new CustomEvent("statsUpdated"));
 }
 

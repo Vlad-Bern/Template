@@ -4,6 +4,8 @@ import { SceneManager } from "./src/core/sceneManager.js";
 import { state } from "./src/core/state.js";
 import { SaveManager } from "./src/core/saveManager.js";
 import { SettingsManager } from "./src/core/settingsManager.js";
+import { PausableTimeout } from "./src/core/pausableTimeout.js";
+window.PausableTimeout = PausableTimeout;
 
 // --- МЕНЕДЖЕР ЗВУКОВ UI ---
 window.playUISound = (type) => {
@@ -148,8 +150,9 @@ window.unlockCG = (bgPath) => {
 
 window.isAnyModalOpen = () => {
   // 1. Проверяем окно подтверждения (выход, перезапись сейва)
-  const confirmBox = document.getElementById("confirm-backdrop");
-  if (confirmBox && confirmBox.style.display === "flex") return true;
+  const confirmBackdrop = document.getElementById("confirm-backdrop");
+  if (confirmBackdrop && confirmBackdrop.classList.contains("active"))
+    return true;
 
   // 2. Проверяем игровые менеджеры (История, Сохранения, Настройки)
   if (window.sm) {
@@ -163,88 +166,6 @@ window.isAnyModalOpen = () => {
   if (mainMenu && mainMenu.style.display !== "none") return true;
 
   return false;
-};
-
-// Глобальный класс для паузируемых таймеров (используется в сценариях)
-window.PausableTimeout = class {
-  constructor(callback, delay) {
-    this.callback = callback;
-    this.remaining = delay;
-    this.timerId = null;
-    this.start = Date.now();
-
-    // МАЙ: Флаг принудительной паузы из-за модалок
-    this.isModalPaused = false;
-
-    this.resume();
-
-    // Следим за фокусом вкладки браузера
-    this.handleVisibility = () => {
-      if (document.hidden) {
-        this.pause();
-      } else {
-        // Восстанавливаем, только если не открыта модалка
-        if (!this.isModalPaused) this.resume();
-      }
-    };
-    document.addEventListener("visibilitychange", this.handleVisibility);
-
-    // === МАЙ: Умный наблюдатель за модалками ===
-    this.checkModals = () => {
-      // Если таймер уже удалён/выполнен, прекращаем следить
-      if (this.isCleared) return;
-
-      const modalOpen = window.isAnyModalOpen && window.isAnyModalOpen();
-
-      if (modalOpen && !this.isModalPaused) {
-        // Игрок открыл окно! Паузим таймер.
-        this.isModalPaused = true;
-        this.pause();
-      } else if (!modalOpen && this.isModalPaused && !document.hidden) {
-        // Игрок закрыл окно. Снимаем паузу.
-        this.isModalPaused = false;
-        this.resume();
-      }
-
-      // Проверяем следующий кадр
-      this.rafId = requestAnimationFrame(this.checkModals);
-    };
-
-    // Запускаем слежку
-    this.isCleared = false;
-    this.rafId = requestAnimationFrame(this.checkModals);
-  }
-
-  pause() {
-    if (this.timerId) {
-      clearTimeout(this.timerId);
-      this.timerId = null;
-      this.remaining -= Date.now() - this.start;
-    }
-  }
-
-  resume() {
-    if (!this.timerId && this.remaining > 0) {
-      this.start = Date.now();
-      this.timerId = setTimeout(() => {
-        this.clear(); // МАЙ: Убираем за собой мусор перед выполнением
-        this.callback();
-      }, this.remaining);
-    }
-  }
-
-  clear() {
-    this.isCleared = true;
-    if (this.timerId) {
-      clearTimeout(this.timerId);
-      this.timerId = null;
-    }
-    if (this.rafId) {
-      cancelAnimationFrame(this.rafId);
-      this.rafId = null;
-    }
-    document.removeEventListener("visibilitychange", this.handleVisibility);
-  }
 };
 
 const app = document.getElementById("app");
@@ -1282,10 +1203,10 @@ window.dispatchEvent(
     const stress = 100 - safeSanity;
     const idleTime = (Date.now() - lastMouseMove) / 1000;
 
-    if (idleTime > 3) {
-      document.body.style.cursor = "none";
-    } else {
-      document.body.style.cursor = "default";
+    const wantCursor = idleTime > 3 ? "none" : "default";
+    if (renderFrame._lastCursor !== wantCursor) {
+      document.body.style.cursor = wantCursor;
+      renderFrame._lastCursor = wantCursor;
     }
 
     const targetBlurAmount =
@@ -1395,6 +1316,10 @@ if (btnNewGame) {
         new CustomEvent("stressUpdated", { detail: { sanity: 80 } }),
       );
       window.dispatchEvent(new CustomEvent("statsUpdated"));
+
+      if (window.sm) {
+        window.sm.loadScene("meet_kagami");
+      }
 
       if (window.sm) {
         window.sm.loadScene("meet_kagami");
@@ -1570,7 +1495,7 @@ if (btnExit) {
     exitOverlay.style.transition = "opacity 2s ease-in-out";
     exitOverlay.style.zIndex = "9999";
 
-    exitOverlay.innerText = "Я БУДУ ЖДАТЬ ТВОЕГО ВОВЗРАЩЕНИЯ...";
+    exitOverlay.innerText = "Я БУДУ ЖДАТЬ ТВОЕГО ВОЗВРАЩЕНИЯ...";
 
     document.body.appendChild(exitOverlay);
 

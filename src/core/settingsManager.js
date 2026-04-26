@@ -10,7 +10,9 @@ export class SettingsManager {
 
       // Берем язык из системы (например, 'ru-RU' или 'en-US')
       const systemLang = (
-        navigator.language || navigator.userLanguage
+        navigator.languages?.[0] ||
+        navigator.language ||
+        "en"
       ).toLowerCase();
 
       // Отрезаем всё после дефиса (получаем просто 'ru' или 'en')

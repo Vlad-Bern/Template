@@ -26,14 +26,15 @@ export class SaveManager {
   _initSaveDir() {
     if (fs && path && typeof nw !== "undefined") {
       try {
-        // Находим папку AppData (Windows) или ~/.local/share (Linux) или ~/Library/Preferences (Mac)
-        const appData =
-          process.env.APPDATA ||
-          (process.platform == "darwin"
-            ? process.env.HOME + "/Library/Preferences"
-            : process.env.HOME + "/.local/share");
-        const dir = path.join(appData, "SOTA_Saves"); // Название папки с сейвами
-
+        let appData;
+        if (process.platform === "win32") {
+          appData = process.env.APPDATA;
+        } else if (process.platform === "darwin") {
+          appData = path.join(process.env.HOME, "Library", "Preferences");
+        } else {
+          appData = path.join(process.env.HOME, ".local", "share");
+        }
+        const dir = path.join(appData, "SOTA_Saves");
         if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
         return dir;
       } catch (e) {
