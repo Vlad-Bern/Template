@@ -6,6 +6,7 @@ import { SaveManager } from "./src/core/saveManager.js";
 import { SettingsManager } from "./src/core/settingsManager.js";
 import { PausableTimeout } from "./src/core/pausableTimeout.js";
 window.PausableTimeout = PausableTimeout;
+import { inputManager, INPUT_PRIORITY } from "./src/core/inputManager.js";
 
 // --- МЕНЕДЖЕР ЗВУКОВ UI ---
 window.playUISound = (type) => {
@@ -43,20 +44,55 @@ window.showConfirm = function (message, onConfirm) {
     document.body.appendChild(backdrop);
   }
 
-  // Очищаем старые щиты
-  if (window._confirmKeyHandler) {
-    window.removeEventListener("keydown", window._confirmKeyHandler, true);
-  }
-  if (window._confirmRmbHandler) {
-    window.removeEventListener("contextmenu", window._confirmRmbHandler, true);
-  }
-
   document.getElementById("confirm-text").innerText = message;
   backdrop.classList.add("active");
+
+  // Сохраняем функции отписки на самой backdrop, чтобы close() их выдернул
+  const keyOff = inputManager.on(
+    "keydown",
+    (e) => {
+      if (e.code === "Escape") {
+        close();
+        return true;
+      }
+      if (
+        [
+          "Space",
+          "Enter",
+          "ArrowRight",
+          "ArrowLeft",
+          "ArrowUp",
+          "ArrowDown",
+          "ControlLeft",
+          "ControlRight",
+          "KeyH",
+          "KeyS",
+          "KeyL",
+          "KeyO",
+        ].includes(e.code)
+      ) {
+        return true; // съедаем, чтобы не дошло до сцены
+      }
+      return false;
+    },
+    { priority: INPUT_PRIORITY.CONFIRM, owner: backdrop },
+  );
+
+  const rmbOff = inputManager.on(
+    "contextmenu",
+    () => {
+      close();
+      return true;
+    },
+    { priority: INPUT_PRIORITY.CONFIRM, owner: backdrop },
+  );
 
   const close = () => {
     if (window.playUISound) window.playUISound("close");
     backdrop.classList.remove("active");
+    keyOff();
+    rmbOff();
+    if (window.quizTimer) window.quizTimer.resume();
     window.removeEventListener("keydown", window._confirmKeyHandler, true);
     window.removeEventListener("contextmenu", window._confirmRmbHandler, true);
 
@@ -65,45 +101,6 @@ window.showConfirm = function (message, onConfirm) {
       window.quizTimer.resume();
     }
   };
-
-  // Защита кнопок клавиатуры
-  window._confirmKeyHandler = (e) => {
-    if (e.code === "Escape") {
-      e.stopPropagation();
-      e.preventDefault();
-      close();
-      return;
-    }
-    if (
-      [
-        "Space",
-        "Enter",
-        "ArrowRight",
-        "ArrowLeft",
-        "ArrowUp",
-        "ArrowDown",
-        "ControlLeft",
-        "ControlRight",
-        "KeyH",
-        "KeyS",
-        "KeyL",
-        "KeyO",
-      ].includes(e.code)
-    ) {
-      e.preventDefault();
-      e.stopPropagation();
-      e.stopImmediatePropagation();
-    }
-  };
-  window.addEventListener("keydown", window._confirmKeyHandler, true);
-
-  // Правая кнопка мыши
-  window._confirmRmbHandler = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    close();
-  };
-  window.addEventListener("contextmenu", window._confirmRmbHandler, true);
 
   // === ЖЕСТКАЯ ЗАЩИТА КНОПОК ОТ ПРОКЛИКИВАНИЯ МЫШКОЙ ===
   const btnYes = document.getElementById("confirm-yes");

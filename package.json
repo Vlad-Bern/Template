@@ -1,5 +1,6 @@
 {
   "name": "sota",
+  "productName": "SOTA",
   "type": "module",
   "main": "index.html",
   "window": {
