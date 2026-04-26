@@ -68,6 +68,15 @@ export class SceneManager {
     inputManager.on(
       "wheel",
       (e) => {
+        // Дисклеймер / сплэш — колесо не должно ничего делать
+        const disclaimer = document.getElementById("disclaimer-screen");
+        const splash = document.getElementById("splash-screen");
+        if (
+          (disclaimer && disclaimer.style.display !== "none") ||
+          (splash && splash.style.display !== "none")
+        ) {
+          return false;
+        }
         if (this.uiHidden) return false;
         if (this.cs && this.cs.isActive) return false;
         if (this.hm && this.hm.modalOpen) return false;
@@ -321,6 +330,19 @@ export class SceneManager {
     );
 
     this._handleKeydown = (e) => {
+      // === ФАЗА 0: ДИСКЛЕЙМЕР / СПЛЭШ ===
+      // Пока видим экран 18+ или заставка VLADBER — полностью
+      // игнорируем клавиатуру в SceneManager. Скип самих экранов
+      // (forceSkipIntro) висит на document — он получит событие после нас.
+      const disclaimer = document.getElementById("disclaimer-screen");
+      const splash = document.getElementById("splash-screen");
+      const isDisclaimerVisible =
+        disclaimer && disclaimer.style.display !== "none";
+      const isSplashVisible = splash && splash.style.display !== "none";
+      if (isDisclaimerVisible || isSplashVisible) {
+        return; // ничего не делаем, даём forceSkipIntro поймать клавишу
+      }
+
       // 0. Собираем состояния всех окон
       const isSave = window.saveManager && window.saveManager.modalOpen;
       const isSettings =

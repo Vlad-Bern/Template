@@ -38,9 +38,16 @@ export class HistoryManager {
     inputManager.on(
       "wheel",
       (e) => {
-        // Блокируем колесо в главном меню
+        // Блокируем колесо в главном меню / дисклеймере / сплэше
         if (
           document.getElementById("main-menu-screen")?.style.display !== "none"
+        )
+          return false;
+        const _d = document.getElementById("disclaimer-screen");
+        const _s = document.getElementById("splash-screen");
+        if (
+          (_d && _d.style.display !== "none") ||
+          (_s && _s.style.display !== "none")
         )
           return false;
 
