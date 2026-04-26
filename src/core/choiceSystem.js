@@ -1,4 +1,5 @@
 import { state, updateStat, setFlag, getFlag } from "./state.js";
+import { inputManager, INPUT_PRIORITY } from "./inputManager.js";
 
 export class ChoiceSystem {
   constructor() {
@@ -11,6 +12,8 @@ export class ChoiceSystem {
     this.keydownHandler = null;
     this.wheelHandler = null;
     this.globalClickHandler = null;
+    this._keyOff = null;
+    this._wheelOff = null;
     this.isActive = false;
     this.isInputLocked = false;
     this.touchStartHandler = null;
@@ -198,12 +201,36 @@ export class ChoiceSystem {
       }
     };
 
-    // ВЕШАЕМ СЛУШАТЕЛИ
-    document.addEventListener("keydown", this.keydownHandler, true);
-    document.addEventListener("wheel", this.wheelHandler, {
-      passive: false,
-      capture: true,
-    });
+    // ВЕШАЕМ СЛУШАТЕЛИ через inputManager (keydown / wheel),
+    // click остаётся на document — для click inputManager не используется.
+    this._keyOff = inputManager.on(
+      "keydown",
+      (e) => {
+        if (!this.isActive) return false;
+        // Ручная проверка внутри keydownHandler уже есть — отдаём событие ему
+        const handled =
+          e.code === "ArrowDown" ||
+          e.code === "KeyS" ||
+          e.code === "ArrowUp" ||
+          e.code === "KeyW" ||
+          e.code === "Enter" ||
+          e.code === "Space";
+        if (!handled) return false;
+        // Симулируем вызов старого обработчика
+        if (this.keydownHandler) this.keydownHandler(e);
+        return true;
+      },
+      { priority: INPUT_PRIORITY.CHOICE, owner: this },
+    );
+    this._wheelOff = inputManager.on(
+      "wheel",
+      (e) => {
+        if (!this.isActive) return false;
+        if (this.wheelHandler) this.wheelHandler(e);
+        return true;
+      },
+      { priority: INPUT_PRIORITY.CHOICE, owner: this },
+    );
     document.addEventListener("click", this.globalClickHandler, true);
 
     let touchStartY = 0;
@@ -249,16 +276,16 @@ export class ChoiceSystem {
 
   // НОВЫЙ МЕТОД: Только удаляет слушатели, не трогая массив
   removeEventListeners() {
-    if (this.keydownHandler) {
-      document.removeEventListener("keydown", this.keydownHandler, true);
-      this.keydownHandler = null;
+    if (this._keyOff) {
+      this._keyOff();
+      this._keyOff = null;
     }
-    if (this.wheelHandler) {
-      document.removeEventListener("wheel", this.wheelHandler, {
-        capture: true,
-      });
-      this.wheelHandler = null;
+    if (this._wheelOff) {
+      this._wheelOff();
+      this._wheelOff = null;
     }
+    this.keydownHandler = null;
+    this.wheelHandler = null;
     if (this.globalClickHandler) {
       document.removeEventListener("click", this.globalClickHandler, true);
       this.globalClickHandler = null;

@@ -1,5 +1,6 @@
 import { characters } from "../data/characters.js";
 import { state } from "./state.js"; // Важно: импортируем state для проверки флагов!
+import { inputManager, INPUT_PRIORITY } from "./inputManager.js";
 
 export class HistoryManager {
   constructor() {
@@ -32,37 +33,42 @@ export class HistoryManager {
       }
     });
 
-    // Обработка колесика мыши (только открытие)
+    // Обработка колесика мыши (только открытие истории)
     let isScrolling = false;
-    document.addEventListener(
+    inputManager.on(
       "wheel",
       (e) => {
-        // +++ МАЙ: Блокируем колесо в главном меню +++
+        // Блокируем колесо в главном меню / дисклеймере / сплэше
         if (
           document.getElementById("main-menu-screen")?.style.display !== "none"
         )
-          return;
-
+          return false;
+        const _d = document.getElementById("disclaimer-screen");
+        const _s = document.getElementById("splash-screen");
         if (
-          window.saveManager?.modalOpen ||
-          window.settingsManager?.modalOpen
-        ) {
-          e.preventDefault();
-          e.stopPropagation();
-          return;
+          (_d && _d.style.display !== "none") ||
+          (_s && _s.style.display !== "none")
+        )
+          return false;
+
+        // Если открыты другие модалки — пусть они и обработают (саveManager тоже подписан с MODAL)
+        if (window.saveManager?.modalOpen || window.settingsManager?.modalOpen) {
+          return false;
         }
-        if (window.sm && window.sm.cs && window.sm.cs.isActive) return;
-        if (this.modalOpen && e.target.closest("#history-content")) return;
-        if (isScrolling) return;
+        if (window.sm && window.sm.cs && window.sm.cs.isActive) return false;
+        if (this.modalOpen && e.target.closest("#history-content")) return false;
+        if (isScrolling) return false;
         if (e.deltaY < -20 && !this.modalOpen) {
           isScrolling = true;
           this.showHistory();
           setTimeout(() => {
             isScrolling = false;
           }, 300);
+          return true;
         }
+        return false;
       },
-      { passive: false },
+      { priority: INPUT_PRIORITY.SCENE, owner: this },
     );
   }
 

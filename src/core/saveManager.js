@@ -1,4 +1,5 @@
 import { state } from "./state.js";
+import { inputManager, INPUT_PRIORITY } from "./inputManager.js";
 
 let fs = null;
 let path = null;
@@ -138,54 +139,44 @@ export class SaveManager {
         }
       });
 
-      window.addEventListener(
+      inputManager.on(
         "keydown",
         (e) => {
-          if (!this.modalOpen) return;
+          if (!this.modalOpen) return false;
 
           if (
             document
               .getElementById("confirm-backdrop")
               ?.classList.contains("active")
           ) {
-            return;
+            return false;
           }
 
           if (e.code === "ArrowLeft") {
-            e.preventDefault();
-            e.stopImmediatePropagation();
             this.changePage(-1);
-            return;
+            return true;
           }
-
           if (e.code === "ArrowRight") {
-            e.preventDefault();
-            e.stopImmediatePropagation();
             this.changePage(1);
-            return;
+            return true;
           }
-
           if (e.code === "Escape") {
-            e.preventDefault();
-            e.stopImmediatePropagation();
             this.close();
-            return;
+            return true;
           }
-
-          // Все остальные хоткеи модалок теперь обрабатывает SceneManager
+          return false;
         },
-        { capture: true },
+        { priority: INPUT_PRIORITY.MODAL, owner: this },
       );
 
-      // Жесткая блокировка колесика мыши
-      document.addEventListener(
+      // Блокировка колесика мыши на открытой модалке (просто съедаем событие)
+      inputManager.on(
         "wheel",
-        (e) => {
-          if (this.modalOpen) {
-            e.stopPropagation();
-          }
+        () => {
+          if (this.modalOpen) return true;
+          return false;
         },
-        { passive: false, capture: true },
+        { priority: INPUT_PRIORITY.MODAL, owner: this },
       );
     }
   }

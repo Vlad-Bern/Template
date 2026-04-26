@@ -1,6 +1,7 @@
 import { CharacterManager } from "./characterManager.js";
 import { AudioManager } from "./audioManager.js";
 import { NotificationManager } from "./notificationManager.js";
+import { inputManager, INPUT_PRIORITY } from "./inputManager.js";
 import { updateStat } from "./state.js";
 import { story } from "../data/story/prologue_ru.js";
 import { animations } from "../data/macros.js";
@@ -64,19 +65,23 @@ export class SceneManager {
 
     // Скролл мыши для продвижения текста
     let isScrolling = false;
-    document.addEventListener(
+    inputManager.on(
       "wheel",
       (e) => {
-        if (this.uiHidden) {
-          return;
+        // Дисклеймер / сплэш — колесо не должно ничего делать
+        const disclaimer = document.getElementById("disclaimer-screen");
+        const splash = document.getElementById("splash-screen");
+        if (
+          (disclaimer && disclaimer.style.display !== "none") ||
+          (splash && splash.style.display !== "none")
+        ) {
+          return false;
         }
-
-        if (this.cs && this.cs.isActive) return;
-
-        if (this.hm && this.hm.modalOpen) return;
-        if (window.saveManager && window.saveManager.modalOpen) return;
-
-        if (isScrolling) return;
+        if (this.uiHidden) return false;
+        if (this.cs && this.cs.isActive) return false;
+        if (this.hm && this.hm.modalOpen) return false;
+        if (window.saveManager && window.saveManager.modalOpen) return false;
+        if (isScrolling) return false;
 
         if (e.deltaY > 20) {
           isScrolling = true;
@@ -88,9 +93,11 @@ export class SceneManager {
           setTimeout(() => {
             isScrolling = false;
           }, 200);
+          return true;
         }
+        return false;
       },
-      { passive: false },
+      { priority: INPUT_PRIORITY.SCENE, owner: this },
     );
 
     // Возвращение скрытого UI по левому клику ИЛИ ТАПУ
@@ -304,8 +311,38 @@ export class SceneManager {
       if (sceneId) this.loadScene(sceneId);
     });
 
-    // Клавиатура (горячие клавиши)
-    window.addEventListener("keydown", (e) => {
+    // Клавиатура (горячие клавиши) — через inputManager.
+    // В старом обработчике в куче мест вызывается e.stopImmediatePropagation()
+    // — это сигнал "я съел событие". Подменяем метод, чтобы поднимать флаг.
+    inputManager.on(
+      "keydown",
+      (e) => {
+        let consumed = false;
+        const origStop = e.stopImmediatePropagation.bind(e);
+        e.stopImmediatePropagation = () => {
+          consumed = true;
+          origStop();
+        };
+        this._handleKeydown(e);
+        return consumed;
+      },
+      { priority: INPUT_PRIORITY.SCENE, owner: this },
+    );
+
+    this._handleKeydown = (e) => {
+      // === ФАЗА 0: ДИСКЛЕЙМЕР / СПЛЭШ ===
+      // Пока видим экран 18+ или заставка VLADBER — полностью
+      // игнорируем клавиатуру в SceneManager. Скип самих экранов
+      // (forceSkipIntro) висит на document — он получит событие после нас.
+      const disclaimer = document.getElementById("disclaimer-screen");
+      const splash = document.getElementById("splash-screen");
+      const isDisclaimerVisible =
+        disclaimer && disclaimer.style.display !== "none";
+      const isSplashVisible = splash && splash.style.display !== "none";
+      if (isDisclaimerVisible || isSplashVisible) {
+        return; // ничего не делаем, даём forceSkipIntro поймать клавишу
+      }
+
       // 0. Собираем состояния всех окон
       const isSave = window.saveManager && window.saveManager.modalOpen;
       const isSettings =
@@ -460,7 +497,7 @@ export class SceneManager {
         }
         return;
       }
-    });
+    };
 
     window.addEventListener("keyup", (e) => {
       if (this.cs && this.cs.isActive) {
