@@ -86,6 +86,7 @@ export class Typewriter {
           if (this.currentRunId !== runId) return;
           await new Promise((r) => setTimeout(r, 100));
         }
+        if (this.currentRunId !== runId) return;
       }
     }
 
@@ -96,6 +97,7 @@ export class Typewriter {
 
   applyFinalText() {
     if (!this.element) return;
+    this.currentRunId = Symbol();
     this.element.textContent = this.fullText;
     this.isTyping = false;
     this.skipRequested = false;

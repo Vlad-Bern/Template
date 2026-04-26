@@ -19,19 +19,6 @@ textarea {
   user-select: auto;
 }
 
-// --- VARIABLES ---
-$ui-accent: #b19cd9;
-$blood-red: rgba(150, 0, 0, 0.6);
-$dark-bg: #050505;
-$glass-bg: linear-gradient(
-  135deg,
-  rgba(25, 25, 25, 0.85) 0%,
-  rgba(10, 10, 10, 0.95) 100%
-);
-$history-cyan: #66b2ff;
-$history-red: #ff4d4d;
-$glass-dark: rgba(10, 12, 18, 0.95);
-
 // Глобальная подсказка для видеокарты
 #sharp-background-layers .bg-layer,
 #character-layer .character-wrapper,
@@ -969,10 +956,11 @@ body.ui-hidden .interact-point {
 // ====================================
 // --- IMPORTS (PARTIALS) ---
 // ====================================
-@import "styles/animations";
-@import "styles/modals"; // История и игровые оверлеи
-@import "styles/system_modals"; // Сейвы, настройки, подтверждения
-@import "styles/menus"; // Главное меню, титры, дисклеймер
-@import "styles/gallery"; // Галерея
-@import "styles/tablet"; // Адаптация (в конце, чтобы перекрывать стили!)
-@import "styles/mobile";
+@use "styles/vars" as *; // Подключаем глобальные переменные и миксины для самого style.scss
+@use "styles/animations";
+@use "styles/modals"; // История и игровые оверлеи
+@use "styles/system_modals"; // Сейвы, настройки, подтверждения
+@use "styles/menus"; // Главное меню, титры, дисклеймер
+@use "styles/gallery"; // Галерея
+@use "styles/tablet"; // Адаптация (в конце, чтобы перекрывать стили!)
+@use "styles/mobile";

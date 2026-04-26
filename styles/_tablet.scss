@@ -1,3 +1,5 @@
+@use "vars" as *;
+
 @media (max-width: 1024px) and (orientation: landscape),
   (orientation: portrait) {
   body #app {

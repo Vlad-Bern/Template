@@ -1,5 +1,7 @@
 // --- HISTORY MODAL (S-Rank) ---
 
+@use "vars" as *;
+
 // 1. Бэкдроп (теперь перекрывает UI, z-index 10000)
 #modal-backdrop {
   position: fixed;

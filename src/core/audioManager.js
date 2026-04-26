@@ -145,16 +145,42 @@ export class AudioManager {
     }
   }
 
-  // Плавное затухание и остановка
+  // Плавное затухание и остановка ВСЕГО фона (BGM и Стемы)
   fadeOutBGM(durationInSeconds = 1.5) {
-    if (this.bgm && this.bgm.playing()) {
-      const currentVol = this.bgm.volume();
-      this.bgm.fade(currentVol, 0, durationInSeconds * 1000);
+    const fadeMs = durationInSeconds * 1000;
 
-      // Ждем окончания фейда и выключаем трек полностью
+    // 1. Глушим обычную музыку
+    if (this.bgm && this.bgm.playing()) {
+      const currentVol =
+        typeof this.bgm.volume() === "number" ? this.bgm.volume() : 1.0;
+      this.bgm.fade(currentVol, 0, fadeMs);
       setTimeout(() => {
-        if (this.bgm) this.bgm.stop();
-      }, durationInSeconds * 1000);
+        if (this.bgm) {
+          this.bgm.stop();
+          this.bgm.unload();
+          this.bgm = null;
+        }
+      }, fadeMs + 50);
+    }
+
+    // 2. === МАЙ: Глушим все активные стемы при выходе в меню ===
+    if (this.stems && Object.keys(this.stems).length > 0) {
+      Object.keys(this.stems).forEach((layerName) => {
+        const howl = this.stems[layerName];
+        const currentVol =
+          typeof howl.volume() === "number" ? howl.volume() : 1.0;
+        howl.fade(currentVol, 0, fadeMs);
+        setTimeout(() => {
+          howl.stop();
+          howl.unload();
+        }, fadeMs + 50);
+      });
+
+      // Очищаем объект стемов после фейда
+      setTimeout(() => {
+        this.stems = {};
+        this.activeStem = null;
+      }, fadeMs + 50);
     }
   }
 

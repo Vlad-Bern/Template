@@ -1,5 +1,7 @@
 // === SAVE / LOAD MODAL STYLES ===
 
+@use "vars" as *;
+
 #save-load-panel {
   display: none; // Скрыто по умолчанию
   position: absolute;
