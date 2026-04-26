@@ -1009,6 +1009,8 @@ export class SceneManager {
         }
       }
     };
+    
+    handleVisibilityChange();
 
     // Слушаем стандартные браузерные события (в NW.js они работают отлично)
     document.addEventListener("visibilitychange", handleVisibilityChange);

@@ -799,12 +799,18 @@ export const story = {
           // Обнуляем счетчик правильных ответов
           state.temp.quizScore = 0;
 
+          // МАЙ: Убиваем старый таймер перед запуском нового
+          if (window.quizTimer) {
+            window.quizTimer.clear();
+          }
+
           // --- ТАЙМЕР НА 20 МИНУТ (1 200 000 мс) ---
           window.quizTimer = new PausableTimeout(() => {
+            window.quizTimer = null; // Подчищаем за собой
             window.dispatchEvent(
               new CustomEvent("loadScene", { detail: "quiz_afk_fail" }),
             );
-          }, 1200000);
+          }, 5000);
         },
         next: "quiz_q1",
       },

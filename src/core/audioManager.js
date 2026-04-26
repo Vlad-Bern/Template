@@ -24,11 +24,31 @@ export class AudioManager {
 
   // 🔥 МГНОВЕННОЕ ОБНОВЛЕНИЕ ПРИ ПРОКРУТКЕ ПОЛЗУНКА
   updateVolumes() {
+    // 1. Обновляем обычный BGM
     if (this.bgm && typeof this.currentBgmBaseVolume === "number") {
       this.bgm.volume(this.currentBgmBaseVolume * this.bgmMaster);
     }
 
-    // Проходимся по всем звукам в памяти и меняем им громкость на лету
+    // 2. === МАЙ: Обновляем адаптивную музыку (Stems) ===
+    if (this.stems && Object.keys(this.stems).length > 0) {
+      Object.keys(this.stems).forEach((layerName) => {
+        const howl = this.stems[layerName];
+        // Громкость должна быть только у того слоя, который сейчас активен!
+        // (Остальные должны оставаться на нуле)
+        if (layerName === this.activeStem) {
+          howl.volume(this.currentBgmBaseVolume * this.bgmMaster);
+        } else {
+          howl.volume(0); // Мгновенно глушим неактивные, если они как-то пробились
+        }
+        // Обновляем цель громкости для кроссфейдов
+        howl._maiTargetVol =
+          layerName === this.activeStem
+            ? this.currentBgmBaseVolume * this.bgmMaster
+            : 0;
+      });
+    }
+
+    // 3. Обновляем SFX (проходимся по всем звукам в памяти)
     this.activeSfx.forEach((sound) => {
       if (typeof sound._baseVolume === "number") {
         sound.volume(sound._baseVolume * this.sfxMaster);

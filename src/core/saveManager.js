@@ -358,7 +358,8 @@ export class SaveManager {
         if (typeof window.sm.loadSceneFromSave === "function") {
           window.sm.loadSceneFromSave(slotData.sceneId, slotData.lineIndex);
         } else {
-          window.sm.loadScene(slotData.sceneId, slotData.lineIndex);
+          // === МАЙ: ЗДЕСЬ БЫЛ БАГ! ДОБАВЛЯЕМ true ДЛЯ isRestoring ===
+          window.sm.loadScene(slotData.sceneId, slotData.lineIndex, true);
         }
       }
     };
