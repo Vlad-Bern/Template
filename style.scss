@@ -1,3 +1,12 @@
+@use "styles/vars" as *;
+@use "styles/animations";
+@use "styles/modals";
+@use "styles/system_modals";
+@use "styles/menus";
+@use "styles/gallery";
+@use "styles/tablet";
+@use "styles/mobile";
+
 // Запрещаем выделение текста везде
 * {
   -webkit-user-select: none; /* Chrome/Safari/Opera */
@@ -952,15 +961,3 @@ body.ui-hidden .interact-point {
     }
   }
 }
-
-// ====================================
-// --- IMPORTS (PARTIALS) ---
-// ====================================
-@use "styles/vars" as *; // Подключаем глобальные переменные и миксины для самого style.scss
-@use "styles/animations";
-@use "styles/modals"; // История и игровые оверлеи
-@use "styles/system_modals"; // Сейвы, настройки, подтверждения
-@use "styles/menus"; // Главное меню, титры, дисклеймер
-@use "styles/gallery"; // Галерея
-@use "styles/tablet"; // Адаптация (в конце, чтобы перекрывать стили!)
-@use "styles/mobile";
