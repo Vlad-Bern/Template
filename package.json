@@ -1,0 +1,40 @@
+{
+  "name": "sota",
+  "version": "1.0.0",
+  "productName": "SOTA",
+  "type": "module",
+  "main": "index.html",
+  "window": {
+    "width": 1280,
+    "height": 720,
+    "min_width": 800,
+    "min_height": 600,
+    "fullscreen": true,
+    "frame": true,
+    "resizable": true,
+    "icon": "icons/icon.ico"
+  },
+  "devDependencies": {
+    "@electron/asar": "^4.2.0",
+    "javascript-obfuscator": "^5.4.2",
+    "nw-builder": "^4.11.0",
+    "sass": "^1.97.3",
+    "sharp": "^0.34.5",
+    "vite": "^7.3.1"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "build:nw": "node build-nw.mjs",
+    "build:android": "vite build && npx cap sync android && npx cap open android",
+    "compress:video": "ffmpeg -i public/bg/common/menu_bg.webm -vf scale=-1:720 -c:v libvpx-vp9 -crf 30 -b:v 0 -an public/bg_mobile/common/menu_bg.webm"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.2.0",
+    "@capacitor/cli": "^8.2.0",
+    "@capacitor/core": "^8.2.0",
+    "animejs": "^3.2.2",
+    "howler": "^2.2.4"
+  }
+}
