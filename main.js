@@ -11,6 +11,10 @@ import { PausableTimeout } from "./src/core/pausableTimeout.js";
 window.PausableTimeout = PausableTimeout;
 import { inputManager, INPUT_PRIORITY } from "./src/core/inputManager.js";
 
+try {
+  window.nw.Window.get().setIcon("icons/icon.ico");
+} catch (e) {}
+
 // --- МЕНЕДЖЕР ЗВУКОВ UI ---
 window.playUISound = (type) => {
   if (window.audioManager) {

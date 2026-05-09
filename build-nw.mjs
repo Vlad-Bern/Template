@@ -5,18 +5,33 @@ import {
   readdirSync,
   readFileSync,
   writeFileSync,
+  rmSync,
+  existsSync,
 } from "fs";
 import { join } from "path";
 import JavaScriptObfuscator from "javascript-obfuscator";
-import * as asar from "@electron/asar";
+import { execSync } from "child_process";
 
-// 1. Копируем нужное в dist
-copyFileSync("./package.json", "./dist/package.json");
+// 0. Чистим output перед билдом
+if (existsSync("./output"))
+  rmSync("./output", { recursive: true, force: true });
+console.log("🧹 output/ очищен");
+
+// 1. Копируем и патчим package.json для dist
+const pkg = JSON.parse(readFileSync("./package.json", "utf8"));
+pkg.window.icon = "icons/icon.ico"; // ← правильный путь внутри dist
+writeFileSync("./dist/package.json", JSON.stringify(pkg, null, 2));
+
+// Иконки копируем как обычно
 mkdirSync("./dist/icons", { recursive: true });
 copyFileSync("./public/icons/icon.ico", "./dist/icons/icon.ico");
 copyFileSync("./public/icons/icon.png", "./dist/icons/icon.png");
 
-// 2. Обфускация всех JS файлов в dist/assets/
+// 2. Копируем иконку в корень (nw-builder ищет по пути из package.json)
+mkdirSync("./icons", { recursive: true });
+copyFileSync("./public/icons/icon.ico", "./icons/icon.ico");
+
+// 3. Обфускация JS
 const assetsDir = "./dist/assets";
 for (const file of readdirSync(assetsDir)) {
   if (!file.endsWith(".js")) continue;
@@ -24,7 +39,7 @@ for (const file of readdirSync(assetsDir)) {
   const code = readFileSync(filePath, "utf8");
   const obfuscated = JavaScriptObfuscator.obfuscate(code, {
     compact: true,
-    controlFlowFlattening: false, // true — сильнее, но тормозит
+    controlFlowFlattening: false,
     stringArrayEncoding: ["base64"],
     stringArray: true,
   }).getObfuscatedCode();
@@ -32,19 +47,20 @@ for (const file of readdirSync(assetsDir)) {
 }
 console.log("✅ JS обфускация готова");
 
-// 3. Упаковка dist/ в asar
-await asar.createPackage("./dist", "./dist.asar");
-console.log("✅ asar упакован");
-
 // 4. NW.js билд
 await nwbuild({
   mode: "build",
-  srcDir: "./dist.asar", // ← берём asar, не dist
+  srcDir: "./dist",
   glob: false,
   version: "latest",
-  flavor: "sdk",
+  flavor: "normal",
   platform: "win",
   arch: "x64",
   outDir: "./output",
 });
-console.log("✅ NW.js билд готов");
+console.log("✅ Билд готов → output/");
+
+execSync(
+  `node_modules\\rcedit\\bin\\rcedit-x64.exe "output/sota.exe" --set-icon "public/icons/icon.ico"`,
+);
+console.log("✅ Иконка .exe пропатчена");

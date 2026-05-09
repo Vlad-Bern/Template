@@ -12,12 +12,13 @@
     "fullscreen": true,
     "frame": true,
     "resizable": true,
-    "icon": "icons/icon.ico"
+    "icon": "public/icons/icon.ico"
   },
   "devDependencies": {
     "@electron/asar": "^4.2.0",
     "javascript-obfuscator": "^5.4.2",
     "nw-builder": "^4.11.0",
+    "rcedit": "^5.0.2",
     "sass": "^1.97.3",
     "sharp": "^0.34.5",
     "vite": "^7.3.1"
