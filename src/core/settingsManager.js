@@ -250,13 +250,24 @@ export class SettingsManager {
   loadSettings() {
     const saved = localStorage.getItem("sota_settings");
     if (saved) {
-      return { ...this.defaultSettings, ...JSON.parse(saved) };
+      const parsed = JSON.parse(saved);
+      if (parsed._buildVersion !== __APP_VERSION__) {
+        // Новый билд — сброс настроек
+        return { ...this.defaultSettings, _buildVersion: __APP_VERSION__ };
+      }
+      return { ...this.defaultSettings, ...parsed };
     }
-    return { ...this.defaultSettings };
+    return { ...this.defaultSettings, _buildVersion: __APP_VERSION__ };
   }
 
   saveCurrentSettings() {
-    localStorage.setItem("sota_settings", JSON.stringify(this.settings));
+    localStorage.setItem(
+      "sota_settings",
+      JSON.stringify({
+        ...this.settings,
+        _buildVersion: __APP_VERSION__,
+      }),
+    );
   }
 
   resetToDefaults() {
@@ -277,9 +288,12 @@ export class SettingsManager {
     }
 
     if (typeof nw !== "undefined") {
-      if (this.settings.fullscreen === "full") {
-        nw.Window.get().enterKioskMode();
-      } else {
+    const win = nw.Window.get();
+  if (this.settings.fullscreen === "full") {
+    win.enterKioskMode();
+  }
+  win.show(); 
+  else {
         nw.Window.get().leaveKioskMode();
       }
     } else if (this.settings.fullscreen === "full") {

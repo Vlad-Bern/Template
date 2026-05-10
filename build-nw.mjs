@@ -21,7 +21,6 @@ console.log("🧹 output/ очищен");
 const pkg = JSON.parse(readFileSync("./package.json", "utf8"));
 pkg.window.icon = "icons/icon.ico";
 pkg.window.fullscreen = false;
-pkg.window.kiosk = true;
 writeFileSync("./dist/package.json", JSON.stringify(pkg, null, 2));
 
 // Иконки копируем в dist/icons/
@@ -56,11 +55,14 @@ await nwbuild({
   srcDir: "./dist",
   glob: false,
   version: "latest",
-  flavor: "sdk",
+  flavor: "normal",
   platform: "win",
   arch: "x64",
   outDir: "./output",
-  icon: "./public/icons/icon.png",
+  app: {
+    name: "SOTA",
+    icon: "./public/icons/icon.ico",
+  },
 });
 console.log("✅ Билд готов → output/");
 
@@ -72,11 +74,3 @@ import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-
-const rceditPath = resolve(__dirname, "node_modules/rcedit/bin/rcedit-x64.exe");
-const exePath = resolve(__dirname, "output/sota.exe");
-const iconPath = resolve(__dirname, "icons/icon.ico");
-
-execSync(`"${rceditPath}" "${exePath}" --set-icon "${iconPath}"`);
-
-console.log("✅ Иконка .exe пропатчена");
