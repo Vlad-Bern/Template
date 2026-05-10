@@ -1,14 +1,15 @@
 // characterManager.js
 import { characters } from "../data/characters.js";
+import { loadAsset } from "./assetLoader.js";
 
 export class CharacterManager {
   constructor() {
     this.container = document.getElementById("character-layer");
     this.characters = {};
-    this.preloadedImages = new Map(); // Кэш
+    this.preloadedImages = new Map(); // Кэш: path → blob URL
   }
 
-  show(id, emotion = "neutral", position = "center", animFunc = null) {
+  async show(id, emotion = "neutral", position = "center", animFunc = null) {
     const char = characters[id];
     if (!char) {
       console.warn(`[CharManager] Character ${id} not found.`);
@@ -27,7 +28,7 @@ export class CharacterManager {
       // 1. Создаем невидимую коробку-обертку
       wrapper = document.createElement("div");
       wrapper.className = `character-wrapper pos-${position}`;
-      wrapper.dataset.wrapperId = id; // Помечаем коробку ID персонажа
+      wrapper.dataset.wrapperId = id;
 
       // 2. Создаем саму картинку
       img = document.createElement("img");
@@ -45,10 +46,22 @@ export class CharacterManager {
     }
 
     // Обновляем картинку (src) на нужную эмоцию
+    let spritePath = null;
     if (char.sprites && char.sprites[emotion]) {
-      img.src = char.sprites[emotion];
+      spritePath = char.sprites[emotion];
     } else if (char.sprites && char.sprites.neutral) {
-      img.src = char.sprites.neutral;
+      spritePath = char.sprites.neutral;
+    }
+
+    if (spritePath) {
+      // Берём из кэша или расшифровываем
+      const blobUrl = this.preloadedImages.has(spritePath)
+        ? this.preloadedImages.get(spritePath)
+        : await loadAsset(spritePath);
+      if (!this.preloadedImages.has(spritePath)) {
+        this.preloadedImages.set(spritePath, blobUrl);
+      }
+      img.src = blobUrl;
     } else {
       img.src = "";
       wrapper.style.display = "none";
@@ -85,17 +98,21 @@ export class CharacterManager {
     const promises = Object.values(charData.sprites).map((path) => {
       if (this.preloadedImages.has(path)) return Promise.resolve();
 
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.src = path;
-        img.onload = () => {
-          this.preloadedImages.set(path, img);
-          resolve();
-        };
-        img.onerror = () => {
-          console.error(`Failed to preload: ${path}`);
-          resolve(); // Не стопаем игру если картинка битая
-        };
+      return new Promise((resolve) => {
+        loadAsset(path)
+          .then((blobUrl) => {
+            const img = new Image();
+            img.onload = () => {
+              this.preloadedImages.set(path, blobUrl);
+              resolve();
+            };
+            img.onerror = () => {
+              console.error(`Failed to preload: ${path}`);
+              resolve();
+            };
+            img.src = blobUrl;
+          })
+          .catch(() => resolve());
       });
     });
 

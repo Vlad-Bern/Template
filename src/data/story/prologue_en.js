@@ -1073,9 +1073,7 @@ export const story = {
         "kagami",
         "But you violated my personal boundaries when you had the nerve to openly stare at me.",
       ),
-      nfx(
-        "She stood directly in front of me, ruler in hand.",
-      ),
+      nfx("She stood directly in front of me, ruler in hand."),
       say("kagami", "Any desire to get on your knees and apologize right now?"),
     ],
     choices: [
@@ -1507,7 +1505,9 @@ export const story = {
       n("Is that so?"),
       n("What kind of unspoken rules?"),
       n("This school is clearly full of oddities."),
-      say("kagami", "Here."),
+      say("kagami", "Here.", {
+        bg: "/bg/cg/prologue/dorm_kagami_phone",
+      }),
       nfx("Kagami handed me a phone.", m.sfx("item_get")),
       n("Looks ordinary enough, but there's no brand anywhere on it."),
       say(

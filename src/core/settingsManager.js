@@ -288,14 +288,13 @@ export class SettingsManager {
     }
 
     if (typeof nw !== "undefined") {
-    const win = nw.Window.get();
-  if (this.settings.fullscreen === "full") {
-    win.enterKioskMode();
-  }
-  win.show(); 
-  else {
-        nw.Window.get().leaveKioskMode();
+      const win = nw.Window.get();
+      if (this.settings.fullscreen === "full") {
+        win.enterKioskMode();
+      } else {
+        win.leaveKioskMode();
       }
+      win.show(); // ← после if/else, всегда показываем окно
     } else if (this.settings.fullscreen === "full") {
       document.documentElement.requestFullscreen?.().catch(() => {});
     }

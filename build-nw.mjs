@@ -49,6 +49,9 @@ for (const file of readdirSync(assetsDir)) {
 }
 console.log("✅ JS обфускация готова");
 
+// 3.5 Шифрование ассетов
+execSync("node encrypt-assets.mjs", { stdio: "inherit" });
+
 // 4. NW.js билд
 await nwbuild({
   mode: "build",
