@@ -276,16 +276,13 @@ export class SettingsManager {
       document.body.classList.remove("disable-parallax");
     }
 
-    // Применяем полный экран (ТОЛЬКО ДЛЯ NW.JS)
-    if (this.settings.fullscreen === "full" && typeof nw !== "undefined") {
-      nw.Window.get().enterFullscreen();
-    } else if (
-      this.settings.fullscreen === "window" &&
-      typeof nw !== "undefined"
-    ) {
-      nw.Window.get().leaveFullscreen();
-    }
-    if (this.settings.fullscreen === "full" && typeof nw === "undefined") {
+    if (typeof nw !== "undefined") {
+      if (this.settings.fullscreen === "full") {
+        nw.Window.get().enterKioskMode();
+      } else {
+        nw.Window.get().leaveKioskMode();
+      }
+    } else if (this.settings.fullscreen === "full") {
       document.documentElement.requestFullscreen?.().catch(() => {});
     }
   }
@@ -447,18 +444,23 @@ export class SettingsManager {
         this.settings.fullscreen = val;
         this.saveCurrentSettings();
         this._updateUIFromSettings();
-        if (val === "full") {
-          document.documentElement
-            .requestFullscreen?.()
-            .catch((err) => console.warn(err));
+        if (typeof nw !== "undefined") {
+          if (val === "full") nw.Window.get().enterKioskMode();
+          else nw.Window.get().leaveKioskMode();
         } else {
-          // Убираем проверку document.fullscreenElement — вызываем безусловно
-          document.exitFullscreen?.().catch((err) => console.warn(err));
+          if (val === "full") {
+            document.documentElement
+              .requestFullscreen?.()
+              .catch((err) => console.warn(err));
+          } else {
+            document.exitFullscreen?.().catch((err) => console.warn(err));
+          }
         }
       });
     });
 
     document.addEventListener("fullscreenchange", () => {
+      if (typeof nw !== "undefined") return; // NW.js — не трогаем
       if (document.fullscreenElement) {
         this.settings.fullscreen = "full";
       } else {

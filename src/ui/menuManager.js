@@ -172,6 +172,7 @@ function startMainMenuAnimation() {
   window.sotaIntroPlayed = true;
   if (!mainMenu) return;
   mainMenu.style.display = "flex";
+  if (title) title.style.visibility = "hidden";
 
   if (title) {
     title.setAttribute(
@@ -259,6 +260,9 @@ function startMainMenuAnimation() {
 
   const introTimeline = anime.timeline({
     easing: "easeOutExpo",
+    begin: () => {
+      if (title) title.style.visibility = "visible"; // ← показываем только когда анимация началась
+    },
     complete: () => {
       // ФИНИШ АНИМАЦИИ
       window.applySotaFinalState();
