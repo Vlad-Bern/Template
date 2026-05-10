@@ -20,18 +20,19 @@ console.log("🧹 output/ очищен");
 // 1. Копируем и патчим package.json для dist
 const pkg = JSON.parse(readFileSync("./package.json", "utf8"));
 pkg.window.icon = "icons/icon.ico";
-pkg.window.fullscreen = false; // ← добавьте
-pkg.window.kiosk = true; // ← добавьте
+pkg.window.fullscreen = false;
+pkg.window.kiosk = true;
 writeFileSync("./dist/package.json", JSON.stringify(pkg, null, 2));
 
-// Иконки копируем как обычно
+// Иконки копируем в dist/icons/
 mkdirSync("./dist/icons", { recursive: true });
 copyFileSync("./public/icons/icon.png", "./dist/icons/icon.png");
-copyFileSync("./public/icons/icon.png", "./dist/icons/icon.png");
+copyFileSync("./public/icons/icon.ico", "./dist/icons/icon.ico"); // ← ДОБАВЛЕНО
 
-// 2. Копируем иконку в корень (nw-builder ищет по пути из package.json)
+// 2. Копируем иконку в корень (rcedit ищет здесь)
 mkdirSync("./icons", { recursive: true });
 copyFileSync("./public/icons/icon.png", "./icons/icon.png");
+copyFileSync("./public/icons/icon.ico", "./icons/icon.ico"); // ← ДОБАВЛЕНО
 
 // 3. Обфускация JS
 const assetsDir = "./dist/assets";
@@ -72,7 +73,6 @@ import { dirname, resolve } from "path";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// ... в конце скрипта:
 const rceditPath = resolve(__dirname, "node_modules/rcedit/bin/rcedit-x64.exe");
 const exePath = resolve(__dirname, "output/sota.exe");
 const iconPath = resolve(__dirname, "icons/icon.ico");
