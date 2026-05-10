@@ -1,5 +1,9 @@
 @use "vars" as *;
 
+body {
+  padding-top: 36px;
+}
+
 #title-bar {
   position: fixed;
   top: 0;
@@ -83,10 +87,4 @@
     object-fit: contain;
     opacity: 0.6;
   }
-}
-
-// При полном экране — прячем рамку
-:-webkit-full-screen #title-bar,
-:fullscreen #title-bar {
-  display: none !important;
 }

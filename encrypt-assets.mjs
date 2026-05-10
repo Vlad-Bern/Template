@@ -19,6 +19,7 @@ function processDir(dir) {
   for (const name of readdirSync(dir)) {
     const fullPath = join(dir, name);
     if (statSync(fullPath).isDirectory()) {
+      if (name === "icons") continue;
       processDir(fullPath);
       continue;
     }

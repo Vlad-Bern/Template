@@ -135,7 +135,7 @@ export class UIManager {
     });
   }
 
-  updateBackground(newImg, duration = 400) {
+  async updateBackground(newImg, duration = 400) {
     const sharpLayers = [
       document.getElementById("bg-1"),
       document.getElementById("bg-2"),
@@ -153,35 +153,32 @@ export class UIManager {
     const activeB = blurLayers[activeIdx];
     const inactiveB = blurLayers[inactiveIdx];
 
-    // Убиваем старые анимации
+    // Расшифровываем картинку
+    const { loadAsset } = await import("./assetLoader.js");
+    const blobUrl = await loadAsset(newImg);
+
     anime.remove([activeS, activeB, inactiveS, inactiveB]);
 
-    // === МАЙ: ЖЕСТКИЙ СБРОС СОСТОЯНИЙ ===
-    // Заставляем старые слои быть полностью видимыми, чтобы они не исчезли рывком
     activeS.style.opacity = 1;
     activeB.style.opacity = 1;
 
-    // Подготавливаем новые слои
-    inactiveS.style.backgroundImage = `url('${newImg}')`;
-    inactiveB.style.backgroundImage = `url('${newImg}')`;
+    inactiveS.style.backgroundImage = `url('${blobUrl}')`;
+    inactiveB.style.backgroundImage = `url('${blobUrl}')`;
     inactiveS.style.opacity = 0;
     inactiveB.style.opacity = 0;
 
-    // Если duration === 0 (при скипе/загрузке)
     if (duration <= 0) {
       inactiveS.style.opacity = 1;
       inactiveB.style.opacity = 1;
       activeS.style.opacity = 0;
       activeB.style.opacity = 0;
-
       inactiveS.classList.add("active");
       activeS.classList.remove("active");
       inactiveB.classList.add("active");
       activeB.classList.remove("active");
-      return; // Выходим без anime.js!
+      return;
     }
 
-    // Нормальная анимация
     anime({
       targets: [activeS, activeB],
       opacity: 0,

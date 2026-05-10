@@ -58,7 +58,7 @@ await nwbuild({
   srcDir: "./dist",
   glob: false,
   version: "latest",
-  flavor: "normal",
+  flavor: "sdk",
   platform: "win",
   arch: "x64",
   outDir: "./output",

@@ -292,7 +292,13 @@ export class SettingsManager {
       if (this.settings.fullscreen === "full") {
         win.enterKioskMode();
       } else {
-        win.leaveKioskMode();
+        const targetW = Math.max(1280, Math.floor(screen.width * 0.9));
+        const targetH = Math.max(720, Math.floor(screen.height * 0.9));
+        win.resizeTo(targetW, targetH);
+        win.moveTo(
+          Math.floor((screen.width - targetW) / 2),
+          Math.floor((screen.height - targetH) / 2),
+        );
       }
       win.show(); // ← после if/else, всегда показываем окно
     } else if (this.settings.fullscreen === "full") {
@@ -459,7 +465,16 @@ export class SettingsManager {
         this._updateUIFromSettings();
         if (typeof nw !== "undefined") {
           if (val === "full") nw.Window.get().enterKioskMode();
-          else nw.Window.get().leaveKioskMode();
+          else {
+            const win = nw.Window.get();
+            const targetW = Math.max(1280, Math.floor(screen.width * 0.9));
+            const targetH = Math.max(720, Math.floor(screen.height * 0.9));
+            win.resizeTo(targetW, targetH);
+            win.moveTo(
+              Math.floor((screen.width - targetW) / 2),
+              Math.floor((screen.height - targetH) / 2),
+            );
+          }
         } else {
           if (val === "full") {
             document.documentElement

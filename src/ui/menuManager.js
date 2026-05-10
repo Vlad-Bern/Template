@@ -1,9 +1,10 @@
 // === МАЙ: ПОЯВЛЕНИЕ СЛУЧАЙНОГО ПЕРСОНАЖА ===
-window.showRandomMenuCharacter = function () {
+window.showRandomMenuCharacter = async function () {
   const container = document.getElementById("main-menu-character-container");
   if (!container) return;
 
-  // МАЙ: ЕСЛИ ДЕВОЧКА УЖЕ ВЫБРАНА И ОТРИСОВАНА В ЭТУ СЕССИЮ — НИЧЕГО НЕ ДЕЛАЕМ!
+  const { loadAsset } = await import("../core/assetLoader.js");
+
   if (window.sotaCurrentMenuChar) {
     container.innerHTML = "";
     container.classList.remove("char-celeste", "char-kagami", "char-kaira");
@@ -15,19 +16,16 @@ window.showRandomMenuCharacter = function () {
     else if (window.sotaCurrentMenuChar.includes("kaira"))
       container.classList.add("char-kaira");
 
-    const img = document.createElement("img");
-    img.src =
+    const path1 =
       window.sm && window.sm._getOptimizedSpritePath
         ? window.sm._getOptimizedSpritePath(window.sotaCurrentMenuChar)
         : window.sotaCurrentMenuChar;
+    const blobUrl1 = await loadAsset(path1);
+    const img1 = document.createElement("img");
+    img1.src = blobUrl1;
+    container.appendChild(img1);
 
-    container.appendChild(img);
-
-    // МАЙ: ДОБАВЛЯЕМ ЭТО! Иначе девочка останется прозрачной (opacity: 0)
-    setTimeout(() => {
-      img.classList.add("visible");
-    }, 50);
-
+    setTimeout(() => img1.classList.add("visible"), 50);
     return;
   }
 
@@ -39,34 +37,28 @@ window.showRandomMenuCharacter = function () {
   ];
 
   let selectedChar = "";
-
-  // Проверка первого запуска (с Селестой), которую мы делали раньше
   const hasSeenMenu = localStorage.getItem("sota_has_seen_menu");
 
   if (!hasSeenMenu) {
     selectedChar = characters[0];
     localStorage.setItem("sota_has_seen_menu", "true");
   } else {
-    // Крутим рулетку
-    const randomIndex = Math.floor(Math.random() * characters.length);
-    selectedChar = characters[randomIndex];
+    selectedChar = characters[Math.floor(Math.random() * characters.length)];
   }
 
-  // МАЙ: ЗАПОМИНАЕМ ВЫПАВШУЮ ДЕВОЧКУ НА ВСЮ СЕССИЮ!
   window.sotaCurrentMenuChar = selectedChar;
 
-  // Очищаем и рисуем (твой старый код)
   container.innerHTML = "";
-  const img = document.createElement("img");
-  img.src =
+  const path2 =
     window.sm && window.sm._getOptimizedSpritePath
       ? window.sm._getOptimizedSpritePath(selectedChar)
       : selectedChar;
-  container.appendChild(img);
+  const blobUrl2 = await loadAsset(path2);
+  const img2 = document.createElement("img");
+  img2.src = blobUrl2;
+  container.appendChild(img2);
 
-  setTimeout(() => {
-    img.classList.add("visible");
-  }, 100);
+  setTimeout(() => img2.classList.add("visible"), 100);
 };
 
 // === АБСОЛЮТНАЯ БРОНЯ: Вызываем её при ЛЮБОМ скипе или окончании анимации ===
