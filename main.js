@@ -2,6 +2,7 @@ import "howler";
 import anime from "animejs";
 window.anime = anime;
 import "./style.scss";
+import { initTitleBar } from "./src/ui/titleBar.js";
 import { Typewriter } from "./src/core/typewriter.js";
 import { SceneManager } from "./src/core/sceneManager.js";
 import { state } from "./src/core/state.js";
@@ -10,6 +11,8 @@ import { SettingsManager } from "./src/core/settingsManager.js";
 import { PausableTimeout } from "./src/core/pausableTimeout.js";
 window.PausableTimeout = PausableTimeout;
 import { inputManager, INPUT_PRIORITY } from "./src/core/inputManager.js";
+
+initTitleBar();
 
 // --- МЕНЕДЖЕР ЗВУКОВ UI ---
 window.playUISound = (type) => {

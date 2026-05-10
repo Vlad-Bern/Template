@@ -1506,7 +1506,7 @@ export const story = {
       n("What kind of unspoken rules?"),
       n("This school is clearly full of oddities."),
       say("kagami", "Here.", {
-        bg: "/bg/cg/prologue/dorm_kagami_phone",
+        bg: "/bg/cg/prologue/dorm_kagami_phone.webp",
       }),
       nfx("Kagami handed me a phone.", m.sfx("item_get")),
       n("Looks ordinary enough, but there's no brand anywhere on it."),
@@ -1536,10 +1536,21 @@ export const story = {
         ? [n("By licking feet again?"), n("I don't want that.")]
         : []),
 
-      say(
-        "kagami",
-        "This school has a strict hierarchy. From F-rank trash at the bottom to absolute S-rank elite at the top.",
-      ),
+      ...(!getFlag("quizPassed")
+        ? [
+            say(
+              "kagami",
+              "This school has a strict hierarchy. From F-rank trash at the bottom to absolute S-rank elite at the top.",
+              { bg: "/bg/cg/prologue/dorm_kagami_noSocks.webp" },
+            ),
+          ]
+        : [
+            say(
+              "kagami",
+              "This school has a strict hierarchy. From F-rank trash at the bottom to absolute S-rank elite at the top.",
+              { bg: "/bg/cg/prologue/dorm_kagami_withSocks.webp" },
+            ),
+          ]),
       say("kagami", "You, like all newcomers, start at D-rank."),
       say(
         "kagami",

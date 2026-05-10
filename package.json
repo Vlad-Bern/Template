@@ -11,7 +11,7 @@
     "min_width": 800,
     "min_height": 600,
     "fullscreen": true,
-    "frame": true,
+    "frame": false,
     "resizable": true,
     "icon": "icons/icon.png"
   },

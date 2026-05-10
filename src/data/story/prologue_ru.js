@@ -1485,7 +1485,7 @@ export const story = {
       n("Что ещё за негласные правила?"),
       n("Школа явно полна странностей."),
       say("kagami", "Держи.", {
-        bg: "/bg/cg/prologue/dorm_kagami_phone",
+        bg: "/bg/cg/prologue/dorm_kagami_phone.webp",
       }),
       nfx("Кагами протянула мне телефон.", m.sfx("item_get")),
       n("На вид самый обычный, но нет конкретной марки производителя."),
@@ -1518,10 +1518,21 @@ export const story = {
         ? [n("Опять лизанием ног?"), n("Я не хочу.")]
         : []),
 
-      say(
-        "kagami",
-        "В школе строгая иерархия. От мусора F-ранга до абсолютной элиты S-ранга.",
-      ),
+      ...(!getFlag("quizPassed")
+        ? [
+            say(
+              "kagami",
+              "В школе строгая иерархия. От мусора F-ранга до абсолютной элиты S-ранга.",
+              { bg: "/bg/cg/prologue/dorm_kagami_noSocks.webp" },
+            ),
+          ]
+        : [
+            say(
+              "kagami",
+              "В школе строгая иерархия. От мусора F-ранга до абсолютной элиты S-ранга.",
+              { bg: "/bg/cg/prologue/dorm_kagami_withSocks.webp" },
+            ),
+          ]),
       say("kagami", "Ты, как и все новички, начинаешь с D-ранга."),
       say(
         "kagami",

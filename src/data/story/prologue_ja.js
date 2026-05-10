@@ -1407,7 +1407,7 @@ export const story = {
       n("裏のルールって何だ？"),
       n("この学校、明らかにおかしなことだらけだ。"),
       say("kagami", "はい。", {
-        bg: "/bg/cg/prologue/dorm_kagami_phone",
+        bg: "/bg/cg/prologue/dorm_kagami_phone.webp",
       }),
       nfx("鏡が俺にスマホを渡した。", m.sfx("item_get")),
       n("見た目は普通だが、どこにもメーカーの名前がない。"),
@@ -1425,10 +1425,21 @@ export const story = {
         ? [n("また足舐めで払うのか？"), n("嫌だ。")]
         : []),
 
-      say(
-        "kagami",
-        "この学校には厳格な序列がある。最底辺のFランクから絶対的な頂点Sランクまでね。",
-      ),
+      ...(!getFlag("quizPassed")
+        ? [
+            say(
+              "kagami",
+              "この学校には厳格な序列がある。最底辺のFランクから絶対的な頂点Sランクまでね。",
+              { bg: "/bg/cg/prologue/dorm_kagami_noSocks.webp" },
+            ),
+          ]
+        : [
+            say(
+              "kagami",
+              "この学校には厳格な序列がある。最底辺のFランクから絶対的な頂点Sランクまでね。",
+              { bg: "/bg/cg/prologue/dorm_kagami_withSocks.webp" },
+            ),
+          ]),
       say("kagami", "あんたは他の新入生と同様、Dランクからスタートよ。"),
       say(
         "kagami",

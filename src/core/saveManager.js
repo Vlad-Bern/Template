@@ -423,10 +423,18 @@ export class SaveManager {
       mainMenu && window.getComputedStyle(mainMenu).display !== "none";
 
     // Функция финальной передачи данных в SceneManager
-    const finalizeLoad = () => {
+    const finalizeLoad = async () => {
       if (window.sm) {
-        // Убиваем все активные выборы и интерактивные кнопки перед загрузкой
         if (window.sm.cs) window.sm.cs.forceClose();
+
+        // Если история ещё не загружена — грузим язык перед загрузкой сцены
+        if (!window.sm.story || Object.keys(window.sm.story).length === 0) {
+          const lang = window.settingsManager?.settings?.language || "ru";
+          if (typeof window.loadStoryLanguage === "function") {
+            await window.loadStoryLanguage(lang);
+          }
+        }
+
         window.sm.loadScene(
           slotData.sceneId,
           slotData.lineIndex,

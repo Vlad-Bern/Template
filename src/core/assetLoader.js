@@ -1,7 +1,7 @@
 const KEY = [0x53, 0x4f, 0x54, 0x41, 0x2d, 0x4b, 0x45, 0x59];
 
 // В dev-режиме шифрования нет — отдаём URL как есть
-const IS_DEV = typeof __APP_VERSION__ === "undefined";
+const IS_DEV = import.meta.env.DEV;
 
 function xorDecrypt(arrayBuffer) {
   const bytes = new Uint8Array(arrayBuffer);
