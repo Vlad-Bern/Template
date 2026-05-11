@@ -10,7 +10,7 @@ export class AudioManager {
     this.activeLoops = {};
     this.activeSfx = new Set(); // 🔥 Движок "держит в голове" ВСЕ звуки, которые сейчас играют
 
-    this.basePaths = { bgm: "/music/", sfx: "/sfx/" };
+    this.basePaths = { bgm: "./music/", sfx: "./sfx/" };
   }
 
   // --- ДИНАМИЧЕСКИЕ МНОЖИТЕЛИ ИЗ НАСТРОЕК (0.0 - 1.0) ---
@@ -38,10 +38,8 @@ export class AudioManager {
         } else {
           howl.volume(0);
         }
-        howl._maiTargetVol =
-          layerName === this.activeStem
-            ? this.currentBgmBaseVolume * this.bgmMaster
-            : 0;
+        const vol = howl._maiTargetVol ?? 0;
+        howl.volume(vol);
       });
     }
 
@@ -253,6 +251,7 @@ export class AudioManager {
 
       if (this.stems[layerName].state() !== "loaded") {
         this.stems[layerName].once("load", () => {
+  
           const neededVol = this.stems[layerName]._maiTargetVol;
           if (neededVol > 0) {
             if (window.sm && window.sm.isFastForwarding) {
@@ -297,10 +296,12 @@ export class AudioManager {
       howl._maiTargetVol = neededVol;
 
       if (howl.state() === "loaded") {
+        const vol = howl._maiTargetVol ?? 0;
         if (actualDuration === 0) howl.volume(neededVol);
         else howl.fade(howl.volume(), neededVol, actualDuration);
       } else {
         howl.once("load", () => {
+          const vol = howl._maiTargetVol ?? 0;
           if (actualDuration === 0) howl.volume(howl._maiTargetVol);
           else howl.fade(0, howl._maiTargetVol, actualDuration);
         });
@@ -361,8 +362,8 @@ export class AudioManager {
 
   playUISound(type) {
     let src = "";
-    if (type === "open") src = "/sfx/click-open.ogg";
-    if (type === "close") src = "/sfx/click-close.ogg";
+    if (type === "open") src = "./sfx/click-open.ogg";
+    if (type === "close") src = "./sfx/click-close.ogg";
 
     if (!src) return;
 

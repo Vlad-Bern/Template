@@ -20,7 +20,6 @@ export function initTitleBar() {
 
   document.body.prepend(bar);
 
-  // Кнопки — ПОСЛЕ prepend, иначе getElementById вернёт null
   document
     .getElementById("tb-close")
     .addEventListener("click", () => win.close());
@@ -28,26 +27,30 @@ export function initTitleBar() {
     .getElementById("tb-minimize")
     .addEventListener("click", () => win.minimize());
   document.getElementById("tb-fullscreen").addEventListener("click", () => {
-    if (win.isMaximized) {
-      win.restore();
-    } else {
-      win.maximize();
-    }
-    // Рамка всегда остаётся
+    win.isMaximized ? win.restore() : win.maximize();
     bar.style.display = "flex";
   });
 
-  // Видимость рамки
-  function checkFullscreen() {
-    const isFullscreen =
-      document.fullscreenElement || win.width >= screen.width;
-    bar.style.display = isFullscreen ? "none" : "flex";
-  }
+  // Рамка видна сразу — CSS уже показывает её через display:flex
+  // Прячем только при реальных событиях
+  win.on("restore", () => {
+    bar.style.display = "flex";
+    win.setAlwaysOnTop(false);
+  });
+  win.on("maximize", () => {
+    bar.style.display = "flex";
+  });
+  win.on("minimize", () => {
+    bar.style.display = "none";
+  });
+  win.on("enter-fullscreen", () => {
+    bar.style.display = "none";
+  });
+  win.on("leave-fullscreen", () => {
+    bar.style.display = "flex";
+  });
 
-  checkFullscreen();
-
-  win.on("restore", () => (bar.style.display = "flex"));
-  win.on("minimize", () => (bar.style.display = "none"));
-  win.on("enter-fullscreen", () => (bar.style.display = "none"));
-  win.on("leave-fullscreen", () => (bar.style.display = "flex"));
+  try {
+    win.setAlwaysOnTop(false);
+  } catch (e) {}
 }

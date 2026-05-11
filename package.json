@@ -10,7 +10,7 @@
     "height": 720,
     "min_width": 800,
     "min_height": 600,
-    "fullscreen": true,
+    "maximized": true,
     "frame": false,
     "resizable": true,
     "icon": "icons/icon.png"

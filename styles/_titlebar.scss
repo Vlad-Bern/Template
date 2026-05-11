@@ -1,7 +1,12 @@
 @use "vars" as *;
 
 body {
-  padding-top: 36px;
+  padding-top: 0; // рамка fixed, body не нужен отступ
+}
+
+#game-container {
+  padding-top: 36px; // отступ чтобы контент не лез под рамку
+  box-sizing: border-box;
 }
 
 #title-bar {

@@ -282,7 +282,6 @@ export const story = {
       ),
       nfx(
         "A chain ran from a post — straight to a collar around her slender neck.",
-        m.sfx("chain_rattle_faint"),
       ),
       n(
         "She sat motionless, hugging her knees. Water ran down her tangled hair, dripping onto the dirty concrete.",

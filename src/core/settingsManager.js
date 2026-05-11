@@ -290,7 +290,7 @@ export class SettingsManager {
     if (typeof nw !== "undefined") {
       const win = nw.Window.get();
       if (this.settings.fullscreen === "full") {
-        win.enterKioskMode();
+        win.maximize();
       } else {
         const targetW = Math.max(1280, Math.floor(screen.width * 0.9));
         const targetH = Math.max(720, Math.floor(screen.height * 0.9));
@@ -300,7 +300,7 @@ export class SettingsManager {
           Math.floor((screen.height - targetH) / 2),
         );
       }
-      win.show(); // ← после if/else, всегда показываем окно
+      win.show();
     } else if (this.settings.fullscreen === "full") {
       document.documentElement.requestFullscreen?.().catch(() => {});
     }
@@ -464,7 +464,7 @@ export class SettingsManager {
         this.saveCurrentSettings();
         this._updateUIFromSettings();
         if (typeof nw !== "undefined") {
-          if (val === "full") nw.Window.get().enterKioskMode();
+          if (val === "full") nw.Window.get().maximize();
           else {
             const win = nw.Window.get();
             const targetW = Math.max(1280, Math.floor(screen.width * 0.9));
