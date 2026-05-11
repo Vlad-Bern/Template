@@ -19,19 +19,19 @@ console.log("🧹 output/ очищен");
 
 // 1. Копируем и патчим package.json для dist
 const pkg = JSON.parse(readFileSync("./package.json", "utf8"));
-pkg.window.icon = "icons/icon.ico";
+pkg.window.icon = "icons/icon.icns";
 pkg.window.fullscreen = false;
 writeFileSync("./dist/package.json", JSON.stringify(pkg, null, 2));
 
 // Иконки копируем в dist/icons/
 mkdirSync("./dist/icons", { recursive: true });
 copyFileSync("./public/icons/icon.png", "./dist/icons/icon.png");
-copyFileSync("./public/icons/icon.ico", "./dist/icons/icon.ico"); // ← ДОБАВЛЕНО
+copyFileSync("./public/icons/icon.icns", "./dist/icons/icon.icns"); // ← ДОБАВЛЕНО
 
 // 2. Копируем иконку в корень (rcedit ищет здесь)
 mkdirSync("./icons", { recursive: true });
 copyFileSync("./public/icons/icon.png", "./icons/icon.png");
-copyFileSync("./public/icons/icon.ico", "./icons/icon.ico"); // ← ДОБАВЛЕНО
+copyFileSync("./public/icons/icon.icns", "./icons/icon.icns"); // ← ДОБАВЛЕНО
 
 // 3. Обфускация JS
 const assetsDir = "./dist/assets";
@@ -59,12 +59,14 @@ await nwbuild({
   glob: false,
   version: "latest",
   flavor: "normal",
-  platform: "win",
+  platform: "osx",
   arch: "x64",
   outDir: "./output",
   app: {
     name: "SOTA",
-    icon: "./public/icons/icon.ico",
+    icon: "./public/icons/icon.icns",
+    LSApplicationCategoryType: "public.app-category.games",
+      NSHumanReadableCopyright: "© 2026 V&Mai studio. All rights reserved.",
   },
 });
 console.log("✅ Билд готов → output/");
