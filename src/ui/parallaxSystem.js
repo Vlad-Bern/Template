@@ -1,7 +1,7 @@
 import { state } from "../core/state.js";
 
 // === ЕДИНАЯ СИСТЕМА (СТРЕСС + ПАРАЛЛАКС) ===
-(function initSystems() {
+(async function initSystems() {
   let lastMouseMove = Date.now();
   let currentBlur = 0;
   let targetX = 0,
@@ -45,7 +45,11 @@ import { state } from "../core/state.js";
     window.Capacitor.Plugins &&
     window.Capacitor.Plugins.Motion
   ) {
-    window.Capacitor.Plugins.Motion.addListener("accel", (event) => {
+    const { Motion } = window.Capacitor.Plugins;
+    try {
+      await Motion.requestPermissions();
+    } catch (e) {}
+    Motion.addListener("accel", (event) => {
       if (!isParallaxEnabled()) {
         targetX = 0;
         targetY = 0;

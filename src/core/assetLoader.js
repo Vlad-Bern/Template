@@ -2,6 +2,7 @@ const KEY = [0x53, 0x4f, 0x54, 0x41, 0x2d, 0x4b, 0x45, 0x59];
 
 // В dev-режиме шифрования нет — отдаём URL как есть
 const IS_DEV = import.meta.env.DEV;
+const IS_ENCRYPTED = import.meta.env.VITE_ENCRYPTED === "true";
 
 function xorDecrypt(arrayBuffer) {
   const bytes = new Uint8Array(arrayBuffer);
@@ -26,7 +27,7 @@ function getMime(url) {
 }
 
 export async function loadAsset(url) {
-  if (IS_DEV) return url; // dev — без расшифровки
+  if (IS_DEV || !IS_ENCRYPTED) return url;
   const response = await fetch(url);
   const encrypted = await response.arrayBuffer();
   const decrypted = xorDecrypt(encrypted);
