@@ -33,11 +33,6 @@ export class AudioManager {
     if (this.stems && Object.keys(this.stems).length > 0) {
       Object.keys(this.stems).forEach((layerName) => {
         const howl = this.stems[layerName];
-        if (layerName === this.activeStem) {
-          howl.volume(this.currentBgmBaseVolume * this.bgmMaster);
-        } else {
-          howl.volume(0);
-        }
         const vol = howl._maiTargetVol ?? 0;
         howl.volume(vol);
       });
@@ -244,28 +239,24 @@ export class AudioManager {
         loop: true,
         volume: 0,
       });
+      const howl = this.stems[layerName];
 
-      this.stems[layerName]._maiTargetVol =
-        layerName === initialLayer ? targetVol : 0;
-      this.stems[layerName].play();
+      howl._maiTargetVol = layerName === initialLayer ? targetVol : 0;
+      howl.play();
 
-      if (this.stems[layerName].state() !== "loaded") {
-        this.stems[layerName].once("load", () => {
-  
-          const neededVol = this.stems[layerName]._maiTargetVol;
+      if (howl.state() !== "loaded") {
+        howl.once("load", () => {
+          const neededVol = howl._maiTargetVol ?? 0; // ← теперь держим свою ссылку
           if (neededVol > 0) {
-            if (window.sm && window.sm.isFastForwarding) {
-              this.stems[layerName].volume(neededVol);
-            } else {
-              this.stems[layerName].fade(0, neededVol, 2000);
-            }
+            if (window.sm?.isFastForwarding) howl.volume(neededVol);
+            else howl.fade(0, neededVol, 2000);
           }
         });
       } else {
-        const neededVol = this.stems[layerName]._maiTargetVol;
+        const neededVol = howl._maiTargetVol ?? 0;
         if (neededVol > 0) {
-          if (isSkipping) this.stems[layerName].volume(neededVol);
-          else this.stems[layerName].fade(0, neededVol, 2000);
+          if (isSkipping) howl.volume(neededVol);
+          else howl.fade(0, neededVol, 2000);
         }
       }
     });
@@ -302,8 +293,8 @@ export class AudioManager {
       } else {
         howl.once("load", () => {
           const vol = howl._maiTargetVol ?? 0;
-          if (actualDuration === 0) howl.volume(howl._maiTargetVol);
-          else howl.fade(0, howl._maiTargetVol, actualDuration);
+          if (actualDuration === 0) howl.volume(vol);
+          else howl.fade(0, vol, actualDuration);
         });
       }
     });

@@ -15,6 +15,8 @@ function xorEncrypt(buffer) {
   return result;
 }
 
+const SKIP_FILES = ["noise.webp"];
+
 function processDir(dir) {
   for (const name of readdirSync(dir)) {
     const fullPath = join(dir, name);
@@ -23,6 +25,7 @@ function processDir(dir) {
       processDir(fullPath);
       continue;
     }
+    if (SKIP_FILES.includes(name)) continue;
     if (!ENCRYPT_EXTS.includes(extname(name).toLowerCase())) continue;
 
     const raw = readFileSync(fullPath);

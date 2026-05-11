@@ -1168,9 +1168,7 @@ export const story = {
       n(
         "味がすぐに広がる——温かい肌、革靴、そして彼女のローションのかすかな香り。",
       ),
-      nfx("ナイロンにそっと舌を当て、軽く舐めた。", {
-        ...m.sfx("clothes_rustle"),
-      }),
+      nfx("ナイロンにそっと舌を当て、軽く舐めた。"),
       say("kagami", "本気？"),
       say("kagami", "それが許しを乞う態度？"),
       n("彼女は足の先端を俺の舌にさらに強く押しつけた。"),
@@ -1408,7 +1406,7 @@ export const story = {
       say("kagami", "はい。", {
         bg: "/bg/cg/prologue/dorm_kagami_phone.webp",
       }),
-      nfx("鏡が俺にスマホを渡した。", m.sfx("item_get")),
+      nfx("鏡が俺にスマホを渡した。"),
       n("見た目は普通だが、どこにもメーカーの名前がない。"),
       say("kagami", "このスマホは生徒にとって最も大切な持ち物よ。"),
       say(

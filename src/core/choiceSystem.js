@@ -20,13 +20,22 @@ export class ChoiceSystem {
   }
 
   getStat(statPath) {
+    // Сначала ищем в state.hero.stats (dominance, sanity, physique)
+    if (state.hero?.stats && Object.hasOwn(state.hero.stats, statPath)) {
+      return state.hero.stats[statPath];
+    }
+    // Потом в state.hero (rank_score, credits)
+    if (state.hero && Object.hasOwn(state.hero, statPath)) {
+      return state.hero[statPath];
+    }
+    // Потом по точечному пути "hero.rank_score" на всякий случай
     const parts = statPath.split(".");
     let current = state;
     for (const part of parts) {
-      if (current[part] === undefined) return 0;
+      if (current?.[part] === undefined) return 0;
       current = current[part];
     }
-    return current;
+    return typeof current === "number" ? current : 0;
   }
 
   getStatDisplayName(rawKey) {

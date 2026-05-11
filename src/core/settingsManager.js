@@ -290,8 +290,9 @@ export class SettingsManager {
     if (typeof nw !== "undefined") {
       const win = nw.Window.get();
       if (this.settings.fullscreen === "full") {
-        win.maximize();
+        win.enterFullscreen();
       } else {
+        win.leaveFullscreen();
         const targetW = Math.max(1280, Math.floor(screen.width * 0.9));
         const targetH = Math.max(720, Math.floor(screen.height * 0.9));
         win.resizeTo(targetW, targetH);
@@ -456,6 +457,7 @@ export class SettingsManager {
     const fsToggleBtns = panel.querySelectorAll(
       "#fullscreen-toggle .toggle-btn",
     );
+
     fsToggleBtns.forEach((btn) => {
       btn.addEventListener("click", (e) => {
         window.playUISound("open");
@@ -463,10 +465,13 @@ export class SettingsManager {
         this.settings.fullscreen = val;
         this.saveCurrentSettings();
         this._updateUIFromSettings();
+
         if (typeof nw !== "undefined") {
-          if (val === "full") nw.Window.get().maximize();
-          else {
+          if (val === "full") {
+            nw.Window.get().enterFullscreen();
+          } else {
             const win = nw.Window.get();
+            win.leaveFullscreen();
             const targetW = Math.max(1280, Math.floor(screen.width * 0.9));
             const targetH = Math.max(720, Math.floor(screen.height * 0.9));
             win.resizeTo(targetW, targetH);

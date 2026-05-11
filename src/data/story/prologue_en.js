@@ -1241,9 +1241,7 @@ export const story = {
       n(
         "The taste hits immediately — warm skin, leather shoes, and the faint scent of her lotion.",
       ),
-      nfx("I barely pressed my tongue to the nylon and gave a small stroke.", {
-        ...m.sfx("clothes_rustle"),
-      }),
+      nfx("I barely pressed my tongue to the nylon and gave a small stroke."),
       say("kagami", "Are you serious?"),
       say("kagami", "Is that how you beg for mercy?"),
       n("She pushed the tip of her foot a little harder against my tongue."),
@@ -1507,7 +1505,7 @@ export const story = {
       say("kagami", "Here.", {
         bg: "/bg/cg/prologue/dorm_kagami_phone.webp",
       }),
-      nfx("Kagami handed me a phone.", m.sfx("item_get")),
+      nfx("Kagami handed me a phone."),
       n("Looks ordinary enough, but there's no brand anywhere on it."),
       say(
         "kagami",

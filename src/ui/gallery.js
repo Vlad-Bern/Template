@@ -1,4 +1,5 @@
 import { inputManager, INPUT_PRIORITY } from "../core/inputManager.js";
+import { loadAsset } from "../core/assetLoader.js";
 
 const btnGallery = document.getElementById("btn-gallery");
 const closeGalleryBtn = document.getElementById("close-gallery-btn");
@@ -59,10 +60,12 @@ if (btnGallery) {
       } else {
         gallery.forEach((path, index) => {
           const img = document.createElement("img");
-          img.src =
-            window.sm && window.sm._getOptimizedBgPath
-              ? window.sm._getOptimizedBgPath(path)
-              : path;
+          const resolvedPath = window.sm?._getOptimizedBgPath
+            ? window.sm._getOptimizedBgPath(path)
+            : path;
+          loadAsset(resolvedPath).then((blobUrl) => {
+            img.src = blobUrl;
+          });
 
           img.className = "sota-gallery-item";
 
@@ -242,10 +245,12 @@ let currentLightboxIndex = 0;
 function updateLightboxImage() {
   if (lightboxImages.length === 0) return;
   const rawPath = lightboxImages[currentLightboxIndex];
-  lightboxImg.src =
-    window.sm && window.sm._getOptimizedBgPath
-      ? window.sm._getOptimizedBgPath(rawPath)
-      : rawPath;
+  const resolvedPath = window.sm?._getOptimizedBgPath
+    ? window.sm._getOptimizedBgPath(rawPath)
+    : rawPath;
+  loadAsset(resolvedPath).then((blobUrl) => {
+    lightboxImg.src = blobUrl;
+  });
 }
 
 window.showLightbox = function (index) {
@@ -349,11 +354,11 @@ lightboxOverlay.addEventListener(
 lightboxOverlay.addEventListener(
   "touchend",
   (e) => {
-     e.stopPropagation();
+    e.stopPropagation();
     touchendX = e.changedTouches[0].screenX;
     handleSwipeGesture();
   },
-  
+
   { passive: true },
 );
 
