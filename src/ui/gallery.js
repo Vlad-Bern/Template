@@ -189,11 +189,22 @@ if (btnExit) {
 
     // Ждем 3 секунды (2 сек анимации + 1 сек, чтобы игрок прочитал), затем закрываем
     setTimeout(() => {
+      // NW.js (ПК)
       if (typeof nw !== "undefined") {
-        nw.App.quit(); // Закрытие для сборки NW.js
-      } else {
-        window.close(); // Попытка закрытия вкладки (работает не во всех браузерах)\
+        nw.App.quit();
+        return;
       }
+      // Capacitor (Android APK)
+      if (
+        window.Capacitor &&
+        window.Capacitor.Plugins &&
+        window.Capacitor.Plugins.App
+      ) {
+        window.Capacitor.Plugins.App.exitApp();
+        return;
+      }
+      // Браузер (fallback)
+      window.close();
     }, 3000);
   });
 }

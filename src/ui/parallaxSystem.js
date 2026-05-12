@@ -11,7 +11,6 @@ import { state } from "../core/state.js";
 
   // Безопасная проверка: включен ли параллакс?
   const isParallaxEnabled = () => {
-    // Если менеджер настроек еще не прогрузился - по умолчанию считаем параллакс включенным
     if (!window.settingsManager || !window.settingsManager.settings) {
       return true;
     }
@@ -30,52 +29,44 @@ import { state } from "../core/state.js";
     targetY = (e.clientY / window.innerHeight - 0.5) * 2;
   });
 
-  // 2. Сброс таймера AFK при тапе на мобилках
+  // 2. Тач: сброс AFK + блокировка параллакса во время касания
+  let isTouching = false;
+
   window.addEventListener(
     "touchstart",
     () => {
       lastMouseMove = Date.now();
+      isTouching = true;
     },
     { passive: true },
   );
 
-  // 3. НАТИВНЫЙ ГИРОСКОП ДЛЯ APK (Capacitor)
-  if (
-    window.Capacitor &&
-    window.Capacitor.Plugins &&
-    window.Capacitor.Plugins.Motion
-  ) {
-    const { Motion } = window.Capacitor.Plugins;
-    try {
-      await Motion.requestPermissions();
-    } catch (e) {}
-    Motion.addListener("accel", (event) => {
-      if (!isParallaxEnabled()) {
-        targetX = 0;
-        targetY = 0;
-        return;
-      }
-      let x = event.accelerationIncludingGravity.x / 9.8;
-      let y = event.accelerationIncludingGravity.y / 9.8;
-      targetX = Math.max(-1, Math.min(1, x));
-      targetY = Math.max(-1, Math.min(1, -y));
-    });
-  } else {
-    // 4. Запасной браузерный гироскоп
-    window.addEventListener("deviceorientation", (e) => {
-      if (!isParallaxEnabled()) {
-        targetX = 0;
-        targetY = 0;
-        return;
-      }
-      if (e.gamma === null || e.beta === null) return;
-      if (Math.abs(e.beta) < 10 || Math.abs(e.beta) > 85) return;
-      let x = e.gamma / 20;
-      let y = (e.beta - 45) / 20;
-      targetX = Math.max(-1, Math.min(1, x));
-      targetY = Math.max(-1, Math.min(1, y));
-    });
-  }
+  window.addEventListener(
+    "touchend",
+    () => {
+      setTimeout(() => {
+        isTouching = false;
+      }, 600);
+    },
+    { passive: true },
+  );
+
+  // 3. ГИРОСКОП
+  window.addEventListener("deviceorientation", (e) => {
+    if (!isParallaxEnabled()) {
+      targetX = 0;
+      targetY = 0;
+      return;
+    }
+    // Во время касания просто не обновляем target — он сам доплывёт к 0
+    if (isTouching) return;
+    if (e.gamma === null || e.beta === null) return;
+
+    let x = e.beta / 45;
+    let y = e.gamma / 90;
+    targetX = Math.max(-1, Math.min(1, x));
+    targetY = Math.max(-1, Math.min(1, y));
+  });
 
   let rafId = null;
   function renderFrame() {
@@ -101,8 +92,8 @@ import { state } from "../core/state.js";
     );
 
     // 2. ПАРАЛЛАКС
-    currentX += (targetX - currentX) * 0.05;
-    currentY += (targetY - currentY) * 0.05;
+    currentX += (targetX - currentX) * 0.06;
+    currentY += (targetY - currentY) * 0.06;
 
     const sharpLayers = document.querySelectorAll(
       "#sharp-background-layers .bg-layer",
@@ -112,23 +103,22 @@ import { state } from "../core/state.js";
     );
     const interLayers = document.querySelectorAll("#interaction-layer");
 
-    // 1. ФОНЫ: Никаких calc! Только чистое смещение.
+    // 1. ФОНЫ
     sharpLayers.forEach((layer) => {
       layer.style.transform = `translate(${currentX * 30}px, ${currentY * 30}px) scale(1.15)`;
     });
 
-    // 2. ПЕРСОНАЖИ: Никаких calc! CSS-свойство translate: -50% 0;
-    // само держит их по центру, а мы лишь чуть-чуть их двигаем.
+    // 2. ПЕРСОНАЖИ
     charLayers.forEach((layer) => {
       layer.style.transform = `translate(${currentX * 35}px, ${currentY * 2}px)`;
     });
 
-    // 3. ИНТЕРАКТИВЫ: Тоже без calc.
+    // 3. ИНТЕРАКТИВЫ
     interLayers.forEach((layer) => {
       layer.style.transform = `translate(${currentX * 30}px, ${currentY * 30}px)`;
     });
 
-    // 4. ДОКУМЕНТЫ: Тут вы изначально использовали calc, так и оставим
+    // 4. ДОКУМЕНТЫ
     const docOverlay = document.getElementById("document-overlay");
     if (docOverlay && docOverlay.style.display !== "none") {
       const px = currentX * 35;

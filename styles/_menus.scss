@@ -336,31 +336,32 @@
   position: absolute;
   bottom: 0;
   right: 0;
-  z-index: 1000; /* Поверх всех меню и экранов */
-
-  /* Делаем отступы побольше, чтобы градиент плавно растворялся */
+  z-index: 1000;
   padding: 40px 30px 10px 50px;
-  /* МАЙ: Жесткий и пуленепробиваемый градиент */
-  background: -webkit-radial-gradient(
-    100% 100% at 100% 100%,
-    rgba(0, 0, 0, 0.8) 0%,
-    rgba(0, 0, 0, 0) 100%
-  );
   background: radial-gradient(
     100% 100% at 100% 100%,
     rgba(0, 0, 0, 0.8) 0%,
     rgba(0, 0, 0, 0) 100%
   );
-
-  /* Настройки самого текста */
-  color: rgba(255, 255, 255, 0.4); /* Полупрозрачный белый, чтобы не кричал */
-  font-family: "Inter", sans-serif; /* Твой строгий корпоративный шрифт */
-  font-size: 14px;
+  color: rgba(255, 255, 255, 0.45);
+  font-family: "Inter", sans-serif;
+  font-size: 13px;
   letter-spacing: 1px;
-
-  /* Чтобы клики проходили сквозь надпись, если под ней окажутся кнопки */
   pointer-events: none;
   user-select: none;
+
+  @media (max-width: 1024px) {
+    background: none;
+    padding: 0;
+    bottom: 85px;
+    right: 10px;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    color: rgba(255, 255, 255, 0.5);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+    text-align: right;
+    white-space: nowrap;
+  }
 }
 
 // === КНОПКИ СОЦСЕТЕЙ В ГЛАВНОМ МЕНЮ ===

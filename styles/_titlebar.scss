@@ -1,8 +1,10 @@
 @use "vars" as *;
 
-body {
-  padding-top: 0; // рамка fixed, body не нужен отступ
+body.nw-app #game-container {
+  padding-top: 36px;
 }
+
+// Убрать глобальный padding-top с #game-container
 
 #game-container {
   padding-top: 36px; // отступ чтобы контент не лез под рамку
@@ -65,7 +67,7 @@ body {
   flex: 1;
   height: 100%;
   -webkit-app-region: drag;
-  app-region: drag;
+  app-region: drag; /* stylelint-disable-line property-no-unknown */
 }
 
 // Правая часть — название + иконка

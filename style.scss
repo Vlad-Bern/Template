@@ -287,26 +287,23 @@ body.ui-hidden .interact-point {
   pointer-events: none;
 }
 
-#noise-layer {
+.version-watermark {
   position: absolute;
-  inset: 0;
-  z-index: 51;
-  overflow: hidden;
+  bottom: 0;
+  right: 0;
+  z-index: 1000;
+  padding: 40px 30px 10px 50px;
+  background: radial-gradient(
+    100% 100% at 100% 100%,
+    rgba(0, 0, 0, 0.8) 0%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  color: rgba(255, 255, 255, 0.5);
+  font-family: "Inter", sans-serif;
+  font-size: 13px; // ← фиксированный, не clamp
+  letter-spacing: 1px;
   pointer-events: none;
-  opacity: 0;
-  &::before {
-    content: "";
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background-image: url("/bg/common/noise.webp");
-    background-repeat: repeat;
-    background-size: 128px;
-    opacity: 0.15;
-    animation: normal-grain 0.2s steps(4) infinite;
-  }
+  user-select: none;
 }
 
 // --- UI CONTAINER ---
