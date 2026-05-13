@@ -3,6 +3,8 @@ export function initTitleBar() {
 
   const win = nw.Window.get();
 
+  document.body.classList.add("nw-app");
+
   const bar = document.createElement("div");
   bar.id = "title-bar";
   bar.innerHTML = `

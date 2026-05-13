@@ -4,13 +4,6 @@ body.nw-app #game-container {
   padding-top: 36px;
 }
 
-// Убрать глобальный padding-top с #game-container
-
-#game-container {
-  padding-top: 36px; // отступ чтобы контент не лез под рамку
-  box-sizing: border-box;
-}
-
 #title-bar {
   position: fixed;
   top: 0;

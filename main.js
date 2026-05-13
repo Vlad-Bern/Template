@@ -77,17 +77,16 @@ app.innerHTML = `
     <h1>V&MAI STUDIO PRESENTS</h1>
   </div>
 
-  <!-- === ЭКРАН ТИТРОВ (CREDITS) === -->
-<div id="credits-screen" style="display: none; position: fixed; inset: 0; background: #000; z-index: 99999; justify-content: center; align-items: center; color: #fff; text-align: center; user-select: none;">
-  
-  <!-- Открепленный логотип SOTA (прибит к верху) -->
-  <div id="credits-logo" style="position: absolute; top: 10%; left: 50%; transform: translateX(-50%); font-size: 3rem; letter-spacing: 15px; color: #00ffff; text-shadow: 0 0 15px rgba(0,255,255,0.8); opacity: 0; transition: opacity 1s ease; font-family: 'Courier New', monospace; pointer-events: none;">
+ <!-- === ЭКРАН ТИТРОВ (CREDITS) === -->
+<div id="credits-screen" style="display: none; position: fixed; inset: 0; background: #000; z-index: 99999; flex-direction: column; justify-content: center; align-items: center; gap: 2rem; color: #fff; text-align: center; user-select: none;">
+
+  <div id="credits-logo" style="font-size: 3rem; letter-spacing: 15px; color: #00ffff; text-shadow: 0 0 15px rgba(0,255,255,0.8); opacity: 0; transition: opacity 1s ease; font-family: 'Courier New', monospace; pointer-events: none;">
     S O T A
   </div>
 
-  <!-- Меняющийся текст (всегда строго по центру) -->
   <div id="credits-text" style="font-family: 'Courier New', monospace; font-size: 1.5rem; max-width: 800px; line-height: 1.5; opacity: 0; transition: opacity 0.5s ease; padding: 20px;">
   </div>
+
 </div>
 
   <!-- === ГЛАВНОЕ МЕНЮ === -->
