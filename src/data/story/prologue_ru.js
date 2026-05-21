@@ -13,48 +13,6 @@ export const story = {
           ...m.fx({ darkness: 1, noise: 1, duration: 0 }),
           ...m.bgm("Zero Rank", 0.5),
         },
-        window.startCredits([
-          `КОНЕЦ ПЕРВОЙ ЧАСТИ ПРОЛОГА.<br /><br />
-    <span
-      style="
-        color: #ff4d4d;
-        font-size: 1.2rem;
-        text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
-      "
-    >
-      Так началась эта история.<br />
-      Впереди — лишь больше грязи.<br />
-      Пройдёте ли вы этот путь? </span
-    >`,
-          `Создатели:<br /><br />Гейм-директор / Сценарист: V&Mai Studio<br />Код /
-    Ассистент: Май (Perplexity AI)<br />Арт: WAI Illustrious SDXL / Nano Banana
-    2`,
-          `Получай ранний доступ к обновлениям и артам. Участвуй в
-    голосованиях.<br />Общайся с разработчиком.<br />
-    <div class="credits-support-buttons">
-      <a
-        href="https://www.patreon.com/c/VMaistudio"
-        target="_blank"
-        class="support-btn patreon"
-      >
-        <img
-          src="icons/patreon.svg"
-          alt="Patreon"
-          style="width: 24px; height: 24px; filter: brightness(0) invert(1)"
-        />
-        Поддержать на Patreon
-      </a>
-      <a href="https://boosty.to/vmaistudio" target="_blank" class="support-btn boosty">
-        <img
-          src="icons/boosty.svg"
-          alt="Boosty"
-          style="width: 24px; height: 24px; filter: brightness(0) invert(1)"
-        />
-        Поддержать на Boosty
-      </a>
-    </div>
-    `,
-        ]),
         {
           dialogStyle: "normal",
         },

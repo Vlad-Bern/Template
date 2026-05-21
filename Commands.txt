@@ -1,0 +1,62 @@
+Сначала говоришь гиту собрать все текущие изменения:
+
+git add .
+(Точка означает "все файлы в этой папке и ниже, кроме тех, что в .gitignore").
+
+Затем ты упаковываешь эти изменения в коммит и даешь ему имя:
+
+git commit -m "update"
+И, наконец, отправляешь это всё мне (на сервер):
+
+git push
+
+Для сжатия:
+
+node compress.mjs
+
+Обычная музыка (BGM):
+
+javascript
+m.bgm("trackId", volume)
+// volume по умолчанию 0.5
+// Пример: m.bgm("Zero Rank", 0.5)
+Звуковой эффект (SFX):
+
+javascript
+m.sfx("sfxId", volume, loop)
+// volume по умолчанию 1.0, loop по умолчанию false
+// Пример: m.sfx("rain", 0.2, true)    // зацикленный дождь
+// Пример: m.sfx("heartbeat", 1.0)     // одиночный звук
+Несколько SFX одновременно:
+
+javascript
+m.sfxMix(["sfxId1", vol, loop], ["sfxId2", vol, loop])
+// Пример: m.sfxMix(["heartbeat", 1.0], ["rain", 0.2, true])
+m.sfxMixStop("rain", "walking", "heartbeat"),
+Адаптивная (стемовая) музыка — через action:
+
+javascript
+action: () => audioMacros.playStems({ calm: "bgm_school", scary: "bgm_tension" }, "calm", 0.5)
+action: () => audioMacros.fadeToStem("scary", 3000)  // плавный переход к другому слою
+Остановка
+Остановить музыку:
+
+javascript
+m.stopBgm(fade)
+// fade по умолчанию 1000мс
+// Пример: m.stopBgm(500)
+Остановить конкретный зацикленный SFX:
+
+m.stopSfx("sfxId", fade)
+// fade по умолчанию 500мс
+// Пример: m.stopSfx("rain", 1000)
+В корне сцены (через массив audio напрямую)
+Когда нужно несколько аудио-команд разом — как вы уже делаете в bus_wakeup:
+
+javascript
+audio: [
+  { type: "stop", fade: 500 },           // стоп BGM
+  { type: "stop_sfx", id: "rain", fade: 500 }, // стоп конкретного SFX
+  { type: "sfx", id: "heartbeat", volume: 1, loop: true },  // запуск SFX
+  { type: "bgm", id: "Zero Rank", volume: 0.5 },            // запуск BGM
+]
