@@ -43,8 +43,8 @@ export const characters = {
       crazy: "assets/chars/akane/crazy.webp",
     },
   },
-  rin: {
-    name: "Рин",
+  yukino: {
+    name: "Юкино",
     color: "#0033cc",
     sprites: {
       neutral: "assets/chars/rin/neutral.webp",
