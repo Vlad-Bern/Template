@@ -12,6 +12,7 @@ export const characters = {
       dominant: "assets/chars/celeste/dominant.png",
     },
   },
+
   kagami: {
     name: { ru: "Кагами", en: "Kagami", ja: "鏡" },
     color: "#ff7f50",
@@ -22,7 +23,24 @@ export const characters = {
       angry: "/chars/kagami/angry.webp",
       tired: "/chars/kagami/tired.webp",
     },
+
+    shiroko: {
+      id: "shiroko",
+      name: {
+        ru: "Широко Хаята",
+        en: "Shiroko Hayata",
+        ja: "羽矢多 白子",
+      },
+      color: "#b82e2e", // Элегантный темно-красный для доминантного физрука
+      sprites: {
+        neutral: "/chars/kagami/neutral.webp",
+        neutral2: "/chars/kagami/neutral2.webp",
+        angry: "/chars/kagami/angry.webp",
+        tired: "/chars/kagami/tired.webp",
+      },
+    },
   },
+
   kaira: {
     name: "Кайра",
     color: "#b30000",
@@ -34,6 +52,7 @@ export const characters = {
       messy: "assets/chars/kaira/messy.webp",
     },
   },
+
   akane: {
     name: "Аканэ",
     color: "#ff6600",
@@ -43,14 +62,16 @@ export const characters = {
       crazy: "assets/chars/akane/crazy.webp",
     },
   },
+
   yukino: {
-    name: "Юкино",
+    name: "Юкино Шиба",
     color: "#0033cc",
     sprites: {
       neutral: "assets/chars/rin/neutral.webp",
       strict: "assets/chars/rin/strict.webp",
     },
   },
+
   livia: {
     name: "Ливия",
     color: "#33cc33",
@@ -59,6 +80,7 @@ export const characters = {
       concerned: "assets/chars/livia/concerned.webp",
     },
   },
+
   aiden: {
     name: "Эйден",
     color: "#999999",
@@ -66,6 +88,7 @@ export const characters = {
       neutral: "assets/chars/aiden/neutral.webp",
     },
   },
+
   mia: {
     name: "Мия",
     color: "#ff99cc",
@@ -73,6 +96,7 @@ export const characters = {
       shaking: "assets/chars/pink_girl/shaking.webp",
     },
   },
+
   death: {
     name: "Смертница ли Смерть",
     color: "#ff3366", // Ядовито-розовый/красный цвет
@@ -86,11 +110,13 @@ export const characters = {
       smug: "assets/chars/death/smug.webp",
     },
   },
+
   mystery: {
     name: "???",
     color: "#ffffff",
     // Спрайтов нет, uiManager и characterManager это проглотят без ошибок
   },
+
   driver: {
     name: { ru: "Водитель", en: "Driver", ja: "運転手" },
     color: "#aaaaaa",
