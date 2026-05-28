@@ -35,6 +35,7 @@ output/
 cache/
 dist/
 dist.asar
+android/
 
 # Тяжелые исходники и черновики (оставляем только готовые .webp в assets!)
 # Если ты будешь хранить где-то PSD, Krita файлы или сырые генерации Illustrious:
