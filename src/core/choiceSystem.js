@@ -277,12 +277,23 @@ export class ChoiceSystem {
     });
 
     this.navButtons.forEach((btn, index) => {
-      btn.addEventListener("mouseenter", () => {
-        if (this.isInputLocked) return;
+      btn.addEventListener("pointerenter", (e) => {
+        // Игнорируем всё, если это тач-событие или девайс без реальной мыши
+        if (
+          this.isInputLocked ||
+          e.pointerType === "touch" ||
+          window.matchMedia("(hover: none)").matches
+        )
+          return;
         this.currentNavIndex = index;
         updateHighlight();
       });
-      btn.addEventListener("mouseleave", () => {
+      btn.addEventListener("pointerleave", (e) => {
+        if (
+          e.pointerType === "touch" ||
+          window.matchMedia("(hover: none)").matches
+        )
+          return;
         this.currentNavIndex = -1;
         updateHighlight();
       });
@@ -337,10 +348,26 @@ export class ChoiceSystem {
     if (!this.choiceContainer) return;
 
     this.isActive = true;
+
+    // МАЙ: Жестко отрезвляем SceneManager от залипших касаний!
+    // Эмитируем системные события отмены, чтобы сбросить любые висящие флаги
+    // из-за которых первый тап уходил в пустоту.
+    window.dispatchEvent(new Event("touchcancel"));
+    window.dispatchEvent(new Event("touchend"));
+
+    const skipIndicator = document.getElementById("skip-indicator");
+    if (skipIndicator) {
+      skipIndicator.classList.add("skip-hidden");
+    }
+
+    if (window.sm) {
+      window.sm.isFastForwarding = false;
+    }
+
     this.isInputLocked = true;
     setTimeout(() => {
       this.isInputLocked = false;
-    }, 300);
+    }, 100);
 
     this.choiceContainer.innerHTML = "";
     this.choiceContainer.style.display = "flex";
@@ -390,10 +417,20 @@ export class ChoiceSystem {
         wrapper.appendChild(info);
       }
 
-      btn.onclick = (e) => {
+      const handleSelect = (e) => {
         if (e) e.stopPropagation();
+        // Убиваем системный клик браузера, если это был тачскрин, чтобы не было двойных срабатываний
+        if (e.type === "touchend") e.preventDefault();
+
         if (!isMet) {
           if (window.playUISound) window.playUISound("close");
+
+          // МАЙ: Убираем выделение со всех кнопок и вешаем на ту, которую тапнули.
+          // Это заставит плашку с требованиями красиво выехать, даже без hover!
+          const allBtns = document.querySelectorAll(".choice-btn");
+          allBtns.forEach((b) => b.classList.remove("selected"));
+          btn.classList.add("selected");
+
           btn.classList.add("invalid-click");
           setTimeout(() => btn.classList.remove("invalid-click"), 400);
           return;
@@ -413,6 +450,26 @@ export class ChoiceSystem {
           typeof choice.next === "function" ? choice.next() : choice.next;
         if (nextSceneId) onSelectCallback(nextSceneId);
       };
+
+      // МАЙ: Вешаем клик для мыши
+      btn.addEventListener("click", handleSelect);
+
+      // МАЙ: ФИКС АВТОСКИПА!
+      // Жёстко блокируем touchstart на самой кнопке, чтобы он не долетел до SceneManager
+      // и не запустил скрытый таймер перемотки.
+      btn.addEventListener("touchstart", (e) => e.stopPropagation(), {
+        passive: true,
+      });
+
+      // МАЙ: Вешаем мгновенный хук для телефонов с защитой от скролла!
+      let isMoved = false;
+      btn.addEventListener("touchmove", () => (isMoved = true), {
+        passive: true,
+      });
+      btn.addEventListener("touchend", (e) => {
+        if (!isMoved) handleSelect(e); // Сработает мгновенно при отпускании пальца!
+        isMoved = false;
+      });
 
       this.choiceContainer.appendChild(wrapper);
       this.navButtons.push(btn);

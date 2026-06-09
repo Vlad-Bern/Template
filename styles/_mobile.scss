@@ -661,4 +661,19 @@
     letter-spacing: 2px;
     line-height: 1.2; /* МАЙ: Дописала за вас то, что оборвалось~ */
   }
+
+  #skip-indicator {
+    top: 10px;
+    right: 15px;
+
+    .initial {
+      font-size: 2rem;
+      -webkit-text-stroke: 1.5px rgba(0, 0, 0, 0.9);
+    }
+
+    .rest {
+      font-size: 1.2rem;
+      -webkit-text-stroke: 1px rgba(0, 0, 0, 0.9);
+    }
+  }
 }

@@ -11,6 +11,7 @@ export const characters = {
       cold: "assets/chars/celeste/cold.png",
       dominant: "assets/chars/celeste/dominant.png",
     },
+    role: "student",
   },
 
   kagami: {
@@ -23,22 +24,23 @@ export const characters = {
       angry: "/chars/kagami/angry.webp",
       tired: "/chars/kagami/tired.webp",
     },
-
-    shiroko: {
-      id: "shiroko",
-      name: {
-        ru: "Широко Хаята",
-        en: "Shiroko Hayata",
-        ja: "羽矢多 白子",
-      },
-      color: "#b82e2e", // Элегантный темно-красный для доминантного физрука
-      sprites: {
-        neutral: "/chars/kagami/neutral.webp",
-        neutral2: "/chars/kagami/neutral2.webp",
-        angry: "/chars/kagami/angry.webp",
-        tired: "/chars/kagami/tired.webp",
-      },
+    role: "teacher",
+  },
+  shiroko: {
+    id: "shiroko",
+    name: {
+      ru: "Широко Хаята",
+      en: "Shiroko Hayata",
+      ja: "羽矢多 白子",
     },
+    color: "#b82e2e", // Элегантный темно-красный для доминантного физрука
+    sprites: {
+      neutral: "/chars/kagami/neutral.webp",
+      neutral2: "/chars/kagami/neutral2.webp",
+      angry: "/chars/kagami/angry.webp",
+      tired: "/chars/kagami/tired.webp",
+    },
+    role: "teacher",
   },
 
   kaira: {
@@ -51,6 +53,7 @@ export const characters = {
       shocked: "assets/chars/kaira/shocked.webp",
       messy: "assets/chars/kaira/messy.webp",
     },
+    role: "student",
   },
 
   akane: {
@@ -61,6 +64,7 @@ export const characters = {
       angry: "assets/chars/akane/angry.webp",
       crazy: "assets/chars/akane/crazy.webp",
     },
+    role: "student",
   },
 
   yukino: {
@@ -70,6 +74,7 @@ export const characters = {
       neutral: "assets/chars/rin/neutral.webp",
       strict: "assets/chars/rin/strict.webp",
     },
+    role: "student",
   },
 
   livia: {
@@ -79,6 +84,7 @@ export const characters = {
       neutral: "assets/chars/livia/neutral.webp",
       concerned: "assets/chars/livia/concerned.webp",
     },
+    role: "student",
   },
 
   aiden: {
@@ -87,6 +93,7 @@ export const characters = {
     sprites: {
       neutral: "assets/chars/aiden/neutral.webp",
     },
+    role: "student",
   },
 
   mia: {
@@ -95,6 +102,7 @@ export const characters = {
     sprites: {
       shaking: "assets/chars/pink_girl/shaking.webp",
     },
+    role: "student",
   },
 
   death: {
@@ -109,6 +117,7 @@ export const characters = {
       lewd: "assets/chars/death/lewd.webp",
       smug: "assets/chars/death/smug.webp",
     },
+    role: "student",
   },
 
   mystery: {

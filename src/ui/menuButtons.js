@@ -38,7 +38,7 @@ if (btnNewGame) {
         name: "Ren",
         rank_letter: "D",
         rank_score: 20,
-        credits: 100,
+        sp: 100,
         stats: { dominance: -10, sanity: 80, physique: 50 },
         inventory: { items: {} },
       };

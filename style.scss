@@ -7,6 +7,7 @@
 @use "styles/tablet";
 @use "styles/mobile";
 @use "styles/titlebar";
+@use "styles/pda";
 
 // Запрещаем выделение текста везде
 * {
@@ -355,6 +356,56 @@ body.ui-hidden .interact-point {
   pointer-events: none;
 }
 
+/* Добавьте это в ваши стили (например, в _menus.scss или _animations.scss) */
+
+#skip-indicator {
+  position: absolute;
+  top: 20px;
+  right: 40px;
+  z-index: 1000; /* Должно быть поверх диалогового окна и спрайтов */
+  display: flex;
+  align-items: baseline;
+  pointer-events: none; /* Чтобы элемент не блокировал клики мышкой */
+  transition:
+    opacity 0.2s ease,
+    visibility 0.2s ease;
+  animation: pulseSkip 1s infinite alternate; /* Легкая пульсация */
+
+  /* Класс для скрытия */
+  &.skip-hidden {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  /* Ваши стили, хозяин, чуть уменьшенные для угла экрана */
+  .initial {
+    font-size: 3.5rem;
+    font-weight: 300;
+    color: #00ffff;
+    -webkit-text-stroke: 2px rgba(0, 0, 0, 0.9);
+    text-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+  }
+
+  .rest {
+    font-size: 2rem;
+    font-weight: 300;
+    color: #ffffff;
+    /* Добавила легкую обводку и сюда, чтобы белый текст не сливался со светлыми CG */
+    -webkit-text-stroke: 1px rgba(0, 0, 0, 0.8);
+  }
+}
+
+/* Анимация пульсации */
+@keyframes pulseSkip {
+  0% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+    text-shadow: 0 0 30px rgba(0, 255, 255, 0.9);
+  }
+}
+
 // --- DIALOGUE UI ---
 #dialog-wrapper {
   position: relative;
@@ -618,7 +669,6 @@ body.ui-hidden .interact-point {
     z-index: 2; // Кнопка всегда сверху
 
     &.selected {
-      // Убрали :hover, оставили только .selected, как мы обсуждали
       background: rgba($ui-accent, 0.2);
       border-color: #fff;
       transform: scale(1.03);

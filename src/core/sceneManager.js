@@ -77,10 +77,13 @@ export class SceneManager {
         ) {
           return false;
         }
+
         if (this.uiHidden) return false;
         if (this.cs && this.cs.isActive) return false;
         if (this.hm && this.hm.modalOpen) return false;
         if (window.saveManager && window.saveManager.modalOpen) return false;
+        // МАЙ: Не даем скроллить текст, если смотрим в телефон
+        if (window.pdaSystem && window.pdaSystem.isVisible) return false;
         if (isScrolling) return false;
 
         if (e.deltaY > 20) {
@@ -176,6 +179,11 @@ export class SceneManager {
 
           isHolding = true;
           this.isFastForwarding = true;
+
+          // Показываем индикатор
+          const skipIndicator = document.getElementById("skip-indicator");
+          if (skipIndicator) skipIndicator.classList.remove("skip-hidden");
+
           this.handleFastForward();
           if (window.playUISound) window.playUISound("open");
         }, 500);
@@ -194,6 +202,10 @@ export class SceneManager {
 
           if (isHolding) {
             this.isFastForwarding = false;
+
+            const skipIndicator = document.getElementById("skip-indicator");
+            if (skipIndicator) skipIndicator.classList.add("skip-hidden");
+
             isHolding = false;
             if (this.fastForwardTimeoutId)
               clearTimeout(this.fastForwardTimeoutId);
@@ -210,6 +222,9 @@ export class SceneManager {
 
         // МАЙ: Жёстко выключаем скип при ЛЮБОМ отпускании пальца
         this.isFastForwarding = false;
+
+        const skipIndicator = document.getElementById("skip-indicator");
+        if (skipIndicator) skipIndicator.classList.add("skip-hidden");
 
         if (isHolding) {
           isHolding = false;
@@ -327,6 +342,10 @@ export class SceneManager {
         clearTimeout(holdSkipTimer);
         isHolding = false;
         this.isFastForwarding = false;
+
+        const skipIndicator = document.getElementById("skip-indicator");
+        if (skipIndicator) skipIndicator.classList.add("skip-hidden");
+
         if (this.fastForwardTimeoutId) {
           clearTimeout(this.fastForwardTimeoutId);
         }
@@ -481,9 +500,38 @@ export class SceneManager {
       }
 
       // === ФАЗА 3: ЧИСТАЯ ИГРА ===
+
+      // МАЙ: Открытие/закрытие телефона на M
+      if (e.code === "KeyM") {
+        if (!this.uiHidden && window.pdaSystem) {
+          window.pdaSystem.toggle();
+
+          // Жестко гасим перемотку, если случайно открыли КПК во время скипа
+          if (window.pdaSystem.isVisible) {
+            this.isFastForwarding = false;
+            const skipIndicator = document.getElementById("skip-indicator");
+            if (skipIndicator) skipIndicator.classList.add("skip-hidden");
+          }
+
+          if (window.playUISound)
+            window.playUISound(window.pdaSystem.isVisible ? "open" : "close");
+        }
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        return;
+      }
+
       if (e.code === "ControlLeft" || e.code === "ControlRight") {
+        // МАЙ: Блокируем зажатие Ctrl, если телефон открыт
+        if (window.pdaSystem && window.pdaSystem.isVisible) return;
+
         if (!e.repeat && !this.uiHidden) {
           this.isFastForwarding = true;
+
+          // МАЙ: Возвращаем нашу плашку скипа!
+          const skipIndicator = document.getElementById("skip-indicator");
+          if (skipIndicator) skipIndicator.classList.remove("skip-hidden");
+
           this.handleFastForward();
         }
         e.preventDefault();
@@ -530,11 +578,18 @@ export class SceneManager {
     window.addEventListener("keyup", (e) => {
       if (this.cs && this.cs.isActive) {
         this.isFastForwarding = false; // На всякий случай сбрасываем скип
+
+        const skipIndicator = document.getElementById("skip-indicator");
+        if (skipIndicator) skipIndicator.classList.add("skip-hidden");
+
         return;
       }
 
       if (e.code === "ControlLeft" || e.code === "ControlRight") {
         this.isFastForwarding = false;
+
+        const skipIndicator = document.getElementById("skip-indicator");
+        if (skipIndicator) skipIndicator.classList.add("skip-hidden");
       }
     });
   }
@@ -1046,7 +1101,9 @@ export class SceneManager {
         if (
           (window.saveManager && window.saveManager.modalOpen) ||
           (window.settingsManager && window.settingsManager.modalOpen) ||
-          (this.hm && this.hm.modalOpen)
+          (this.hm && this.hm.modalOpen) ||
+          // МАЙ: Добавляем телефон в список блокирующих окон!
+          (window.pdaSystem && window.pdaSystem.isVisible)
         ) {
           if (e.type === "keydown") {
             e.preventDefault();

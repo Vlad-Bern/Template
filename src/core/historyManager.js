@@ -38,6 +38,10 @@ export class HistoryManager {
     inputManager.on(
       "wheel",
       (e) => {
+        const pdaContainer = document.getElementById("pda-container");
+        if (pdaContainer && pdaContainer.classList.contains("pda-active")) {
+          return;
+        }
         // Блокируем колесо в главном меню / дисклеймере / сплэше
         if (
           document.getElementById("main-menu-screen")?.style.display !== "none"

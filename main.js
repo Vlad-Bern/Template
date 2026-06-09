@@ -5,6 +5,7 @@ import "./style.scss";
 import { initTitleBar } from "./src/ui/titleBar.js";
 import { Typewriter } from "./src/core/typewriter.js";
 import { SceneManager } from "./src/core/sceneManager.js";
+import { PDASystem } from "./src/ui/pdaSystem.js";
 import { state } from "./src/core/state.js";
 import { SaveManager } from "./src/core/saveManager.js";
 import { SettingsManager } from "./src/core/settingsManager.js";
@@ -172,6 +173,9 @@ app.innerHTML = `
   <div id="game-ui">
     <div id="notification-container"></div>
     <div id="choice-container"></div>
+    <div id="skip-indicator" class="skip-hidden">
+  <span class="initial">S</span><span class="rest">KIP</span>
+</div>
     <div id="dialog-wrapper">
       <div id="dialog-bg-color"></div>
       <div id="name-tag"></div>
@@ -236,6 +240,9 @@ if (dialogHideBtn) {
 const tw = new Typewriter("dialog-box");
 const sm = new SceneManager(tw);
 window.sm = sm;
+
+window.pdaSystem = new PDASystem();
+window.pdaSystem.init();
 
 window.audioManager = sm.am;
 

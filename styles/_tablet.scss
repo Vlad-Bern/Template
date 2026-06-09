@@ -233,6 +233,19 @@
       min-width: 220px;
     }
 
+    #skip-indicator {
+      top: 15px;
+      right: 25px;
+
+      .initial {
+        font-size: 2.8rem;
+      }
+
+      .rest {
+        font-size: 1.6rem;
+      }
+    }
+
     #main-menu-character-container {
       right: -5vw;
       width: 60vw;
