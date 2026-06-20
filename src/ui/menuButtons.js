@@ -43,8 +43,15 @@ if (btnNewGame) {
         inventory: { items: {} },
       };
       state.relations = {};
-      state.flags = {};
+      state.flags = {
+        knowsKagami: true,
+        knowsCeleste: true,
+      };
       state.temp = {};
+      state.uiState = {
+        dialogStyle: "normal",
+        pdaUnlocked: true,
+      };
 
       window.dispatchEvent(
         new CustomEvent("stressUpdated", { detail: { sanity: 80 } }),

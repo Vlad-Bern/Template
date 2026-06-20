@@ -13,9 +13,6 @@ export const story = {
           ...m.fx({ darkness: 1, noise: 1, duration: 0 }),
           ...m.bgm("Zero Rank", 0.5),
         },
-        {
-          dialogStyle: "normal",
-        },
       ),
       say("mystery", "聞こえるか？"),
       sf(

@@ -59,7 +59,6 @@ const app = document.getElementById("app");
 // 1. СТРОИМ ДОМ (Генерация всей структуры игры)
 app.innerHTML = `
 <div id="game-container">
-  <!-- 1. РАЗМЫТЫЙ ЗАДНИК -->
   <div id="global-bg-layers">
     <div id="gbg-1" class="bg-layer active blurred"></div>
     <div id="gbg-2" class="bg-layer blurred"></div>
@@ -78,8 +77,7 @@ app.innerHTML = `
     <h1>V&MAI STUDIO PRESENTS</h1>
   </div>
 
- <!-- === ЭКРАН ТИТРОВ (CREDITS) === -->
-<div id="credits-screen" style="display: none; position: fixed; inset: 0; background: #000; z-index: 99999; flex-direction: column; justify-content: center; align-items: center; gap: 2rem; color: #fff; text-align: center; user-select: none;">
+ <div id="credits-screen" style="display: none; position: fixed; inset: 0; background: #000; z-index: 99999; flex-direction: column; justify-content: center; align-items: center; gap: 2rem; color: #fff; text-align: center; user-select: none;">
 
   <div id="credits-logo" style="font-size: 3rem; letter-spacing: 15px; color: #00ffff; text-shadow: 0 0 15px rgba(0,255,255,0.8); opacity: 0; transition: opacity 1s ease; font-family: 'Courier New', monospace; pointer-events: none;">
     S O T A
@@ -90,13 +88,10 @@ app.innerHTML = `
 
 </div>
 
-  <!-- === ГЛАВНОЕ МЕНЮ === -->
-<div id="main-menu-screen" style="display: none;">
+  <div id="main-menu-screen" style="display: none;">
   
-    <!-- Временная черная ширма (скрывает видео и кнопки) -->
-  <div id="menu-black-overlay"></div>
+    <div id="menu-black-overlay"></div>
 
-  <!-- Наш анимированный контейнер (сначала он будет по центру) -->
   <div id="main-menu-title">
     <div class="word"><span class="initial">S</span><span class="rest">chool</span></div>
     <div class="word"><span class="initial">O</span><span class="rest">f</span></div>
@@ -129,7 +124,7 @@ app.innerHTML = `
 </div>
 
   <div class="version-watermark">
-    SOTA: Prologue (1.0) | by V&Mai studio
+    SOTA: Prologue (2.0) | by V&Mai studio
   </div>
 
 </div>
@@ -141,12 +136,10 @@ app.innerHTML = `
            <h2 data-i18n="gallery_title">ГАЛЕРЕЯ</h2>
       <button id="close-gallery-btn" class="sota-close-btn">✖</button>
     </div>
-    <!-- Сюда скрипт будет кидать картинки -->
     <div id="gallery-grid" class="sota-gallery-grid"></div>
   </div>
 </div>
 
-  <!-- 2. ИГРОВОЙ МИР -->
   <div id="game-viewport" style="display: none">
     <div id="sharp-background-layers" class="viewport-bg">
       <div id="bg-1" class="bg-layer active sharp-effect"></div>
@@ -157,7 +150,6 @@ app.innerHTML = `
     <div id="interaction-layer"></div>
     <div id="overlay-layer"></div>
   </div>
-  <!-- 3. ЭФФЕКТЫ И UI -->
   <div id="darkness-layer"></div>
   <div id="noise-layer"></div>
 
@@ -225,6 +217,10 @@ app.innerHTML = `
 </div>
 `;
 
+// Инициализируем элементы окон
+const disclaimer = document.getElementById("disclaimer-screen");
+const gameViewport = document.getElementById("game-viewport");
+const dialogWrapper = document.getElementById("dialog-wrapper");
 const dialogHideBtn = document.getElementById("dialog-hide-btn");
 
 if (dialogHideBtn) {
@@ -236,6 +232,21 @@ if (dialogHideBtn) {
     );
   });
 }
+
+// Реактивное включение плашки при старте новой игры или загрузке сейва
+window.addEventListener("statsUpdated", () => {
+  const pdaHint = document.getElementById("pda-text-trigger");
+  const mainMenu = document.getElementById("main-menu-screen");
+  const isInMainMenu = mainMenu && mainMenu.style.display !== "none";
+
+  if (
+    pdaHint &&
+    !isInMainMenu &&
+    (!window.pdaSystem || !window.pdaSystem.isVisible)
+  ) {
+    pdaHint.style.display = "block";
+  }
+});
 
 const tw = new Typewriter("dialog-box");
 const sm = new SceneManager(tw);
@@ -250,13 +261,13 @@ window.saveManager = new SaveManager();
 window.settingsManager = new SettingsManager();
 
 document.getElementById("open-save-btn").addEventListener("click", function () {
-  this.blur(); // ОТБИРАЕМ ФОКУС!
+  this.blur();
   window.playUISound("open");
   window.saveManager.open("save");
 });
 
 document.getElementById("open-load-btn").addEventListener("click", function () {
-  this.blur(); // ОТБИРАЕМ ФОКУС!
+  this.blur();
   window.playUISound("open");
   window.saveManager.open("load");
 });
@@ -271,27 +282,19 @@ document
 document
   .getElementById("open-history-btn")
   .addEventListener("click", function () {
-    this.blur(); // ОТБИРАЕМ ФОКУС!
+    this.blur();
     window.playUISound("open");
     if (window.sm && window.sm.hm) {
       window.sm.hm.showHistory();
     }
   });
 
-// Функция запуска игры (сработает только один раз)
-// === ЛОГИКА ДИСКЛЕЙМЕРА И ЗАПУСКА ИГРЫ (SPA) ===
-const disclaimer = document.getElementById("disclaimer-screen");
-const gameViewport = document.getElementById("game-viewport");
-const dialogWrapper = document.getElementById("dialog-wrapper");
-
-// 1. Прячем саму игру (слой с фонами и персонажами) и диалоговое окно
+// Прячем игру на старте
 if (gameViewport) gameViewport.style.display = "none";
 if (dialogWrapper) dialogWrapper.style.display = "none";
 
-// === РЕЖИМ БОГА ДЛЯ ТЕСТИРОВКИ ===
 window.DEBUG_SKIP_INTRO = false;
 
-// Разблокировка аудио по первому клику
 const unlockAudio = () => {
   if (
     window.Howler &&
@@ -313,20 +316,15 @@ window.dispatchEvent(
   }),
 );
 
-// === ЗАГРУЗЧИК ЯЗЫКА СЮЖЕТА ===
 window.loadStoryLanguage = async (lang) => {
   const module = await import(`./src/data/story/prologue_${lang}.js`);
   window.sm.story = module.story;
 };
 
-// === МАЙ: Запуск музыки при загрузке страницы ===
 window.addEventListener("DOMContentLoaded", () => {
-  // Музыка начнет играть, как только страница отрисуется (вместе с Дисклеймером)
-  // 1. Запускаем нагнетающую музыку
   if (typeof window.audioManager.playBGM === "function") {
     window.audioManager.playBGM("Last Destination");
   }
-  // 2. ЗАПУСКАЕМ ВАШ НОВЫЙ ЗВУК ДИСКЛЕЙМЕРА!
   if (typeof window.audioManager.playSFX === "function") {
     window.audioManager.playSFX("intro_disclamer", 1.0, false);
   }

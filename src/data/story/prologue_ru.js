@@ -13,11 +13,8 @@ export const story = {
           ...m.fx({ darkness: 1, noise: 1, duration: 0 }),
           ...m.bgm("Zero Rank", 0.5),
         },
-        {
-          dialogStyle: "normal",
-        },
       ),
-      say("mystery", "Ты меня слышишь?"),
+      say("mystery", "Ты меня слышишь?",),
       sf("ren", "Да...", m.fx({ darkness: 0.9, noise: 0.2, duration: 500 })),
       n("Силуэт в деловом костюме сидит напротив. Я чувствую запах табака."),
       nfx(

@@ -415,6 +415,13 @@ export class SaveManager {
     );
     window.dispatchEvent(new CustomEvent("statsUpdated"));
 
+    if (
+      window.pdaSystem &&
+      typeof window.pdaSystem.updateVisibility === "function"
+    ) {
+      window.pdaSystem.updateVisibility();
+    }
+
     this.close(); // Закрываем само окно сохранений
 
     // ПРОВЕРЯЕМ: Грузимся ли мы из Главного меню?

@@ -1219,7 +1219,7 @@ export const story = {
     lines: [
       sf(
         "death",
-        "Я - A-ранг, класс 2-F, Смертница ли Смерть!",
+        "Я - A-ранг, класс 2-T, Смертница ли Смерть!",
         m.show("death", "crazy", "center", "epicEntrance"),
         () => setFlag("knowsDeath"),
       ),
@@ -1251,7 +1251,7 @@ export const story = {
 
       sf(
         "ren",
-        "И ещё твой класс, разве не 4 буквы всего? A, B, C, D? Откуда F класс?",
+        "И ещё твой класс, разве не 4 буквы всего? A, B, C, D? Откуда T класс?",
       ),
       sf(
         "kaira",

@@ -162,11 +162,22 @@ export class SceneManager {
 
         clearTimeout(holdSkipTimer);
 
-        // МАЙ: долгий тап (перемотку) запрещаем в главном меню
-        if (
-          document.getElementById("main-menu-screen")?.style.display !== "none"
-        )
+        // === ХОЗЯИН: ЗАЩИТА АТМОСФЕРЫ (БЛОКИРОВКА СКИПА НА ИНТРО-ЭКРАНАХ) ===
+        const mainMenu = document.getElementById("main-menu-screen");
+        const disclaimer = document.getElementById("disclaimer-screen");
+        const splash = document.getElementById("splash-screen");
+
+        const isMainMenuActive =
+          mainMenu && window.getComputedStyle(mainMenu).display !== "none";
+        const isDisclaimerActive =
+          disclaimer && window.getComputedStyle(disclaimer).display !== "none";
+        const isSplashActive =
+          splash && window.getComputedStyle(splash).display !== "none";
+
+        // Если открыто меню, дисклеймер или заставка — полностью запрещаем долгий тап перемотки!
+        if (isMainMenuActive || isDisclaimerActive || isSplashActive) {
           return;
+        }
 
         holdSkipTimer = setTimeout(() => {
           if (
@@ -197,6 +208,16 @@ export class SceneManager {
         const dx = Math.abs(e.touches[0].clientX - touchStartX);
         const dy = Math.abs(e.touches[0].clientY - touchStartY);
 
+        // === ХОЗЯИН: БЛОКИРОВКА НА ТИВНОЙ НАВИГАЦИИ БРАУЗЕРА COMET ===
+        if (dx > dy * 1.2 && state.uiState && state.uiState.pdaUnlocked) {
+          const isPdaVisible = window.pdaSystem && window.pdaSystem.isVisible;
+          const isNearRightEdge = touchStartX > window.innerWidth - 120;
+
+          if (isPdaVisible || (!isPdaVisible && isNearRightEdge)) {
+            if (e.cancelable) e.preventDefault();
+          }
+        }
+
         if (dx > 15 || dy > 15) {
           clearTimeout(holdSkipTimer);
 
@@ -212,7 +233,7 @@ export class SceneManager {
           }
         }
       },
-      { passive: true },
+      { passive: false }, // false необходим для работы preventDefault()
     );
 
     document.addEventListener(
@@ -220,7 +241,6 @@ export class SceneManager {
       (e) => {
         clearTimeout(holdSkipTimer);
 
-        // МАЙ: Жёстко выключаем скип при ЛЮБОМ отпускании пальца
         this.isFastForwarding = false;
 
         const skipIndicator = document.getElementById("skip-indicator");
@@ -234,7 +254,6 @@ export class SceneManager {
           return;
         }
 
-        // МАЙ ФИКС: Если мы тянули ползунок, игнорируем это как свайп!
         if (isTouchingSlider) {
           isTouchingSlider = false;
           return;
@@ -242,7 +261,7 @@ export class SceneManager {
 
         const touchEndX = e.changedTouches[0].clientX;
         const touchEndY = e.changedTouches[0].clientY;
-        // ... (остальной код touchend)
+
         const deltaX = touchEndX - touchStartX;
         const deltaY = touchEndY - touchStartY;
         const absX = Math.abs(deltaX);
@@ -295,39 +314,92 @@ export class SceneManager {
           return;
         }
 
-        // Игровые вертикальные свайпы (открыть лог / скрыть интерфейс)
-        if (absY > 50 && absY > absX) {
-          // === МАЙ: ЖЕСТКАЯ ЗАЩИТА ===
-          // Проверяем, виден ли экран главного меню
+        // === ХОЗЯИН: ЦЕНТРАЛЬНЫЙ КОНТРОЛЛЕР СВАЙПА ДЛЯ КПК РЕНА (ПОСЛОЙНЫЙ) ===
+        if (absX > 40 && absX > absY * 1.4) {
           const mainMenu = document.getElementById("main-menu-screen");
           const isMainMenuActive =
             mainMenu && window.getComputedStyle(mainMenu).display !== "none";
-
-          // Проверяем, виден ли экран дисклеймера (intro)
           const disclaimer = document.getElementById("disclaimer-screen");
           const isDisclaimerActive =
             disclaimer &&
             window.getComputedStyle(disclaimer).display !== "none";
-
-          // Проверяем экран загрузки (splash) - на всякий случай
           const splash = document.getElementById("splash-screen");
           const isSplashActive =
             splash && window.getComputedStyle(splash).display !== "none";
 
-          // Если мы не в игре — убиваем свайп!
-          if (isMainMenuActive || isDisclaimerActive || isSplashActive) {
-            return;
+          if (!isMainMenuActive && !isDisclaimerActive && !isSplashActive) {
+            if (
+              window.pdaSystem &&
+              state.uiState &&
+              state.uiState.pdaUnlocked
+            ) {
+              // 1. ЕСЛИ ОТКРЫТ: Свайп вправо (deltaX > 40) сворачивает весь телефон
+              if (window.pdaSystem.isVisible && deltaX > 40) {
+                if (e.cancelable) e.preventDefault();
+                window.pdaSystem.toggle();
+                return;
+              }
+
+              // 2. ЕСЛИ ОТКРЫТ: Свайп влево (deltaX < -40) послойно закрывает глубокие подразделы!
+              else if (window.pdaSystem.isVisible && deltaX < -40) {
+                // Собираем массив ВСХ открытых окон внутри КПК
+                const activeSubScreens = Array.from(
+                  document.querySelectorAll("#pda-container .active"),
+                );
+
+                if (activeSubScreens.length > 0) {
+                  // Кликаем НАЗАД строго на самом ПОСЛЕДНЕМ (видимом прямо сейчас) подэкране
+                  const currentVisibleScreen =
+                    activeSubScreens[activeSubScreens.length - 1];
+                  const backBtn = currentVisibleScreen.querySelector(
+                    'button[id$="back"], .back-btn',
+                  );
+                  if (backBtn) {
+                    if (e.cancelable) e.preventDefault();
+                    backBtn.click();
+                    return;
+                  }
+                }
+              }
+
+              // 3. ЕСЛИ ЗАКРЫТ: Свайп влево (deltaX < -40) от правого края вытягивает телефон
+              else if (!window.pdaSystem.isVisible && deltaX < -40) {
+                const isNearRightEdge = touchStartX > window.innerWidth - 120;
+                if (isNearRightEdge) {
+                  if (e.cancelable) e.preventDefault();
+                  window.pdaSystem.toggle();
+                  return;
+                }
+              }
+            }
           }
+        }
+
+        // Игровые вертикальные свайпы (открыть лог / скрыть интерфейс)
+        if (absY > 50 && absY > absX) {
+          const mainMenu = document.getElementById("main-menu-screen");
+          const isMainMenuActive =
+            mainMenu && window.getComputedStyle(mainMenu).display !== "none";
+          const disclaimer = document.getElementById("disclaimer-screen");
+          const isDisclaimerActive =
+            disclaimer &&
+            window.getComputedStyle(disclaimer).display !== "none";
+          const splash = document.getElementById("splash-screen");
+          const isSplashActive =
+            splash && window.getComputedStyle(splash).display !== "none";
+
+          if (isMainMenuActive || isDisclaimerActive || isSplashActive) return;
+          if (window.pdaSystem && window.pdaSystem.isVisible) return;
 
           if (deltaY < 0) {
-            this.toggleUI(); // вверх
+            this.toggleUI();
           } else {
             if (
               this.hm &&
               !this.hm.modalOpen &&
               typeof this.hm.showHistory === "function"
             ) {
-              this.hm.showHistory(); // вниз
+              this.hm.showHistory();
             }
           }
         }
@@ -950,6 +1022,16 @@ export class SceneManager {
         state.uiState.dialogStyle = line.dialogStyle;
       } else if (isRestoredLine && state.uiState && state.uiState.dialogStyle) {
         this.isTransparentMode = state.uiState.dialogStyle === "transparent";
+      }
+
+      if (line.pdaUnlocked !== undefined) {
+        state.uiState.pdaUnlocked = line.pdaUnlocked;
+        if (
+          window.pdaSystem &&
+          typeof window.pdaSystem.updateVisibility === "function"
+        ) {
+          window.pdaSystem.updateVisibility();
+        }
       }
 
       // Применяем классы

@@ -6,6 +6,10 @@ export const characters = {
   celeste: {
     name: "Селеста",
     color: "#b19cd9",
+    requiresFlag: "knowsCeleste",
+    rank: "S",
+    room: "2-D",
+    photo: "assets/chars/kaira/pda_photo.webp",
     sprites: {
       neutral: "assets/chars/celeste/neutral.png",
       cold: "assets/chars/celeste/cold.png",
@@ -18,6 +22,9 @@ export const characters = {
     name: { ru: "Кагами", en: "Kagami", ja: "鏡" },
     color: "#ff7f50",
     requiresFlag: "knowsKagami",
+    rank: "B",
+    room: "2-B",
+    subject: "Современная литература",
     sprites: {
       neutral: "/chars/kagami/neutral.webp",
       neutral2: "/chars/kagami/neutral2.webp",
@@ -26,12 +33,16 @@ export const characters = {
     },
     role: "teacher",
   },
+
   shiroko: {
     id: "shiroko",
+    requiresFlag: "knowsShiroko",
+    room: "2-A",
+    subject: "Физкультура",
     name: {
-      ru: "Широко Хаята",
-      en: "Shiroko Hayata",
-      ja: "羽矢多 白子",
+      ru: "Широко",
+      en: "Shiroko",
+      ja: "羽矢多",
     },
     color: "#b82e2e", // Элегантный темно-красный для доминантного физрука
     sprites: {
@@ -46,6 +57,9 @@ export const characters = {
   kaira: {
     name: "Кайра",
     color: "#b30000",
+    requiresFlag: "knowsKaira",
+    rank: "B",
+    room: "2-B",
     sprites: {
       neutral: "assets/chars/kaira/neutral.webp",
       smug: "assets/chars/kaira/smug.webp",
@@ -59,6 +73,9 @@ export const characters = {
   akane: {
     name: "Аканэ",
     color: "#ff6600",
+    requiresFlag: "knowsAkane",
+    rank: "C",
+    room: "2-B",
     sprites: {
       neutral: "assets/chars/akane/neutral.webp",
       angry: "assets/chars/akane/angry.webp",
@@ -70,6 +87,9 @@ export const characters = {
   yukino: {
     name: "Юкино Шиба",
     color: "#0033cc",
+    requiresFlag: "knowsYukino",
+    rank: "A",
+    room: "2-B",
     sprites: {
       neutral: "assets/chars/rin/neutral.webp",
       strict: "assets/chars/rin/strict.webp",
@@ -80,6 +100,9 @@ export const characters = {
   livia: {
     name: "Ливия",
     color: "#33cc33",
+    requiresFlag: "knowsLivia",
+    rank: "B",
+    room: "2-B",
     sprites: {
       neutral: "assets/chars/livia/neutral.webp",
       concerned: "assets/chars/livia/concerned.webp",
@@ -90,6 +113,9 @@ export const characters = {
   aiden: {
     name: "Эйден",
     color: "#999999",
+    requiresFlag: "knowsAiden",
+    rank: "A",
+    room: "2-B",
     sprites: {
       neutral: "assets/chars/aiden/neutral.webp",
     },
@@ -99,6 +125,9 @@ export const characters = {
   mia: {
     name: "Мия",
     color: "#ff99cc",
+    requiresFlag: "knowsMia",
+    rank: "C",
+    room: "2-B",
     sprites: {
       shaking: "assets/chars/pink_girl/shaking.webp",
     },
@@ -107,7 +136,10 @@ export const characters = {
 
   death: {
     name: "Смертница ли Смерть",
-    color: "#ff3366", // Ядовито-розовый/красный цвет
+    color: "#ff3366",
+    requiresFlag: "knowsDeath",
+    rank: "A",
+    room: "2-T",
     sprites: {
       neutral: "assets/chars/death/neutral.webp",
       happy: "assets/chars/death/happy.webp",
@@ -123,7 +155,6 @@ export const characters = {
   mystery: {
     name: "???",
     color: "#ffffff",
-    // Спрайтов нет, uiManager и characterManager это проглотят без ошибок
   },
 
   driver: {

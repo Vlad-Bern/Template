@@ -16,6 +16,7 @@ export const state = {
   temp: {},
   uiState: {
     dialogStyle: "normal",
+    pdaUnlocked: false,
   },
 };
 

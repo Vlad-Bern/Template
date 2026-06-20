@@ -6,29 +6,45 @@ export class PDASystem {
     this.container = null;
     this.isVisible = false;
     this.isAnimating = false; // Защита от спама кнопкой
+    this.mainMenuScrollTop = 0;
   }
 
   init() {
-    // 1. Создаем главный корпус телефона
+    // 1. ЗАЩИТНЫЙ ЩИТ: Создаем бэкдроп за телефоном (блокирует клики сквозь КПК)
+    if (!document.getElementById("pda-backdrop")) {
+      const backdrop = document.createElement("div");
+      backdrop.id = "pda-backdrop";
+
+      // Клик по фону мимо телефона закрывает КПК без пролистывания новеллы
+      backdrop.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.toggle();
+      });
+
+      document.body.appendChild(backdrop);
+    }
+
+    // 2. Создаем главный корпус телефона
     this.container = document.createElement("div");
     this.container.id = "pda-container";
 
-    // 2. Чёлка камеры
+    // 3. Чёлка камеры
     const notch = document.createElement("div");
     notch.id = "pda-notch";
     this.container.appendChild(notch);
 
-    // 3. Внутренний экран
+    // 4. Внутренний экран
     const screen = document.createElement("div");
     screen.id = "pda-screen";
     this.container.appendChild(screen);
 
-    // 4. Черный экран-заглушка (выключенная матрица)
+    // 5. Черный экран-заглушка (выключенная матрица)
     const screenOffOverlay = document.createElement("div");
     screenOffOverlay.id = "pda-screen-off";
     screen.appendChild(screenOffOverlay);
 
-    // 5. ВЕРХНЯЯ ПАНЕЛЬ (Батарея и время)
+    // 6. ВЕРХНЯЯ ПАНЕЛЬ (Батарея и время)
     const header = document.createElement("div");
     header.id = "pda-header";
     header.innerHTML = `
@@ -72,7 +88,7 @@ export class PDASystem {
       batteryText.textContent = "50%";
     }
 
-    // 6. РЯД СТАТОВ
+    // 7. РЯД СТАТОВ
     const statsRow = document.createElement("div");
     statsRow.id = "pda-stats-grid";
 
@@ -130,7 +146,7 @@ export class PDASystem {
     `;
     screen.appendChild(statsRow);
 
-    // 7. Карточка профиля
+    // 8. Карточка профиля
     const profileCard = document.createElement("div");
     profileCard.id = "pda-profile-card";
     profileCard.innerHTML = `
@@ -144,7 +160,7 @@ export class PDASystem {
     `;
     screen.appendChild(profileCard);
 
-    // 8. Грид кнопок
+    // 9. Грид кнопок
     const appGrid = document.createElement("div");
     appGrid.id = "pda-app-grid";
     appGrid.innerHTML = `
@@ -155,7 +171,7 @@ export class PDASystem {
     `;
     screen.appendChild(appGrid);
 
-    // 9. ЭКРАН ПРИЛОЖЕНИЯ (Заглушка)
+    // 10. ЭКРАН ПРИЛОЖЕНИЯ (Заглушка)
     const blockedScreen = document.createElement("div");
     blockedScreen.id = "pda-blocked-screen";
     blockedScreen.innerHTML = `
@@ -164,7 +180,7 @@ export class PDASystem {
     `;
     screen.appendChild(blockedScreen);
 
-    // 10. ЭКРАН "ЛЮДИ" (Категории)
+    // 11. ЭКРАН "ЛЮДИ" (Категории)
     const peopleScreen = document.createElement("div");
     peopleScreen.id = "pda-people-screen";
     peopleScreen.innerHTML = `
@@ -179,7 +195,7 @@ export class PDASystem {
     `;
     screen.appendChild(peopleScreen);
 
-    // 10.6 ЭКРАН СПИСКА ЛЮДЕЙ (Контейнер с прокруткой)
+    // 12. ЭКРАН СПИСКА ЛЮДЕЙ (Контейнер с прокруткой)
     const peopleListScreen = document.createElement("div");
     peopleListScreen.id = "pda-people-list-screen";
     peopleListScreen.innerHTML = `
@@ -191,7 +207,7 @@ export class PDASystem {
     `;
     screen.appendChild(peopleListScreen);
 
-    // 11. ЭКРАН ПРАВИЛ (Вертикальный слайдер)
+    // 13. ЭКРАН ПРАВИЛ (Вертикальный слайдер)
     const rulesScreen = document.createElement("div");
     rulesScreen.id = "pda-rules-screen";
     rulesScreen.innerHTML = `
@@ -233,7 +249,7 @@ export class PDASystem {
     `;
     screen.appendChild(rulesScreen);
 
-    // 12. Полоска смахивания (Home Indicator)
+    // 14. Полоска смахивания (Home Indicator)
     const homeIndicator = document.createElement("div");
     homeIndicator.id = "pda-home-indicator";
     screen.appendChild(homeIndicator);
@@ -257,7 +273,6 @@ export class PDASystem {
       isContainerDown = false;
       listContainer.style.cursor = "default";
     });
-
     listContainer.addEventListener("mouseup", () => {
       isContainerDown = false;
       listContainer.style.cursor = "default";
@@ -299,14 +314,12 @@ export class PDASystem {
       }
     };
 
-    // Безопасный скролл колёсиком для правил
     rulesScreen.addEventListener("wheel", (e) => {
       e.preventDefault();
       if (e.deltaY > 0) slideRuleDown();
       else slideRuleUp();
     });
 
-    // Имитация свайпа пальцем (Drag мышкой)
     let touchStartY = 0;
     let isSwiping = false;
 
@@ -314,18 +327,13 @@ export class PDASystem {
       isSwiping = true;
       touchStartY = e.clientY;
     });
-
     rulesScreen.addEventListener("mouseleave", () => {
       isSwiping = false;
     });
-
     rulesScreen.addEventListener("mouseup", (e) => {
       if (!isSwiping) return;
       isSwiping = false;
-
-      const touchEndY = e.clientY;
-      const swipeDistance = touchEndY - touchStartY;
-
+      const swipeDistance = e.clientY - touchStartY;
       if (swipeDistance < -40) slideRuleDown();
       else if (swipeDistance > 40) slideRuleUp();
     });
@@ -337,75 +345,166 @@ export class PDASystem {
       if (e.key === "ArrowDown") slideRuleDown();
     });
 
+    // === ХОЗЯИН: НАСТОЯЩИЙ ТАЧ-СКРОЛЛ ДЛЯ МОБИЛЬНЫХ ПРАВИЛ ===
+    let rulesTouchStartY = 0;
+    rulesScreen.addEventListener(
+      "touchstart",
+      (e) => {
+        rulesTouchStartY = e.touches[0].clientY;
+      },
+      { passive: true },
+    );
+
+    rulesScreen.addEventListener(
+      "touchend",
+      (e) => {
+        if (!rulesScreen.classList.contains("active")) return;
+
+        const touchEndY = e.changedTouches[0].clientY;
+        const swipeDistance = touchEndY - rulesTouchStartY;
+
+        // Палец идет вверх ( swipeDistance < -40 ) -> листаем правила вниз
+        if (swipeDistance < -40) {
+          slideRuleDown();
+        }
+        // Палец идет вниз ( swipeDistance > 40 ) -> листаем правила вверх
+        else if (swipeDistance > 40) {
+          slideRuleUp();
+        }
+      },
+      { passive: true },
+    );
+
     // === ОБРАБОТЧИКИ НАЖАТИЙ КНОПОК ===
     screen.addEventListener("click", (e) => {
       const btn = e.target.closest("button");
       if (!btn) return;
 
       console.log("📱 Клик зафиксирован по кнопке с ID:", btn.id);
+      const pdaScreenEl = document.getElementById("pda-screen");
 
-      // 1. Приложения-заглушки (Задания, Карта)
-      if (btn.id === "pda-btn-quests" || btn.id === "pda-btn-map") {
+      // 🔥 ХОЗЯИН: ИСПРАВЛЕНИЕ СИСТЕМЫ УМНОГО КАСКАДНОГО СКРОЛЛА
+      const isBackBtn = btn.id.includes("back");
+
+      // Считаем, сколько окон открыто прямо сейчас
+      const activeAppsCount = screen.querySelectorAll(".active").length;
+
+      if (isBackBtn) {
+        // Мы возвращаемся в САМО ГЛАВНОЕ МЕНЮ (закрывается последнее окно)
+        if (activeAppsCount <= 1) {
+          setTimeout(() => {
+            if (pdaScreenEl) pdaScreenEl.scrollTop = this.mainMenuScrollTop;
+          }, 10);
+        } else {
+          // Мы выходим из глубокого подраздела (например, из Учеников назад в Люди)
+          // Оставляем скролл на отметке 0, чтобы экран людей не уплывал вверх!
+          if (pdaScreenEl) pdaScreenEl.scrollTop = 0;
+        }
+      } else {
+        // МЫ ИДЕМ ВПЕРЕД (Открываем приложение)
+        // Запоминаем позицию только если уходим со СВЕРНУТОЙ главной страницы
+        if (activeAppsCount === 0 && pdaScreenEl) {
+          this.mainMenuScrollTop = pdaScreenEl.scrollTop;
+        }
+        if (pdaScreenEl) pdaScreenEl.scrollTop = 0;
+      }
+
+      // ... дальше идёт ваш стандартный блок условий (btn.id === "pda-btn-quests" и т.д.)
+
+      // Переключение окон (Ваш старый код условий ниже, его не трогаем!)
+      if (btn.id === "pda-btn-quests" || btn.id === "pda-btn-map")
         blockedScreen.classList.add("active");
-      }
-
-      // Закрытие экрана заглушки биометрии
-      if (btn.id === "pda-btn-back") {
-        blockedScreen.classList.remove("active");
-      }
-
-      // 2. Открытие Правил
-      if (btn.id === "pda-btn-rules") {
-        rulesScreen.classList.add("active");
-      }
-      // Закрытие Правил
+      if (btn.id === "pda-btn-back") blockedScreen.classList.remove("active");
+      if (btn.id === "pda-btn-rules") rulesScreen.classList.add("active");
       if (btn.id === "pda-btn-rules-back") {
         rulesScreen.classList.remove("active");
         currentRuleSlide = 0;
         updateRulesSlider();
       }
-      // Стрелки на экране правил
       if (btn.id === "pda-btn-rule-up") slideRuleUp();
       if (btn.id === "pda-btn-rule-down") slideRuleDown();
-
-      // 3. Открытие экрана "Люди"
-      if (btn.id === "pda-btn-people") {
-        peopleScreen.classList.add("active");
-      }
-      // Закрытие экрана "Люди"
-      if (btn.id === "pda-btn-people-back") {
+      if (btn.id === "pda-btn-people") peopleScreen.classList.add("active");
+      if (btn.id === "pda-btn-people-back")
         peopleScreen.classList.remove("active");
-      }
-
-      // 4. Открытие списков персонажей (Учителя / Ученики)
       if (btn.id === "pda-btn-teachers") {
         this._renderPeopleList("teacher");
-        peopleListScreen.classList.add("active"); // МАЙ: Управляем напрямую через переменную!
+        peopleListScreen.classList.add("active");
       }
       if (btn.id === "pda-btn-students") {
         this._renderPeopleList("student");
-        peopleListScreen.classList.add("active"); // МАЙ: Управляем напрямую через переменную!
+        peopleListScreen.classList.add("active");
       }
-      // Закрытие списка персонажей
-      if (btn.id === "pda-btn-people-list-back") {
-        peopleListScreen.classList.remove("active"); // МАЙ: Управляем напрямую через переменную!
-      }
+      if (btn.id === "pda-btn-people-list-back")
+        peopleListScreen.classList.remove("active");
     });
 
     // Внедряем собранный телефон в корневой UI игры
     const gameUi = document.getElementById("game-ui");
     if (gameUi) {
       gameUi.appendChild(this.container);
+
+      // 🔥 ХОЗЯИН: ЖЕЛЕЗНЫЙ ЩИТ ОТ КЛИКОВ
+      // Запрещаем кликам внутри телефона всплывать в игру, чтобы SceneManager не сбрасывал стили интерфейса!
+      this.container.addEventListener("click", (e) => {
+        e.stopPropagation();
+      });
+
+      // Создаем плашку-переключатель, висящую на голове корпуса
+      if (!document.getElementById("pda-text-trigger")) {
+        const pdaTextHint = document.createElement("div");
+        pdaTextHint.id = "pda-text-trigger";
+        pdaTextHint.innerHTML = `<span class="initial">Т</span><span class="rest">ЕЛЕФОН</span>`;
+
+        pdaTextHint.addEventListener("click", (e) => {
+          e.stopPropagation();
+          this.toggle();
+        });
+
+        this.container.appendChild(pdaTextHint);
+      }
+
+      // Метод контроля сюжетной видимости uiState.pdaUnlocked
+      this.updateVisibility = () => {
+        const gameViewport = document.getElementById("game-viewport");
+        const isGameActive =
+          gameViewport && gameViewport.style.display !== "none";
+        const isPdaAllowed = !!(state.uiState && state.uiState.pdaUnlocked);
+
+        if (isGameActive && isPdaAllowed) {
+          this.container.style.display = "block";
+        } else {
+          this.container.style.display = "none";
+          if (this.isVisible) {
+            this.isVisible = false;
+            this.container.classList.remove("pda-active");
+            const pdaHint = document.getElementById("pda-text-trigger");
+            if (pdaHint)
+              pdaHint.innerHTML = `<span class="initial">Т</span><span class="rest">ЕЛЕФОН</span>`;
+            const backdrop = document.getElementById("pda-backdrop");
+            if (backdrop) backdrop.classList.remove("active");
+            const screenOff = document.getElementById("pda-screen-off");
+            if (screenOff) screenOff.classList.remove("screen-on");
+          }
+        }
+      };
+
+      const gameViewport = document.getElementById("game-viewport");
+      if (gameViewport) {
+        const observer = new MutationObserver(() => this.updateVisibility());
+        observer.observe(gameViewport, {
+          attributes: true,
+          attributeFilter: ["style"],
+        });
+      }
+      this.updateVisibility();
     }
   }
 
   updateStats() {
     const heroStats = state?.hero?.stats;
     const hero = state?.hero;
-
     if (!heroStats || !hero) return;
 
-    // Обновляем текстовые цифры
     const sanityEl = document.getElementById("pda-stat-sanity");
     if (sanityEl) sanityEl.textContent = heroStats.sanity;
 
@@ -415,14 +514,12 @@ export class PDASystem {
     const physEl = document.getElementById("pda-stat-physique");
     if (physEl) physEl.textContent = heroStats.physique;
 
-    // SP берем из корня героя
     const spEl = document.getElementById("pda-stat-money");
     if (spEl) {
       const currentSP = hero.sp || 0;
       spEl.textContent = Number(currentSP).toLocaleString("en-US");
     }
 
-    // Обновляем сегменты дробно
     const statCards = document.querySelectorAll("#pda-stats-grid .stat-card");
     if (statCards.length >= 3) {
       this._updateSegments(statCards[0], heroStats.sanity);
@@ -431,23 +528,18 @@ export class PDASystem {
     }
   }
 
-  // Умный рендер списка персонажей
   _renderPeopleList(role) {
     const container = document.getElementById("pda-people-list-container");
     const title = document.getElementById("pda-people-list-title");
     if (!container || !title) return;
 
-    title.textContent =
-      role === "student" ? "УЧЕНИКИ" : "УЧИТЕЛЯ";
+    title.textContent = role === "student" ? "УЧЕНИКИ" : "УЧИТЕЛЯ";
     container.innerHTML = "";
 
     for (const key in characters) {
       const char = characters[key];
-
       if (char.role === role) {
-        // МАЙ: Защищенная проверка флага сюжета, чтобы скрипт никогда не падал в начале игры!
         const isUnlocked = state?.flags?.[char.requiresFlag];
-
         if (isUnlocked) {
           container.innerHTML += `
             <div class="pda-char-card">
@@ -479,7 +571,6 @@ export class PDASystem {
   _updateSegments(cardEl, value) {
     if (!cardEl) return;
     const segments = cardEl.querySelectorAll(".stat-segment");
-
     const isNegative = value < 0;
     const absValue = Math.min(Math.abs(value || 0), 100);
     const themeColor = isNegative ? "#ff4d4f" : "#00ffff";
@@ -487,15 +578,12 @@ export class PDASystem {
     segments.forEach((seg, index) => {
       const segmentMin = index * 20;
       const segmentMax = (index + 1) * 20;
-
       let fillPercentage = 0;
-
       if (absValue >= segmentMax) {
         fillPercentage = 100;
       } else if (absValue > segmentMin) {
         fillPercentage = ((absValue - segmentMin) / 20) * 100;
       }
-
       seg.style.setProperty("--fill", `${fillPercentage}%`);
       seg.style.setProperty("--theme-color", themeColor);
     });
@@ -503,18 +591,24 @@ export class PDASystem {
 
   async toggle() {
     if (this.isAnimating) return;
+    if (!state.uiState || !state.uiState.pdaUnlocked) return; // Наша сюжетная защита
 
     const screenOff = document.getElementById("pda-screen-off");
+    const pdaHint = document.getElementById("pda-text-trigger");
+    const backdrop = document.getElementById("pda-backdrop");
     this.isAnimating = true;
 
     if (!this.isVisible) {
       this.isVisible = true;
       this.updateStats();
-      this.container.style.display = "block";
+
+      // ХОЗЯИН: display = "block" удалён, контейнером рулит updateVisibility()
+      if (backdrop) backdrop.classList.add("active");
       screenOff.classList.remove("screen-on");
 
       await new Promise((r) => setTimeout(r, 10));
       this.container.classList.add("pda-active");
+      if (pdaHint) pdaHint.innerHTML = `<span class="initial">X</span>`;
 
       await new Promise((r) => setTimeout(r, 200));
 
@@ -523,21 +617,26 @@ export class PDASystem {
       this.container.classList.remove("power-pressed");
 
       screenOff.classList.add("screen-on");
+      if (window.playUISound) window.playUISound("open");
     } else {
       this.isVisible = false;
+      if (backdrop) backdrop.classList.remove("active");
 
       this.container.classList.add("power-pressed");
       await new Promise((r) => setTimeout(r, 80));
       this.container.classList.remove("power-pressed");
 
       screenOff.classList.remove("screen-on");
-
       await new Promise((r) => setTimeout(r, 100));
 
+      // Телефон уезжает за экран за счёт CSS-транслейта, но остаётся display: block!
       this.container.classList.remove("pda-active");
 
-      await new Promise((r) => setTimeout(r, 250));
-      this.container.style.display = "none";
+      // ХОЗЯИН: Стираем задержку и display = "none" отсюда к чертям!
+      if (pdaHint)
+        pdaHint.innerHTML = `<span class="initial">Т</span><span class="rest">ЕЛЕФОН</span>`;
+
+      if (window.playUISound) window.playUISound("close");
     }
 
     this.isAnimating = false;

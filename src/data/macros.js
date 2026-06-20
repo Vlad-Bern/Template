@@ -1,5 +1,6 @@
 // macros.js
 // Anime.js используется как глобальная переменная (подключена в index.html)
+import { state } from "../core/state.js";
 
 // --- БИБЛИОТЕКА ПРЕДУСТАНОВЛЕННЫХ АНИМАЦИЙ ---
 export const animations = {
