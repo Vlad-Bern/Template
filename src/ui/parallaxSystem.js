@@ -85,10 +85,14 @@ import { state } from "../core/state.js";
     const stress = 100 - safeSanity;
     const idleTime = (Date.now() - lastMouseMove) / 1000;
 
-    const wantCursor = idleTime > 3 ? "none" : "default";
-    if (renderFrame._lastCursor !== wantCursor) {
-      document.body.style.cursor = wantCursor;
-      renderFrame._lastCursor = wantCursor;
+    const wantOpacity = idleTime > 3 ? "0" : "1";
+    if (renderFrame._lastCursorOpacity !== wantOpacity) {
+      const vCursor = document.getElementById("virtual-cursor");
+      if (vCursor) {
+        vCursor.style.opacity = wantOpacity;
+        vCursor.style.transition = "opacity 0.3s ease"; // Мягкое растворение
+      }
+      renderFrame._lastCursorOpacity = wantOpacity;
     }
 
     const targetBlurAmount =

@@ -10,7 +10,11 @@
   z-index: 999;
   display: none;
   pointer-events: auto;
-  cursor: default;
+
+  /* 🔥 ХОЗЯИН: ВМЕСТО cursor: default СТАВИМ НАШ КУРСОР С ХЭШЕМ */
+  cursor:
+    url("/ui/cursor.png?v=2") 0 0,
+    auto !important;
 
   &.active {
     display: block;
@@ -24,11 +28,27 @@
   right: 60px;
   z-index: 1000;
   display: block;
-
-  /* Десктопное состояние: спрятан вниз */
-  transform: translateY(100%);
+  transform: translateY(calc(100% - 1px));
   transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
   pointer-events: auto !important;
+
+  /* 🔥 ХОЗЯИН: ВКЛЮЧАЕМ ИЗОЛЯЦИЮ 3D-ПЛОСКОСТЕЙ ДЛЯ ВИДЕОКАРТЫ
+     Это запретит браузеру сплющивать и отсекать курсоры у дочерних элементов */
+  transform-style: preserve-3d !important;
+
+  /* Геометрия премиального корпуса */
+  width: 320px;
+
+  /* Десктопное состояние: спрятан вниз */
+  transform: translateY(calc(100% - 1px));
+
+  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  pointer-events: auto !important;
+
+  /* 🔥 ХОЗЯИН: Обязываем весь слой телефона использовать наш курсор, чтобы Chromium не кэшировал его в дефолт */
+  cursor:
+    url("/ui/cursor.png?v=2") 0 0,
+    auto !important;
 
   /* Геометрия премиального корпуса */
   width: 320px;
@@ -41,8 +61,10 @@
     0 0 30px rgba(0, 255, 255, 0.18),
     inset 0 0 15px rgba(255, 255, 255, 0.05);
 
+  /* 🔥 ХОЗЯИН: При открытии плавно поднимаем за счёт bottom */
   &.pda-active {
-    transform: translateY(-20px); /* Эстетичный приподъем над краем экрана */
+    bottom: 20px;
+    transform: none;
   }
 
   /* Физическая кнопка включения (Справа) */
@@ -411,8 +433,9 @@
 }
 
 #pda-home-indicator {
-  position: fixed !important; /* Меняем absolute на fixed */
-  bottom: 10px !important; /* Четкий отступ от физического низа экрана */
+  /* 🔥 ХОЗЯИН: Меняем fixed на absolute, чтобы полоска стала 35% от телефона, а не от всего монитора! */
+  position: absolute !important;
+  bottom: 10px !important; /* Четкий отступ от физического низа экрана телефона */
   left: 50% !important;
   transform: translateX(-50%) !important;
   width: 35% !important;
@@ -801,24 +824,40 @@
   padding: 0 16px;
   border-radius: 6px 6px 0 0;
   box-shadow: 0 -4px 15px rgba(0, 255, 255, 0.3);
-  transition:
-    width 0.2s cubic-bezier(0.25, 1, 0.5, 1),
-    height 0.2s cubic-bezier(0.25, 1, 0.5, 1),
-    padding 0.2s ease,
-    border-radius 0.2s ease,
-    background-color 0.15s ease,
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
   touch-action: none !important;
 
-  // Назначаем курсор СТРОГО на саму родительскую плашку
+  /* 🔥 ХОЗЯИН: Выдвигаем плашку на 1 пиксель вперед в 3D-пространстве.
+     Для Chromium она становится суверенным слоем, и кастомный курсор включится мгновенно! */
+  transform: translate3d(0, 0, 1px) !important;
+  will-change: transform;
+
+  /* Базовый курсор плашки */
   cursor:
-    url("/ui/cursor.png") 0 0,
+    url("/ui/cursor.png?v=2") 0 0,
     pointer !important;
 
-  // 🔥 ХОЗЯИН: ВОТ ОН, КЛЮЧЕВОЙ ФИКС!
-  // Мы полностью отключаем события мыши для вложенного текста.
-  // Теперь для браузера эти буквы прозрачны, и он считывает курсор только с родителя!
+  /* Безопасный транзишн без ломающих фильтров */
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease !important;
+  filter: none !important;
+
+  /* 🎯 ЖЕЛЕЗНЫЙ МОСТ ДЛЯ ВИДЕОКАРТЫ 
+     Этот невидимый хвостик заходит на 20px внутрь телефона. 
+     Chromium видит пересечение слоев и больше не посмеет выгрузить текстуру синего курсора! */
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: -20px;
+    left: 0;
+    width: 100%;
+    height: 20px;
+    background: transparent !important;
+    pointer-events: none !important;
+  }
+
+  // Полностью отключаем события мыши для вложенного текста...
   .initial,
   .rest {
     pointer-events: none !important;
@@ -842,7 +881,8 @@
     letter-spacing: 1.5px;
   }
 
-  &:hover {
+  &:hover,
+  &.fake-hover {
     background: rgba(14, 22, 30, 0.98);
     border-color: rgba(0, 255, 255, 0.6);
     box-shadow: 0 -4px 20px rgba(0, 255, 255, 0.5);

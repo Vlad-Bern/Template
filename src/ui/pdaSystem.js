@@ -461,6 +461,53 @@ export class PDASystem {
         });
 
         this.container.appendChild(pdaTextHint);
+
+        const bridge = document.createElement("div");
+        bridge.id = "pda-cursor-bridge";
+        bridge.style.cssText = `
+          position: fixed;
+          z-index: 10000;
+          background: rgba(0, 0, 0, 0.005) !important; /* ← ЖЕСТКИЙ ФИКС: Создаем микро-слой для обмана Chromium */
+          cursor: url("/ui/cursor.png?v=2") 0 0, pointer !important;
+          display: block;
+        `;
+
+        // Функция идеального копирования координат оригинальной плашки
+        const syncBridge = () => {
+          if (this.isVisible) {
+            bridge.style.display = "none";
+            return;
+          }
+          bridge.style.display = "block";
+          const rect = pdaTextHint.getBoundingClientRect();
+          if (rect.width > 0) {
+            bridge.style.left = rect.left + "px";
+            bridge.style.top = rect.top + "px";
+            bridge.style.width = rect.width + "px";
+            bridge.style.height = rect.height + "px";
+          }
+        };
+
+        // Следим за изменением окна и ховером для обновления позиции
+        window.addEventListener("resize", syncBridge);
+        pdaTextHint.addEventListener("mouseenter", syncBridge);
+
+        // Передаем ховер оригинальной плашке для красивой CSS подсветки
+        bridge.addEventListener("mouseenter", () =>
+          pdaTextHint.classList.add("fake-hover"),
+        );
+        bridge.addEventListener("mouseleave", () =>
+          pdaTextHint.classList.remove("fake-hover"),
+        );
+
+        // Клик по мосту открывает телефон
+        bridge.addEventListener("click", (e) => {
+          e.stopPropagation();
+          this.toggle();
+        });
+
+        gameUi.appendChild(bridge);
+        setTimeout(syncBridge, 100); // Мягкий старт после рендеринга DOM
       }
 
       // Метод контроля сюжетной видимости uiState.pdaUnlocked
@@ -602,6 +649,10 @@ export class PDASystem {
       this.isVisible = true;
       this.updateStats();
 
+      // 🔥 ХОЗЯИН: Мгновенно убираем мост, давая полную свободу крестику и его анимациям
+      const bridge = document.getElementById("pda-cursor-bridge");
+      if (bridge) bridge.style.display = "none";
+
       // ХОЗЯИН: display = "block" удалён, контейнером рулит updateVisibility()
       if (backdrop) backdrop.classList.add("active");
       screenOff.classList.remove("screen-on");
@@ -635,6 +686,21 @@ export class PDASystem {
       // ХОЗЯИН: Стираем задержку и display = "none" отсюда к чертям!
       if (pdaHint)
         pdaHint.innerHTML = `<span class="initial">Т</span><span class="rest">ЕЛЕФОН</span>`;
+
+      // 🔥 ХОЗЯИН: Возвращаем мост на место после того, как телефон уехал вниз
+      const bridge = document.getElementById("pda-cursor-bridge");
+      if (bridge) {
+        setTimeout(() => {
+          bridge.style.display = "block";
+          const rect = pdaHint.getBoundingClientRect();
+          if (rect.width > 0) {
+            bridge.style.left = rect.left + "px";
+            bridge.style.top = rect.top + "px";
+            bridge.style.width = rect.width + "px";
+            bridge.style.height = rect.height + "px";
+          }
+        }, 350); // Небольшое ожидание завершения скольжения корпуса
+      }
 
       if (window.playUISound) window.playUISound("close");
     }

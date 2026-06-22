@@ -338,3 +338,37 @@ Promise.resolve().then(() => {
   import("./src/ui/menuButtons.js");
   import("./src/ui/parallaxSystem.js");
 });
+
+// ========================================================
+// 🦾 СИСТЕМА УЛЬТИМАТИВНОГО ВИРТУАЛЬНОГО ИГРОВОГО КУРСОРA
+// ========================================================
+if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+  // Создаем физический элемент курсора
+  const virtualCursor = document.createElement("div");
+  virtualCursor.id = "virtual-cursor";
+  document.body.appendChild(virtualCursor);
+
+  // Двигаем курсор за мышкой без задержек
+  document.addEventListener("mousemove", (e) => {
+    virtualCursor.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
+
+    // Динамическая проверка наведения на интерактивные элементы новеллы
+    const isInteractive = e.target.closest(
+      'button, a, [role="button"], .sota-gallery-item, .sl-slot-btn, .delete-save-btn, .choice-btn, #dialog-hide-btn, .dialog-footer-btn, #pda-text-trigger',
+    );
+
+    if (isInteractive) {
+      virtualCursor.classList.add("pointer-mode");
+    } else {
+      virtualCursor.classList.remove("pointer-mode");
+    }
+  });
+
+  // Прячем игровой курсор, если мышь улетает за пределы окна браузера
+  document.addEventListener("mouseleave", () => {
+    virtualCursor.style.opacity = "0";
+  });
+  document.addEventListener("mouseenter", () => {
+    virtualCursor.style.opacity = "1";
+  });
+}

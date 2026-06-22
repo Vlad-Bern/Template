@@ -1059,59 +1059,94 @@ body.ui-hidden .interact-point {
 }
 
 /* ========================================================
-   🎯 ГЛОБАЛЬНЫЙ КУРСОР И НЕОНОВОГО ОТКЛИК ИНТЕРФЕЙСА СИНСЮ
+   🎯 СИСТЕМА ИГРОВОГО ВИРТУАЛЬНОГО КУРСОРA СИНСЮ
    ======================================================== */
-
-// Сбрасываем кэш Chromium для всего экрана игры
-html,
-body,
-#app,
-#game-viewport {
-  cursor:
-    url("/ui/cursor.png?v=2") 0 0,
-    auto !important;
-}
-
-// Сбрасываем кэш для всех интерактивных элементов
-button,
-a,
-[role="button"],
-.sota-gallery-item,
-.sl-slot-btn,
-.delete-save-btn,
-#choice-container button,
-.choice-btn,
-#dialog-hide-btn,
-.dialog-footer-btn,
-#pda-text-trigger {
-  cursor:
-    url("/ui/cursor.png?v=2") 0 0,
-    pointer !important;
-
-  transition:
-    filter 0.25s cubic-bezier(0.25, 1, 0.5, 1),
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    color 0.2s ease !important;
-
-  &:hover {
-    filter: drop-shadow(0 0 5px rgba(0, 255, 255, 0.65)) !important;
-  }
-}
-
-// Замок для мобильных платформ
-@media (hover: none), (pointer: coarse) {
+@media (hover: hover) and (pointer: fine) {
+  // На ПК полностью скрываем стандартный курсор Windows для ВСЕХ элементов игры, включая ползунки и их скрытые части
   html,
   body,
   #app,
   #game-viewport,
+  *,
   button,
   a,
   [role="button"],
   .sota-gallery-item,
   .sl-slot-btn,
+  .delete-save-btn,
+  #choice-container button,
+  .choice-btn,
+  #dialog-hide-btn,
+  .dialog-footer-btn,
+  #pda-text-trigger,
+  input[type="range"],
+  input[type="range"]::-webkit-slider-thumb,
+  input[type="range"]::-webkit-slider-runnable-track {
+    cursor: none !important;
+  }
+
+  // 🔥 ХОЗЯИН: ВОЗВРАЩАЕМ ИГРОВЫМ КНОПКАМ ИХ КРАСИВУЮ АНИМАЦИЮ И НЕОНОВОЕ СВЕЧЕНИЕ
+  button,
+  a,
+  [role="button"],
+  .sota-gallery-item,
+  .sl-slot-btn,
+  .delete-save-btn,
+  #choice-container button,
+  .choice-btn,
+  #dialog-hide-btn,
+  .dialog-footer-btn,
   #pda-text-trigger {
+    transition:
+      filter 0.25s cubic-bezier(0.25, 1, 0.5, 1),
+      transform 0.2s ease,
+      box-shadow 0.2s ease,
+      color 0.2s ease !important;
+
+    &:hover {
+      filter: drop-shadow(0 0 5px rgba(0, 255, 255, 0.65)) !important;
+    }
+  }
+
+  // Оформляем наш собственный игровой виртуальный курсор
+  #virtual-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 24px;
+    height: 24px;
+    background-image: url("/ui/cursor.png?v=2");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: top left;
+
+    pointer-events: none !important;
+    z-index: 100000 !important;
+
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
+
+    transition: filter 0.2s ease;
+
+    &.pointer-mode {
+      filter: drop-shadow(0 0 5px rgba(0, 255, 255, 0.85)) !important;
+    }
+  }
+}
+
+// Замок для мобильных платформ (Оставляем тачскрины нетронутыми)
+@media (hover: none), (pointer: coarse) {
+  #virtual-cursor {
+    display: none !important;
+  }
+  html,
+  body,
+  #app,
+  #game-viewport,
+  *,
+  input[type="range"],
+  input[type="range"]::-webkit-slider-thumb,
+  input[type="range"]::-webkit-slider-runnable-track {
     cursor: auto !important;
-    filter: none !important;
   }
 }
