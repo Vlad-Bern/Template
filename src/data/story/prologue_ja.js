@@ -340,7 +340,7 @@ export const story = {
         next: "laugh_at_girl",
       },
       {
-        text: "【性的行為】",
+        text: "性的行為",
         req: { dominance: { min: 30 } },
         next: "inspect_girl",
       },

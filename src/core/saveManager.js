@@ -84,6 +84,33 @@ export class SaveManager {
     localStorage.removeItem(`sota_save_${slotIndex}`);
   }
 
+  /* 🔥 NEW МЕТОД: Полная очистка всей базы сохранений новеллы (включая автосейв) */
+  wipeAllSaves() {
+    for (let i = 0; i < this.saveSlots; i++) {
+      // Чистим физические файлы на ПК
+      if (this.saveDir && fs && path) {
+        const file = path.join(this.saveDir, `save_${i}.json`);
+        try {
+          if (fs.existsSync(file)) fs.unlinkSync(file);
+        } catch (e) {
+          console.error(
+            `[SaveManager] Ошибка при удалении файла save_${i}.json:`,
+            e,
+          );
+        }
+      }
+      // Чистим локальное хранилище браузера/мобилок
+      localStorage.removeItem(`sota_save_${i}`);
+    }
+    console.log(
+      "%c[SaveManager] Все сохранения и автосейвы успешно уничтожены.",
+      "color: #ff4d4f; font-weight: bold;",
+    );
+
+    // Перерисовываем пустую сетку слотов текущей страницы
+    this.renderSlots();
+  }
+
   initUI() {
     if (!document.getElementById(this.containerId)) {
       const panel = document.createElement("div");
@@ -91,9 +118,12 @@ export class SaveManager {
 
       panel.innerHTML = `
         <div id="sl-inner-content">
-          <div class="sl-header">
-            <h2 id="sl-title">Сохранение</h2>
-            <button id="close-sl-btn">✕</button>
+          <div class="sl-header" style="display: flex; align-items: center;">
+            <h2 id="sl-title" style="margin: 0; display: inline-block;">Сохранение</h2>
+            
+            <button id="sl-wipe-all-btn" class="delete-save-btn" style="margin-left: 12px; display: inline-block;">[ DEL ALL ]</button>
+            
+            <button id="close-sl-btn" style="margin-left: auto;">✕</button>
           </div>
           <div class="sl-pagination">
             <button id="sl-prev-page">◀</button>
@@ -109,6 +139,32 @@ export class SaveManager {
         e.stopPropagation();
         this.close();
       });
+
+      /* 🔥 NEW: Обработчик клика глобальной деструкции с защитным подтверждением */
+      document
+        .getElementById("sl-wipe-all-btn")
+        .addEventListener("click", (e) => {
+          e.stopPropagation();
+
+          // Проверяем локализацию для модалки подтверждения
+          const lang = window.settingsManager
+            ? window.settingsManager.settings.language
+            : "ru";
+          const dict = window.settingsManager
+            ? window.settingsManager.uiTranslations[lang]
+            : null;
+
+          const confirmText = dict
+            ? dict.confirm_wipe_all_saves ||
+              "ВНИМАНИЕ! БЕЗВОЗВРАТНО СТЕРЕТЬ ВЫБРАННЫЕ ДАННЫЕ, ВСЕ СЛОТЫ И АВТОСОХРАНЕНИЯ ИГРЫ?"
+            : "ВНИМАНИЕ! БЕЗВОЗВРАТНО СТЕРЕТЬ ВЫБРАННЫЕ ДАННЫЕ, ВСЕ СЛОТЫ И АВТОСОХРАНЕНИЯ ИГРЫ?";
+
+          // Вызов нашего окна подтверждения новеллы
+          window.showConfirm(confirmText, () => {
+            this.wipeAllSaves();
+          });
+        });
+
       document
         .getElementById("sl-prev-page")
         .addEventListener("click", () => this.changePage(-1));
@@ -260,7 +316,7 @@ export class SaveManager {
       btn.className = `sl-slot-btn ${isAutoSave ? "auto-save" : ""}`;
 
       if (slotData) {
-        // Локализация даты (можно оставить "ru-RU" как стандарт или использовать 'lang')
+        // Локализация даты
         const date = new Date(slotData.timestamp).toLocaleString(
           lang === "en" ? "en-US" : lang === "ja" ? "ja-JP" : "ru-RU",
           {
@@ -273,7 +329,7 @@ export class SaveManager {
         );
 
         btn.innerHTML = `
-          ${!isAutoSave ? `<button class="delete-save-btn" title="${wordDelTitle}">[ DEL ]</button>` : ""}
+          ${!isAutoSave ? `<button class="delete-save-btn">[ DEL ]</button>` : ""}
           <div class="slot-title">${isAutoSave ? wordAuto : `${wordSlot} ${slotIndex + 1}`}</div>
           <div class="slot-date">${date}</div>
         `;
@@ -330,13 +386,10 @@ export class SaveManager {
         ? dict.confirm_overwrite_save
         : "ПЕРЕЗАПИСАТЬ ДАННЫЕ В СЛОТЕ ";
 
-      window.showConfirm(
-        `${overwTextBase}${slotIndex + 1}?`, // <--- Собрали фразу
-        () => {
-          // Вызываем снова, но уже с флагом перезаписи
-          this.saveGame(slotIndex, true);
-        },
-      );
+      window.showConfirm(`${overwTextBase}${slotIndex + 1}?`, () => {
+        // Вызываем снова, но уже с флагом перезаписи
+        this.saveGame(slotIndex, true);
+      });
       return; // Прерываем текущее выполнение
     }
 
@@ -377,7 +430,7 @@ export class SaveManager {
       JSON.parse(JSON.stringify(slotData.state.flags)),
     );
 
-    // МАЙ ФИКС: Очищаем и заново собираем системные настройки (прозрачность окна и т.д.)
+    // МАЙ ФИКС: Очищаем и заново собираем системные настройки
     if (state.uiState) {
       Object.keys(state.uiState).forEach((key) => delete state.uiState[key]);
     } else {
@@ -460,26 +513,23 @@ export class SaveManager {
       transitionScreen.style.zIndex = "999999";
       transitionScreen.style.opacity = "0";
       transitionScreen.style.transition = "opacity 1s ease";
-      transitionScreen.style.pointerEvents = "all"; // Защита от кликов во время загрузки
+      transitionScreen.style.pointerEvents = "all";
       document.body.appendChild(transitionScreen);
 
-      // 1. Запускаем затемнение
       setTimeout(() => {
         transitionScreen.style.opacity = "1";
       }, 50);
 
-      // 2. Когда экран черный: убиваем меню, включаем игру, грузим сцену
       setTimeout(() => {
-        mainMenu.style.display = "none"; // ВОТ ОН, ТОТ САМЫЙ РУБИЛЬНИК!
+        mainMenu.style.display = "none";
 
         const gameViewport = document.getElementById("game-viewport");
         const dialogWrapper = document.getElementById("dialog-wrapper");
         if (gameViewport) gameViewport.style.display = "block";
         if (dialogWrapper) dialogWrapper.style.display = "flex";
 
-        finalizeLoad(); // Оживляем сцену
+        finalizeLoad();
 
-        // 3. Плавно снимаем затемнение, открывая Синсю
         transitionScreen.style.opacity = "0";
         setTimeout(() => transitionScreen.remove(), 1000);
       }, 1050);
@@ -490,7 +540,9 @@ export class SaveManager {
   }
 
   autoSave() {
-    this._deleteSave(0); // Стираем старый автосейв по индексу 0
-    this.saveGame(0, true, true); // Сохраняем в индекс 0
+    // Внимание: Раньше _deleteSave(0) прерывался гуардом, теперь wipeAllSaves чистит всё напрямую.
+    // Оставляем оригинальный вызов без изменений для стабильности движка:
+    this._deleteSave(0);
+    this.saveGame(0, true, true);
   }
 }

@@ -22,7 +22,7 @@ export const state = {
 
 const STAT_LIMITS = {
   dominance: { min: -100, max: 100 },
-  sanity: { min: -100, max: 100 },
+  sanity: { min: 0, max: 100 },
   physique: { min: 0, max: 100 },
   rank_score: { min: 0, max: 100 },
 };

@@ -359,7 +359,7 @@ export const story = {
         next: "laugh_at_girl",
       },
       {
-        text: "[Sexual act]",
+        text: "Sexual act",
         req: { dominance: { min: 30 } },
         next: "inspect_girl",
       },

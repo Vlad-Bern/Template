@@ -108,6 +108,27 @@
     gap: 15px;
   }
 
+  // ========================================================
+  // 🔥 БАЗОВЫЕ ВИЗУАЛЬНЫЕ СТИЛИ КНОПОК УДАЛЕНИЯ (Shared)
+  // ========================================================
+  .delete-save-btn {
+    background: transparent;
+    border: none;
+    color: rgba(255, 60, 60, 0.3); // Тускло-красный по умолчанию
+    font-family: "Inter", sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
+
+    &:hover {
+      color: #ff4444; // Ярко-красный при наведении!
+      text-shadow: 0 0 10px rgba(255, 60, 60, 0.8);
+    }
+  }
+
   // Сами кнопки (слоты)
   .sl-slot-btn {
     background: rgba(10, 10, 10, 0.6);
@@ -183,26 +204,32 @@
       }
     }
 
+    /* 🔥 Для одиночной кнопки внутри слота сохраняем абсолютные координаты */
     .delete-save-btn {
       position: absolute;
       top: 15px;
       right: 15px;
-      background: transparent;
-      border: none;
-      color: rgba(255, 60, 60, 0.3); // Тускло-красный по умолчанию
-      font-family: "Inter", sans-serif;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 2px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      z-index: 10;
 
       &:hover {
-        color: #ff4444; // Ярко-красный при наведении!
-        text-shadow: 0 0 10px rgba(255, 60, 60, 0.8);
         transform: scale(1.1);
       }
+    }
+  }
+
+  // ========================================================
+  // 🔥 NEW: СТИЛИ ДЛЯ КНОПКИ В ШАПКЕ ПАНЕЛИ
+  // ========================================================
+  .sl-header .delete-save-btn {
+    /* Жестко гасим абсолютные координаты родительского каскада, 
+     чтобы кнопка осталась во флекс-потоке шапки и работал марджин из JS */
+    position: static !important;
+    top: auto !important;
+    right: auto !important;
+
+    &:hover {
+      transform: scale(
+        1.05
+      ); /* Аккуратный зум без поломки соседних элементов */
     }
   }
 }

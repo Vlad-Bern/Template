@@ -1057,3 +1057,61 @@ body.ui-hidden .interact-point {
     display: none !important;
   }
 }
+
+/* ========================================================
+   🎯 ГЛОБАЛЬНЫЙ КУРСОР И НЕОНОВОГО ОТКЛИК ИНТЕРФЕЙСА СИНСЮ
+   ======================================================== */
+
+// Сбрасываем кэш Chromium для всего экрана игры
+html,
+body,
+#app,
+#game-viewport {
+  cursor:
+    url("/ui/cursor.png?v=2") 0 0,
+    auto !important;
+}
+
+// Сбрасываем кэш для всех интерактивных элементов
+button,
+a,
+[role="button"],
+.sota-gallery-item,
+.sl-slot-btn,
+.delete-save-btn,
+#choice-container button,
+.choice-btn,
+#dialog-hide-btn,
+.dialog-footer-btn,
+#pda-text-trigger {
+  cursor:
+    url("/ui/cursor.png?v=2") 0 0,
+    pointer !important;
+
+  transition:
+    filter 0.25s cubic-bezier(0.25, 1, 0.5, 1),
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    color 0.2s ease !important;
+
+  &:hover {
+    filter: drop-shadow(0 0 5px rgba(0, 255, 255, 0.65)) !important;
+  }
+}
+
+// Замок для мобильных платформ
+@media (hover: none), (pointer: coarse) {
+  html,
+  body,
+  #app,
+  #game-viewport,
+  button,
+  a,
+  [role="button"],
+  .sota-gallery-item,
+  .sl-slot-btn,
+  #pda-text-trigger {
+    cursor: auto !important;
+    filter: none !important;
+  }
+}

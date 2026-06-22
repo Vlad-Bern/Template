@@ -338,7 +338,7 @@ export class SettingsManager {
 
     panel.innerHTML = `
       <div id="settings-inner">
-        <button class="modal-close-btn" id="close-settings-btn" title="Закрыть">[ × ]</button>
+        <button class="modal-close-btn" id="close-settings-btn">[ × ]</button>
         
         <div class="settings-layout">
           <!-- ЛЕВАЯ ЧАСТЬ: НАСТРОЙКИ (60%) -->
