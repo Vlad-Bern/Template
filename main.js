@@ -372,3 +372,28 @@ if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
     virtualCursor.style.opacity = "1";
   });
 }
+
+/* 🎯 ХОЗЯИН: Защита от зависания курсора в углу при переключении экрана */
+const centerVirtualCursor = () => {
+  const vCursor = document.getElementById("virtual-cursor");
+  if (vCursor) {
+    vCursor.style.left = "50vw";
+    vCursor.style.top = "50vh";
+    vCursor.style.transform = "translate(-50%, -50%)"; // Идеальный центр
+  }
+};
+
+// Срабатывает каждый раз, когда игра входит/выходит из фуллскрина
+document.addEventListener("fullscreenchange", centerVirtualCursor);
+
+// 🔥 ХОЗЯИН: Железобетонный костыль-истребитель партизана в углу (0,0)
+document.addEventListener(
+  "mousemove",
+  () => {
+    const vCursor = document.getElementById("virtual-cursor");
+    if (vCursor) {
+      vCursor.classList.add("activated");
+    }
+  },
+  { once: true },
+); // ← МАГИЯ: Сработает ровно ОДИН раз при первом движении руки и навсегда удалится из памяти!

@@ -66,6 +66,8 @@ export class SettingsManager {
         hk_skip_mob: `<span class="key">[ Удержание ]</span><span class="desc">Промотка</span>`,
         hk_history_mob: `<span class="key">[ Свайп вниз ]</span><span class="desc">История</span>`,
         hk_hideui_mob: `<span class="key">[ Свайп вверх ]</span><span class="desc">Скрыть интерфейс</span>`,
+        hk_pda_pc: `<span class="key">[ M ]</span><span class="desc">Открыть телефон</span>`,
+        hk_pda_mob: `<span class="key">[ Свайп влево ]</span><span class="desc">Открыть телефон</span>`,
         // --- ГЛАВНОЕ МЕНЮ И ДИСКЛЕЙМЕР ---
         disclaimer_title: "ВНИМАНИЕ!",
         disclaimer_body: `
@@ -94,6 +96,7 @@ export class SettingsManager {
         confirm_overwrite_save: "ПЕРЕЗАПИСАТЬ ДАННЫЕ В СЛОТЕ ",
         sl_title_save: "[ СОХРАНИТЬ ДАННЫЕ ]",
         sl_title_load: "[ ЗАГРУЗИТЬ ДАННЫЕ ]",
+        btn_delete_all: "[ УДАЛИТЬ ВСЁ ]",
         sl_page: "Страница",
         sl_autosave: "АВТОСОХРАНЕНИЕ",
         sl_slot: "СЛОТ",
@@ -133,6 +136,8 @@ export class SettingsManager {
         hk_skip_mob: `<span class="key">[ Hold ]</span><span class="desc">Skip</span>`,
         hk_history_mob: `<span class="key">[ Swipe Down ]</span><span class="desc">Log</span>`,
         hk_hideui_mob: `<span class="key">[ Swipe Up ]</span><span class="desc">Hide UI</span>`,
+        hk_pda_pc: `<span class="key">[ M ]</span><span class="desc">Open Phone</span>`,
+        hk_pda_mob: `<span class="key">[ Swipe Left ]</span><span class="desc">Open Phone</span>`,
         // --- ГЛАВНОЕ МЕНЮ И ДИСКЛЕЙМЕР ---
         disclaimer_title: "WARNING!",
         disclaimer_body: `
@@ -161,6 +166,7 @@ export class SettingsManager {
         confirm_overwrite_save: "OVERWRITE DATA IN SLOT ",
         sl_title_save: "[ SAVE DATA ]",
         sl_title_load: "[ LOAD DATA ]",
+        btn_delete_all: "[ DEL ALL ]",
         sl_page: "Page",
         sl_autosave: "AUTOSAVE",
         sl_slot: "SLOT",
@@ -200,6 +206,8 @@ export class SettingsManager {
         hk_skip_mob: `<span class="key">[ 長押し ]</span><span class="desc">スキップ</span>`,
         hk_history_mob: `<span class="key">[ 下スワイプ ]</span><span class="desc">ログ</span>`,
         hk_hideui_mob: `<span class="key">[ 上スワイプ ]</span><span class="desc">UI非表示</span>`,
+        hk_pda_pc: `<span class="key">[ M ]</span><span class="desc">携帯を開く</span>`,
+        hk_pda_mob: `<span class="key">[ 左スワイプ ]</span><span class="desc">携帯を開く</span>`,
         // --- ГЛАВНОЕ МЕНЮ И ДИСКЛЕЙМЕР ---
         disclaimer_title: "警告！",
         disclaimer_body: `
@@ -229,6 +237,7 @@ export class SettingsManager {
         confirm_overwrite_save: "スロットのデータを上書きしますか: スロット ",
         sl_title_save: "[ データをセーブ ]",
         sl_title_load: "[ データをロード ]",
+        btn_delete_all: "[ 全削除 ]",
         sl_page: "ページ",
         sl_autosave: "オートセーブ",
         sl_slot: "スロット",
@@ -399,17 +408,16 @@ export class SettingsManager {
             <button class="reset-btn" data-i18n="btn_reset">[ СБРОС ]</button>
           </div>
 
-          <!-- ПРАВАЯ ЧАСТЬ: СПРАВОЧНИК -->
           <div class="settings-right">
             <div class="manual-header" data-i18n="manual_header">СПРАВОЧНИК</div>
-            <div class="manual-content">
+          <div class="manual-content">
               <div class="hotkey-row"><span class="key">[ ЛКМ / Пробел / -> ]</span><span class="desc" data-i18n="hk_next">Далее</span></div>
               <div class="hotkey-row"><span class="key">[ Ctrl ]</span><span class="desc" data-i18n="hk_skip">Промотка</span></div>
               <div class="hotkey-row"><span class="key">[ H / Scroll]</span><span class="desc" data-i18n="hk_history">История</span></div>
               <div class="hotkey-row"><span class="key">[ S / L ]</span><span class="desc" data-i18n="hk_saveload">Сохранить / Загрузить</span></div>
               <div class="hotkey-row"><span class="key">[ O ]</span><span class="desc" data-i18n="hk_settings">Настройки</span></div>
               <div class="hotkey-row"><span class="key">[ ПКМ ]</span><span class="desc" data-i18n="hk_hideui">Скрыть интерфейс</span></div>
-            </div>
+              <div class="hotkey-row"><span class="key">[ M ]</span><span class="desc">Открыть телефон</span></div> </div>
           </div>
         </div>
       </div>
@@ -434,13 +442,12 @@ export class SettingsManager {
         const fsRow = panel.querySelector("#row-fullscreen");
         if (fsRow) fsRow.style.display = "none";
 
-        // МАЙ ФИКС: Используем атрибут data-i18n-html
         manualContent.innerHTML = `
           <div class="hotkey-row" data-i18n-html="hk_next_mob"></div>
           <div class="hotkey-row" data-i18n-html="hk_skip_mob"></div>
           <div class="hotkey-row" data-i18n-html="hk_history_mob"></div>
           <div class="hotkey-row" data-i18n-html="hk_hideui_mob"></div>
-        `;
+          <div class="hotkey-row" data-i18n-html="hk_pda_mob"></div> `;
       } else {
         manualContent.innerHTML = `
           <div class="hotkey-row" data-i18n-html="hk_next_pc"></div>
@@ -449,7 +456,7 @@ export class SettingsManager {
           <div class="hotkey-row" data-i18n-html="hk_saveload_pc"></div>
           <div class="hotkey-row" data-i18n-html="hk_settings_pc"></div>
           <div class="hotkey-row" data-i18n-html="hk_hideui_pc"></div>
-        `;
+          <div class="hotkey-row" data-i18n-html="hk_pda_pc"></div> `;
       }
     }
 

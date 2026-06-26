@@ -582,7 +582,7 @@
 
     #main-menu-character-container {
       position: absolute;
-      right: -2vw;
+      right: -7vw !important;
       top: 0;
       left: auto;
       width: 52vw;
@@ -611,7 +611,7 @@
 
       &.char-celeste img {
         transform: scale(1.15);
-        object-position: top 0% right 20%;
+        object-position: top 0% right 25% !important;
       }
 
       &.char-kagami img {
@@ -623,6 +623,76 @@
         transform: scale(1.1);
         object-position: top center;
       }
+    }
+  }
+
+  // 🔥 ХОЗЯИН: КИНЕМАТОГРАФИЧНАЯ МОБИЛЬНАЯ АДАПТАЦИЯ ПОЛОСЫ СПОНСОРОВ
+  #main-menu-sponsors {
+    display: block !important;
+    position: absolute !important;
+    top: 0 !important;
+    right: 0 !important;
+    width: 50px !important;
+    height: 100% !important;
+    background: linear-gradient(
+      to bottom,
+      rgba(212, 175, 55, 0.08) 0%,
+      rgba(0, 0, 0, 0.45) 100%
+    ) !important;
+    border-left: 1px solid rgba(212, 175, 55, 0.25) !important;
+    z-index: 4 !important;
+
+    .sponsors-glow-top {
+      height: 50px !important;
+    }
+
+    .ticker-track {
+      gap: 90px !important;
+      padding-top: 45px !important;
+      padding-bottom: 45px !important;
+
+      span {
+        font-size: 28px !important;
+        animation: sotaTextGlitterAnimation 4s infinite linear !important;
+      }
+    }
+  }
+
+  // 🔥 ХОЗЯИН: ЗАЩИТНЫЙ КАНАЛ СТРОГО ДЛЯ СМАРТФОНОВ (ВЫСОТА ЭКРАНА ДО 550px)
+  // Благодаря этому ограничению, планшеты больше не будут воровать телефонные стили!
+  @media (max-height: 550px) {
+    #main-menu-socials {
+      position: absolute !important;
+      bottom: 45px !important;
+      right: 70px !important; /* Зазор перед спонсорским пилоном */
+      left: auto !important;
+      display: flex !important;
+      gap: 14px !important;
+      z-index: 10;
+
+      .menu-social-btn {
+        width: 44px !important; /* Компактный телефонный размер под палец */
+        height: 44px !important;
+
+        img {
+          width: 20px !important;
+          height: 20px !important;
+        }
+      }
+    }
+
+    // Сажаем вотермарку версии строго под мобильные иконки донатов
+    .version-watermark,
+    .version {
+      position: absolute !important;
+      bottom: 15px !important;
+      right: 70px !important;
+      left: auto !important;
+      padding: 0 !important;
+      background: none !important;
+      font-size: 11px !important;
+      color: rgba(255, 255, 255, 0.45) !important;
+      text-align: right;
     }
   }
 

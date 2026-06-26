@@ -128,6 +128,35 @@ window.applySotaFinalState = function () {
     overlay.style.display = "none";
     overlay.style.opacity = "0";
   }
+
+  // 🔥 ХОЗЯИН: ИСПРАВЛЕННАЯ БЕСШОВНАЯ ДОРОЖКА СПОНСОРОВ (ДВИЖЕНИЕ СВЕРХУ ВНИЗ)
+  const mainMenu = document.getElementById("main-menu-screen");
+  if (mainMenu && !document.getElementById("main-menu-sponsors")) {
+    const sponsorsDiv = document.createElement("div");
+    sponsorsDiv.id = "main-menu-sponsors";
+    sponsorsDiv.innerHTML = `
+      <div class="sponsors-glow-top"></div>
+      
+      <div class="sponsors-sparkles">
+        <div class="sparkle sp-1"></div>
+        <div class="sparkle sp-2"></div>
+        <div class="sparkle sp-3"></div>
+        <div class="sparkle sp-4"></div>
+      </div>
+
+      <div class="sponsors-ticker">
+        <div class="ticker-track">
+          <span>D-RANK: NNN</span>
+          <span>D-RANK: USER_NICKNAME_2</span>
+        </div>
+        <div class="ticker-track" aria-hidden="true">
+          <span>D-RANK: NNN</span>
+          <span>D-RANK: USER_NICKNAME_2</span>
+        </div>
+      </div>
+    `;
+    mainMenu.appendChild(sponsorsDiv);
+  }
 };
 
 // === САМА АНИМАЦИЯ ===

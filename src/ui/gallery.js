@@ -87,6 +87,9 @@ const wipeAllGallery = () => {
 const injectWipeButtonToGallery = (unlockedCount) => {
   if (!galleryModal) return;
 
+  const lang = window.settingsManager?.settings?.language || "ru";
+  const dict = window.settingsManager?.uiTranslations[lang];
+
   const title = galleryModal.querySelector(
     ".gallery-header h2, #gallery-title, h2",
   );
@@ -98,19 +101,20 @@ const injectWipeButtonToGallery = (unlockedCount) => {
       header.style.alignItems = "center";
     }
 
-    if (!title.dataset.baseText) {
-      title.dataset.baseText = title.innerText;
-    }
+    // 🔥 ХОЗЯИН: Всегда обновляем базовый текст заголовка из словаря, чтобы он не кэшировал старый язык
+    title.dataset.baseText = dict?.gallery_title || "ГАЛЕРЕЯ";
 
     title.innerText = `${title.dataset.baseText} (${unlockedCount} / ${ALL_CG_LIST.length})`;
     title.style.margin = "0";
     title.style.display = "inline-block";
 
-    if (!document.getElementById("gallery-wipe-all-btn")) {
-      const wipeBtn = document.createElement("button");
+    // Ищем, существует ли кнопка уже в DOM
+    let wipeBtn = document.getElementById("gallery-wipe-all-btn");
+
+    if (!wipeBtn) {
+      wipeBtn = document.createElement("button");
       wipeBtn.id = "gallery-wipe-all-btn";
       wipeBtn.className = "delete-save-btn";
-      wipeBtn.innerText = "[ DEL ALL ]";
 
       wipeBtn.style.cssText =
         "margin-left: 12px; display: inline-block; background: transparent; border: none; font-size: 11px; font-weight: 600; letter-spacing: 2px; color: rgba(255, 77, 79, 0.85); cursor: pointer; transition: all 0.2s ease;";
@@ -129,18 +133,9 @@ const injectWipeButtonToGallery = (unlockedCount) => {
       wipeBtn.addEventListener("click", (e) => {
         e.stopPropagation();
 
-        const lang =
-          window.settingsManager && window.settingsManager.settings
-            ? window.settingsManager.settings.language
-            : "ru";
-        const dict = window.settingsManager
-          ? window.settingsManager.uiTranslations[lang]
-          : null;
-
-        const confirmText = dict
-          ? dict.confirm_wipe_gallery ||
-            "БЕЗВОЗВРАТНО ЗАБЛОКИРОВАТЬ И СТЕРЕТЬ ВСЕ НАЙДЕННЫЕ КАРТИНКИ ИЗ ГАЛЕРЕИ?"
-          : "БЕЗВОЗВРАТНО ЗАБЛОКИРОВАТЬ И СТЕРЕТЬ ВСЕ НАЙДЕННЫЕ КАРТИНКИ ИЗ ГАЛЕРЕИ?";
+        const confirmText =
+          dict?.confirm_wipe_gallery ||
+          "БЕЗВОЗВРАТНО ЗАБЛОКИРОВАТЬ И СТЕРЕТЬ ВСЕ НАЙДЕННЫЕ КАРТИНКИ ИЗ ГАЛЕРЕИ?";
 
         window.showConfirm(confirmText, () => {
           wipeAllGallery();
@@ -153,6 +148,10 @@ const injectWipeButtonToGallery = (unlockedCount) => {
         closeGalleryBtn.style.marginLeft = "auto";
       }
     }
+
+    // 🔥 ХОЗЯИН: Всегда принудительно обновляем текст кнопки при вызове функции,
+    // даже если сама кнопка уже была создана ранее!
+    wipeBtn.innerText = dict?.btn_delete_all || "[ СТЕРЕТЬ ВСЁ ]";
   }
 };
 

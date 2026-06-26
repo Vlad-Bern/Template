@@ -1119,6 +1119,8 @@ body.ui-hidden .interact-point {
     background-size: contain;
     background-repeat: no-repeat;
     background-position: top left;
+    opacity: 0; /* 🔥 ХОЗЯИН: Изначально курсор полностью невидим при загрузке страницы */
+    transition: opacity 0.3s ease;
 
     pointer-events: none !important;
     z-index: 100000 !important;
@@ -1127,6 +1129,18 @@ body.ui-hidden .interact-point {
     transform: translate3d(0, 0, 0);
 
     transition: filter 0.2s ease;
+
+    @media (pointer: coarse) {
+      display: none !important;
+    }
+
+    // 🔥 ХОЗЯИН: Полная изоляция при загрузке. Курсора физически нет на экране
+    display: none !important;
+
+    // Когда мышь сдвинется, JS добавит этот класс и курсор плавно оживёт
+    &.activated {
+      display: block !important;
+    }
 
     &.pointer-mode {
       filter: drop-shadow(0 0 5px rgba(0, 255, 255, 0.85)) !important;

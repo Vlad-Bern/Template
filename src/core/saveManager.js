@@ -156,8 +156,8 @@ export class SaveManager {
 
           const confirmText = dict
             ? dict.confirm_wipe_all_saves ||
-              "ВНИМАНИЕ! БЕЗВОЗВРАТНО СТЕРЕТЬ ВЫБРАННЫЕ ДАННЫЕ, ВСЕ СЛОТЫ И АВТОСОХРАНЕНИЯ ИГРЫ?"
-            : "ВНИМАНИЕ! БЕЗВОЗВРАТНО СТЕРЕТЬ ВЫБРАННЫЕ ДАННЫЕ, ВСЕ СЛОТЫ И АВТОСОХРАНЕНИЯ ИГРЫ?";
+              "БЕЗВОЗВРАТНО УДАЛИТЬ ДАННЫЕ, ВСЕ СЛОТЫ И АВТОСОХРАНЕНИЯ ИГРЫ?"
+            : "БЕЗВОЗВРАТНО УДАЛИТЬ ДАННЫЕ, ВСЕ СЛОТЫ И АВТОСОХРАНЕНИЯ ИГРЫ?";
 
           // Вызов нашего окна подтверждения новеллы
           window.showConfirm(confirmText, () => {
@@ -238,7 +238,7 @@ export class SaveManager {
       ? window.settingsManager.uiTranslations[lang]
       : null;
 
-    if (this.modalOpen && this.mode === mode) return; // Убрали playUISound("open") отсюда
+    if (this.modalOpen && this.mode === mode) return;
     this.mode = mode;
     this.modalOpen = true;
 
@@ -251,6 +251,12 @@ export class SaveManager {
         : dict
           ? dict.sl_title_load
           : "[ ЗАГРУЗИТЬ ДАННЫЕ ]";
+
+    // 🔥 ХОЗЯИН: Динамический перевод большой кнопки глобальной очистки
+    const wipeAllBtn = document.getElementById("sl-wipe-all-btn");
+    if (wipeAllBtn) {
+      wipeAllBtn.innerText = dict?.btn_delete_all || "[ УДАЛИТЬ ВСЁ ]";
+    }
 
     const panel = document.getElementById(this.containerId);
     panel.classList.add("active");
