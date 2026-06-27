@@ -326,6 +326,51 @@
     letter-spacing: 2px;
     pointer-events: none;
   }
+
+  #main-menu-sponsors-notice {
+    position: absolute;
+    top: 40px;
+    right: 100px; // 85px ширина трека + 15px зазор
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    font-family: "Inter", sans-serif;
+    font-weight: 700;
+    font-size: 10px;
+    color: rgba(212, 175, 55, 0.35);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    z-index: 10;
+    pointer-events: none;
+    user-select: none;
+    text-shadow: 0px 0px 5px rgba(0, 0, 0, 0.8);
+  }
+
+  // Копирайт студии (ПК версия)
+  #main-menu-copyright {
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: "Inter", sans-serif;
+    font-weight: 400;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.25);
+    letter-spacing: 1px;
+    z-index: 100;
+    pointer-events: none;
+    user-select: none;
+    text-shadow: 0px 0px 5px rgba(0, 0, 0, 0.8);
+  }
+
+  // Нормализация тега strong: заставляем его бесшовно называть ранг внутри скролл-линии
+  .sponsors-ticker .ticker-track span strong.sponsor-rank-label {
+    font-size: inherit !important;
+    font-weight: inherit !important;
+    color: inherit !important;
+    -webkit-text-fill-color: inherit !important;
+    display: inline !important;
+  }
 }
 
 // ✅ Переносим корневую вотермарку влево
@@ -345,99 +390,139 @@
   user-select: none;
 }
 
-// === КНОПКИ СОЦСЕТЕЙ В ГЛАВНОМ МЕНЮ ===
-#main-menu-socials {
-  position: absolute;
-  bottom: 45px !important;
-  left: 7.6% !important; /* 🔥 ХОЗЯИН: Теперь ровно в один ряд с кнопками меню! */
-  right: auto !important;
-  display: flex;
-  gap: 15px;
-  z-index: 10;
+#main-menu-screen {
+  // 🔥 ТВОЙ ОРИГИНАЛЬНЫЙ ИСПРАВЛЕННЫЙ БЛОК СОЦСЕТЕЙ (ВОЗВРАЩАЕМ КАК БЫЛО):
+  #main-menu-socials {
+    position: absolute;
+    bottom: 45px !important;
+    left: 7.6% !important;
+    right: auto !important;
+    display: flex;
+    gap: 15px;
+    z-index: 10;
 
-  .menu-social-btn {
-    @media (min-width: 768px) {
-      width: 55px;
-      height: 55px;
+    .menu-social-btn {
+      @media (min-width: 768px) {
+        width: 55px;
+        height: 55px;
+        img {
+          width: 28px;
+          height: 28px;
+        }
+      }
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease,
+        background 0.3s ease,
+        border-color 0.3s ease;
+      -webkit-tap-highlight-color: transparent;
+      outline: none;
+      text-decoration: none;
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: none;
 
       img {
-        width: 28px;
-        height: 28px;
+        width: 20px;
+        height: 20px;
+        filter: brightness(0) invert(1);
+        opacity: 0.7;
+        transition: opacity 0.3s ease;
       }
-    }
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    transition:
-      transform 0.3s ease,
-      box-shadow 0.3s ease,
-      background 0.3s ease,
-      border-color 0.3s ease;
+      &:active {
+        transform: scale(0.95);
+      }
 
-    -webkit-tap-highlight-color: transparent;
-    outline: none;
-    text-decoration: none;
-
-    background: rgba(0, 0, 0, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: none;
-
-    img {
-      width: 20px;
-      height: 20px;
-      filter: brightness(0) invert(1);
-      opacity: 0.7;
-      transition: opacity 0.3s ease;
-    }
-
-    &:active {
-      transform: scale(0.95);
-    }
-
-    // 🔥 ХОЗЯИН: Задаем базовое увеличение кнопок на ПК (на 25%) прямо в общий узел
-    @media (hover: hover) and (pointer: fine) {
-      transform: scale(1.25);
-      margin: 0 10px;
-      opacity: 0.85;
-    }
-
-    // BOOSTY (Вспыхивает оранжевым)
-    &.boosty {
       @media (hover: hover) and (pointer: fine) {
-        &:hover {
-          transform: scale(
-            1.4
-          ) !important; // 🔥 ХОЗЯИН: С учётом базового размера делаем сочный зум 1.4
-          background: linear-gradient(135deg, #f15f2c, #e23b24);
-          border-color: transparent;
-          box-shadow: 0 0 25px rgba(241, 95, 44, 0.85);
-          img {
-            opacity: 1;
+        transform: scale(1.25);
+        margin: 0 10px;
+        opacity: 0.85;
+      }
+
+      &.boosty {
+        @media (hover: hover) and (pointer: fine) {
+          &:hover {
+            transform: scale(1.4) !important;
+            background: linear-gradient(135deg, #f15f2c, #e23b24);
+            border-color: transparent;
+            box-shadow: 0 0 25px rgba(241, 95, 44, 0.85);
+            img {
+              opacity: 1;
+            }
+          }
+        }
+      }
+
+      &.patreon {
+        @media (hover: hover) and (pointer: fine) {
+          &:hover {
+            transform: scale(1.4) !important;
+            background: linear-gradient(135deg, #ff424d, #d1363f);
+            border-color: transparent;
+            box-shadow: 0 0 25px rgba(255, 66, 77, 0.85);
+            img {
+              opacity: 1;
+            }
           }
         }
       }
     }
+  }
 
-    // PATREON (Вспыхивает коралловым)
-    &.patreon {
-      @media (hover: hover) and (pointer: fine) {
-        &:hover {
-          transform: scale(
-            1.4
-          ) !important; // 🔥 ХОЗЯИН: С учётом базового размера делаем сочный зум 1.4
-          background: linear-gradient(135deg, #ff424d, #d1363f);
-          border-color: transparent;
-          box-shadow: 0 0 25px rgba(255, 66, 77, 0.85);
-          img {
-            opacity: 1;
-          }
-        }
-      }
-    }
+  // === ДОБАВЛЯЕМ НОВЫЕ ПЕРЕФАКТОРЕННЫЕ ЭЛЕМЕНТЫ ДЛЯ ПК ===
+
+  // Вертикальный дисклеймер (теперь четко привязан к треку спонсоров)
+  #main-menu-sponsors-notice {
+    position: absolute;
+    top: 40px;
+    right: 95px; // Идеальный зазор в 10px от левой границы трека
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    font-family: "Inter", sans-serif;
+    font-weight: 700;
+    font-size: 10px;
+    color: rgba(212, 175, 55, 0.35);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    z-index: 10;
+    pointer-events: none;
+    user-select: none;
+    text-shadow: 0px 0px 5px rgba(0, 0, 0, 0.8);
+  }
+
+  // Копирайт студии строго по центру в самом низу
+  #main-menu-copyright {
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: "Inter", sans-serif;
+    font-weight: 400;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.25);
+    letter-spacing: 1px;
+    z-index: 100;
+    pointer-events: none;
+    user-select: none;
+    text-shadow: 0px 0px 5px rgba(0, 0, 0, 0.8);
+  }
+
+  // Нормализация тега strong внутри бегущей строки (для инстант-перевода)
+  .sponsors-ticker .ticker-track span strong.sponsor-rank-label {
+    font-size: inherit !important;
+    font-weight: inherit !important;
+    color: inherit !important;
+    -webkit-text-fill-color: inherit !important;
+    display: inline !important;
   }
 }
 
@@ -609,6 +694,31 @@
       animation: sotaTextGlitterAnimation 4s infinite linear;
     }
   }
+}
+
+.sponsors-rank-notice {
+  position: absolute;
+  top: 40px; // Начинается строго сверху экрана
+  right: 95px; // Сдвинут левее пилона спонсоров (85px пилон + 10px чистый зазор)
+
+  // Наша фирменная вертикальная раскладка букв
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+
+  font-family: "Inter", sans-serif;
+  font-weight: 700;
+  font-size: 10px; // Аккуратный системный размер шрифта
+  color: rgba(
+    212,
+    175,
+    55,
+    0.4
+  ); // Приглушенный золотой корпоративный тон Синсю
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  white-space: nowrap; // Строчка не ломается
+  z-index: 10; // Гарантированно выше фонового видео
+  pointer-events: none; // Мышка полностью игнорирует текст
 }
 
 // Бесконечная бесшовная прокрутка всей конструкции сверху вниз

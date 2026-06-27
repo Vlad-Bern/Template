@@ -89,8 +89,6 @@ window.showConfirm = function (message, onConfirm) {
     keyOff();
     rmbOff();
     if (window.quizTimer) window.quizTimer.resume();
-    window.removeEventListener("keydown", window._confirmKeyHandler, true);
-    window.removeEventListener("contextmenu", window._confirmRmbHandler, true);
 
     // === МАЙ: ВОЗОБНОВЛЯЕМ ТАЙМЕР ПРИ ЗАКРЫТИИ ===
     if (window.quizTimer) {

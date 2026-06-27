@@ -47,8 +47,6 @@ export class ChoiceSystem {
       .trim()
       .toLowerCase();
 
-    if (cleanKey === "domincance") cleanKey = "dominance";
-
     const lang = window.settingsManager?.settings?.language || "ru"; // ← FIX
 
     const names = {

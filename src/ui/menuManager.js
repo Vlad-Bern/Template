@@ -73,7 +73,6 @@ window.applySotaFinalState = function () {
     endLeft = "5%"; // МАЙ: Идеальные 5%
   }
 
-  // --- МАЙ: ВОТ ЭТОТ БЛОК ПОТЕРЯЛСЯ! МЫ ВОЗВРАЩАЕМ ЕГО ---
   // Внутри функции window.applySotaFinalState
   const title = document.getElementById("main-menu-title");
   if (title) {
@@ -129,33 +128,59 @@ window.applySotaFinalState = function () {
     overlay.style.opacity = "0";
   }
 
-  // 🔥 ХОЗЯИН: ИСПРАВЛЕННАЯ БЕСШОВНАЯ ДОРОЖКА СПОНСОРОВ (ДВИЖЕНИЕ СВЕРХУ ВНИЗ)
   const mainMenu = document.getElementById("main-menu-screen");
-  if (mainMenu && !document.getElementById("main-menu-sponsors")) {
-    const sponsorsDiv = document.createElement("div");
-    sponsorsDiv.id = "main-menu-sponsors";
-    sponsorsDiv.innerHTML = `
-      <div class="sponsors-glow-top"></div>
-      
-      <div class="sponsors-sparkles">
-        <div class="sparkle sp-1"></div>
-        <div class="sparkle sp-2"></div>
-        <div class="sparkle sp-3"></div>
-        <div class="sparkle sp-4"></div>
-      </div>
+  if (mainMenu) {
+    const currentLang = window.settingsManager?.settings?.language || "ru";
+    const rankLabel =
+      window.settingsManager?.uiTranslations?.[currentLang]
+        ?.sponsors_rank_label || "D-RANK";
 
-      <div class="sponsors-ticker">
-        <div class="ticker-track">
-          <span>D-RANK: NNN</span>
-          <span>D-RANK: USER_NICKNAME_2</span>
+    // 1. Рендерим пилон с тегом strong для инстант-перевода слова Ранг
+    if (!document.getElementById("main-menu-sponsors")) {
+      const sponsorsDiv = document.createElement("div");
+      sponsorsDiv.id = "main-menu-sponsors";
+      sponsorsDiv.innerHTML = `
+        <div class="sponsors-glow-top"></div>
+        <div class="sponsors-sparkles">
+          <div class="sparkle sp-1"></div>
+          <div class="sparkle sp-2"></div>
+          <div class="sparkle sp-3"></div>
+          <div class="sparkle sp-4"></div>
         </div>
-        <div class="ticker-track" aria-hidden="true">
-          <span>D-RANK: NNN</span>
-          <span>D-RANK: USER_NICKNAME_2</span>
+        <div class="sponsors-ticker">
+          <div class="ticker-track">
+            <span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: NNN</span>
+            <span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: lorenzo</span>
+            <span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: Random Orange</span>
+          </div>
+          <div class="ticker-track" aria-hidden="true">
+            <span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: NNN</span>
+            <span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: lorenzo</span>
+            <span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: Random Orange</span>
+          </div>
         </div>
-      </div>
-    `;
-    mainMenu.appendChild(sponsorsDiv);
+      `;
+      mainMenu.appendChild(sponsorsDiv);
+    }
+
+    // 2. Создаем вертикальный лог
+    if (!document.getElementById("main-menu-sponsors-notice")) {
+      const noticeDiv = document.createElement("div");
+      noticeDiv.id = "main-menu-sponsors-notice";
+      noticeDiv.setAttribute("data-i18n", "sponsors_rank_notice");
+      noticeDiv.innerHTML =
+        window.settingsManager?.uiTranslations?.[currentLang]
+          ?.sponsors_rank_notice || "Спонсоры только D-ранга и выше.";
+      mainMenu.appendChild(noticeDiv);
+    }
+
+    // 3. Создаем копирайт
+    if (!document.getElementById("main-menu-copyright")) {
+      const copyrightDiv = document.createElement("div");
+      copyrightDiv.id = "main-menu-copyright";
+      copyrightDiv.innerHTML = "© 2026 V&Mai studio. All rights reserved.";
+      mainMenu.appendChild(copyrightDiv);
+    }
   }
 };
 

@@ -1051,14 +1051,6 @@ export class SceneManager {
         if (window.unlockCG) window.unlockCG(line.bg);
       }
 
-      // А вот фон обрабатываем как обычно
-      if (line.bg) {
-        const optimizedLineBg = this._getOptimizedBgPath(line.bg);
-        const speed = line.bgSpeed !== undefined ? line.bgSpeed : 400;
-        this.ui.updateBackground(optimizedLineBg, isRestoredLine ? 0 : speed);
-        if (window.unlockCG) window.unlockCG(line.bg);
-      }
-
       let displayText = line.text || "";
       if (!line.speaker) displayText = `${displayText}`;
 

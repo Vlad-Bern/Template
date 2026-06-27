@@ -2,7 +2,7 @@
 
 @media (max-width: 1024px) and (orientation: landscape),
   (max-height: 500px) and (orientation: landscape) {
-  // Усиливаем специфичность через body #app, чтобы перебить ПК-стили красиво
+  // border-radius: 0; Усиливаем специфичность через body #app, чтобы перебить ПК-стили красиво
   body #app {
     #game-viewport,
     #game-ui {
@@ -32,7 +32,9 @@
       bottom: 0;
     }
 
+    // 🔥 ФИКС МАЙ: Объединили дубликаты контейнера диалога в один монолитный блок
     #dialog-box-container {
+      position: relative;
       height: auto;
       min-height: 120px;
       border-radius: 0;
@@ -42,19 +44,7 @@
       margin: 0;
     }
 
-    #dialog-box-container {
-      position: relative;
-    }
-
-    #dialog-hide-btn {
-      width: 44px;
-      height: 44px;
-      top: 4px;
-      right: 4px;
-      font-size: 24px;
-      background: rgba(30, 38, 52, 0.85);
-    }
-
+    // 🔥 ФИКС МАЙ: Вырезали дубликат кнопки скрытия. Оставили только финальные рабочие параметры
     #dialog-hide-btn {
       position: absolute;
       top: 10px;
@@ -437,7 +427,7 @@
     }
   }
 
-  // Хардкорная адаптация Дисклеймера для Телефонов
+  // Снимок Дисклеймера
   #disclaimer-screen {
     .disclaimer-content {
       padding: 15px;
@@ -470,7 +460,6 @@
     }
   }
 
-  /* Разворачиваем окно на весь экран, никаких отступов по краям! */
   .sota-gallery-content {
     width: 100vw;
     height: 100vh;
@@ -478,45 +467,39 @@
     border-radius: 0;
   }
 
-  /* Сплющиваем шапку, чтобы больше места осталось для... кхм... артов */
   .sota-gallery-header {
     padding: 15px 20px;
 
     h2 {
-      font-size: 1rem; /* Уменьшаем шрифт заголовка */
+      font-size: 1rem;
       letter-spacing: 1px;
     }
   }
 
   .sota-close-btn {
-    font-size: 1.5rem; /* Крестик чуть меньше, но в него легко попасть пальцем */
+    font-size: 1.5rem;
   }
 
-  /* Ужимаем сетку */
   .sota-gallery-grid {
     padding: 15px;
-    gap: 10px; /* Картинки плотнее друг к другу */
-    /* Теперь миниатюры будут мельче, чтобы влезало ровно 2 колонки на телефоне */
+    gap: 10px;
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   }
 
-  /* МАГИЯ ДЛЯ ТАЧСКРИНОВ: Отменяем залипающий :hover */
   .sota-gallery-item {
-    /* На телефоне сразу показываем всё в цвете! Никакой серости. */
     filter: grayscale(0%) brightness(1) contrast(1);
 
     &:hover {
-      /* Выключаем увеличение и рамки при тапе, чтобы не было фантомных залипаний */
       transform: none;
       box-shadow: none;
       border-color: #222;
     }
 
-    /* Легкая вспышка яркости именно в момент прикосновения подушечки вашего пальца */
     &:active {
       filter: brightness(1.2);
     }
   }
+
   #main-menu-screen {
     aspect-ratio: unset;
     width: 100vw;
@@ -526,7 +509,6 @@
     overflow: hidden;
     position: relative;
 
-    // Затемнение под кнопки — СНАРУЖИ, не внутри себя
     &::before {
       content: "";
       position: absolute;
@@ -549,7 +531,6 @@
       transform-origin: center center;
       gap: 3px;
       width: auto;
-      // max-width: 48vw;
       flex-wrap: nowrap;
       justify-content: flex-start;
       text-align: left;
@@ -565,6 +546,8 @@
       }
     }
 
+    // 🔥 ФИКС МАЙ: Перенесли объединенный блок кнопок строго сюда, под защиту #main-menu-screen,
+    // сохранив оригинальные top: 16vh, кнопки и ширину max-content! Все дубликаты снизу удалены.
     .menu-buttons-container {
       position: absolute;
       left: 3vw;
@@ -578,6 +561,17 @@
       display: flex;
       flex-direction: column;
       z-index: 3;
+      width: max-content;
+
+      button {
+        margin-bottom: 2vh;
+        text-align: left;
+        line-height: 1;
+        min-height: 30px;
+        width: max-content;
+        max-width: none;
+        padding: 15px 20px;
+      }
     }
 
     #main-menu-character-container {
@@ -626,8 +620,7 @@
     }
   }
 
-  // 🔥 ХОЗЯИН: КИНЕМАТОГРАФИЧНАЯ МОБИЛЬНАЯ АДАПТАЦИЯ ПОЛОСЫ СПОНСОРОВ
-  #main-menu-sponsors {
+  body #app #main-menu-screen #main-menu-sponsors {
     display: block !important;
     position: absolute !important;
     top: 0 !important;
@@ -658,20 +651,18 @@
     }
   }
 
-  // 🔥 ХОЗЯИН: ЗАЩИТНЫЙ КАНАЛ СТРОГО ДЛЯ СМАРТФОНОВ (ВЫСОТА ЭКРАНА ДО 550px)
-  // Благодаря этому ограничению, планшеты больше не будут воровать телефонные стили!
   @media (max-height: 550px) {
     #main-menu-socials {
       position: absolute !important;
       bottom: 45px !important;
-      right: 70px !important; /* Зазор перед спонсорским пилоном */
+      right: 70px !important;
       left: auto !important;
       display: flex !important;
       gap: 14px !important;
       z-index: 10;
 
       .menu-social-btn {
-        width: 44px !important; /* Компактный телефонный размер под палец */
+        width: 44px !important;
         height: 44px !important;
 
         img {
@@ -681,7 +672,6 @@
       }
     }
 
-    // Сажаем вотермарку версии строго под мобильные иконки донатов
     .version-watermark,
     .version {
       position: absolute !important;
@@ -696,40 +686,11 @@
     }
   }
 
-  .menu-buttons-container {
-    position: absolute;
-    left: 3vw;
-    top: 10vh;
-    bottom: auto;
-    right: auto;
-    transform: none;
-
-    /* МАЙ: Жестко обжимаем контейнер по самой широкой кнопке! Больше никаких 44vw */
-    width: max-content;
-
-    margin-left: 0;
-    gap: 0;
-    align-items: flex-start; /* Прижимаем кнопки к левому краю контейнера */
-    display: flex;
-    flex-direction: column;
-    z-index: 3;
-
-    button {
-      margin-bottom: 2vh;
-      text-align: left;
-      line-height: 1;
-      min-height: 30px;
-      width: max-content; /* Сама кнопка тоже строго по тексту */
-      max-width: none;
-      /* Padding создает приятную зону клика прямо вокруг букв, не пуская случайные нажатия */
-      padding: 15px 20px;
-    }
-  }
-
+  // Текст кнопок оставлен на верхнем уровне, как и просили
   .menu-btn .visual {
     font-size: 0.78rem;
     letter-spacing: 2px;
-    line-height: 1.2; /* МАЙ: Дописала за вас то, что оборвалось~ */
+    line-height: 1.2;
   }
 
   #skip-indicator {
@@ -744,6 +705,70 @@
     .rest {
       font-size: 1.2rem;
       -webkit-text-stroke: 1px rgba(0, 0, 0, 0.9);
+    }
+  }
+
+  // 🔥 ХОЗЯИН: ЖЕЛЕЗОБЕТОННЫЙ МОБИЛЬНЫЙ РЯД (НАДПИСЬ ПРИБИТА К ТРЕКУ + УЖАТЫЕ КНОПКИ)
+  body #app #main-menu-screen {
+    // Надпись больше не оторвана! Сидит в аккуратных 8px от 50px мобильного трека
+    #main-menu-sponsors-notice {
+      position: absolute !important;
+      top: 4vh !important;
+      right: 58px !important;
+      writing-mode: vertical-rl !important;
+      text-orientation: mixed !important;
+      font-family: "Inter", sans-serif !important;
+      font-weight: 700 !important;
+      font-size: 9px !important;
+      color: rgba(212, 175, 55, 0.65) !important;
+      letter-spacing: 2px !important;
+      text-transform: uppercase !important;
+      white-space: nowrap !important;
+      z-index: 10 !important;
+      text-shadow: 0px 0px 6px rgba(0, 0, 0, 0.9) !important;
+    }
+
+    // Компактный копирайт на телефонах
+    #main-menu-copyright {
+      position: absolute !important;
+      bottom: 8px !important;
+      left: 50% !important;
+      transform: translateX(-50%) !important;
+      font-family: "Inter", sans-serif !important;
+      font-size: 9px !important;
+      color: rgba(255, 255, 255, 0.25) !important;
+      z-index: 100 !important;
+    }
+
+    // Сдвигаем соцсети левее надписи (на 80px) и принудительно укрощаем их до 38px
+    #main-menu-socials {
+      position: absolute !important;
+      bottom: 42px !important;
+      right: 80px !important;
+      left: auto !important;
+      display: flex !important;
+      gap: 12px !important;
+      z-index: 10 !important;
+
+      .menu-social-btn,
+      a {
+        width: 38px !important;
+        height: 38px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: rgba(15, 20, 28, 0.65) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        border-radius: 50% !important;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.4) !important;
+
+        img,
+        svg {
+          width: 18px !important;
+          height: 18px !important;
+          display: block !important;
+        }
+      }
     }
   }
 }

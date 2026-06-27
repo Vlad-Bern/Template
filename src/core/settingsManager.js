@@ -102,6 +102,8 @@ export class SettingsManager {
         sl_slot: "СЛОТ",
         sl_empty: "Пусто",
         sl_delete_title: "Удалить слот",
+        sponsors_rank_notice: "Спонсоры только D-Ранга и выше.",
+        sponsors_rank_label: "D-РАНГ",
       },
       en: {
         settings_header: "[ SYSTEM SETTINGS ]",
@@ -172,6 +174,8 @@ export class SettingsManager {
         sl_slot: "SLOT",
         sl_empty: "Empty",
         sl_delete_title: "Delete slot",
+        sponsors_rank_notice: "D-Rank sponsors and higher only.",
+        sponsors_rank_label: "D-RANK",
       },
       ja: {
         settings_header: "[ システム設定 ]",
@@ -243,6 +247,8 @@ export class SettingsManager {
         sl_slot: "スロット",
         sl_empty: "空",
         sl_delete_title: "スロットを削除",
+        sponsors_rank_notice: "Dランク以上のスポンサーのみ。",
+        sponsors_rank_label: "Dランク",
       },
     };
 

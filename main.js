@@ -22,10 +22,6 @@ window.playUISound = (type) => {
   }
 };
 
-// Глобальные переменные, чтобы щит не наслаивался сам на себя
-window._confirmKeyHandler = null;
-window._confirmRmbHandler = null;
-
 window.isAnyModalOpen = () => {
   // 1. Проверяем окно подтверждения (выход, перезапись сейва)
   const confirmBackdrop = document.getElementById("confirm-backdrop");
@@ -227,9 +223,11 @@ if (dialogHideBtn) {
   dialogHideBtn.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
-    document.dispatchEvent(
-      new MouseEvent("contextmenu", { bubbles: true, cancelable: true }),
-    );
+
+    // Вызываем метод переключения интерфейса напрямую из инстанса менеджера сцен
+    if (window.sm && typeof window.sm.toggleUI === "function") {
+      window.sm.toggleUI();
+    }
   });
 }
 
