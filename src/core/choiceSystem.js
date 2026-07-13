@@ -476,9 +476,24 @@ export class ChoiceSystem {
     this.setupKeyboardNavigation();
   }
 
-  renderInteractions(scene, onSelectCallback, audioManager) {
+  /**
+   * Рисует экранные точки интерактива.
+   *
+   * Поддерживаемые типы:
+   * - look: локальный осмотр; SceneManager проигрывает obj.lines и возвращает точки;
+   * - exit: завершает блок, переходя в obj.next или к следующей строке.
+   *
+   * source может быть как сценой/блоком с полем interactables, так и самим массивом.
+   * consumed содержит id уже использованных look-точек.
+   */
+  renderInteractions(source, onSelectCallback, audioManager, options = {}) {
     const layer = document.getElementById("interaction-layer");
     if (!layer) return;
+
+    const interactables = Array.isArray(source)
+      ? source
+      : source?.interactables;
+    const consumed = options.consumed || new Set();
 
     this.isActive = true;
     this.cleanupNavigation();
@@ -486,13 +501,30 @@ export class ChoiceSystem {
     layer.innerHTML = "";
     layer.style.display = "block";
 
-    if (!scene.interactables || scene.interactables.length === 0) return;
+    if (!interactables || interactables.length === 0) {
+      this.isActive = false;
+      return;
+    }
 
-    scene.interactables.forEach((obj) => {
+    interactables.forEach((obj, index) => {
+      const interactionId = obj.id ?? `interaction-${index}`;
+      const type = obj.type || "look";
+
+      if (type !== "look" && type !== "exit") {
+        console.error(
+          `[ChoiceSystem] Неизвестный тип интерактива "${type}". ` +
+            'Разрешены только "look" и "exit".',
+          obj,
+        );
+        return;
+      }
+
+      if (type === "look" && consumed.has(interactionId)) return;
       if (obj.req && !this.checkRequirements(obj.req)) return;
 
       const el = document.createElement("div");
-      el.className = `interact-point type-${obj.type || "default"}`;
+      el.className = `interact-point type-${type}`;
+      el.dataset.interactionId = interactionId;
 
       if (obj.pos) {
         el.style.top = obj.pos.y + "%";
@@ -530,6 +562,7 @@ export class ChoiceSystem {
         if (e) e.stopPropagation();
         if (window.playUISound) window.playUISound("open");
         if (window.sm && window.sm.uiHidden) return;
+        if (!this.isActive) return;
 
         this.isActive = false;
         this.cleanupNavigation();
@@ -542,7 +575,12 @@ export class ChoiceSystem {
 
         const nextSceneId =
           typeof obj.next === "function" ? obj.next() : obj.next;
-        if (nextSceneId) onSelectCallback(nextSceneId);
+        onSelectCallback?.({
+          type,
+          obj,
+          interactionId,
+          nextSceneId: nextSceneId || null,
+        });
       };
 
       layer.appendChild(el);

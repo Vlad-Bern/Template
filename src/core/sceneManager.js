@@ -945,7 +945,8 @@ export class SceneManager {
 
     // 4. ЗАПУСК ДИАЛОГА ИЛИ ВЫБОРОВ
     if (sceneLines && sceneLines.length > 0) {
-      await this.playLines(sceneLines, startLineIndex, isRestoring);
+      const playResult = await this.playLines(sceneLines, startLineIndex);
+      if (playResult === "blocked") return;
     }
 
     if (this.currentPlayId !== loadPlayId) return;
@@ -960,16 +961,170 @@ export class SceneManager {
     }
   }
 
+  _getInteractionStateKey(block, blockIndex) {
+    const blockId = block.id ?? `line-${blockIndex}`;
+    return `${this.currentSceneId}:${blockId}`;
+  }
+
+  _getConsumedInteractions(stateKey) {
+    if (!state.temp.interactions) state.temp.interactions = {};
+    return new Set(state.temp.interactions[stateKey] || []);
+  }
+
+  _saveConsumedInteractions(stateKey, consumed) {
+    if (!state.temp.interactions) state.temp.interactions = {};
+    state.temp.interactions[stateKey] = [...consumed];
+  }
+
+  _clearConsumedInteractions(stateKey) {
+    if (!state.temp.interactions) return;
+    delete state.temp.interactions[stateKey];
+    if (Object.keys(state.temp.interactions).length === 0) {
+      delete state.temp.interactions;
+    }
+  }
+
+  /**
+   * Запускает интерактивный блок и возвращает управление только после exit.
+   * look временно показывает локальные lines, после чего возвращает точки,
+   * исключая уже осмотренную.
+   */
+  async playInteractionBlock(
+    block,
+    {
+      blockIndex = this.currentLineIndex,
+      inline = true,
+      fallbackNext = null,
+    } = {},
+  ) {
+    const dialogWrapper = document.getElementById("dialog-wrapper");
+    const playId = this.currentPlayId;
+    const stateKey = this._getInteractionStateKey(block, blockIndex);
+    const consumed = this._getConsumedInteractions(stateKey);
+
+    const hideDialog = () => {
+      if (dialogWrapper) dialogWrapper.style.display = "none";
+    };
+    const showDialog = () => {
+      if (dialogWrapper) dialogWrapper.style.display = "flex";
+    };
+
+    hideDialog();
+
+    while (this.currentPlayId === playId) {
+      const available = (block.interactables || []).filter((obj, index) => {
+        const type = obj.type || "look";
+        const id = obj.id ?? `interaction-${index}`;
+        return (
+          (type === "look" || type === "exit") &&
+          (type === "exit" || !consumed.has(id)) &&
+          (!obj.req || this.cs.checkRequirements(obj.req))
+        );
+      });
+
+      if (available.length === 0) {
+        console.error(
+          `[SceneManager] Интерактивный блок "${stateKey}" не содержит доступного exit.`,
+          block,
+        );
+        this.cs.forceClose();
+        showDialog();
+        return "blocked";
+      }
+
+      const selection = await new Promise((resolve) => {
+        this.cs.renderInteractions(block, resolve, this.am, { consumed });
+      });
+
+      if (this.currentPlayId !== playId || !selection) return "navigated";
+
+      const { type, obj, interactionId, nextSceneId } = selection;
+
+      if (type === "exit") {
+        this._clearConsumedInteractions(stateKey);
+        const resolvedFallback =
+          typeof fallbackNext === "function" ? fallbackNext() : fallbackNext;
+        const targetScene = nextSceneId || (!inline ? resolvedFallback : null);
+
+        if (targetScene) {
+          this.loadScene(targetScene);
+          return "navigated";
+        }
+
+        showDialog();
+        return "continue";
+      }
+
+      // Старые look-точки с next продолжают работать как переход в сцену.
+      // Новый локальный look определяется наличием собственного массива lines.
+      const lookLines =
+        typeof obj.lines === "function" ? obj.lines() : obj.lines || [];
+      if (lookLines.length === 0 && nextSceneId) {
+        this._clearConsumedInteractions(stateKey);
+        this.loadScene(nextSceneId);
+        return "navigated";
+      }
+
+      consumed.add(interactionId);
+      this._saveConsumedInteractions(stateKey, consumed);
+
+      if (lookLines.length > 0) {
+        showDialog();
+        await this.playLines(lookLines, 0, {
+          progressIndex: blockIndex,
+          allowInteractions: false,
+          ignoreRestoreState: true,
+        });
+        if (this.currentPlayId !== playId) return "navigated";
+      } else {
+        console.warn(
+          `[SceneManager] look "${interactionId}" не содержит lines или next. Точка просто помечена осмотренной.`,
+        );
+      }
+
+      hideDialog();
+    }
+
+    return "navigated";
+  }
+
   // +++ ИСПРАВЛЕННЫЙ PLAYLINES +++
-  async playLines(lines, startIndex = 0) {
+  async playLines(lines, startIndex = 0, options = {}) {
     const playId = this.currentPlayId;
     const db = document.getElementById("dialog-box");
+    const {
+      progressIndex = null,
+      allowInteractions = true,
+      ignoreRestoreState = false,
+    } = options;
 
     for (let i = startIndex; i < lines.length; i++) {
       if (this.currentPlayId !== playId) return;
 
       const line = lines[i];
-      const isRestoredLine = this.isRestoringSave && i === startIndex;
+      if (!line) continue;
+
+      if (line.interactables) {
+        if (!allowInteractions) {
+          console.error(
+            "[SceneManager] Вложенный интерактив внутри look.lines не поддерживается.",
+            line,
+          );
+          continue;
+        }
+
+        this.currentLineIndex = progressIndex ?? i;
+        const result = await this.playInteractionBlock(line, {
+          blockIndex: progressIndex ?? i,
+          inline: true,
+        });
+        if (result === "blocked") return "blocked";
+        if (result === "navigated" || this.currentPlayId !== playId) return;
+        continue;
+      }
+
+      const isRestoredLine =
+        !ignoreRestoreState && this.isRestoringSave && i === startIndex;
 
       const bgsToPreload = [];
       for (let j = 1; j <= 3; j++) {
@@ -1054,7 +1209,7 @@ export class SceneManager {
       let displayText = line.text || "";
       if (!line.speaker) displayText = `${displayText}`;
 
-      this.currentLineIndex = i;
+      this.currentLineIndex = progressIndex ?? i;
 
       // Не дублируем логи в истории
       if (!isRestoredLine) {
@@ -1123,12 +1278,11 @@ export class SceneManager {
     if (dialogWrapper) dialogWrapper.style.display = "flex";
 
     if (scene.interactables && scene.interactables.length > 0) {
-      if (dialogWrapper) dialogWrapper.style.display = "none";
-      this.cs.renderInteractions(
-        scene,
-        (nextId) => this.loadScene(nextId),
-        this.am,
-      ); // Передаем scene целиком и this.am
+      void this.playInteractionBlock(scene, {
+        blockIndex: "root",
+        inline: false,
+        fallbackNext: scene.next,
+      });
     } else if (scene.choices && scene.choices.length > 0) {
       this.isFastForwarding = false;
       if (this.fastForwardTimeoutId) clearTimeout(this.fastForwardTimeoutId);

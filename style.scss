@@ -1123,7 +1123,7 @@ body.ui-hidden .interact-point {
     transition: opacity 0.3s ease;
 
     pointer-events: none !important;
-    z-index: 100000 !important;
+    z-index: 2147483647 !important;
 
     will-change: transform;
     transform: translate3d(0, 0, 0);

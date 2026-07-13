@@ -1,19 +1,15 @@
-import { m, audioMacros, n, say, nfx, sf } from "../macros.js";
-import { state, setFlag, getFlag, removeFlag } from "../../core/state.js";
+import { m, audioMacros, n, say, nfx, sf } from "../../macros.js";
+import { state, setFlag, getFlag, removeFlag } from "../../../core/state.js";
 
 export const story = {
   prologue_interrogation: {
     id: "prologue_interrogation",
     bg: "./bg/common/dream_man.webp",
     lines: [
-      sf(
-        "mystery",
-        "レン。",
-        {
-          ...m.fx({ darkness: 1, noise: 1, duration: 0 }),
-          ...m.bgm("Zero Rank", 0.5),
-        },
-      ),
+      sf("mystery", "レン。", {
+        ...m.fx({ darkness: 1, noise: 1, duration: 0 }),
+        ...m.bgm("Zero Rank", 0.5),
+      }),
       say("mystery", "聞こえるか？"),
       sf(
         "ren",
@@ -1559,29 +1555,30 @@ export const story = {
     ],
 
     next: () => {
-      const dialogWrapper = document.getElementById("dialog-wrapper");
-      if (dialogWrapper) dialogWrapper.style.display = "none";
+      // Вызываем глобальный макрос: Первая буква "プ", остальные "ロローグ"
+      m.playActCinematic("プ", "ロローグ", 2500, () => {
+        // Переход на утро понедельника
+        window.dispatchEvent(
+          new CustomEvent("loadScene", { detail: "monday_morning" }),
+        );
+      });
 
-      window.startCredits([
-        `プロローグ第一部、終了。<br /><br />
-    <span style="color: #ff4d4d; font-size: 1.2rem; text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);">
-      こうして、この物語は始まった。<br />
-      この先に待つのは、さらなる汚泥だ。<br />
-      この道を歩み続けるか？
-    </span>`,
-        `クレジット：<br /><br />ゲームディレクター / 脚本：V&Mai Studio<br />コード / アシスタント：Mai（Perplexity AI）<br />アート：WAI Illustrious SDXL / Nano Banana 2`,
-        `アップデートとイラストへの早期アクセス。開発の投票に参加しよう。<br />開発者と直接交流しよう。<br />
-    <div class="credits-support-buttons">
-      <a href="https://www.patreon.com/c/VMaistudio" target="_blank" class="support-btn patreon">
-        <img src="icons/patreon.svg" alt="Patreon" style="width: 24px; height: 24px; filter: brightness(0) invert(1)" />
-        Patreonで支援する
-      </a>
-      <a href="https://boosty.to/vmaistudio" target="_blank" class="support-btn boosty">
-        <img src="icons/boosty.svg" alt="Boosty" style="width: 24px; height: 24px; filter: brightness(0) invert(1)" />
-        Boostyで支援する
-      </a>
-    </div>`,
-      ]);
+      // В фоновом режиме лениво скачиваем вторую ЯПОНСКУЮ часть пролога
+      import("./part2_ja.js")
+        .then((module) => {
+          if (window.sm && window.sm.story) {
+            window.sm.story = {
+              ...window.sm.story,
+              ...module.story,
+            };
+          }
+        })
+        .catch((err) =>
+          console.warn(
+            "[Mai Lazy Load] Японская часть 2 пока отсутствует на диске:",
+            err,
+          ),
+        );
 
       return null;
     },

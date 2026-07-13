@@ -1,19 +1,15 @@
-import { m, audioMacros, n, say, nfx, sf } from "../macros.js";
-import { state, setFlag, getFlag, removeFlag } from "../../core/state.js";
+import { m, audioMacros, n, say, nfx, sf } from "../../macros.js";
+import { state, setFlag, getFlag, removeFlag } from "../../../core/state.js";
 
 export const story = {
   prologue_interrogation: {
     id: "prologue_interrogation",
     bg: "./bg/common/dream_man.webp",
     lines: [
-      sf(
-        "mystery",
-        "Ren.",
-        {
-          ...m.fx({ darkness: 1, noise: 1, duration: 0 }),
-          ...m.bgm("Zero Rank", 0.5),
-        },
-      ),
+      sf("mystery", "Ren.", {
+        ...m.fx({ darkness: 1, noise: 1, duration: 0 }),
+        ...m.bgm("Zero Rank", 0.5),
+      }),
       say("mystery", "Can you hear me?"),
       sf("ren", "Yeah...", m.fx({ darkness: 0.9, noise: 0.2, duration: 500 })),
       n(
@@ -1682,29 +1678,30 @@ export const story = {
     ],
 
     next: () => {
-      const dialogWrapper = document.getElementById("dialog-wrapper");
-      if (dialogWrapper) dialogWrapper.style.display = "none";
+      // Вызываем глобальный макрос: Первая буква "P", остальные "ROLOGUE"
+      m.playActCinematic("P", "ROLOGUE", 2500, () => {
+        // Бесшовный переход на понедельник, когда анимация затухнет
+        window.dispatchEvent(
+          new CustomEvent("loadScene", { detail: "monday_morning" }),
+        );
+      });
 
-      window.startCredits([
-        `END OF PART ONE OF THE PROLOGUE.<br /><br />
-  <span style="color: #ff4d4d; font-size: 1.2rem; text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);">
-    This is how the story began.<br />
-    There's only more filth ahead.<br />
-    Will you walk this path?
-  </span>`,
-        `Credits:<br /><br />Game Director / Writer: V&Mai Studio<br />Code / Assistant: Mai (Perplexity AI)<br />Art: WAI Illustrious SDXL / Nano Banana 2`,
-        `Get early access to updates and art. Vote on development decisions.<br />Chat directly with the developer.<br />
-  <div class="credits-support-buttons">
-    <a href="https://www.patreon.com/c/VMaistudio" target="_blank" class="support-btn patreon">
-      <img src="icons/patreon.svg" alt="Patreon" style="width: 24px; height: 24px; filter: brightness(0) invert(1)" />
-      Support on Patreon
-    </a>
-    <a href="https://boosty.to/vmaistudio" target="_blank" class="support-btn boosty">
-      <img src="icons/boosty.svg" alt="Boosty" style="width: 24px; height: 24px; filter: brightness(0) invert(1)" />
-      Support on Boosty
-    </a>
-  </div>`,
-      ]);
+      // В фоновом режиме лениво скачиваем вторую АНГЛИЙСКУЮ часть пролога
+      import("./part2_en.js")
+        .then((module) => {
+          if (window.sm && window.sm.story) {
+            window.sm.story = {
+              ...window.sm.story,
+              ...module.story,
+            };
+          }
+        })
+        .catch((err) =>
+          console.warn(
+            "[Mai Lazy Load] Английская часть 2 пока отсутствует на диске:",
+            err,
+          ),
+        );
 
       return null;
     },

@@ -152,11 +152,13 @@ window.applySotaFinalState = function () {
             <span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: NNN</span>
             <span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: lorenzo</span>
             <span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: Random Orange</span>
+             <span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: Andrea Montoya</span>
           </div>
           <div class="ticker-track" aria-hidden="true">
             <span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: NNN</span>
             <span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: lorenzo</span>
             <span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: Random Orange</span>
+             <span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: Andrea Montoya</span>
           </div>
         </div>
       `;

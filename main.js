@@ -315,7 +315,8 @@ window.dispatchEvent(
 );
 
 window.loadStoryLanguage = async (lang) => {
-  const module = await import(`./src/data/story/prologue_${lang}.js`);
+  // Загружаем строго Первую Часть Пролога для выбранного языка
+  const module = await import(`./src/data/story/prologue/part1_${lang}.js`);
   window.sm.story = module.story;
 };
 

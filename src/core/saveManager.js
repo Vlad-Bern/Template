@@ -361,7 +361,11 @@ export class SaveManager {
         `;
       }
 
-      btn.addEventListener("click", () => {
+      // Стало (ЗАЩИТНЫЙ БАРЬЕР МАЙ):
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation(); // 🛑 УБИВАЕМ ВСПЛЫТИЕ! Клик застревает здесь и не летит в игру!
+
         if (this.mode === "save") {
           this.saveGame(slotIndex);
         } else {

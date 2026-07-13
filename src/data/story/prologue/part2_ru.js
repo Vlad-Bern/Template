@@ -1,5 +1,5 @@
-import { m, n, say, nfx, sf } from "../macros.js";
-import { state, setFlag, getFlag, removeFlag } from "../../core/state.js";
+import { m, audioMacros, n, say, nfx, sf } from "../../macros.js";
+import { state, setFlag, getFlag, removeFlag } from "../../../core/state.js";
 
 export const story = {
   // ============================================
@@ -7,10 +7,9 @@ export const story = {
   // ============================================
   monday_morning: {
     id: "monday_morning",
-    bg: "./bg/dorm_room_day.png",
-    // Оставляем функцию, так как внутри есть проверка флага getFlag
+    bg: "./bg/locations/dorm_renRoom_rainingMorning.webp",
     lines: () => [
-      nfx("ПОНЕДЕЛЬНИК. УТРО.", m.fx({ darkness: 1, duration: 0 })),
+      m.dayTransition("ПОНЕДЕЛЬНИК"),
       nfx("Доброе утро, я", m.fx({ darkness: 0, duration: 2000 })),
       n("Надеюсь, что оно доброе."),
       n("В окне вижу, что сегодня всё так же пасмурно, но дождя нет."),
@@ -23,7 +22,12 @@ export const story = {
           ]
         : []),
 
-      n("Пока есть время, нужно собрать тетради в сумку."),
+      n("Шикарная возможность осмотреть комнату."),
+      m.interact({
+        type: "exit",
+        label: "Закончить",
+        pos: { x: 20, y: 70 },
+      }),
       n(
         "Все мои утренние дела завершены. Я вышел из комнаты и прошёл до лифта.",
       ),
@@ -280,12 +284,8 @@ export const story = {
       n("Я пошёл на своё место. Никто не смотрел на меня."),
       n("Я бегло оглядел Кайру."),
       n("Длинные серёжки на ушах, чёрная футболка с красной надписью."),
-      n(
-        "Под партой я вижу её чёрные чулочки в кедах...",
-      ),
-      n(
-        "Или это колготки?",
-      ),
+      n("Под партой я вижу её чёрные чулочки в кедах..."),
+      n("Или это колготки?"),
       nfx(
         "Я поднял глаза на лицо Кайры. Вот бля...",
         m.fx({ noise: 0.1, duration: 500 }),
@@ -1027,7 +1027,7 @@ export const story = {
         m.hide("kaira"),
       ),
 
-      nfx("Фууххх...", { bg: "bathroom_mirror" }),
+      nfx("Фууххх... ЗВУК ВСПЕЛСКА ВОДИЧКОЙ!!!", { bg: "bathroom_mirror" }),
       n("Даже не знаю, что и подумать."),
       n("Впервые вот так прилюдно я с кем-то занимался чем-то пошлым."),
       n("Впервые увидел свою сперму на чьей-то руке."),
@@ -1255,7 +1255,7 @@ export const story = {
       ),
       sf(
         "kaira",
-        "F класс это для особенных, он существует, но не в виде отдельной комнаты, так просто ты его не увидишь.",
+        "Это класс это для особенных, он существует, но не в виде отдельной комнаты, так просто ты его не увидишь.",
       ),
 
       n("Хорошо, допустим..."),
@@ -1445,7 +1445,8 @@ export const story = {
 
       n("Она начала проводить рукой по своим интимным местам."),
       sf("death", "Упругая грудь 4-го размера, сосочки уже стоят!"),
-      sf("death", "Плоский животик, мои красивые ножки."),
+      sf("death", "Мои красивые ножки."),
+      sf("death", "Рай для любого фетешиста!"),
       sf("death", "И моя киска."),
 
       n("Она раздвинула пальцами губки, чтобы показать свою щёлку."),
@@ -1559,7 +1560,7 @@ export const story = {
 
       sf(
         "death",
-        "Ахах, шучу! Какая разница почитаешь ты или нет, если всё равно ничего оттуда не поймёшь?",
+        "Ахах, шучу! Какая разница почитаешь ты или нет, если всё равно ничего оттуда не поймёшь!",
         m.show("death", "happy", "center"),
       ),
 
@@ -1697,7 +1698,9 @@ export const story = {
       n(
         "Я плавно потянулся рукой к сложенным трусикам, расправил их, заглянул внутрь.",
       ),
-      n("Следы носки видны, значит должны быть ароматными..."),
+      n(
+        "Ебать мокренько. Следы носки очень видны Значит должны быть ароматными...",
+      ),
       n("Вижу ещё пару маленьких тёмных волосков."),
       n("Она не бреется... Я лезу в её женский секретик."),
 
@@ -1873,9 +1876,60 @@ export const story = {
         "Я должен теперь сделать выбор?",
         m.fx({ darkness: 1, noise: 0.15, duration: 1200 }),
       ),
-
-      // Финал сцены
-      { action: () => m.showLogoAndCredits() },
     ],
+
+    // 🔥 МАЙ-ПЕРЕНОС: Титры теперь вызываются здесь, завершая пролог полностью!
+    next: () => {
+      // 1. Прячем интерфейс игры
+      const dialogWrapper = document.getElementById("dialog-wrapper");
+      if (dialogWrapper) dialogWrapper.style.display = "none";
+
+      // 2. Вызываем титры
+      window.startCredits([
+        `КОНЕЦ ВТОРОЙ ЧАСТИ ПРОЛОГА.<br /><br />
+    <span
+      style="
+        color: #ff4d4d;
+        font-size: 1.2rem;
+        text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+      "
+    >
+      Так началась эта история.<br />
+      Впереди — лишь больше грязи.<br />
+      Пройдёте ли вы этот путь? </span
+    >`,
+        `Создатели:<br /><br />Гейм-директор / Сценарист: V&Mai Studio<br />Код /
+    Ассистент: Май (Perplexity AI / Gemini)<br />Арт: WAI Illustrious SDXL / Nano Banana
+    2`,
+        `Получай ранний доступ к обновлениям и артам. Участвуй в
+    голосованиях.<br />Общайся с разработчиком.<br />
+    <div class="credits-support-buttons">
+      <a
+        href="https://www.patreon.com/c/VMaistudio"
+        target="_blank"
+        class="support-btn patreon"
+      >
+        <img
+          src="icons/patreon.svg"
+          alt="Patreon"
+          style="width: 24px; height: 24px; filter: brightness(0) invert(1)"
+        />
+        Поддержать на Patreon
+      </a>
+      <a href="https://boosty.to/vmaistudio" target="_blank" class="support-btn boosty">
+        <img
+          src="icons/boosty.svg"
+          alt="Boosty"
+          style="width: 24px; height: 24px; filter: brightness(0) invert(1)"
+        />
+        Поддержать на Boosty
+      </a>
+    </div>
+    `,
+      ]);
+
+      // 3. Возвращаем null, чтобы остановить историю
+      return null;
+    },
   },
 };
