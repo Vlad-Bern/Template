@@ -9,7 +9,8 @@ export const story = {
       sf("mystery", "Рен.", {
         ...m.fx({ darkness: 1, noise: 1, duration: 0 }),
         ...m.bgm("Zero Rank", 0.5),
-        pdaUnlocked: true,
+        pdaUnlocked: false,
+        dialogStyle: "normal",
       }),
       say("mystery", "Ты меня слышишь?"),
       sf("ren", "Да...", m.fx({ darkness: 0.9, noise: 0.2, duration: 500 })),

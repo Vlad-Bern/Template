@@ -10,7 +10,10 @@ export const story = {
     bg: "./bg/locations/dorm_renRoom_rainingMorning.webp",
     lines: () => [
       m.dayTransition("ПОНЕДЕЛЬНИК"),
-      nfx("Доброе утро, я", m.fx({ darkness: 0, duration: 2000 })),
+      nfx(
+        "Доброе утро, я",
+        m.fx({ darkness: 0, duration: 2000 }, { dialogStyle: "normal" }),
+      ),
       n("Надеюсь, что оно доброе."),
       n("В окне вижу, что сегодня всё так же пасмурно, но дождя нет."),
 

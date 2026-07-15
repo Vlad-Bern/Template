@@ -677,6 +677,15 @@ export class PDASystem {
     }, 1100);
   }
 
+  refreshFromState() {
+    this.updateStats();
+    this._renderProfileCard();
+
+    if (this.currentPeopleRole) {
+      this._renderPeopleList(this.currentPeopleRole);
+    }
+  }
+
   updateStats() {
     const heroStats = state?.hero?.stats;
     const hero = state?.hero;
@@ -839,7 +848,7 @@ export class PDASystem {
 
     if (!this.isVisible) {
       this.isVisible = true;
-      this.updateStats();
+      this.refreshFromState();
 
       // 🔥 ХОЗЯИН: Мгновенно убираем мост, давая полную свободу крестику и его анимациям
       const bridge = document.getElementById("pda-cursor-bridge");
