@@ -345,60 +345,80 @@ Promise.resolve().then(() => {
 });
 
 // ========================================================
-// 🦾 СИСТЕМА УЛЬТИМАТИВНОГО ВИРТУАЛЬНОГО ИГРОВОГО КУРСОРA
+// 🦾 СИСТЕМА ВИРТУАЛЬНОГО ИГРОВОГО КУРСОРА
 // ========================================================
 if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
-  // Создаем физический элемент курсора
   const virtualCursor = document.createElement("div");
   virtualCursor.id = "virtual-cursor";
   document.body.appendChild(virtualCursor);
 
-  // Двигаем курсор за мышкой без задержек
-  document.addEventListener("mousemove", (e) => {
-    virtualCursor.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
+  const interactiveSelector =
+    'button, a, [role="button"], .sota-gallery-item, ' +
+    ".sl-slot-btn, .delete-save-btn, .choice-btn, " +
+    "#dialog-hide-btn, .dialog-footer-btn, #pda-text-trigger";
 
-    // Динамическая проверка наведения на интерактивные элементы новеллы
-    const isInteractive = e.target.closest(
-      'button, a, [role="button"], .sota-gallery-item, .sl-slot-btn, .delete-save-btn, .choice-btn, #dialog-hide-btn, .dialog-footer-btn, #pda-text-trigger',
-    );
+  let lastCursorX = window.innerWidth / 2;
+  let lastCursorY = window.innerHeight / 2;
 
-    if (isInteractive) {
-      virtualCursor.classList.add("pointer-mode");
-    } else {
-      virtualCursor.classList.remove("pointer-mode");
-    }
+  const moveVirtualCursor = (event) => {
+    // Chromium может объединять несколько движений мыши.
+    // Берём самое свежее из них.
+    const coalescedEvents = event.getCoalescedEvents?.();
+
+    const latestEvent = coalescedEvents?.length
+      ? coalescedEvents[coalescedEvents.length - 1]
+      : event;
+
+    lastCursorX = latestEvent.clientX;
+    lastCursorY = latestEvent.clientY;
+
+    virtualCursor.style.transform = `translate3d(${lastCursorX}px, ${lastCursorY}px, 0)`;
+
+    virtualCursor.classList.add("activated");
+  };
+
+  // В Chromium raw-событие приходит немного раньше обычного pointermove.
+  const cursorMoveEvent =
+    "onpointerrawupdate" in window ? "pointerrawupdate" : "pointermove";
+
+  document.addEventListener(cursorMoveEvent, moveVirtualCursor, {
+    passive: true,
   });
 
-  // Прячем игровой курсор, если мышь улетает за пределы окна браузера
+  // Свечение проверяем только при смене элемента под курсором,
+  // а не на каждом физическом движении мыши.
+  document.addEventListener(
+    "pointerover",
+    (event) => {
+      const target =
+        event.target instanceof Element
+          ? event.target
+          : event.target?.parentElement;
+
+      const isInteractive = Boolean(target?.closest(interactiveSelector));
+
+      virtualCursor.classList.toggle("pointer-mode", isInteractive);
+    },
+    { passive: true },
+  );
+
   document.addEventListener("mouseleave", () => {
     virtualCursor.style.opacity = "0";
   });
+
   document.addEventListener("mouseenter", () => {
     virtualCursor.style.opacity = "1";
   });
+
+  // После переключения fullscreen сохраняем последние реальные
+  // координаты. Старый код оставлял left: 50vw и top: 50vh,
+  // из-за чего курсор получал дополнительное смещение.
+  document.addEventListener("fullscreenchange", () => {
+    requestAnimationFrame(() => {
+      virtualCursor.style.left = "0";
+      virtualCursor.style.top = "0";
+
+      virtualCursor.style.transform = `translate3d(${lastCursorX}px, ${lastCursorY}px, 0)`;
+    });
+  });
 }
-
-/* 🎯 ХОЗЯИН: Защита от зависания курсора в углу при переключении экрана */
-const centerVirtualCursor = () => {
-  const vCursor = document.getElementById("virtual-cursor");
-  if (vCursor) {
-    vCursor.style.left = "50vw";
-    vCursor.style.top = "50vh";
-    vCursor.style.transform = "translate(-50%, -50%)"; // Идеальный центр
-  }
-};
-
-// Срабатывает каждый раз, когда игра входит/выходит из фуллскрина
-document.addEventListener("fullscreenchange", centerVirtualCursor);
-
-// 🔥 ХОЗЯИН: Железобетонный костыль-истребитель партизана в углу (0,0)
-document.addEventListener(
-  "mousemove",
-  () => {
-    const vCursor = document.getElementById("virtual-cursor");
-    if (vCursor) {
-      vCursor.classList.add("activated");
-    }
-  },
-  { once: true },
-); // ← МАГИЯ: Сработает ровно ОДИН раз при первом движении руки и навсегда удалится из памяти!

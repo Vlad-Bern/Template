@@ -1119,16 +1119,20 @@ body.ui-hidden .interact-point {
     background-size: contain;
     background-repeat: no-repeat;
     background-position: top left;
-    opacity: 0; /* 🔥 ХОЗЯИН: Изначально курсор полностью невидим при загрузке страницы */
-    transition: opacity 0.3s ease;
+    opacity: 0;
 
     pointer-events: none !important;
     z-index: 2147483647 !important;
 
-    will-change: transform;
+    contain: layout style paint;
+    will-change: transform, opacity, filter;
+    backface-visibility: hidden;
+    transform-origin: top left;
     transform: translate3d(0, 0, 0);
 
-    transition: filter 0.2s ease;
+    transition:
+      opacity 0.3s ease,
+      filter 0.2s ease;
 
     @media (pointer: coarse) {
       display: none !important;

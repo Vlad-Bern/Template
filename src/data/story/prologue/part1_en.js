@@ -14,14 +14,14 @@ export const story = {
       say("mystery", "Can you hear me?"),
       sf("ren", "Yeah...", m.fx({ darkness: 0.9, noise: 0.2, duration: 500 })),
       n(
-        "A silhouette in a business suit sits across from me. I can smell tobacco.",
+        "A silhouette in a business suit sat across from me. I could smell tobacco.",
       ),
       nfx(
         "I tried to pull free, but it was useless. My hands are tied to the armrests.",
         m.sfx("rope_struggle_chair", 0.8),
         m.fx({ darkness: 1, noise: 0.2, duration: 500 }),
       ),
-      n("I'm trapped."),
+      n("I was trapped."),
       sf(
         "mystery",
         "Do you understand why you're here?",
@@ -44,7 +44,7 @@ export const story = {
       ),
       sf(
         "mystery",
-        "Ren, what you did leads straight to a maximum security prison.",
+        "Ren, what you did will land you in a maximum-security prison.",
         m.fx({ darkness: 0.7, noise: 0.4, duration: 500 }),
       ),
       say("ren", "..."),
@@ -87,14 +87,14 @@ export const story = {
         m.sfx("needle_pierce_gasp", 0.8),
         m.fx({ darkness: 0.5, noise: 0.7, duration: 500 }),
       ),
-      say("ren", "Ngh.."),
+      say("ren", "Ngh..."),
       sf(
         "mystery",
         "Your consent must be absolute. Biological.",
         m.fx({ darkness: 0.6, noise: 0.3, duration: 500 }),
       ),
       nfx(
-        "A crimson drop fell onto the paper. My blood soaked in.",
+        "A crimson drop fell onto the paper. My blood soaked into it.",
         m.sanity(-30),
       ),
       say("mystery", "There. Everything will be different now."),
@@ -149,7 +149,7 @@ export const story = {
         m.sanity(100),
       ),
       nfx("Ugh...", m.fx({ darkness: 0.3, noise: 0, duration: 500 })),
-      n("Am I here already?"),
+      n("Have I arrived already?"),
       nfx(
         "The bus sat motionless. The hum of the engine blended with the monotonous drumming of rain against the window.",
         {
@@ -202,12 +202,12 @@ export const story = {
         m.show("kagami", "neutral", "center", "fadeIn"),
       ),
       n(
-        "A grown woman with a piercing, weary gaze and dark hair pulled back in a tight ponytail. A faint trace of dry wine clung to her.",
+        "A mature woman with a piercing, weary gaze and dark hair pulled back in a tight ponytail. A faint trace of dry wine clung to her.",
       ),
       say("ren", "Hello, I'm—"),
       say("kagami", "Amano Ren. I know."),
       nfx(
-        "Rain was falling. She stepped toward me — close, but not intimately — and held out a separate umbrella.",
+        "Rain was falling. She stepped toward me—not too close—and held out another umbrella.",
         m.sfx("umbrella_open"),
       ),
       sf(
@@ -218,7 +218,7 @@ export const story = {
       ),
       sf(
         "kagami",
-        "Behind me stands Shinshu Academy. Welcome, Amano.",
+        "Behind me is Shinshu Academy. Welcome, Amano.",
         m.show("kagami", "neutral2", "center"),
       ),
       say("ren", "Thank you. Just call me Ren."),
@@ -230,16 +230,18 @@ export const story = {
       say("ren", "Yeah, I'm just used to it."),
       say(
         "kagami",
-        "Very well. Next up is a short aptitude test. Please follow me.",
+        "Very well. Next, you'll take a short aptitude test. Follow me.",
       ),
       nfx(
-        "And so we moved.",
+        "We set off.",
         m.sfx("step_puddle"),
         { bg: "/bg/cg/prologue/ren_kagami_walk.webp" },
         m.hide("kagami", "fadeOut"),
         m.sfx("walking", 1),
       ),
-      n("I walked just behind her, and my gaze kept drifting to her hips."),
+      n(
+        "I followed a step behind her, my gaze repeatedly drifting to her hips.",
+      ),
       n(
         "I desperately clung to those thoughts, trying to convince myself that everything was fine... that I was safe.",
       ),
@@ -252,19 +254,19 @@ export const story = {
         "ren",
         "I don't even know what I did to deserve an opportunity like this.",
       ),
-      say("kagami", "Deserve? There are no past merits here."),
+      say("kagami", "Deserve? What you did before coming here means nothing."),
       say(
         "kagami",
-        "There is only potential — which you either realize, or...",
+        "All that matters is your potential—which you either fulfill, or...",
       ),
       say("kagami", "Or you don't."),
       say(
         "kagami",
-        "You're the first to arrive mid-semester. Students here usually start from the very beginning, so you've already stood out.",
+        "You're the first student to arrive mid-semester. Everyone else starts at the beginning of the school year, so you've already stood out.",
       ),
       say("ren", "I see..."),
       nfx(
-        "As we walked, I caught something in my peripheral vision... something wrong. A silhouette in the shadow of the concrete.",
+        "As we walked, I caught something in my peripheral vision... something wrong. A silhouette in the shadow of a concrete structure.",
         m.stopBgm(500),
       ),
       sf("ren", "What the...", m.sanity(-5)),
@@ -281,7 +283,7 @@ export const story = {
         "She sat motionless, hugging her knees. Water ran down her tangled hair, dripping onto the dirty concrete.",
       ),
       nfx(
-        "And this scene was barely a stone's throw from the main entrance.",
+        "And all of this was happening barely a stone's throw from the main entrance.",
         m.sanity(-5),
       ),
       sf(
@@ -320,7 +322,7 @@ export const story = {
     lines: [
       say("ren", "Umm, I just..."),
       nfx(
-        "I stepped off the path. Mud squelched under my shoes. Kagami sighed heavily behind me, but didn't stop me.",
+        "I stepped off the path. Mud squelched under my shoes. Kagami let out a heavy sigh behind me, but didn't stop me.",
         { bg: "/bg/cg/prologue/punished_girl_main.webp" },
         {
           action: () => window.sm.ui.handleFx({ vignette: 1, duration: 1500 }),
@@ -338,9 +340,9 @@ export const story = {
         },
         m.sfx("metal_chain", 1),
       ),
-      n("She's looking at me. With such calm eyes..."),
-      n("Or are they restless? I can't decide."),
-      nfx("Now I'm standing almost right in front of her.", m.sanity(-5)),
+      n("She was looking at me. Her eyes seemed so calm..."),
+      n("Or were they anxious? I couldn't tell."),
+      nfx("Now I was standing almost right in front of her.", m.sanity(-5)),
       n("What do I do...?"),
     ],
     choices: [
@@ -404,7 +406,7 @@ export const story = {
         bgSpeed: 50,
       }),
       n("She laughed quietly..."),
-      n("And immediately started reaching her hand toward me."),
+      n("Then she immediately reached for me."),
       sf(
         "mystery",
         "And you? You came for me too, didn't you?!",
@@ -414,7 +416,7 @@ export const story = {
         },
         m.sfx("metal_chain", 1),
       ),
-      say("mystery", "You want to grab me too?!"),
+      say("mystery", "You want to get your hands on me too?!"),
       nfx(
         "I started backing away, but she had already grabbed onto my hoodie.",
         {
@@ -437,7 +439,7 @@ export const story = {
           bgSpeed: 50,
         },
       ),
-      n("The girl let go of me and returned to her spot."),
+      n("The girl let go of me and retreated to where she'd been sitting."),
       sf(
         "kagami",
         "Ren, step away from the trash.",
@@ -450,7 +452,7 @@ export const story = {
       n("Kagami grabbed my hand and dragged me away."),
       sf(
         "kagami",
-        "Who told you to go wandering around? We're going to the assessment.",
+        "Who told you to go wandering around? We're going to the test.",
         m.show("kagami", "tired", "center"),
       ),
       n(
@@ -463,24 +465,24 @@ export const story = {
   help_girl: {
     id: "help_girl",
     lines: [
-      nfx("This... is a nightmare. I examine the chain.", {
+      nfx("This... was a nightmare. I examined the chain.", {
         bg: "/bg/cg/prologue/punished_girl_help.webp",
         bgSpeed: 50,
       }),
       say("ren", "Hey, who did this to you?"),
       n(
-        "The chain is fastened tight to the post and runs straight to the collar around her neck.",
+        "The chain was fastened tightly to the post and ran straight to the collar around her neck.",
       ),
       say(
         "ren",
-        "H-hey, don't stay quiet. Do you know where the key is? How do I free you?",
+        "H-hey, say something. Do you know where the key is? How do I free you?",
       ),
       sf(
         "mystery",
         "The key? Hmm... Nobody knows where the keys are. Otherwise my friends...",
         { bg: "/bg/cg/prologue/punished_girl_lookup_talk.webp", bgSpeed: 50 },
       ),
-      sf("mystery", "Would have freed me! Ahahah!", {
+      sf("mystery", "They would've freed me! Ahahah!", {
         bg: "/bg/cg/prologue/punished_girl_laugh.webp",
         bgSpeed: 50,
       }),
@@ -514,8 +516,8 @@ export const story = {
     id: "lick_reaction",
     lines: [
       n("I tried to look away, but couldn't. My gaze fell on her wet crotch."),
-      n("She's aroused... And her pussy is clearly well-used."),
-      n("The girl lies there with her tongue hanging out."),
+      n("She was aroused... and her pussy was clearly well-used."),
+      n("The girl lay there with her tongue hanging out."),
       nfx("Oh... My dick... It's reacting.", m.sanity(-10)),
       sf(
         "kagami",
@@ -557,11 +559,11 @@ export const story = {
     lines: [
       sf(
         "kagami",
-        "Who gave you permission to wander off? We're leaving.",
+        "Who gave you permission to wander off? It's time to go.",
         m.show("kagami", "tired", "center"),
       ),
       n(
-        "She dragged me away like a dog that had gotten into trouble.",
+        "She dragged me away like a puppy caught misbehaving.",
         m.sfx("walking", 1),
       ),
       n("She wants me to forget what I saw? That's insane..."),
@@ -591,24 +593,21 @@ export const story = {
             0.7,
           ),
       }),
-      n("They mirror this room."),
-      n("Two desks face each other and a single board."),
+      n("The white walls made the room feel even emptier."),
+      n("Two desks faced each other beneath a single board."),
       say("kagami", "Take a seat."),
-      n("A sheet of paper and a pen already wait on the desk."),
+      n("A sheet of paper and a pen were already waiting on the desk."),
       say("kagami", "Don't flip the paper yet."),
       nfx(
         "I sat down.",
         { bg: "/bg/common/quiz_room_noKagami.webp" },
         m.sfx("chair_sitting", 1),
       ),
-      nfx(
-        "Kagami folded our umbrellas into the basket and sat across from me.",
-        {
-          bg: "/bg/common/quiz_room_kagamiSpeak.webp",
-          bgSpeed: 50,
-          ...m.sfx("highHeels_walking", 1),
-        },
-      ),
+      nfx("Kagami placed our umbrellas in the stand and sat across from me.", {
+        bg: "/bg/common/quiz_room_kagamiSpeak.webp",
+        bgSpeed: 50,
+        ...m.sfx("highHeels_walking", 1),
+      }),
       say(
         "kagami",
         "The rules are simple. You have 20 minutes to answer 8 questions.",
@@ -616,15 +615,15 @@ export const story = {
       say("kagami", "To pass, at least 4 must be correct."),
       say(
         "kagami",
-        "When you're done — put the pen on the desk and raise your hand.",
+        "When you're done, put the pen on the desk and raise your hand.",
       ),
       say(
         "kagami",
         "There are no other students here, but the golden rule of every test or exam is silence.",
       ),
-      say("kagami", "The moment you flip the paper — the timer starts."),
+      say("kagami", "The timer starts the moment you flip the paper."),
       say("kagami", "Questions?"),
-      n("I think just one. The obvious one."),
+      n("I could think of only one—the obvious one."),
       say("ren", "What if I don't answer?"),
       say("kagami", "You'll fail the test and go back where you came from."),
       n("No, that's not an option..."),
@@ -687,7 +686,7 @@ export const story = {
     lines: [
       say("ren", "Kagami-sen..."),
       nfx(
-        "Kagami knocked on the desk. Not hard, not out of anger — just enough to shut me up.",
+        "Kagami rapped on the desk. Not hard, not out of anger—just enough to shut me up.",
         { shake: "medium" },
         m.sfx("table_hit", 1),
       ),
@@ -736,7 +735,7 @@ export const story = {
         "I glanced up at Kagami. She's just staring at her phone. Does she even know these aren't academic questions?",
         { bg: "/bg/common/quiz_room_kagamiPhone.webp" },
       ),
-      n("No reaction from her. She's just keeping order."),
+      n("No reaction from her. She was just making sure I followed the rules."),
     ],
     choices: [
       {
@@ -760,25 +759,25 @@ export const story = {
         bg: "/bg/cg/prologue/quiz_room_boobs.webp",
         dialogStyle: "transparent",
       }),
-      n("She's so full... damn."),
-      n("What size is she even? Not less than a D-cup."),
+      n("They're huge... damn."),
+      n("What size is she? At least a D-cup."),
       n("What would it feel like to touch them?"),
-      n("Somebody in her life has definitely gotten their hands on them."),
+      n("She must have let someone touch them before."),
       n(
-        "I can clearly make out a dark bra peeking out from under her blouse...",
+        "I could clearly make out a dark bra peeking out from beneath her blouse...",
       ),
       n("Kagami, are you trying to seduce me?"),
       n(
-        "My cock is hardening against my pants, but under the desk nobody can tell.",
+        "My cock was straining against my pants, but no one could see it under the desk.",
       ),
-      nfx("I let a small smile cross my face and looked her in the eyes.", {
+      nfx("I smirked and looked her in the eyes.", {
         bg: "/bg/common/quiz_room_kagamiPhone.webp",
         dialogStyle: "normal",
       }),
       n(
-        "Zero expression. She seems completely unbothered. No arousal, no disgust.",
+        "Nothing. She seemed completely unbothered—neither aroused nor disgusted.",
       ),
-      n("Shit, the time — right!", {
+      n("Shit—the time!", {
         action: () => audioMacros.fadeToStem("base", 1000),
       }),
     ],
@@ -952,7 +951,7 @@ export const story = {
         m.sfx("writing", 1),
       ),
       n("A) Demand a retake"),
-      n("B) Accept the result and follow the curator's instructions"),
+      n("B) Accept the result and follow the supervisor's instructions"),
       n("C) Leave the institution"),
       n("D) Contest the validity of the test"),
     ],
@@ -973,7 +972,7 @@ export const story = {
     choices: [
       { text: "A) Demand a retake", next: "quiz_end_check" },
       {
-        text: "B) Accept the result and follow the curator's instructions",
+        text: "B) Accept the result and follow the supervisor's instructions",
         action: () => {
           state.temp.quizScore++;
         },
@@ -1001,7 +1000,7 @@ export const story = {
           ...m.sfx("highHeels_walking", 1),
         },
       ),
-      n("She checks my answers without moving away."),
+      n("She checked my answers without moving away."),
       n("I just sat there, still, listening to her breathe."),
     ],
     next: () => {
@@ -1024,12 +1023,12 @@ export const story = {
     lines: [
       sf(
         "kagami",
-        "Congratulations, you passed..",
+        "Congratulations, you passed.",
         m.show("kagami", "neutral2", "center"),
         m.stopBgm(),
       ),
       n("She said it with a trace of sadness in her voice."),
-      n("Is she disappointed that he passed?"),
+      n("Is she disappointed that I passed?"),
       nfx(
         "Kagami opened the door and switched off the light.",
         m.fx({ darkness: 0.8, duration: 1000 }),
@@ -1048,7 +1047,7 @@ export const story = {
     lines: [
       sf(
         "kagami",
-        "Congratulations, you passed..",
+        "Congratulations, you passed.",
         m.show("kagami", "neutral2", "center"),
         m.stopBgm(),
         { action: () => removeFlag("kagamiStare") },
@@ -1067,7 +1066,10 @@ export const story = {
         "But you violated my personal boundaries when you had the nerve to openly stare at me.",
       ),
       nfx("She stood directly in front of me, ruler in hand."),
-      say("kagami", "Any desire to get on your knees and apologize right now?"),
+      say(
+        "kagami",
+        "Would you like to get on your knees and apologize right now?",
+      ),
     ],
     choices: [
       {
@@ -1097,14 +1099,14 @@ export const story = {
       ),
       say("kagami", "Look me in the eyes, Ren. Not at my chest."),
       n(
-        "Her voice is completely detached. She isn't even touching me with her hands.",
+        "Her voice was completely detached. She wasn't even touching me with her hands.",
       ),
       n(
-        "The feeling that I'm so beneath her she'd rather use a tool than make contact.",
+        "It felt as if I were so far beneath her that she'd rather use a tool than touch me.",
       ),
       say(
         "kagami",
-        "You are rank D. Common trash. The fact that you drool over your curator only proves how primitive you are.",
+        "You're D-rank. Common trash. The fact that you drool over your supervisor only proves how primitive you are.",
       ),
       n("She pressed the ruler a little harder. The metal bit into my skin."),
       say("ren", "Agh..."),
@@ -1118,9 +1120,7 @@ export const story = {
       n("Damn... My brain can't keep up with the situation..."),
       nfx("But for some reason my cock only got harder.", m.sanity(-5)),
       say("kagami", "Ren, whenever you're ready, let's move on."),
-      n(
-        "I got up off my knees and brushed myself off. My heart is still pounding.",
-      ),
+      n("I got up and brushed myself off. My heart was still pounding."),
       n(
         "Kagami switched off the light.",
         m.fx({ darkness: 0.8, duration: 1000 }),
@@ -1141,7 +1141,7 @@ export const story = {
         "I was quietly waiting for the results when I felt Kagami place her foot on my chair.",
         { ...m.stopBgm() },
       ),
-      say("ren", "Kagami-sens.."),
+      say("ren", "Kagami-sensei..."),
       sf(
         "ren",
         "Agh!",
@@ -1164,10 +1164,7 @@ export const story = {
       ),
       say("ren", "What the f— What are you doing?!"),
       say("kagami", "Ren Amano, you failed the test."),
-      say(
-        "kagami",
-        "You showed yourself to be weak within the first minutes of your arrival.",
-      ),
+      say("kagami", "You proved yourself weak within minutes of arriving."),
       say(
         "kagami",
         "You'll be sent back to your school, where the police will be waiting for you.",
@@ -1228,14 +1225,16 @@ export const story = {
       n("…I can't believe I'm doing this.", {
         action: () => audioMacros.fadeToStem("muffled", 1000),
       }),
-      nfx("I slowly bring my face toward her foot and stick out my tongue.", {
+      nfx("I slowly brought my face toward her foot and stuck out my tongue.", {
         bg: "/bg/cg/prologue/quiz_room_footLicking2.webp",
         bgSpeed: 50,
       }),
       n(
-        "The taste hits immediately — warm skin, leather shoes, and the faint scent of her lotion.",
+        "The taste hit me immediately—warm skin, leather, and the faint trace of her lotion.",
       ),
-      nfx("I barely pressed my tongue to the nylon and gave a small stroke."),
+      nfx(
+        "I barely pressed my tongue to the nylon and gave it a tentative lick.",
+      ),
       say("kagami", "Are you serious?"),
       say("kagami", "Is that how you beg for mercy?"),
       n("She pushed the tip of her foot a little harder against my tongue."),
@@ -1248,9 +1247,11 @@ export const story = {
       n("God forbid anyone walks in."),
       n("…"),
       n("…"),
-      n("I've been licking for a minute already. When is she going to stop?"),
+      n(
+        "I'd already been licking her foot for a minute. When was she going to stop?",
+      ),
       say("kagami", "More, Ren. Harder!"),
-      n("I actually started trying to satisfy what she wanted."),
+      n("I actually started trying to satisfy her."),
       n("I began licking her toes even faster."),
       n("But as utterly insane as this is..."),
       n("My cock…"),
@@ -1282,26 +1283,26 @@ export const story = {
       n("A thread of saliva stretched from her sole to my lips."),
       n("Disgusting..."),
       n(
-        "Her black nylon sock... Soaked through... I can see the red nail polish on her toes through the fabric.",
+        "Her black nylon sock... soaked through... I could see the red polish on her toenails through the fabric.",
       ),
       say("ren", "Why do you even allow yourself to do things like this?"),
       nfx(
-        "Her foot is back at my mouth.",
+        "Her foot was back at my mouth.",
         { bg: "/bg/cg/prologue/quiz_room_footLicking3.webp" },
         { action: () => audioMacros.fadeToStem("muffled", 1000) },
       ),
-      n("I slowly trace circles around it with my tongue."),
+      n("I slowly traced circles around it with my tongue."),
       say("kagami", "I can tell you're enjoying this, aren't you, Ren?"),
-      say("ren", "Mmph.."),
+      say("ren", "Mmph..."),
       n(
         "For another two minutes the room was filled with nothing but wet sounds and my muffled groans.",
       ),
       n("But it felt much longer than that."),
       n(
-        "I honestly can't decide what scares me more — the situation, or my own hard-on.",
+        "I honestly couldn't decide what scared me more—the situation or my own hard-on.",
       ),
-      nfx("Humiliation and lust are tearing me apart.", { ...m.sanity(-5) }),
-      n("Kagami finally pulled her foot out. I started catching my breath.", {
+      nfx("Humiliation and lust were tearing me apart.", { ...m.sanity(-5) }),
+      n("Kagami finally pulled her foot away. I started catching my breath.", {
         ...m.stopBgm(),
       }),
       sf(
@@ -1346,9 +1347,9 @@ export const story = {
         }),
       ),
       n("Timer's up, you absolutely blew it!"),
-      n("But honestly... you actually won, because you ascended to heaven,"),
+      n("But honestly... you actually won, because you ascended to heaven."),
       n(
-        "And found a pack of extremely hot Kagami pics. Non-canon, by the way.",
+        "There, you found a pack of extremely hot Kagami pics. Non-canon, by the way.",
       ),
       n(
         "But go ahead and give your little guy a proper workout to a mature lady.",
@@ -1364,7 +1365,7 @@ export const story = {
       nfx(" ", { bg: "/bg/common/kagami_bonus_3.webp", bgSpeed: 50 }),
       nfx(" ", { bg: "/bg/common/kagami_bonus_4.webp", bgSpeed: 50 }),
       nfx(" ", { bg: "/bg/common/kagami_bonus_5.webp", bgSpeed: 50 }),
-      n("And leave a comment telling us which one was your favorite!"),
+      n("Leave a comment telling us which one was your favorite!"),
       n("Alright, I'll give you one more proper chance to replay.", {
         dialogStyle: "normal",
       }),
@@ -1392,7 +1393,7 @@ export const story = {
       n("I could make out three pretty grim-looking buildings."),
       n("One of them is behind a fence?"),
       nfx(
-        "We walked in silence... I feel like I have so many questions, but I don't dare ask any of them right now.",
+        "We walked in silence... I had so many questions, but I didn't dare ask any of them yet.",
         m.fx({ darkness: 1, noise: 0, duration: 500 }),
       ),
       nfx(
@@ -1410,14 +1411,13 @@ export const story = {
       }),
       n("Well, at least I can look around the elevator."),
       n(
-        "The walls were covered in graffiti, the door was rusted, and the digital floor display wasn't working. This building feels... pretty neglected.",
+        "The walls were covered in graffiti, the door was rusty, and the digital floor display wasn't working. This building felt... pretty neglected.",
       ),
       n("But one thing caught my eye — a small photo stuck to the wall."),
-      nfx(
-        "Some glasses-wearing girl with a nice figure had taken a photo of herself.",
-        { bg: "/bg/common/elevator_photo.webp" },
-      ),
-      n("She was half-naked, but damn, no nipples visible."),
+      nfx("A shapely girl with glasses had taken a selfie.", {
+        bg: "/bg/common/elevator_photo.webp",
+      }),
+      n("She was half-naked, but damn—she'd kept her nipples out of frame."),
       say("ren", "Whoa…"),
       n("That sound just slipped out of me like an idiot."),
       n("But Kagami ignored it."),
@@ -1438,7 +1438,7 @@ export const story = {
         },
       ),
       n("Kagami took out a key and unlocked the door."),
-      nfx("Then the keys were handed over to me.", {
+      nfx("Then she handed me the keys.", {
         ...m.show("kagami", "neutral", "center"),
         ...m.sfx("key_door"),
       }),
@@ -1462,7 +1462,7 @@ export const story = {
       n("Are you serious? Is someone going to watch me jerk off?"),
       n("I'll just cover it with something."),
       n(
-        "While I was thinking, Kagami had already moved further in, sat down on the nearest chair with a creak, and crossed her legs.",
+        "While I was thinking, Kagami moved farther into the room, sat on the nearest chair with a creak, and crossed her legs.",
         m.sfx("chair_sitting"),
       ),
 
@@ -1486,12 +1486,12 @@ export const story = {
             ),
           ]),
 
-      say("kagami", "Ren, this school has spoken rules and unspoken ones."),
+      say("kagami", "Ren, this school has both written and unwritten rules."),
       say(
         "kagami",
-        "The spoken rules you can always read on the board on the first floor of the school building.",
+        "You can read the written rules on the notice board on the first floor of the school building.",
       ),
-      say("kagami", "The unspoken ones you'll have to learn on your own."),
+      say("kagami", "You'll have to learn the unwritten ones on your own."),
       say("kagami", "Because the best way to learn how to fight is to fight."),
       n("Is that so?"),
       n("What kind of unspoken rules?"),
@@ -1507,7 +1507,7 @@ export const story = {
       ),
       say(
         "kagami",
-        "It's your student ID, your bank card, and at the same time a perfectly ordinary phone.",
+        "It's your student ID, your bank card, and an otherwise ordinary phone.",
       ),
       say(
         "kagami",
@@ -1515,7 +1515,7 @@ export const story = {
       ),
       say(
         "kagami",
-        "Through it, you'll at least be able to keep track of events in the world outside the school.",
+        "It will also let you keep up with what's happening outside the school.",
       ),
       say(
         "kagami",
@@ -1548,19 +1548,19 @@ export const story = {
         "To keep from sinking to the very bottom, the bare minimum is: don't skip class, don't be late, and don't break the basic rules.",
       ),
       say("ren", "And to move up?"),
-      say("kagami", "You need to be convenient and useful."),
-      n("Be convenient... What does she mean by that?"),
+      say("kagami", "You need to make yourself useful—and easy to deal with."),
+      n("Easy to deal with... What does she mean by that?"),
       say(
         "kagami",
         "Ranks give you respect, authority, and access to restricted parts of the school.",
       ),
       say(
         "kagami",
-        "The elite have their own territories, their own private 'parties'. If you show up uninvited — punishment awaits.",
+        "The elite have their own territories and private 'parties.' Show up uninvited, and you'll be punished.",
       ),
       say(
         "kagami",
-        "Just like in any school — behave badly and you're punished, behave well and you're rewarded. Questions?",
+        "Just like at any school: behave badly and you're punished; behave well and you're rewarded. Questions?",
       ),
       say("ren", "The test I took..."),
       say(
@@ -1570,7 +1570,7 @@ export const story = {
       say("kagami", "Weren't they?"),
       say(
         "kagami",
-        "In my view, we fairly tested your foundational knowledge for surviving here.",
+        "In my view, it was a fair test of the basic knowledge you'll need to survive here.",
       ),
       say("kagami", "Would you like to file an official complaint?"),
     ],
@@ -1594,7 +1594,7 @@ export const story = {
       say("kagami", "I couldn't care less about your complaints."),
       say(
         "kagami",
-        "D-rank is not permitted to address the administration. But of course you still think you matter here.",
+        "D-rank students aren't permitted to address the administration. But of course, you still think you matter here.",
       ),
       say("kagami", "Tomorrow is your first day of school. Get some sleep."),
       say(
@@ -1605,7 +1605,7 @@ export const story = {
       say("kagami", "Oh, right. I forgot to mention."),
       say(
         "kagami",
-        "You were assigned before you even arrived. Class 2-B. I'm your homeroom teacher.",
+        "You were assigned to a class before you even arrived: Class 2-B. I'm your homeroom teacher.",
       ),
       nfx(
         "She stood up and headed for the door. A faint trail of wine and her perfume lingered in the air.",
@@ -1613,9 +1613,9 @@ export const story = {
       ),
       n("...", m.sfx("door_close")),
       say("ren", "Good… bye."),
-      n("I didn't make it in time."),
-      n("The clock reads 21:43."),
-      n("I was dozing on the bus on the way here, but I feel terrible."),
+      n("I didn't finish the word in time."),
+      n("The clock read 21:43."),
+      n("I'd dozed on the bus on the way here, but I still felt terrible."),
     ],
     next: "tbc",
   },
@@ -1659,21 +1659,21 @@ export const story = {
               },
             ),
             n(
-              "Kagami is beautiful, well-endowed. But she put me on the floor and made me lick her feet...",
+              "Kagami is gorgeous and stacked. But she put me on the floor and made me lick her feet...",
             ),
           ]
         : []),
 
       nfx(
-        "This brief arrival wore me out more than the entire rest of the day.",
+        "Those first few hours here had worn me out more than the entire rest of the day.",
         m.fx({ darkness: 1, noise: 0, duration: 500 }),
       ),
       n("What's waiting for me next?"),
       n(
-        "I'm starting to think... the students and teachers here have been a little unhinged for a long time...",
+        "I'm starting to think... everyone here—students and teachers alike—is completely fucking insane...",
       ),
       n(
-        "Yeah..... I'm already drifting toward sleep... So beautiful and quiet... Far away from all of this...",
+        "Yeah... I'm already drifting off... Somewhere beautiful and quiet... Far away from all of this...",
       ),
       n("Deeper..."),
     ],

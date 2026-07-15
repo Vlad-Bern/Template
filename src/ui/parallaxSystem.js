@@ -90,7 +90,6 @@ import { state } from "../core/state.js";
       const vCursor = document.getElementById("virtual-cursor");
       if (vCursor) {
         vCursor.style.opacity = wantOpacity;
-        vCursor.style.transition = "opacity 0.3s ease"; // Мягкое растворение
       }
       renderFrame._lastCursorOpacity = wantOpacity;
     }
