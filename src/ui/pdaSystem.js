@@ -7,6 +7,23 @@ export class PDASystem {
     this.isVisible = false;
     this.isAnimating = false; // Защита от спама кнопкой
     this.mainMenuScrollTop = 0;
+    this.currentPeopleRole = null;
+  }
+
+  _getLanguage() {
+    return window.settingsManager?.settings?.language || "ru";
+  }
+
+  _t(key) {
+    const lang = this._getLanguage();
+    const dictionaries = window.settingsManager?.uiTranslations;
+    const translationKey = key.startsWith("pda_") ? key : `pda_${key}`;
+
+    return (
+      dictionaries?.[lang]?.[translationKey] ??
+      dictionaries?.ru?.[translationKey] ??
+      translationKey
+    );
   }
 
   init() {
@@ -103,7 +120,7 @@ export class PDASystem {
     statsRow.innerHTML = `
       <div class="stat-card">
         <div class="stat-info">
-          <span class="stat-label">Психика</span>
+          <span class="stat-label" data-pda-i18n="sanity">Психика</span>
           <span class="stat-val" id="pda-stat-sanity">100</span>
         </div>
         <div class="stat-visual">
@@ -114,7 +131,7 @@ export class PDASystem {
 
       <div class="stat-card">
         <div class="stat-info">
-          <span class="stat-label">Доминация</span>
+          <span class="stat-label" data-pda-i18n="dominance">Доминация</span>
           <span class="stat-val" id="pda-stat-dominance">0</span>
         </div>
         <div class="stat-visual">
@@ -125,7 +142,7 @@ export class PDASystem {
 
       <div class="stat-card">
         <div class="stat-info">
-          <span class="stat-label">Сила</span>
+          <span class="stat-label" data-pda-i18n="strength">Сила</span>
           <span class="stat-val" id="pda-stat-physique">10</span>
         </div>
         <div class="stat-visual">
@@ -136,7 +153,7 @@ export class PDASystem {
 
       <div class="stat-card money-card">
         <div class="stat-info">
-          <span class="stat-label">СП-Счёт</span>
+          <span class="stat-label" data-pda-i18n="sp_balance">СП-Счёт</span>
         </div>
         <div class="stat-visual sp-visual">
           <span class="stat-val sp-val" id="pda-stat-money">0</span>
@@ -149,25 +166,18 @@ export class PDASystem {
     // 8. Карточка профиля
     const profileCard = document.createElement("div");
     profileCard.id = "pda-profile-card";
-    profileCard.innerHTML = `
-      <div class="profile-photo placeholder-webp"></div>
-      <div class="profile-info">
-        <div class="profile-name">Рен Амано</div>
-        <div class="profile-detail"><strong>Статус:</strong> D-Ранг</div>
-        <div class="profile-detail"><strong>Класс:</strong> 2-B</div>
-        <div class="profile-bio-sync">Идёт синхронизация биометрии...</div>
-      </div>
-    `;
     screen.appendChild(profileCard);
+
+    this._renderProfileCard();
 
     // 9. Грид кнопок
     const appGrid = document.createElement("div");
     appGrid.id = "pda-app-grid";
     appGrid.innerHTML = `
-      <button id="pda-btn-people">Люди</button>
-      <button id="pda-btn-rules">Правила</button>
-      <button id="pda-btn-quests">Задания</button>
-      <button id="pda-btn-map">Карта</button>
+      <button id="pda-btn-people" data-pda-i18n="people">Люди</button>
+      <button id="pda-btn-rules" data-pda-i18n="rules">Правила</button>
+      <button id="pda-btn-quests" data-pda-i18n="quests">Задания</button>
+      <button id="pda-btn-map" data-pda-i18n="map">Карта</button>
     `;
     screen.appendChild(appGrid);
 
@@ -175,8 +185,8 @@ export class PDASystem {
     const blockedScreen = document.createElement("div");
     blockedScreen.id = "pda-blocked-screen";
     blockedScreen.innerHTML = `
-      <div class="blocked-text">Доступ заблокирован.<br>Идёт синхронизация биометрии</div>
-      <button id="pda-btn-back">Назад</button>
+      <div class="blocked-text" data-pda-i18n-html="access_blocked">Доступ заблокирован.<br>Идёт синхронизация биометрии</div>
+      <button id="pda-btn-back" data-pda-i18n="back">Назад</button>
     `;
     screen.appendChild(blockedScreen);
 
@@ -184,13 +194,13 @@ export class PDASystem {
     const peopleScreen = document.createElement("div");
     peopleScreen.id = "pda-people-screen";
     peopleScreen.innerHTML = `
-      <div class="people-header">База учеников и учителей</div>
+      <div class="people-header" data-pda-i18n="people_database">База учеников и учителей</div>
       <div class="people-categories">
-        <button id="pda-btn-teachers" class="pda-sys-btn category-btn">УЧИТЕЛЯ</button>
-        <button id="pda-btn-students" class="pda-sys-btn category-btn">УЧЕНИКИ</button>
+        <button id="pda-btn-teachers" class="pda-sys-btn category-btn" data-pda-i18n="teachers">УЧИТЕЛЯ</button>
+        <button id="pda-btn-students" class="pda-sys-btn category-btn" data-pda-i18n="students">УЧЕНИКИ</button>
       </div>
       <div class="people-bottom-bar">
-        <button id="pda-btn-people-back" class="pda-sys-btn back-btn">НАЗАД</button>
+        <button id="pda-btn-people-back" class="pda-sys-btn back-btn" data-pda-i18n="back">НАЗАД</button>
       </div>
     `;
     screen.appendChild(peopleScreen);
@@ -199,10 +209,10 @@ export class PDASystem {
     const peopleListScreen = document.createElement("div");
     peopleListScreen.id = "pda-people-list-screen";
     peopleListScreen.innerHTML = `
-      <div class="people-header" id="pda-people-list-title">СПИСОК</div>
+      <div class="people-header" id="pda-people-list-title" data-pda-i18n="list">СПИСОК</div>
       <div class="people-list-container" id="pda-people-list-container"></div>
       <div class="people-bottom-bar">
-        <button id="pda-btn-people-list-back" class="pda-sys-btn back-btn">НАЗАД</button>
+        <button id="pda-btn-people-list-back" class="pda-sys-btn back-btn" data-pda-i18n="back">НАЗАД</button>
       </div>
     `;
     screen.appendChild(peopleListScreen);
@@ -214,33 +224,33 @@ export class PDASystem {
       <div class="rules-viewport">
         <div class="rules-slider" id="rules-slider">
           <div class="rule-slide">
-            <div class="rule-number">Правило №1</div>
-            <div class="rule-text">Синсю-очки (СП) являются единственным законным платёжным средством на территории Академии. Обмен СП среди учеников разрешён. СП могут находиться только в электронном виде.</div>
+            <div class="rule-number" data-pda-i18n="rule_1_title">Правило №1</div>
+            <div class="rule-text" data-pda-i18n="rule_1">Синсю-очки (СП) являются единственным законным платёжным средством на территории Академии. Обмен СП среди учеников разрешён. СП могут находиться только в электронном виде.</div>
           </div>
           <div class="rule-slide">
-            <div class="rule-number">Правило №2</div>
-            <div class="rule-text">Ранговая система отражает статус и полезность ученика для школы. Ученики младших рангов обязаны беспрекословно уступать дорогу, места в столовой и в зонах отдыха ученикам высших рангов.</div>
+            <div class="rule-number" data-pda-i18n="rule_2_title">Правило №2</div>
+            <div class="rule-text" data-pda-i18n="rule_2">Ранговая система отражает статус и полезность ученика для школы. Ученики младших рангов обязаны беспрекословно уступать дорогу, места в столовой и в зонах отдыха ученикам высших рангов.</div>
           </div>
           <div class="rule-slide">
-            <div class="rule-number">Правило №3</div>
-            <div class="rule-text">Выход из общежития после 22:00 разрешён только по уважительной причине. Каждый ученик обязан спать только в своей выделенной комнате, за исключением приказов и специфических ситуаций.</div>
+            <div class="rule-number" data-pda-i18n="rule_3_title">Правило №3</div>
+            <div class="rule-text" data-pda-i18n="rule_3">Выход из общежития после 22:00 разрешён только по уважительной причине. Каждый ученик обязан спать только в своей выделенной комнате, за исключением приказов и специфических ситуаций.</div>
           </div>
           <div class="rule-slide">
-            <div class="rule-number">Правило №4</div>
-            <div class="rule-text">Карта ученика (телефон) является вашим фактическим паспортом на территории школы. Карта всегда обязана быть при вас. Поломка карты, целенаправленная или случайная, требует срочного восстановления за ваш счёт (1000 СП).</div>
+            <div class="rule-number" data-pda-i18n="rule_4_title">Правило №4</div>
+            <div class="rule-text" data-pda-i18n="rule_4">Карта ученика (телефон) является вашим фактическим паспортом на территории школы. Карта всегда обязана быть при вас. Поломка карты, целенаправленная или случайная, требует срочного восстановления за ваш счёт (1000 СП).</div>
           </div>
           <div class="rule-slide">
-            <div class="rule-number">Правило №5</div>
-            <div class="rule-text">Физическое насилие на территории школы строго запрещено без официальной регистрации. Любое несанкционированное нападение, которое будет зарегистрировано, ведёт к немедленному наказанию зачинщика.</div>
+            <div class="rule-number" data-pda-i18n="rule_5_title">Правило №5</div>
+            <div class="rule-text" data-pda-i18n="rule_5">Физическое насилие на территории школы строго запрещено без официально зарегистрированного поединка. Зарегистрировать поединок можно у учителя или Элиты. Любое несанкционированное нападение, зафиксированное камерой или доказанное иным способом, ведёт к немедленному наказанию зачинщика.</div>
           </div>
           <div class="rule-slide">
-            <div class="rule-number">Правило №6</div>
-            <div class="rule-text">За каждое нарушение выносится индивидуальное наказание администрацией, учителями или высокими рангами.</div>
+            <div class="rule-number" data-pda-i18n="rule_6_title">Правило №6</div>
+            <div class="rule-text" data-pda-i18n="rule_6">За каждое нарушение индивидуальное наказание назначается администрацией, учителями или учениками высоких рангов.</div>
           </div>
         </div>
       </div>
       <div class="rules-bottom-bar">
-        <button id="pda-btn-rules-back" class="pda-sys-btn back-btn">НАЗАД</button>
+        <button id="pda-btn-rules-back" class="pda-sys-btn back-btn" data-pda-i18n="back">НАЗАД</button>
         <div class="rules-controls">
           <button id="pda-btn-rule-up" class="pda-sys-btn arrow-btn">▲</button>
           <button id="pda-btn-rule-down" class="pda-sys-btn arrow-btn">▼</button>
@@ -453,7 +463,7 @@ export class PDASystem {
       if (!document.getElementById("pda-text-trigger")) {
         const pdaTextHint = document.createElement("div");
         pdaTextHint.id = "pda-text-trigger";
-        pdaTextHint.innerHTML = `<span class="initial">Т</span><span class="rest">ЕЛЕФОН</span>`;
+        this._setTriggerText(pdaTextHint);
 
         pdaTextHint.addEventListener("click", (e) => {
           e.stopPropagation();
@@ -535,8 +545,7 @@ export class PDASystem {
             this.isVisible = false;
             this.container.classList.remove("pda-active");
             const pdaHint = document.getElementById("pda-text-trigger");
-            if (pdaHint)
-              pdaHint.innerHTML = `<span class="initial">Т</span><span class="rest">ЕЛЕФОН</span>`;
+            if (pdaHint) this._setTriggerText(pdaHint);
             const backdrop = document.getElementById("pda-backdrop");
             if (backdrop) backdrop.classList.remove("active");
             const screenOff = document.getElementById("pda-screen-off");
@@ -554,6 +563,94 @@ export class PDASystem {
         });
       }
       this.updateVisibility();
+    }
+
+    this.applyTranslations();
+  }
+
+  _renderProfileCard() {
+    const profileCard = document.getElementById("pda-profile-card");
+    const ren = characters.ren;
+
+    if (!profileCard || !ren) return;
+
+    const fullName =
+      this._getLocalizedValue(ren.fullName) ||
+      this._getLocalizedValue(ren.name) ||
+      this._t("unnamed");
+
+    const rank = this._formatRank(ren.rank);
+    const room = ren.room || "?";
+
+    const photoClass = ren.photo
+      ? "profile-photo has-webp"
+      : "profile-photo placeholder-webp";
+
+    const photoStyle = ren.photo
+      ? `style="background-image: url('${ren.photo}')"`
+      : "";
+
+    profileCard.innerHTML = `
+      <div class="${photoClass}" ${photoStyle}></div>
+
+      <div class="profile-info">
+        <div class="profile-name">${fullName}</div>
+
+        <div class="profile-detail">
+          <strong>${this._t("rank")}:</strong> ${rank}
+        </div>
+
+        <div class="profile-detail">
+          <strong>${this._t("class")}:</strong> ${room}
+        </div>
+
+        <div class="profile-bio-sync">
+          ${this._t("bio_sync")}
+        </div>
+      </div>
+    `;
+  }
+
+  _setTriggerText(element) {
+    if (!element) return;
+    const [initial = "", ...rest] = Array.from(this._t("phone_trigger"));
+    element.innerHTML = `<span class="initial">${initial}</span><span class="rest">${rest.join("")}</span>`;
+    requestAnimationFrame(() => this._syncTriggerBridge(element));
+  }
+
+  _syncTriggerBridge(trigger) {
+    const bridge = document.getElementById("pda-cursor-bridge");
+    if (!bridge || !trigger || this.isVisible) return;
+
+    const rect = trigger.getBoundingClientRect();
+    if (rect.width <= 0) return;
+    bridge.style.left = `${rect.left}px`;
+    bridge.style.top = `${rect.top}px`;
+    bridge.style.width = `${rect.width}px`;
+    bridge.style.height = `${rect.height}px`;
+  }
+
+  applyTranslations() {
+    if (!this.container) return;
+
+    this.container.querySelectorAll("[data-pda-i18n]").forEach((element) => {
+      element.textContent = this._t(element.dataset.pdaI18n);
+    });
+
+    this.container
+      .querySelectorAll("[data-pda-i18n-html]")
+      .forEach((element) => {
+        element.innerHTML = this._t(element.dataset.pdaI18nHtml);
+      });
+
+    this._renderProfileCard();
+
+    if (!this.isVisible) {
+      this._setTriggerText(document.getElementById("pda-text-trigger"));
+    }
+
+    if (this.currentPeopleRole) {
+      this._renderPeopleList(this.currentPeopleRole);
     }
   }
 
@@ -597,7 +694,14 @@ export class PDASystem {
     const spEl = document.getElementById("pda-stat-money");
     if (spEl) {
       const currentSP = hero.sp || 0;
-      spEl.textContent = Number(currentSP).toLocaleString("en-US");
+      const numberLocale = {
+        ru: "ru-RU",
+        en: "en-US",
+        ja: "ja-JP",
+      }[this._getLanguage()];
+      spEl.textContent = Number(currentSP).toLocaleString(
+        numberLocale || "en-US",
+      );
     }
 
     const statCards = document.querySelectorAll("#pda-stats-grid .stat-card");
@@ -613,7 +717,8 @@ export class PDASystem {
     const title = document.getElementById("pda-people-list-title");
     if (!container || !title) return;
 
-    title.textContent = role === "student" ? "УЧЕНИКИ" : "УЧИТЕЛЯ";
+    this.currentPeopleRole = role;
+    title.textContent = this._t(role === "student" ? "students" : "teachers");
     container.innerHTML = "";
 
     for (const key in characters) {
@@ -621,31 +726,85 @@ export class PDASystem {
       if (char.role === role) {
         const isUnlocked = state?.flags?.[char.requiresFlag];
         if (isUnlocked) {
+          const details = this._renderCharacterDetails(char, role, false);
           container.innerHTML += `
             <div class="pda-char-card">
               <div class="char-photo has-photo" style="background-image: url('${char.photo || ""}')"></div>
               <div class="char-info">
-                <div class="char-name">${char.realName || "Имя не задано"}</div>
-                <div class="char-detail"><strong>Статус:</strong> ${char.rank || "?"}-Ранг</div>
-                <div class="char-detail"><strong>Класс:</strong> ${char.room || "?"}</div>
+                <div class="char-name">${this._getCharacterName(char)}</div>
+                ${details}
               </div>
             </div>
           `;
         } else {
+          const details = this._renderCharacterDetails(char, role, true);
           container.innerHTML += `
             <div class="pda-char-card locked">
               <div class="char-photo"></div>
               <div class="char-info">
-                <div class="char-name">${char.unknownName || "???"}</div>
-                <div class="char-detail"><strong>Статус:</strong> Данные скрыты</div>
-                <div class="char-detail"><strong>Класс:</strong> Данные скрыты</div>
-                <div class="char-bio-sync">Требуется биометрия...</div>
+                <div class="char-name">${this._getLocalizedValue(char.unknownName) || "???"}</div>
+                ${details}
+                <div class="char-bio-sync">${this._t("biometrics_required")}</div>
               </div>
             </div>
           `;
         }
       }
     }
+  }
+
+  _getLocalizedValue(value) {
+    if (typeof value === "string") return value;
+    if (!value || typeof value !== "object") return "";
+
+    const lang = this._getLanguage();
+    return value[lang] || value.ru || Object.values(value)[0] || "";
+  }
+
+  _getCharacterName(char) {
+    return (
+      this._getLocalizedValue(char?.fullName) ||
+      this._getLocalizedValue(char?.name) ||
+      this._t("unnamed")
+    );
+  }
+
+  _getTeacherSubject(char) {
+    return this._getLocalizedValue(char?.subject) || "?";
+  }
+
+  _renderCharacterDetails(char, role, isLocked) {
+    const hidden = this._t("data_hidden");
+
+    if (role === "teacher") {
+      const subject = isLocked ? hidden : this._getTeacherSubject(char);
+      const room = isLocked ? hidden : char.room || "?";
+
+      return `
+    <div class="char-detail">
+      <strong>${this._t("subject")}:</strong> ${subject}
+    </div>
+
+    <div class="char-detail">
+      <strong>${this._t("class")}:</strong> ${room}
+    </div>
+  `;
+    }
+
+    const rank = isLocked ? hidden : this._formatRank(char.rank);
+    const room = isLocked ? hidden : char.room || "?";
+    return `
+      <div class="char-detail"><strong>${this._t("rank")}:</strong> ${rank}</div>
+      <div class="char-detail"><strong>${this._t("class")}:</strong> ${room}</div>
+    `;
+  }
+
+  _formatRank(rank) {
+    if (!rank) return "?";
+    const lang = this._getLanguage();
+    if (lang === "ja") return `${rank}ランク`;
+    if (lang === "ru") return `${rank}-Ранг`;
+    return `${rank}-Rank`;
   }
 
   _updateSegments(cardEl, value) {
@@ -717,8 +876,7 @@ export class PDASystem {
       this.container.classList.remove("pda-active");
 
       // ХОЗЯИН: Стираем задержку и display = "none" отсюда к чертям!
-      if (pdaHint)
-        pdaHint.innerHTML = `<span class="initial">Т</span><span class="rest">ЕЛЕФОН</span>`;
+      this._setTriggerText(pdaHint);
 
       // 🔥 ХОЗЯИН: Возвращаем мост на место после того, как телефон уехал вниз
       const bridge = document.getElementById("pda-cursor-bridge");

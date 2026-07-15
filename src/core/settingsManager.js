@@ -104,6 +104,49 @@ export class SettingsManager {
         sl_delete_title: "Удалить слот",
         sponsors_rank_notice: "Спонсоры только D-Ранга и выше.",
         sponsors_rank_label: "D-РАНГ",
+        pda_sanity: "Психика",
+        pda_dominance: "Доминация",
+        pda_strength: "Сила",
+        pda_sp_balance: "СП-Счёт",
+        pda_rank: "Ранг",
+        pda_class: "Класс",
+        pda_profile_rank: "D-Ранг",
+        pda_profile_class: "2-B",
+        pda_bio_sync: "Идёт синхронизация биометрии...",
+        pda_people: "Люди",
+        pda_rules: "Правила",
+        pda_quests: "Задания",
+        pda_map: "Карта",
+        pda_access_blocked:
+          "Доступ заблокирован.<br>Идёт синхронизация биометрии",
+        pda_back: "Назад",
+        pda_people_database: "База учеников и учителей",
+        pda_teachers: "Учителя",
+        pda_students: "Ученики",
+        pda_list: "Список",
+        pda_rule_1_title: "Правило №1",
+        pda_rule_1:
+          "Синсю-очки (СП) являются единственным законным платёжным средством на территории Академии. Обмен СП среди учеников разрешён. СП могут находиться только в электронном виде.",
+        pda_rule_2_title: "Правило №2",
+        pda_rule_2:
+          "Ранговая система отражает статус и полезность ученика для школы. Ученики младших рангов обязаны беспрекословно уступать дорогу, места в столовой и в зонах отдыха ученикам высших рангов.",
+        pda_rule_3_title: "Правило №3",
+        pda_rule_3:
+          "Выход из общежития после 22:00 разрешён только по уважительной причине. Каждый ученик обязан спать только в своей выделенной комнате, за исключением приказов и специфических ситуаций.",
+        pda_rule_4_title: "Правило №4",
+        pda_rule_4:
+          "Карта ученика (телефон) является вашим фактическим паспортом на территории школы. Карта всегда обязана быть при вас. Поломка карты, целенаправленная или случайная, требует срочного восстановления за ваш счёт (1000 СП).",
+        pda_rule_5_title: "Правило №5",
+        pda_rule_5:
+          "Физическое насилие на территории школы строго запрещено без официально зарегистрированного поединка. Зарегистрировать поединок можно у учителя или Элиты. Любое несанкционированное нападение, зафиксированное камерой или доказанное иным способом, ведёт к немедленному наказанию зачинщика.",
+        pda_rule_6_title: "Правило №6",
+        pda_rule_6:
+          "За каждое нарушение индивидуальное наказание назначается администрацией, учителями или учениками высоких рангов.",
+        pda_phone_trigger: "ТЕЛЕФОН",
+        pda_unnamed: "Имя не задано",
+        pda_data_hidden: "Данные скрыты",
+        pda_biometrics_required: "Требуется биометрия...",
+        pda_subject: "Предмет",
       },
       en: {
         settings_header: "[ SYSTEM SETTINGS ]",
@@ -176,6 +219,47 @@ export class SettingsManager {
         sl_delete_title: "Delete slot",
         sponsors_rank_notice: "D-Rank sponsors and higher only.",
         sponsors_rank_label: "D-RANK",
+        pda_sanity: "Sanity",
+        pda_dominance: "Dominance",
+        pda_strength: "Strength",
+        pda_sp_balance: "SP Balance",
+        pda_rank: "Rank",
+        pda_class: "Class",
+        pda_profile_rank: "D-Rank",
+        pda_bio_sync: "Syncing biometric data...",
+        pda_people: "People",
+        pda_rules: "Rules",
+        pda_quests: "Quests",
+        pda_map: "Map",
+        pda_access_blocked: "Access locked.<br>Syncing biometric data",
+        pda_back: "Back",
+        pda_people_database: "Student and Teacher Database",
+        pda_teachers: "Teachers",
+        pda_students: "Students",
+        pda_list: "List",
+        pda_rule_1_title: "Rule No. 1",
+        pda_rule_1:
+          "Shinsu Points (SP) are the only legal means of payment on Academy grounds. Students may transfer SP to one another. SP may only be held electronically.",
+        pda_rule_2_title: "Rule No. 2",
+        pda_rule_2:
+          "The rank system reflects a student's status and usefulness to the school. Lower-ranked students must yield the way, cafeteria seats, and places in recreation areas to higher-ranked students without question.",
+        pda_rule_3_title: "Rule No. 3",
+        pda_rule_3:
+          "Students may leave the dormitory after 10:00 PM only for a valid reason. Every student must sleep in their assigned room, except when ordered otherwise or under special circumstances.",
+        pda_rule_4_title: "Rule No. 4",
+        pda_rule_4:
+          "Your student card (phone) serves as your de facto passport on school grounds. You must carry it at all times. Whether deliberate or accidental, damage to the card requires immediate replacement at your expense (1,000 SP).",
+        pda_rule_5_title: "Rule No. 5",
+        pda_rule_5:
+          "Physical violence on school grounds is strictly prohibited unless the match has been officially registered with a teacher or the Elite. Any unauthorized attack captured on camera or proven by other means will result in the attacker's immediate punishment.",
+        pda_rule_6_title: "Rule No. 6",
+        pda_rule_6:
+          "Each violation is subject to an individual punishment imposed by the administration, teachers, or high-ranking students.",
+        pda_phone_trigger: "PHONE",
+        pda_unnamed: "Name unavailable",
+        pda_data_hidden: "Data hidden",
+        pda_biometrics_required: "Biometric data required...",
+        pda_subject: "Subject",
       },
       ja: {
         settings_header: "[ システム設定 ]",
@@ -249,6 +333,49 @@ export class SettingsManager {
         sl_delete_title: "スロットを削除",
         sponsors_rank_notice: "Dランク以上のスポンサーのみ。",
         sponsors_rank_label: "Dランク",
+        pda_sanity: "正気度",
+        pda_dominance: "支配力",
+        pda_strength: "筋力",
+        pda_sp_balance: "SP残高",
+        pda_rank: "ランク",
+        pda_class: "クラス",
+        pda_profile_rank: "Dランク",
+        pda_profile_class: "2-B",
+        pda_bio_sync: "生体情報を同期中...",
+        pda_people: "人物",
+        pda_rules: "規則",
+        pda_quests: "任務",
+        pda_map: "地図",
+        pda_access_blocked:
+          "アクセスはロックされています。<br>生体情報を同期中",
+        pda_back: "戻る",
+        pda_people_database: "生徒・教員データベース",
+        pda_teachers: "教員",
+        pda_students: "生徒",
+        pda_list: "一覧",
+        pda_rule_1_title: "規則 第1条",
+        pda_rule_1:
+          "神州ポイント（SP）は、学園内で唯一認められている決済手段です。生徒間でのSPの受け渡しは許可されています。SPは電子データとしてのみ保有できます。",
+        pda_rule_2_title: "規則 第2条",
+        pda_rule_2:
+          "ランク制度は、生徒の地位と学園にとっての有用性を示すものです。低ランクの生徒は、高ランクの生徒に対し、通路、食堂の席、休憩スペースを無条件で譲らなければなりません。",
+        pda_rule_3_title: "規則 第3条",
+        pda_rule_3:
+          "22時以降の寮外への外出は、正当な理由がある場合にのみ許可されます。命令または特別な事情がある場合を除き、各生徒は指定された自室でのみ就寝しなければなりません。",
+        pda_rule_4_title: "規則 第4条",
+        pda_rule_4:
+          "生徒証（スマートフォン）は、学園内における事実上の身分証明書です。常に携帯しなければなりません。故意・過失を問わず、破損した場合は自己負担（1,000 SP）で直ちに再発行する必要があります。",
+        pda_rule_5_title: "規則 第5条",
+        pda_rule_5:
+          "学園内での暴力行為は、教員またはエリートを通じて正式に登録された決闘を除き、固く禁じられています。カメラに記録された、またはその他の方法で立証された無許可の襲撃は、加害者への即時処罰の対象となります。",
+        pda_rule_6_title: "規則 第6条",
+        pda_rule_6:
+          "規則違反ごとに、学園当局、教員、または高ランクの生徒が個別に処罰を科します。",
+        pda_phone_trigger: "スマホ",
+        pda_unnamed: "氏名未登録",
+        pda_data_hidden: "データ非公開",
+        pda_biometrics_required: "生体情報が必要です...",
+        pda_subject: "担当科目",
       },
     };
 
@@ -727,5 +854,7 @@ export class SettingsManager {
         el.innerHTML = dict[key];
       }
     });
+
+    window.pdaSystem?.applyTranslations?.();
   }
 }

@@ -43,10 +43,7 @@ if (btnNewGame) {
         inventory: { items: {} },
       };
       state.relations = {};
-      state.flags = {
-        knowsKagami: true,
-        knowsCeleste: true,
-      };
+      state.flags = {};
       state.temp = {};
       state.uiState = {
         dialogStyle: "normal",

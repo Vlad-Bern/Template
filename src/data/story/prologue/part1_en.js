@@ -9,7 +9,7 @@ export const story = {
       sf("mystery", "Ren.", {
         ...m.fx({ darkness: 1, noise: 1, duration: 0 }),
         ...m.bgm("Zero Rank", 0.5),
-        pdaUnlocked: false,
+        pdaUnlocked: true,
       }),
       say("mystery", "Can you hear me?"),
       sf("ren", "Yeah...", m.fx({ darkness: 0.9, noise: 0.2, duration: 500 })),
@@ -1163,7 +1163,7 @@ export const story = {
         },
       ),
       say("ren", "What the f— What are you doing?!"),
-      say("kagami", "Ren Amano, you failed the test."),
+      say("kagami", "Amano Ren, you failed the test."),
       say("kagami", "You proved yourself weak within minutes of arriving."),
       say(
         "kagami",
@@ -1183,7 +1183,7 @@ export const story = {
       n("None of this was supposed to go this far."),
       sf(
         "kagami",
-        "Don't be upset, Ren Amano. I have an option for people like you.",
+        "Don't be upset, Amano Ren. I have an option for people like you.",
         { bg: "/bg/cg/prologue/quiz_room_kagami.webp" },
         { ...m.fx({ vignette: 0, duration: 3000 }) },
         { action: () => audioMacros.fadeToStem("base", 1000) },

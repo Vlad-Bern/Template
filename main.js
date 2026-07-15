@@ -250,13 +250,13 @@ const tw = new Typewriter("dialog-box");
 const sm = new SceneManager(tw);
 window.sm = sm;
 
-window.pdaSystem = new PDASystem();
-window.pdaSystem.init();
-
 window.audioManager = sm.am;
 
 window.saveManager = new SaveManager();
 window.settingsManager = new SettingsManager();
+
+window.pdaSystem = new PDASystem();
+window.pdaSystem.init();
 
 document.getElementById("open-save-btn").addEventListener("click", function () {
   this.blur();
