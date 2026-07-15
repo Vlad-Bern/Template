@@ -1,6 +1,9 @@
 import { state } from "./state.js";
 import { inputManager, INPUT_PRIORITY } from "./inputManager.js";
 
+// Первая публичная версия с официальной разблокировкой КПК.
+const SAVE_SCHEMA_VERSION = 2;
+
 let fs = null;
 let path = null;
 try {
@@ -404,6 +407,7 @@ export class SaveManager {
     }
 
     const dataToSave = {
+      saveVersion: SAVE_SCHEMA_VERSION,
       timestamp: Date.now(),
       sceneId: window.sm.currentSceneId,
       lineIndex: window.sm.currentLineIndex || 0,
@@ -411,7 +415,6 @@ export class SaveManager {
       audioState:
         window.saveManager?._pendingAudioState ??
         (window.sm?.am?.getSaveState ? window.sm.am.getSaveState() : null),
-      // МАЙ ФИКС: Сохраняем историю диалогов
       history: window.sm?.hm ? [...window.sm.hm.history] : [],
     };
 
@@ -421,6 +424,27 @@ export class SaveManager {
 
   loadGame(slotIndex, slotData) {
     if (!slotData) return;
+
+    const saveVersion = Number(slotData.saveVersion) || 0;
+    const savedUiState = slotData.state?.uiState || {};
+
+    /*
+     * Сейвы без saveVersion были созданы до официального
+     * появления КПК.
+     *
+     * Даже если промежуточная сборка случайно записала
+     * pdaUnlocked: true, это значение сбрасывается.
+     */
+    const migratedUiState = {
+      dialogStyle: savedUiState.dialogStyle || "normal",
+
+      pdaUnlocked:
+        saveVersion >= SAVE_SCHEMA_VERSION && savedUiState.pdaUnlocked === true,
+
+      pdaUnlockHintShown:
+        saveVersion >= SAVE_SCHEMA_VERSION &&
+        savedUiState.pdaUnlockHintShown === true,
+    };
 
     // Очищаем и заново собираем героя
     Object.keys(state.hero).forEach((key) => delete state.hero[key]);
@@ -446,16 +470,8 @@ export class SaveManager {
     } else {
       state.uiState = {};
     }
-    Object.assign(
-      state.uiState,
-      JSON.parse(
-        JSON.stringify(
-          (slotData.state && slotData.state.uiState) || {
-            dialogStyle: "normal",
-          },
-        ),
-      ),
-    );
+
+    Object.assign(state.uiState, JSON.parse(JSON.stringify(migratedUiState)));
 
     // Очищаем и заново собираем временные переменные
     Object.keys(state.temp).forEach((key) => delete state.temp[key]);
@@ -497,9 +513,12 @@ export class SaveManager {
       if (window.sm) {
         if (window.sm.cs) window.sm.cs.forceClose();
 
-        // Если история ещё не загружена — грузим язык перед загрузкой сцены
-        if (!window.sm.story || Object.keys(window.sm.story).length === 0) {
+        const requestedSceneExists =
+          window.sm.story && window.sm.story[slotData.sceneId];
+
+        if (!requestedSceneExists) {
           const lang = window.settingsManager?.settings?.language || "ru";
+
           if (typeof window.loadStoryLanguage === "function") {
             await window.loadStoryLanguage(lang);
           }

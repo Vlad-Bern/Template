@@ -805,10 +805,37 @@ export class SceneManager {
 
     for (let i = 0; i < startLineIndex && i < sceneLines.length; i++) {
       const l = sceneLines[i];
-      if (l.bg) targetBg = l.bg;
-      if (l.showCharacter) activeChars[l.showCharacter.id] = l.showCharacter;
-      if (l.hideCharacter) delete activeChars[l.hideCharacter];
-      if (l.fx) Object.assign(targetFx, l.fx);
+      if (l.bg) {
+        targetBg = l.bg;
+      }
+
+      if (l.showCharacter) {
+        activeChars[l.showCharacter.id] = l.showCharacter;
+      }
+
+      if (l.showCharacters) {
+        l.showCharacters.forEach((char) => {
+          activeChars[char.id] = char;
+        });
+      }
+
+      if (l.hideCharacter) {
+        delete activeChars[l.hideCharacter];
+      }
+
+      if (l.hideCharacters === "all") {
+        activeChars = {};
+      }
+
+      if (Array.isArray(l.hideCharacters)) {
+        l.hideCharacters.forEach((id) => {
+          delete activeChars[id];
+        });
+      }
+
+      if (l.fx) {
+        Object.assign(targetFx, l.fx);
+      }
     }
 
     if (targetBg) {
@@ -935,11 +962,14 @@ export class SceneManager {
     currentSFXList.forEach((sfx) => this.am.handleAudio(sfx));
 
     // Восстанавливаем персонажей мгновенно
-    Object.values(activeChars).forEach((char) => {
-      if (this.cm && this.cm.show) {
-        this.cm.show(char.id, char.emotion, char.position, () => {});
-      }
-    });
+    if (this.cm?.showMany && Object.keys(activeChars).length > 0) {
+      await this.cm.showMany(
+        Object.values(activeChars).map((char) => ({
+          ...char,
+          animFunc: () => {},
+        })),
+      );
+    }
 
     this.currentScene = scene;
 
@@ -1088,6 +1118,117 @@ export class SceneManager {
     return "navigated";
   }
 
+  /**
+   * Запускает обычный выбор внутри массива lines.
+   *
+   * Вариант с next загружает указанную сцену.
+   * Вариант без next продолжает следующую строку.
+   */
+  async playChoiceBlock(block, { inline = true, fallbackNext = null } = {}) {
+    const playId = this.currentPlayId;
+
+    // Специальное внутреннее значение:
+    // выбор сделан, но переходить в другую сцену не нужно.
+    const continueToken = Symbol("continue-current-lines");
+
+    const choices = (block.choices || []).map((choice) => {
+      if (choice.next == null) {
+        return {
+          ...choice,
+
+          // Возвращаем не просто команду продолжения,
+          // но и сам выбранный вариант.
+          next: () => ({
+            token: continueToken,
+            choice,
+          }),
+        };
+      }
+
+      return choice;
+    });
+
+    if (choices.length === 0) {
+      console.error("[SceneManager] Обнаружен пустой блок choices.", block);
+
+      return "blocked";
+    }
+
+    // Останавливаем перемотку перед выбором.
+    this.isFastForwarding = false;
+
+    if (this.fastForwardTimeoutId) {
+      clearTimeout(this.fastForwardTimeoutId);
+      this.fastForwardTimeoutId = null;
+    }
+
+    // Ждём, пока игрок нажмёт один из вариантов.
+    const target = await new Promise((resolve) => {
+      this.cs.showChoices(choices, resolve, this.am);
+    });
+
+    // За время ожидания могла загрузиться другая сцена.
+    if (this.currentPlayId !== playId) {
+      return "navigated";
+    }
+
+    if (target?.token === continueToken) {
+      const selectedChoice = target.choice;
+
+      const choiceLines =
+        typeof selectedChoice.lines === "function"
+          ? selectedChoice.lines()
+          : selectedChoice.lines || [];
+
+      // Проигрываем локальные реплики выбранного варианта.
+      if (choiceLines.length > 0) {
+        const result = await this.playLines(choiceLines, 0, {
+          progressIndex: this.currentLineIndex,
+          allowInteractions: false,
+          ignoreRestoreState: true,
+        });
+
+        if (result === "blocked") {
+          return "blocked";
+        }
+
+        if (this.currentPlayId !== playId) {
+          return "navigated";
+        }
+      }
+
+      if (inline) {
+        return "continue";
+      }
+
+      // Старый scene.choices находится в конце сцены,
+      // поэтому следующей строки у него нет.
+      // В этом случае используем общий scene.next.
+      const resolvedFallback =
+        typeof fallbackNext === "function" ? fallbackNext() : fallbackNext;
+
+      if (resolvedFallback) {
+        this.loadScene(resolvedFallback);
+        return "navigated";
+      }
+
+      console.error(
+        "[SceneManager] У финального scene.choices нет ни choice.next, ни scene.next.",
+        block,
+      );
+
+      return "blocked";
+    }
+
+    // У выбранного варианта был next.
+    if (target) {
+      this.loadScene(target);
+      return "navigated";
+    }
+
+    return "blocked";
+  }
+
   // +++ ИСПРАВЛЕННЫЙ PLAYLINES +++
   async playLines(lines, startIndex = 0, options = {}) {
     const playId = this.currentPlayId;
@@ -1103,6 +1244,25 @@ export class SceneManager {
 
       const line = lines[i];
       if (!line) continue;
+
+      // Обычный выбор внутри scene.lines или look.lines
+      if (line.choices) {
+        this.currentLineIndex = progressIndex ?? i;
+
+        const result = await this.playChoiceBlock(line, { inline: true });
+
+        if (result === "blocked") {
+          return "blocked";
+        }
+
+        if (result === "navigated" || this.currentPlayId !== playId) {
+          return;
+        }
+
+        // У выбранного варианта не было next:
+        // цикл продолжит следующую строку.
+        continue;
+      }
 
       if (line.interactables) {
         if (!allowInteractions) {
@@ -1180,12 +1340,30 @@ export class SceneManager {
       }
 
       if (line.pdaUnlocked !== undefined) {
-        state.uiState.pdaUnlocked = line.pdaUnlocked;
+        const wasUnlocked = state.uiState.pdaUnlocked === true;
+
+        state.uiState.pdaUnlocked = line.pdaUnlocked === true;
+
         if (
           window.pdaSystem &&
           typeof window.pdaSystem.updateVisibility === "function"
         ) {
           window.pdaSystem.updateVisibility();
+        }
+
+        if (
+          !wasUnlocked &&
+          state.uiState.pdaUnlocked &&
+          !state.uiState.pdaUnlockHintShown
+        ) {
+          state.uiState.pdaUnlockHintShown = true;
+
+          if (
+            window.pdaSystem &&
+            typeof window.pdaSystem.showUnlockHint === "function"
+          ) {
+            window.pdaSystem.showUnlockHint();
+          }
         }
       }
 
@@ -1219,23 +1397,50 @@ export class SceneManager {
 
       if (line.showCharacter) {
         const { id, emotion, position } = line.showCharacter;
+
         const animFunc = animations[line.anim] || animations.fadeInUp;
-        if (this.cm.show)
-          this.cm.show(
+
+        if (this.cm.show) {
+          await this.cm.show(
             id,
             emotion,
             position,
             isRestoredLine ? () => {} : animFunc,
           );
+        }
+      }
+
+      if (line.showCharacters) {
+        const entries = line.showCharacters.map((char) => ({
+          ...char,
+
+          animFunc: isRestoredLine
+            ? () => {}
+            : animations[char.anim || line.anim] || animations.fadeInUp,
+        }));
+
+        if (this.cm.showMany) {
+          await this.cm.showMany(entries);
+        }
       }
 
       if (line.hideCharacter) {
         const animFunc = animations[line.anim] || animations.fadeOut;
-        if (this.cm.hide)
-          this.cm.hide(
+
+        if (this.cm.hide) {
+          await this.cm.hide(
             line.hideCharacter,
             isRestoredLine ? () => {} : animFunc,
           );
+        }
+      }
+
+      if (line.hideCharacters === "all") {
+        const animFunc = animations[line.anim] || animations.fadeOut;
+
+        if (this.cm.hideAll) {
+          await this.cm.hideAll(isRestoredLine ? () => {} : animFunc);
+        }
       }
 
       this.isTyping = true;
@@ -1284,13 +1489,10 @@ export class SceneManager {
         fallbackNext: scene.next,
       });
     } else if (scene.choices && scene.choices.length > 0) {
-      this.isFastForwarding = false;
-      if (this.fastForwardTimeoutId) clearTimeout(this.fastForwardTimeoutId);
-      this.cs.showChoices(
-        scene.choices,
-        (nextId) => this.loadScene(nextId),
-        this.am,
-      ); // Передаем this.am
+      void this.playChoiceBlock(scene, {
+        inline: false,
+        fallbackNext: scene.next,
+      });
     } else if (scene.next) {
       const nextSceneId =
         typeof scene.next === "function" ? scene.next() : scene.next;

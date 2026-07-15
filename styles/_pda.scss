@@ -889,6 +889,94 @@
   }
 }
 
+/* Одноразовая подсказка после разблокировки КПК. */
+#pda-unlock-arrow {
+  display: none;
+  position: absolute;
+
+  // ПК: над нижней кнопкой КПК.
+  top: -145px;
+  right: 56px;
+
+  z-index: 1020;
+  color: rgba(0, 255, 255, 0.62);
+  font-size: 88px;
+  font-weight: 300;
+  line-height: 1;
+
+  pointer-events: none;
+  user-select: none;
+  opacity: 0;
+
+  text-shadow: 0 0 18px rgba(0, 255, 255, 0.4);
+}
+
+#pda-unlock-arrow.show {
+  display: block;
+  animation: pda-unlock-arrow-pop 1s ease-out forwards;
+}
+
+/* Десктоп: стрелка выпрыгивает сверху и указывает вниз. */
+@keyframes pda-unlock-arrow-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(-24px) scale(0.82);
+  }
+
+  22% {
+    opacity: 0.72;
+    transform: translateY(0) scale(1.08);
+  }
+
+  62% {
+    opacity: 0.62;
+    transform: translateY(8px) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.96);
+  }
+}
+
+/* Телефон: стрелка находится слева от язычка и указывает вправо. */
+@media (max-width: 1024px) {
+  #pda-unlock-arrow {
+    top: 50%;
+    left: -112px;
+    right: auto;
+
+    font-size: 80px;
+    transform: translateY(-50%);
+  }
+
+  #pda-unlock-arrow.show {
+    animation: pda-unlock-arrow-mobile-pop 1s ease-out forwards;
+  }
+}
+
+@keyframes pda-unlock-arrow-mobile-pop {
+  0% {
+    opacity: 0;
+    transform: translate(20px, -50%) scale(0.82);
+  }
+
+  22% {
+    opacity: 0.72;
+    transform: translate(0, -50%) scale(1.08);
+  }
+
+  62% {
+    opacity: 0.62;
+    transform: translate(-8px, -50%) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-22px, -50%) scale(0.96);
+  }
+}
+
 /* ========================================================
    🎯 КИБЕР-СИНИЙ КРЕСТИК (С тотальной изоляцией тачскринов)
    ======================================================== */

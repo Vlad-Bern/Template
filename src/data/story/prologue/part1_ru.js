@@ -9,6 +9,7 @@ export const story = {
       sf("mystery", "Рен.", {
         ...m.fx({ darkness: 1, noise: 1, duration: 0 }),
         ...m.bgm("Zero Rank", 0.5),
+        pdaUnlocked: false,
       }),
       say("mystery", "Ты меня слышишь?"),
       sf("ren", "Да...", m.fx({ darkness: 0.9, noise: 0.2, duration: 500 })),
@@ -1665,18 +1666,6 @@ export const story = {
           new CustomEvent("loadScene", { detail: "monday_morning" }),
         );
       });
-
-      // Фоном начинаем лениво скачивать вторую часть, пока игрок залипает на неоновый неон
-      import("./part2_ru.js")
-        .then((module) => {
-          if (window.sm && window.sm.story) {
-            window.sm.story = {
-              ...window.sm.story,
-              ...module.story,
-            };
-          }
-        })
-        .catch((err) => console.error("[Mai Lazy Load Error]:", err));
 
       return null;
     },

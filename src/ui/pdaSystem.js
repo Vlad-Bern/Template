@@ -510,6 +510,16 @@ export class PDASystem {
         setTimeout(syncBridge, 100); // Мягкий старт после рендеринга DOM
       }
 
+      if (!document.getElementById("pda-unlock-arrow")) {
+        const unlockArrow = document.createElement("div");
+
+        unlockArrow.id = "pda-unlock-arrow";
+        unlockArrow.setAttribute("aria-hidden", "true");
+        unlockArrow.textContent = "↓";
+
+        this.container.appendChild(unlockArrow);
+      }
+
       // Метод контроля сюжетной видимости uiState.pdaUnlocked
       this.updateVisibility = () => {
         const gameViewport = document.getElementById("game-viewport");
@@ -545,6 +555,29 @@ export class PDASystem {
       }
       this.updateVisibility();
     }
+  }
+
+  showUnlockHint() {
+    const arrow = document.getElementById("pda-unlock-arrow");
+
+    if (!arrow) return;
+
+    const isMobileLayout = window.matchMedia("(max-width: 1024px)").matches;
+
+    // ПК — вниз, телефон — вправо.
+    arrow.textContent = isMobileLayout ? "←" : "↓";
+    arrow.classList.toggle("mobile", isMobileLayout);
+
+    arrow.classList.remove("show");
+
+    // Принудительно перезапускаем CSS-анимацию.
+    void arrow.offsetWidth;
+
+    arrow.classList.add("show");
+
+    window.setTimeout(() => {
+      arrow.classList.remove("show");
+    }, 1100);
   }
 
   updateStats() {

@@ -5,117 +5,188 @@ import { loadAsset } from "./assetLoader.js";
 export class CharacterManager {
   constructor() {
     this.container = document.getElementById("character-layer");
-    this.characters = {};
-    this.preloadedImages = new Map(); // Кэш: path → blob URL
+    this.preloadedImages = new Map();
   }
 
-  async show(id, emotion = "neutral", position = "center", animFunc = null) {
+  _getSprite(id, emotion = "neutral") {
     const char = characters[id];
+
     if (!char) {
-      console.warn(`[CharManager] Character ${id} not found.`);
-      return;
+      throw new Error(`[CharManager] Character "${id}" not found.`);
     }
 
-    // Ищем ОБЕРТКУ персонажа, а не саму картинку
+    if (!char.sprites) {
+      throw new Error(`[CharManager] Character "${id}" has no sprites.`);
+    }
+
+    const spritePath = char.sprites[emotion];
+
+    if (!spritePath) {
+      const available = Object.keys(char.sprites).join(", ") || "none";
+
+      throw new Error(
+        `[CharManager] Sprite "${emotion}" for "${id}" not found. Available: ${available}.`,
+      );
+    }
+
+    return spritePath;
+  }
+
+  async _loadSprite(id, emotion, directSrc = null) {
+    const spritePath = directSrc || this._getSprite(id, emotion);
+
+    if (!this.preloadedImages.has(spritePath)) {
+      const blobUrl = await loadAsset(spritePath);
+      this.preloadedImages.set(spritePath, blobUrl);
+    }
+
+    return this.preloadedImages.get(spritePath);
+  }
+
+  _render({ id, position = "center", animFunc = null, blobUrl }) {
     let wrapper = this.container.querySelector(`[data-wrapper-id="${id}"]`);
-    let img = null;
-    let isNew = false;
 
-    // Если персонажа (обертки) еще нет на экране — создаём
+    const isNew = !wrapper;
+
     if (!wrapper) {
-      isNew = true;
-
-      // 1. Создаем невидимую коробку-обертку
       wrapper = document.createElement("div");
-      wrapper.className = `character-wrapper pos-${position}`;
       wrapper.dataset.wrapperId = id;
 
-      // 2. Создаем саму картинку
-      img = document.createElement("img");
+      const img = document.createElement("img");
       img.className = "character-sprite";
       img.dataset.charId = id;
 
-      // Вкладываем картинку в коробку, а коробку в слой
       wrapper.appendChild(img);
       this.container.appendChild(wrapper);
-    } else {
-      // Если персонаж уже есть, просто находим его картинку внутри обертки
-      img = wrapper.querySelector("img");
-      // И обновляем позицию КОРОБКИ, если она изменилась
-      wrapper.className = `character-wrapper pos-${position}`;
     }
 
-    // Обновляем картинку (src) на нужную эмоцию
-    let spritePath = null;
-    if (char.sprites && char.sprites[emotion]) {
-      spritePath = char.sprites[emotion];
-    } else if (char.sprites && char.sprites.neutral) {
-      spritePath = char.sprites.neutral;
-    }
+    wrapper.className = `character-wrapper pos-${position}`;
+    wrapper.style.display = "";
 
-    if (spritePath) {
-      // Берём из кэша или расшифровываем
-      const blobUrl = this.preloadedImages.has(spritePath)
-        ? this.preloadedImages.get(spritePath)
-        : await loadAsset(spritePath);
-      if (!this.preloadedImages.has(spritePath)) {
-        this.preloadedImages.set(spritePath, blobUrl);
-      }
-      img.src = blobUrl;
-    } else {
-      img.src = "";
-      wrapper.style.display = "none";
-    }
+    const img = wrapper.querySelector("img");
+    img.src = blobUrl;
 
-    // Запускаем анимацию на КАРТИНКУ
     if (isNew && animFunc) {
       animFunc(img);
-    } else if (!isNew) {
-      img.style.opacity = 1;
-      // Если передана анимация (например "bounce") - запускаем её!
-      if (animFunc) animFunc(img);
-    }
-  }
-
-  hide(id, animFunc) {
-    // Ищем обертку
-    const wrapper = this.container.querySelector(`[data-wrapper-id="${id}"]`);
-    if (!wrapper) return;
-
-    // Картинка, которую будем анимировать перед удалением
-    const sprite = wrapper.querySelector("img");
-
-    if (animFunc && sprite) {
-      // Анимация исчезновения картинки, затем удаляем всю коробку
-      animFunc(sprite).finished.then(() => wrapper.remove());
     } else {
-      wrapper.remove();
+      img.style.opacity = 1;
+
+      if (animFunc) {
+        animFunc(img);
+      }
     }
   }
 
-  // Метод предзагрузки
-  async preloadCharacter(charData) {
-    const promises = Object.values(charData.sprites).map((path) => {
-      if (this.preloadedImages.has(path)) return Promise.resolve();
+  async show(id, emotion = "neutral", position = "center", animFunc = null) {
+    return this.showMany([
+      {
+        id,
+        emotion,
+        position,
+        animFunc,
+      },
+    ]);
+  }
 
-      return new Promise((resolve) => {
-        loadAsset(path)
-          .then((blobUrl) => {
-            const img = new Image();
-            img.onload = () => {
-              this.preloadedImages.set(path, blobUrl);
-              resolve();
-            };
-            img.onerror = () => {
-              console.error(`Failed to preload: ${path}`);
-              resolve();
-            };
-            img.src = blobUrl;
-          })
-          .catch(() => resolve());
-      });
+  async showMany(entries = []) {
+    if (!Array.isArray(entries) || entries.length === 0) {
+      return;
+    }
+
+    // Не разрешаем дважды указывать одного персонажа
+    // в пределах одного showMany.
+    const ids = new Set();
+
+    entries.forEach(({ id }) => {
+      if (ids.has(id)) {
+        throw new Error(
+          `[CharManager] Character "${id}" appears twice in showMany.`,
+        );
+      }
+
+      ids.add(id);
     });
 
-    await Promise.all(promises);
+    // Сначала загружаем абсолютно все изображения.
+    const prepared = await Promise.all(
+      entries.map(async (entry) => ({
+        ...entry,
+
+        emotion: entry.emotion ?? "neutral",
+        position: entry.position ?? "center",
+
+        blobUrl: await this._loadSprite(
+          entry.id,
+          entry.emotion ?? "neutral",
+          entry.src ?? null,
+        ),
+      })),
+    );
+
+    // Только после загрузки всей группы показываем её.
+    prepared.forEach((entry) => {
+      this._render(entry);
+    });
+  }
+
+  async hide(id, animFunc = null) {
+    const wrapper = this.container.querySelector(`[data-wrapper-id="${id}"]`);
+
+    if (!wrapper) {
+      return;
+    }
+
+    const sprite = wrapper.querySelector("img");
+
+    if (!animFunc || !sprite) {
+      wrapper.remove();
+      return;
+    }
+
+    const animation = animFunc(sprite);
+
+    if (animation?.finished) {
+      await animation.finished;
+    }
+
+    wrapper.remove();
+  }
+
+  async hideAll(animFunc = null) {
+    const ids = [...this.container.querySelectorAll("[data-wrapper-id]")].map(
+      (wrapper) => wrapper.dataset.wrapperId,
+    );
+
+    await Promise.all(ids.map((id) => this.hide(id, animFunc)));
+  }
+
+  async preloadCharacter(charData) {
+    if (!charData?.sprites) {
+      return;
+    }
+
+    await Promise.all(
+      Object.values(charData.sprites).map(async (path) => {
+        if (this.preloadedImages.has(path)) {
+          return;
+        }
+
+        try {
+          const blobUrl = await loadAsset(path);
+
+          await new Promise((resolve) => {
+            const img = new Image();
+
+            img.onload = resolve;
+            img.onerror = resolve;
+            img.src = blobUrl;
+          });
+
+          this.preloadedImages.set(path, blobUrl);
+        } catch (error) {
+          console.error(`[CharManager] Failed to preload: ${path}`, error);
+        }
+      }),
+    );
   }
 }

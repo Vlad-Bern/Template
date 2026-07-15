@@ -162,6 +162,11 @@ export const m = {
     interactables: interactables.flat(),
   }),
 
+  // Обычный выбор внутри lines или look.lines
+  choice: (...choices) => ({
+    choices: choices.flat(),
+  }),
+
   // Эффекты на статы (ОБЕРНУТО В EFFECTS ДЛЯ СОВМЕСТИМОСТИ)
   sanity: (val) => ({ effects: { sanity: val } }),
 
@@ -201,14 +206,27 @@ export const m = {
     audio: ids.map((id) => ({ type: "stop_sfx", id, fade: 500 })),
   }),
 
-  // --- ПЕРСОНАЖИ ---
   show: (id, emotion = "neutral", position = "center", anim = "fadeInUp") => ({
-    showCharacter: { id, emotion, position },
+    showCharacter: {
+      id,
+      emotion,
+      position,
+    },
+
     anim,
+  }),
+
+  showMany: (...characters) => ({
+    showCharacters: characters,
   }),
 
   hide: (id, anim = "fadeOut") => ({
     hideCharacter: id,
+    anim,
+  }),
+
+  hideAll: (anim = "fadeOut") => ({
+    hideCharacters: "all",
     anim,
   }),
 

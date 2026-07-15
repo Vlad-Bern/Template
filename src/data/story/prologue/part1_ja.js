@@ -9,6 +9,7 @@ export const story = {
       sf("mystery", "レン。", {
         ...m.fx({ darkness: 1, noise: 1, duration: 0 }),
         ...m.bgm("Zero Rank", 0.5),
+        pdaUnlocked: false,
       }),
       say("mystery", "聞こえるか？"),
       sf(
@@ -1562,23 +1563,6 @@ export const story = {
           new CustomEvent("loadScene", { detail: "monday_morning" }),
         );
       });
-
-      // В фоновом режиме лениво скачиваем вторую ЯПОНСКУЮ часть пролога
-      import("./part2_ja.js")
-        .then((module) => {
-          if (window.sm && window.sm.story) {
-            window.sm.story = {
-              ...window.sm.story,
-              ...module.story,
-            };
-          }
-        })
-        .catch((err) =>
-          console.warn(
-            "[Mai Lazy Load] Японская часть 2 пока отсутствует на диске:",
-            err,
-          ),
-        );
 
       return null;
     },

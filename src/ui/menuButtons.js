@@ -50,7 +50,7 @@ if (btnNewGame) {
       state.temp = {};
       state.uiState = {
         dialogStyle: "normal",
-        pdaUnlocked: true,
+        pdaUnlocked: false,
       };
 
       window.dispatchEvent(

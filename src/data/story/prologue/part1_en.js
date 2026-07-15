@@ -9,6 +9,7 @@ export const story = {
       sf("mystery", "Ren.", {
         ...m.fx({ darkness: 1, noise: 1, duration: 0 }),
         ...m.bgm("Zero Rank", 0.5),
+        pdaUnlocked: false,
       }),
       say("mystery", "Can you hear me?"),
       sf("ren", "Yeah...", m.fx({ darkness: 0.9, noise: 0.2, duration: 500 })),
@@ -1685,23 +1686,6 @@ export const story = {
           new CustomEvent("loadScene", { detail: "monday_morning" }),
         );
       });
-
-      // В фоновом режиме лениво скачиваем вторую АНГЛИЙСКУЮ часть пролога
-      import("./part2_en.js")
-        .then((module) => {
-          if (window.sm && window.sm.story) {
-            window.sm.story = {
-              ...window.sm.story,
-              ...module.story,
-            };
-          }
-        })
-        .catch((err) =>
-          console.warn(
-            "[Mai Lazy Load] Английская часть 2 пока отсутствует на диске:",
-            err,
-          ),
-        );
 
       return null;
     },
