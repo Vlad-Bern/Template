@@ -124,9 +124,9 @@ app.innerHTML = `
   id="open-patch-notes"
   class="version-watermark"
   type="button"
+  data-patch-version="2.0"
   aria-haspopup="dialog"
   aria-controls="patch-notes-modal"
-  title="Открыть список изменений"
 >
   <span>SOTA: Prologue (2.0) | by V&Mai studio</span>
   <span class="version-patch-hint">[ PATCH NOTES ]</span>
@@ -142,31 +142,52 @@ app.innerHTML = `
   aria-hidden="true"
   hidden
 >
-  <div id="patch-notes-content">
-    <header>
-      <h2 id="patch-notes-title">ИСТОРИЯ ОБНОВЛЕНИЙ</h2>
+<div id="patch-notes-content">
+  <header>
+    <h2 id="patch-notes-title">ОБНОВЛЕНИЯ</h2>
 
-      <button
-        id="close-patch-notes"
-        type="button"
-        aria-label="Закрыть список изменений"
-      >
-        ✕
-      </button>
-    </header>
+    <button
+      id="close-patch-notes"
+      type="button"
+      aria-label="Закрыть список изменений"
+    >
+      ✕
+    </button>
+  </header>
 
-    <section>
-      <h3>SOTA: Prologue 2.0</h3>
+  <div class="patch-notes-list">
+    <details class="patch-note" open>
+      <summary>Prologue 2.0</summary>
 
-      <ul>
-        <li>Продолжение пролога.</li>
-        <li>Добавлена система КПК.</li>
-        <li>Добавлены автосохранения.</li>
-        <li>Обновлена система взаимодействий.</li>
-        <li>Добавлена галерея.</li>
-        <li>Исправлены ошибки и улучшена стабильность игры.</li>
-      </ul>
-    </section>
+      <div class="patch-note-body">
+        <h3>Новое</h3>
+
+        <ul>
+          <li>Вторая часть пролога теперь доступна!</li>
+          <li>Улучшенное главное меню и добавлена лента спонсоров.</li>
+          <li>Новый курсор.</li>
+        </ul>
+
+        <h3>Фиксы</h3>
+
+        <ul>
+          <li>Текст первой части пролога был значительно улучшен. Особенно перевод на Японский.</li>
+          <li>И прочие мелочи, бла-бла-бла.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="patch-note">
+      <summary>Prologue 1.0</summary>
+
+      <div class="patch-note-body">
+        <h3>Первый выпуск</h3>
+
+        <ul>
+          <li>Релиз игры. Отсюда всё началось.</li>
+        </ul>
+      </div>
+    </details>
   </div>
 </div>
 

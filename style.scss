@@ -325,7 +325,7 @@ body.ui-hidden .interact-point {
   font-family: "Inter", sans-serif;
   font-size: 13px; // ← фиксированный, не clamp
   letter-spacing: 1px;
-  pointer-events: none;
+  pointer-events: auto;
   user-select: none;
   @media (max-width: 1024px) {
     // убираем bottom: 85px — пусть будет bottom: 0 как на ПК

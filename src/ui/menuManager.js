@@ -184,6 +184,8 @@ window.applySotaFinalState = function () {
       mainMenu.appendChild(copyrightDiv);
     }
   }
+
+  window.dispatchEvent(new CustomEvent("sotaMainMenuReady"));
 };
 
 // === САМА АНИМАЦИЯ ===
