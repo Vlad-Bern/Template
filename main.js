@@ -34,6 +34,7 @@ window.isAnyModalOpen = () => {
   }
   if (window.saveManager?.modalOpen) return true;
   if (window.settingsManager?.modalOpen) return true;
+  if (window.patchNotesManager?.modalOpen) return true;
 
   // 4. Главное меню
   const mainMenu = document.getElementById("main-menu-screen");
@@ -119,11 +120,56 @@ app.innerHTML = `
   </a>
 </div>
 
-  <div class="version-watermark">
-    SOTA: Prologue (2.0) | by V&Mai studio
-  </div>
+<button
+  id="open-patch-notes"
+  class="version-watermark"
+  type="button"
+  aria-haspopup="dialog"
+  aria-controls="patch-notes-modal"
+  title="Открыть список изменений"
+>
+  <span>SOTA: Prologue (2.0) | by V&Mai studio</span>
+  <span class="version-patch-hint">[ PATCH NOTES ]</span>
+</button>
 
 </div>
+
+<div
+  id="patch-notes-modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="patch-notes-title"
+  aria-hidden="true"
+  hidden
+>
+  <div id="patch-notes-content">
+    <header>
+      <h2 id="patch-notes-title">ИСТОРИЯ ОБНОВЛЕНИЙ</h2>
+
+      <button
+        id="close-patch-notes"
+        type="button"
+        aria-label="Закрыть список изменений"
+      >
+        ✕
+      </button>
+    </header>
+
+    <section>
+      <h3>SOTA: Prologue 2.0</h3>
+
+      <ul>
+        <li>Продолжение пролога.</li>
+        <li>Добавлена система КПК.</li>
+        <li>Добавлены автосохранения.</li>
+        <li>Обновлена система взаимодействий.</li>
+        <li>Добавлена галерея.</li>
+        <li>Исправлены ошибки и улучшена стабильность игры.</li>
+      </ul>
+    </section>
+  </div>
+</div>
+
 </div>
 
 <div id="gallery-modal" class="sota-gallery-modal">
@@ -342,6 +388,7 @@ Promise.resolve().then(() => {
   import("./src/ui/menuManager.js");
   import("./src/ui/menuButtons.js");
   import("./src/ui/parallaxSystem.js");
+  import("./src/ui/patchNotesManager.js");
 });
 
 // ========================================================

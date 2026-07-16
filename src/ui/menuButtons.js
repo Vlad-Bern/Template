@@ -81,6 +81,72 @@ if (btnLoadGame) {
   });
 }
 
+// Показываем «Загрузить» только при наличии сохранений.
+// Если сохранения есть, кнопка становится первой.
+const updateLoadButtonPosition = () => {
+  if (!btnLoadGame || !btnNewGame || !window.saveManager) return;
+
+  let hasAnySave = false;
+
+  // Проверяем все слоты, включая автосейв в слоте 0.
+  for (
+    let slotIndex = 0;
+    slotIndex < window.saveManager.saveSlots;
+    slotIndex++
+  ) {
+    if (window.saveManager._readSave(slotIndex)) {
+      hasAnySave = true;
+      break;
+    }
+  }
+
+  if (hasAnySave) {
+    btnLoadGame.style.display = "";
+    btnNewGame.parentElement.insertBefore(btnLoadGame, btnNewGame);
+  } else {
+    btnLoadGame.style.display = "none";
+  }
+};
+
+// Проверяем при первом открытии игры.
+updateLoadButtonPosition();
+
+// Проверяем каждый раз, когда появляется главное меню.
+const mainMenuScreen = document.getElementById("main-menu-screen");
+
+if (mainMenuScreen) {
+  const mainMenuObserver = new MutationObserver(() => {
+    if (window.getComputedStyle(mainMenuScreen).display !== "none") {
+      updateLoadButtonPosition();
+    }
+  });
+
+  mainMenuObserver.observe(mainMenuScreen, {
+    attributes: true,
+    attributeFilter: ["style", "class"],
+  });
+}
+
+// Повторно проверяем после закрытия окна сохранений:
+// например, если игрок удалил последний сейв.
+const saveLoadPanel = document.getElementById("save-load-panel");
+
+if (saveLoadPanel) {
+  const savePanelObserver = new MutationObserver(() => {
+    if (
+      !saveLoadPanel.classList.contains("active") &&
+      window.getComputedStyle(mainMenuScreen).display !== "none"
+    ) {
+      updateLoadButtonPosition();
+    }
+  });
+
+  savePanelObserver.observe(saveLoadPanel, {
+    attributes: true,
+    attributeFilter: ["class"],
+  });
+}
+
 // 3. Кнопка: Настройки
 const btnSettingsMenu = document.getElementById("btn-settings-menu");
 if (btnSettingsMenu) {
