@@ -53,6 +53,26 @@ document.addEventListener("click", (e) => {
 
 const app = document.getElementById("app");
 
+const updateDeviceTypeClass = () => {
+  const root = document.documentElement;
+
+  // NW.js — это компьютерная версия. Никаких мобильных классов.
+  if (typeof nw !== "undefined") {
+    root.classList.remove("is-phone", "is-tablet");
+    return;
+  }
+
+  const shortScreenSide = Math.min(screen.width, screen.height);
+
+  const hasTouch =
+    navigator.maxTouchPoints > 0 ||
+    window.matchMedia("(pointer: coarse)").matches;
+
+  root.classList.toggle("is-phone", hasTouch && shortScreenSide < 600);
+
+  root.classList.toggle("is-tablet", hasTouch && shortScreenSide >= 600);
+};
+
 // 1. СТРОИМ ДОМ (Генерация всей структуры игры)
 app.innerHTML = `
 <div id="game-container">

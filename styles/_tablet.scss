@@ -259,40 +259,27 @@
 
     // 🔥 ХОЗЯИН: Внедряем правильный контейнер для уравнивания сил приоритетов (3 ID)
     #main-menu-screen {
-      #main-menu-socials {
-        position: absolute !important;
-        bottom: 85px !important; /* Чёткий отступ под крупный размер */
-        right: 4vw !important; /* Справа, чтобы не мешать кнопке EXIT */
-        left: auto !important; /* Сброс левого выравнивания */
-        gap: 24px !important;
-
-        .menu-social-btn {
-          width: 70px !important; /* 🔥 ВОТ ТЕПЕРЬ ОНИ СТАНУТ 70px И ТОЧКА! */
-          height: 70px !important;
-
-          img {
-            width: 34px !important; /* Мощные иконки внутри */
-            height: 34px !important;
-          }
-        }
-      }
-
-      // Выравниваем версию строго под правым блоком планшетных соцсетей
-      .version-watermark,
-      .version {
-        font-size: 13px !important;
-        position: absolute !important;
-        bottom: 30px !important;
-        right: 4vw !important;
-        left: auto !important;
-        padding: 0 !important;
-        background: none !important;
-        text-align: right !important;
-      }
-
       // Скрываем спонсоров на планшетах
       #main-menu-sponsors {
         display: none !important;
+      }
+    }
+  }
+}
+
+@media (min-width: 768px) and (min-height: 551px) {
+  body #app #main-menu-screen #main-menu-socials {
+    gap: 24px !important;
+
+    .menu-social-btn {
+      width: 70px !important;
+      height: 70px !important;
+      margin: 0 !important;
+      transform: none;
+
+      img {
+        width: 34px !important;
+        height: 34px !important;
       }
     }
   }
