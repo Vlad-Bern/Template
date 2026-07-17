@@ -125,11 +125,18 @@ app.innerHTML = `
   class="version-watermark"
   type="button"
   data-patch-version="2.0"
+  data-i18n-title="patch_notes_open"
   aria-haspopup="dialog"
   aria-controls="patch-notes-modal"
 >
-  <span>SOTA: Prologue (2.0) | by V&Mai studio</span>
-  <span class="version-patch-hint">[ PATCH NOTES ]</span>
+  <span>SOTA: Prologue (2.0)</span>
+
+  <span
+    class="version-patch-hint"
+    data-i18n="patch_notes_hint"
+  >
+    [ ОБНОВЛЕНИЯ ]
+  </span>
 </button>
 
 </div>
@@ -144,11 +151,17 @@ app.innerHTML = `
 >
 <div id="patch-notes-content">
   <header>
-    <h2 id="patch-notes-title">ОБНОВЛЕНИЯ</h2>
+    <h2
+      id="patch-notes-title"
+      data-i18n="patch_notes_title"
+    >
+      ОБНОВЛЕНИЯ
+    </h2>
 
     <button
       id="close-patch-notes"
       type="button"
+      data-i18n-aria-label="patch_notes_close"
       aria-label="Закрыть список изменений"
     >
       ✕
@@ -160,19 +173,36 @@ app.innerHTML = `
       <summary>Prologue 2.0</summary>
 
       <div class="patch-note-body">
-        <h3>Новое</h3>
+        <h3 data-i18n="patch_notes_new">
+          Новое
+        </h3>
 
         <ul>
-          <li>Вторая часть пролога теперь доступна!</li>
-          <li>Улучшенное главное меню и добавлена лента спонсоров.</li>
-          <li>Новый курсор.</li>
+          <li data-i18n="patch_notes_2_new_1">
+            Вторая часть пролога теперь доступна!
+          </li>
+
+          <li data-i18n="patch_notes_2_new_2">
+            Улучшенное главное меню и добавлена лента спонсоров.
+          </li>
+
+          <li data-i18n="patch_notes_2_new_3">
+            Новый курсор.
+          </li>
         </ul>
 
-        <h3>Фиксы</h3>
+        <h3 data-i18n="patch_notes_fixes">
+          Фиксы
+        </h3>
 
         <ul>
-          <li>Текст первой части пролога был значительно улучшен. Особенно перевод на Японский.</li>
-          <li>И прочие мелочи, бла-бла-бла.</li>
+          <li data-i18n="patch_notes_2_fix_1">
+            Текст первой части пролога был значительно улучшен. Особенно перевод на Японский.
+          </li>
+
+          <li data-i18n="patch_notes_2_fix_2">
+            И прочие мелочи, бла-бла-бла.
+          </li>
         </ul>
       </div>
     </details>
@@ -181,10 +211,14 @@ app.innerHTML = `
       <summary>Prologue 1.0</summary>
 
       <div class="patch-note-body">
-        <h3>Первый выпуск</h3>
+        <h3 data-i18n="patch_notes_first_release">
+          Первый выпуск
+        </h3>
 
         <ul>
-          <li>Релиз игры. Отсюда всё началось. Тут нет изменений. Есть лишь начало.</li>
+          <li data-i18n="patch_notes_1_release">
+            Релиз игры. Отсюда всё началось. Тут нет изменений. Есть лишь начало.
+          </li>
         </ul>
       </div>
     </details>

@@ -1147,7 +1147,16 @@
 }
 
 // Телефоны
-@media (max-width: 600px) {
+@media (hover: none) and (pointer: coarse) {
+  .version-watermark {
+    left: 0 !important;
+    gap: 5px;
+
+    .version-patch-hint {
+      letter-spacing: 1px;
+    }
+  }
+
   #patch-notes-modal {
     padding: 12px;
     align-items: center;

@@ -85,6 +85,26 @@ export class SettingsManager {
         menu_settings: "Настройки",
         menu_gallery: "Галерея",
         menu_exit: "Выход",
+        patch_notes_hint: "[ ОБНОВЛЕНИЯ ]",
+        patch_notes_title: "ОБНОВЛЕНИЯ",
+        patch_notes_new: "Новое",
+        patch_notes_fixes: "Фиксы",
+        patch_notes_first_release: "Первый выпуск",
+
+        patch_notes_2_new_1: "Вторая часть пролога теперь доступна!",
+
+        patch_notes_2_new_2:
+          "Улучшенное главное меню и добавлена лента спонсоров.",
+
+        patch_notes_2_new_3: "Новый курсор.",
+
+        patch_notes_2_fix_1:
+          "Текст первой части пролога был значительно улучшен. Особенно перевод на Японский.",
+
+        patch_notes_2_fix_2: "И прочие мелочи, бла-бла-бла.",
+
+        patch_notes_1_release:
+          "Релиз игры. Отсюда всё началось. Тут нет изменений. Есть лишь начало.",
         gallery_title: "ГАЛЕРЕЯ",
         exit_wait: "Я БУДУ ЖДАТЬ ТВОЕГО ВОЗВРАЩЕНИЯ...",
         confirm_reset: "ВОССТАНОВИТЬ НАСТРОЙКИ ПО УМОЛЧАНИЮ?",
@@ -200,6 +220,26 @@ export class SettingsManager {
         menu_settings: "Settings",
         menu_gallery: "Gallery",
         menu_exit: "Exit",
+        patch_notes_hint: "[ PATCH NOTES ]",
+        patch_notes_title: "UPDATES",
+        patch_notes_new: "What's New",
+        patch_notes_fixes: "Fixes",
+        patch_notes_first_release: "First Release",
+
+        patch_notes_2_new_1: "Part Two of the Prologue is now available!",
+
+        patch_notes_2_new_2:
+          "The main menu has been improved, and a sponsor ticker has been added.",
+
+        patch_notes_2_new_3: "A new cursor has been added.",
+
+        patch_notes_2_fix_1:
+          "The text of Part One of the Prologue has been significantly improved, especially the Japanese translation.",
+
+        patch_notes_2_fix_2: "And various other little things, blah blah blah.",
+
+        patch_notes_1_release:
+          "The game's initial release. This is where it all began. There are no changes here—only a beginning.",
         gallery_title: "GALLERY",
         exit_wait: "I WILL WAIT FOR YOUR RETURN...",
         confirm_reset: "RESTORE DEFAULT SETTINGS?",
@@ -313,6 +353,26 @@ export class SettingsManager {
         menu_settings: "設定",
         menu_gallery: "ギャラリー",
         menu_exit: "終了",
+        patch_notes_hint: "[ 更新履歴 ]",
+        patch_notes_title: "更新履歴",
+        patch_notes_new: "新要素",
+        patch_notes_fixes: "修正",
+        patch_notes_first_release: "初回リリース",
+
+        patch_notes_2_new_1: "プロローグ第2部がプレイ可能になりました！",
+
+        patch_notes_2_new_2:
+          "メインメニューを改善し、スポンサーのスクロール表示を追加しました。",
+
+        patch_notes_2_new_3: "新しいカーソルを追加しました。",
+
+        patch_notes_2_fix_1:
+          "プロローグ第1部のテキストを大幅に改善しました。特に日本語訳を重点的に見直しています。",
+
+        patch_notes_2_fix_2: "その他の細かな修正など、あれこれ。",
+
+        patch_notes_1_release:
+          "ゲームの初回リリース。すべてはここから始まりました。ここに変更点はありません。あるのは、始まりだけです。",
         gallery_title: "ギャラリー",
         exit_wait: "あなたが戻るのを待っています...",
         confirm_reset: "設定を初期化しますか？",

@@ -15,6 +15,7 @@ class PatchNotesManager {
 
     this.currentVersion = this.opener?.dataset.patchVersion || null;
 
+    this.touchStartX = null;
     this.touchStartY = null;
 
     this.initEvents();
@@ -108,43 +109,65 @@ class PatchNotesManager {
       },
     );
 
-    // Начало мобильного жеста.
+    // Запоминаем начало мобильного жеста.
     this.modal.addEventListener(
       "touchstart",
       (event) => {
         if (!this.modalOpen || event.touches.length !== 1) {
+          this.touchStartX = null;
           this.touchStartY = null;
           return;
         }
 
-        this.touchStartY = event.touches[0].clientY;
+        const touch = event.touches[0];
+
+        this.touchStartX = touch.clientX;
+        this.touchStartY = touch.clientY;
       },
       {
         passive: true,
       },
     );
 
-    // Свайп вниз закрывает окно, но только если список уже наверху.
+    // Закрываем только горизонтальным свайпом влево или вправо.
     this.modal.addEventListener(
       "touchend",
       (event) => {
         if (
           !this.modalOpen ||
+          this.touchStartX === null ||
           this.touchStartY === null ||
           event.changedTouches.length !== 1
         ) {
+          this.touchStartX = null;
           this.touchStartY = null;
           return;
         }
 
-        const touchEndY = event.changedTouches[0].clientY;
-        const swipeDistance = touchEndY - this.touchStartY;
+        const touch = event.changedTouches[0];
+        const distanceX = touch.clientX - this.touchStartX;
+        const distanceY = touch.clientY - this.touchStartY;
 
+        this.touchStartX = null;
         this.touchStartY = null;
 
-        if (swipeDistance >= 80 && this.content.scrollTop <= 0) {
+        const horizontalDistance = Math.abs(distanceX);
+        const verticalDistance = Math.abs(distanceY);
+
+        if (horizontalDistance >= 80 && horizontalDistance > verticalDistance) {
           this.close();
         }
+      },
+      {
+        passive: true,
+      },
+    );
+
+    this.modal.addEventListener(
+      "touchcancel",
+      () => {
+        this.touchStartX = null;
+        this.touchStartY = null;
       },
       {
         passive: true,
@@ -246,6 +269,7 @@ class PatchNotesManager {
     this.modalOpen = false;
     this.modal.hidden = true;
     this.modal.setAttribute("aria-hidden", "true");
+    this.touchStartX = null;
     this.touchStartY = null;
 
     requestAnimationFrame(() => {
