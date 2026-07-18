@@ -761,6 +761,7 @@ export class SceneManager {
     }
     if (dialogWrapper) dialogWrapper.style.display = "flex";
     if (charLayer) charLayer.innerHTML = "";
+    this.inlineSpeakerNames.clear();
 
     let sceneLines =
       typeof scene.lines === "function" ? scene.lines() : scene.lines;
@@ -809,33 +810,7 @@ export class SceneManager {
         targetBg = l.bg;
       }
 
-      if (l.showCharacter) {
-        activeChars[l.showCharacter.id] = l.showCharacter;
-      }
-
-      if (l.showCharacters) {
-        l.showCharacters.forEach((char) => {
-          activeChars[char.id] = char;
-        });
-      }
-      if (l.hideCharacter) {
-        delete activeChars[l.hideCharacter];
-        this.inlineSpeakerNames.delete(l.hideCharacter);
-      }
-
-      if (l.hideCharacters === "all") {
-        activeChars = {};
-        this.inlineSpeakerNames.clear();
-      }
-
-      if (Array.isArray(l.hideCharacters)) {
-        l.hideCharacters.forEach((id) => {
-          delete activeChars[id];
-          this.inlineSpeakerNames.delete(id);
-        });
-      }
-
-      // Оставь временную совместимость со старым форматом
+      // Временная совместимость со старым форматом
       if (l.showCharacter) {
         activeChars[l.showCharacter.id] = l.showCharacter;
       }
@@ -1403,6 +1378,16 @@ export class SceneManager {
           this.inlineSpeakerNames.get(line.speaker) ??
           line.speaker;
 
+        const inlineSpeakerName = line.showCharacters?.find(
+          (character) => character.id === line.speaker,
+        )?.name;
+
+        const displaySpeaker =
+          line.speakerName ??
+          inlineSpeakerName ??
+          this.inlineSpeakerNames.get(line.speaker) ??
+          line.speaker;
+
         // Не дублируем логи в истории
         if (!isRestoredLine) {
           this.hm.addToHistory(displaySpeaker, displayText);
@@ -1459,25 +1444,6 @@ export class SceneManager {
           }));
 
           await this.cm.show(entries);
-        }
-      }
-      this.ui.updateNameTag(line.speaker);
-      if (line.showCharacters) {
-        const entries = line.showCharacters.map((character) => ({
-          ...character,
-
-          animFunc: isRestoredLine
-            ? () => {}
-            : animations[character.anim] || animations.fadeInUp,
-        }));
-
-        await this.cm.show(entries);
-      }
-      if (line.hideCharacters === "all") {
-        const animFunc = animations[line.anim] || animations.fadeOut;
-
-        if (this.cm.hideAll) {
-          await this.cm.hideAll(isRestoredLine ? () => {} : animFunc);
         }
       }
 
