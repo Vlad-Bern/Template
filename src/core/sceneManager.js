@@ -31,6 +31,7 @@ export class SceneManager {
     this.isCtrlPressed = false;
     this.fastForwardTimeoutId = null;
     this.isFastForwarding = false;
+    this.inlineSpeakerNames = new Map();
 
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", () => {
@@ -806,15 +807,35 @@ export class SceneManager {
 
     for (let i = 0; i < startLineIndex && i < sceneLines.length; i++) {
       const l = sceneLines[i];
+
       if (l.bg) {
         targetBg = l.bg;
       }
 
-      // Временная совместимость со старым форматом
+      // Сначала учитываем исчезнувших персонажей
+      if (l.hideCharacter) {
+        delete activeChars[l.hideCharacter];
+        this.inlineSpeakerNames.delete(l.hideCharacter);
+      }
+
+      if (l.hideCharacters === "all") {
+        activeChars = {};
+        this.inlineSpeakerNames.clear();
+      }
+
+      if (Array.isArray(l.hideCharacters)) {
+        l.hideCharacters.forEach((id) => {
+          delete activeChars[id];
+          this.inlineSpeakerNames.delete(id);
+        });
+      }
+
+      // Старый формат оставляем для совместимости
       if (l.showCharacter) {
         activeChars[l.showCharacter.id] = l.showCharacter;
       }
 
+      // Новый единый m.show()
       if (l.showCharacters) {
         l.showCharacters.forEach((character) => {
           activeChars[character.id] = character;
@@ -823,6 +844,10 @@ export class SceneManager {
             this.inlineSpeakerNames.set(character.id, character.name);
           }
         });
+      }
+
+      if (l.fx) {
+        Object.assign(targetFx, l.fx);
       }
     }
 
@@ -1366,85 +1391,72 @@ export class SceneManager {
 
       this.currentLineIndex = progressIndex ?? i;
 
-      // Не дублируем логи в истории
+      const inlineSpeakerName = line.showCharacters?.find(
+        (character) => character.id === line.speaker,
+      )?.name;
+
+      const displaySpeaker =
+        line.speakerName ??
+        inlineSpeakerName ??
+        this.inlineSpeakerNames.get(line.speaker) ??
+        line.speaker;
+
+      // Добавляем реплику в историю
       if (!isRestoredLine) {
-        const inlineSpeakerName = line.showCharacters?.find(
-          (character) => character.id === line.speaker,
-        )?.name;
+        this.hm.addToHistory(displaySpeaker, displayText);
+      }
 
-        const displaySpeaker =
-          line.speakerName ??
-          inlineSpeakerName ??
-          this.inlineSpeakerNames.get(line.speaker) ??
-          line.speaker;
+      this.ui.updateNameTag(displaySpeaker);
 
-        const inlineSpeakerName = line.showCharacters?.find(
-          (character) => character.id === line.speaker,
-        )?.name;
+      // Сначала скрываем старые спрайты
+      if (line.hideCharacter) {
+        const animFunc = animations[line.anim] || animations.fadeOut;
 
-        const displaySpeaker =
-          line.speakerName ??
-          inlineSpeakerName ??
-          this.inlineSpeakerNames.get(line.speaker) ??
-          line.speaker;
+        await this.cm.hide(
+          line.hideCharacter,
+          isRestoredLine ? () => {} : animFunc,
+        );
 
-        // Не дублируем логи в истории
-        if (!isRestoredLine) {
-          this.hm.addToHistory(displaySpeaker, displayText);
-        }
+        this.inlineSpeakerNames.delete(line.hideCharacter);
+      }
 
-        this.ui.updateNameTag(displaySpeaker);
+      if (line.hideCharacters === "all") {
+        const animFunc = animations[line.anim] || animations.fadeOut;
 
-        // Сначала скрываем старые спрайты
-        if (line.hideCharacter) {
-          const animFunc = animations[line.anim] || animations.fadeOut;
+        await this.cm.hideAll(isRestoredLine ? () => {} : animFunc);
 
-          await this.cm.hide(
-            line.hideCharacter,
-            isRestoredLine ? () => {} : animFunc,
-          );
+        this.inlineSpeakerNames.clear();
+      } else if (Array.isArray(line.hideCharacters)) {
+        const animFunc = animations[line.anim] || animations.fadeOut;
 
-          this.inlineSpeakerNames.delete(line.hideCharacter);
-        }
+        await Promise.all(
+          line.hideCharacters.map((id) =>
+            this.cm.hide(id, isRestoredLine ? () => {} : animFunc),
+          ),
+        );
 
-        if (line.hideCharacters === "all") {
-          const animFunc = animations[line.anim] || animations.fadeOut;
+        line.hideCharacters.forEach((id) => {
+          this.inlineSpeakerNames.delete(id);
+        });
+      }
 
-          await this.cm.hideAll(isRestoredLine ? () => {} : animFunc);
+      // Затем показываем новые спрайты
+      if (line.showCharacters) {
+        line.showCharacters.forEach((character) => {
+          if (character.name) {
+            this.inlineSpeakerNames.set(character.id, character.name);
+          }
+        });
 
-          this.inlineSpeakerNames.clear();
-        } else if (Array.isArray(line.hideCharacters)) {
-          const animFunc = animations[line.anim] || animations.fadeOut;
+        const entries = line.showCharacters.map((character) => ({
+          ...character,
 
-          await Promise.all(
-            line.hideCharacters.map((id) =>
-              this.cm.hide(id, isRestoredLine ? () => {} : animFunc),
-            ),
-          );
+          animFunc: isRestoredLine
+            ? () => {}
+            : animations[character.anim] || animations.fadeInUp,
+        }));
 
-          line.hideCharacters.forEach((id) => {
-            this.inlineSpeakerNames.delete(id);
-          });
-        }
-
-        // Затем показываем новых
-        if (line.showCharacters) {
-          line.showCharacters.forEach((character) => {
-            if (character.name) {
-              this.inlineSpeakerNames.set(character.id, character.name);
-            }
-          });
-
-          const entries = line.showCharacters.map((character) => ({
-            ...character,
-
-            animFunc: isRestoredLine
-              ? () => {}
-              : animations[character.anim] || animations.fadeInUp,
-          }));
-
-          await this.cm.show(entries);
-        }
+        await this.cm.show(entries);
       }
 
       this.isTyping = true;
