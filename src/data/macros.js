@@ -206,19 +206,69 @@ export const m = {
     audio: ids.map((id) => ({ type: "stop_sfx", id, fade: 500 })),
   }),
 
-  show: (id, emotion = "neutral", position = "center", anim = "fadeInUp") => ({
-    showCharacter: {
-      id,
-      emotion,
-      position,
-    },
+  show: (...args) => {
+    let entries;
 
-    anim,
-  }),
+    // Старый формат для одного персонажа:
+    // m.show("kagami", "neutral", "center", "fadeIn")
+    if (typeof args[0] === "string") {
+      const [
+        id,
+        emotion = "neutral",
+        position = "center",
+        anim = "fadeInUp",
+        options = {},
+      ] = args;
 
-  showMany: (...characters) => ({
-    showCharacters: characters,
-  }),
+      entries = [
+        {
+          id,
+          emotion,
+          position,
+          anim,
+          ...options,
+        },
+      ];
+    } else {
+      // Новый формат для одного, двух или трёх персонажей:
+      // m.show({ ... }, { ... }, { ... })
+      entries = args.flat();
+    }
+
+    if (entries.length < 1 || entries.length > 3) {
+      throw new Error(
+        `[Macros] m.show expects from 1 to 3 characters, received ${entries.length}.`,
+      );
+    }
+
+    const normalizedEntries = entries.map((entry, index) => {
+      if (!entry || typeof entry !== "object") {
+        throw new Error(
+          `[Macros] Invalid character at position ${index + 1} in m.show.`,
+        );
+      }
+
+      if (!entry.id) {
+        throw new Error(
+          `[Macros] Character at position ${index + 1} in m.show has no id.`,
+        );
+      }
+
+      return {
+        id: entry.id,
+        emotion: entry.emotion ?? "neutral",
+        position: entry.position ?? "center",
+        anim: entry.anim ?? "fadeInUp",
+
+        ...(entry.src ? { src: entry.src } : {}),
+        ...(entry.name ? { name: entry.name } : {}),
+      };
+    });
+
+    return {
+      showCharacters: normalizedEntries,
+    };
+  },
 
   hide: (id, anim = "fadeOut") => ({
     hideCharacter: id,

@@ -1330,15 +1330,12 @@ export const story = {
     id: "quiz_afk_fail",
     bg: "./bg/quiz_room.png",
     lines: [
-      nfx(
-        "АФК целых 20 минут?",
-        nfx("АФК целых 20 минут?", {
-          audio: [
-            { type: "stop_sfx", id: "muffled_rain", fade: 50 },
-            { type: "stop", fade: 1000 },
-          ],
-        }),
-      ),
+      nfx("АФК целых 20 минут?", {
+        audio: [
+          { type: "stop_sfx", id: "muffled_rain", fade: 50 },
+          { type: "stop", fade: 1000 },
+        ],
+      }),
       n("Таймер вышел, ты всрал с потрохами!"),
       n(
         "Но если честно... На самом деле ты победил, ведь ты отправился в рай.",

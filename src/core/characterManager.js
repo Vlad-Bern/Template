@@ -77,37 +77,27 @@ export class CharacterManager {
     }
   }
 
-  async show(id, emotion = "neutral", position = "center", animFunc = null) {
-    return this.showMany([
-      {
-        id,
-        emotion,
-        position,
-        animFunc,
-      },
-    ]);
-  }
+  async show(entries = []) {
+    if (!Array.isArray(entries)) {
+      entries = [entries];
+    }
 
-  async showMany(entries = []) {
-    if (!Array.isArray(entries) || entries.length === 0) {
+    if (entries.length === 0) {
       return;
     }
 
-    // Не разрешаем дважды указывать одного персонажа
-    // в пределах одного showMany.
     const ids = new Set();
 
     entries.forEach(({ id }) => {
       if (ids.has(id)) {
         throw new Error(
-          `[CharManager] Character "${id}" appears twice in showMany.`,
+          `[CharManager] Character "${id}" appears twice in show.`,
         );
       }
 
       ids.add(id);
     });
 
-    // Сначала загружаем абсолютно все изображения.
     const prepared = await Promise.all(
       entries.map(async (entry) => ({
         ...entry,
@@ -123,7 +113,6 @@ export class CharacterManager {
       })),
     );
 
-    // Только после загрузки всей группы показываем её.
     prepared.forEach((entry) => {
       this._render(entry);
     });

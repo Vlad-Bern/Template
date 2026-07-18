@@ -10,10 +10,9 @@ export const story = {
     bg: "./bg/locations/dorm_renRoom_rainingMorning.webp",
     lines: () => [
       m.dayTransition("ПОНЕДЕЛЬНИК"),
-      nfx(
-        "Доброе утро, я",
-        m.fx({ darkness: 0, duration: 2000 }, { dialogStyle: "normal" }),
-      ),
+      nfx("Доброе утро, я", m.fx({ darkness: 0, duration: 2000 }), {
+        dialogStyle: "normal",
+      }),
       n("Надеюсь, что оно доброе."),
       n("В окне вижу, что сегодня всё так же пасмурно, но дождя нет."),
 
@@ -131,7 +130,10 @@ export const story = {
       say(
         "student_angry",
         "Блядская Маи! Она повела себя как тупая сука!",
-        m.show("kagami", "neutral", "center", "fadeIn"),
+        m.show("student_angry", "neutral", "right", "fadeIn", {
+          src: "/chars/npc/elevator/student_angry.webp",
+          name: "Раздражённая ученица",
+        }),
       ),
       n("Ох, одна из учениц резко заорала, не стесняясь меня."),
       say(

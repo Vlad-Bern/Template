@@ -1394,47 +1394,17 @@ export class SceneManager {
         this.hm.addToHistory(line.speaker, displayText);
       }
       this.ui.updateNameTag(line.speaker);
-
-      if (line.showCharacter) {
-        const { id, emotion, position } = line.showCharacter;
-
-        const animFunc = animations[line.anim] || animations.fadeInUp;
-
-        if (this.cm.show) {
-          await this.cm.show(
-            id,
-            emotion,
-            position,
-            isRestoredLine ? () => {} : animFunc,
-          );
-        }
-      }
-
       if (line.showCharacters) {
-        const entries = line.showCharacters.map((char) => ({
-          ...char,
+        const entries = line.showCharacters.map((character) => ({
+          ...character,
 
           animFunc: isRestoredLine
             ? () => {}
-            : animations[char.anim || line.anim] || animations.fadeInUp,
+            : animations[character.anim] || animations.fadeInUp,
         }));
 
-        if (this.cm.showMany) {
-          await this.cm.showMany(entries);
-        }
+        await this.cm.show(entries);
       }
-
-      if (line.hideCharacter) {
-        const animFunc = animations[line.anim] || animations.fadeOut;
-
-        if (this.cm.hide) {
-          await this.cm.hide(
-            line.hideCharacter,
-            isRestoredLine ? () => {} : animFunc,
-          );
-        }
-      }
-
       if (line.hideCharacters === "all") {
         const animFunc = animations[line.anim] || animations.fadeOut;
 

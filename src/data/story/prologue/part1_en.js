@@ -10,7 +10,7 @@ export const story = {
         ...m.fx({ darkness: 1, noise: 1, duration: 0 }),
         ...m.bgm("Zero Rank", 0.5),
         pdaUnlocked: false,
-        dialogStyle: "normal"
+        dialogStyle: "normal",
       }),
       say("mystery", "Can you hear me?"),
       sf("ren", "Yeah...", m.fx({ darkness: 0.9, noise: 0.2, duration: 500 })),
@@ -208,7 +208,7 @@ export const story = {
       say("ren", "Hello, I'm—"),
       say("kagami", "Amano Ren. I know."),
       nfx(
-        "Rain was falling. She stepped toward me—not too close—and held out another umbrella.",
+        "Rain poured down. She stepped close and held out a second umbrella. She was near, but there was nothing intimate about it.",
         m.sfx("umbrella_open"),
       ),
       sf(
@@ -505,7 +505,7 @@ export const story = {
     ],
     choices: [
       {
-        text: "Lick her",
+        text: "Lick my lips",
         effects: { dominance: 2, sanity: -3 },
         next: "lick_reaction",
       },
@@ -1053,7 +1053,7 @@ export const story = {
         m.stopBgm(),
         { action: () => removeFlag("kagamiStare") },
       ),
-      n("Did she say that with a slight smirk?"),
+      n("Was there a hint of mockery in her voice?"),
       nfx(
         "Kagami walked to her desk and picked up a thick metal ruler — about fifty centimeters long.",
         m.hide("kagami"),
@@ -1103,7 +1103,7 @@ export const story = {
         "Her voice was completely detached. She wasn't even touching me with her hands.",
       ),
       n(
-        "It felt as if I were so far beneath her that she'd rather use a tool than touch me.",
+        "It felt as though she found me so filthy that she'd rather use a tool than touch me.",
       ),
       say(
         "kagami",
@@ -1142,7 +1142,7 @@ export const story = {
         "I was quietly waiting for the results when I felt Kagami place her foot on my chair.",
         { ...m.stopBgm() },
       ),
-      say("ren", "Kagami-sensei..."),
+      say("ren", "Kagami-sens..."),
       sf(
         "ren",
         "Agh!",
@@ -1191,7 +1191,7 @@ export const story = {
       ),
       say("ren", "… I'm listening."),
       n(
-        "Kagami took off her right heel and brought her foot right up to my face.",
+        "Kagami took off her right high heel and brought her foot right up to my face.",
       ),
       sf("kagami", "Lick.", {
         bg: "/bg/cg/prologue/quiz_room_footLicking1.webp",
@@ -1201,7 +1201,7 @@ export const story = {
       say("ren", "Lick?"),
       say(
         "kagami",
-        "Stop wasting my time. Right now you're trash that needs to pay for its failure.",
+        "Stop wasting my time. Right now, you're nothing but trash, and you must pay for your failure.",
       ),
       say("kagami", "Lick, or go straight into the arms of the police."),
     ],
@@ -1239,7 +1239,7 @@ export const story = {
       say("kagami", "Are you serious?"),
       say("kagami", "Is that how you beg for mercy?"),
       n("She pushed the tip of her foot a little harder against my tongue."),
-      nfx("Her thumb ended up against my lips.", {
+      nfx("Her big toe ended up against my lips.", {
         bg: "/bg/cg/prologue/quiz_room_footLicking3.webp",
         bgSpeed: 50,
       }),
@@ -1338,22 +1338,19 @@ export const story = {
     id: "quiz_afk_fail",
     bg: "./bg/quiz_room.png",
     lines: [
-      nfx(
-        "A whole 20 minutes AFK?",
-        nfx("A whole 20 minutes AFK?", {
-          audio: [
-            { type: "stop_sfx", id: "muffled_rain", fade: 50 },
-            { type: "stop", fade: 1000 },
-          ],
-        }),
-      ),
+      nfx("A whole 20 minutes AFK?", {
+        audio: [
+          { type: "stop_sfx", id: "muffled_rain", fade: 50 },
+          { type: "stop", fade: 1000 },
+        ],
+      }),
       n("Timer's up, you absolutely blew it!"),
       n("But honestly... you actually won, because you ascended to heaven."),
       n(
         "There, you found a pack of extremely hot Kagami pics. Non-canon, by the way.",
       ),
       n(
-        "But go ahead and give your little guy a proper workout to a mature lady.",
+        "So make sure to give your little guy a good tug while you enjoy this mature lady.",
       ),
       n(
         "You were walking through heaven and suddenly stumbled upon a small photo album, which you immediately opened:",
