@@ -818,35 +818,37 @@ export class SceneManager {
           activeChars[char.id] = char;
         });
       }
-
       if (l.hideCharacter) {
         delete activeChars[l.hideCharacter];
+        this.inlineSpeakerNames.delete(l.hideCharacter);
       }
 
       if (l.hideCharacters === "all") {
         activeChars = {};
+        this.inlineSpeakerNames.clear();
       }
 
       if (Array.isArray(l.hideCharacters)) {
         l.hideCharacters.forEach((id) => {
           delete activeChars[id];
+          this.inlineSpeakerNames.delete(id);
         });
       }
 
-      if (l.fx) {
-        Object.assign(targetFx, l.fx);
+      // Оставь временную совместимость со старым форматом
+      if (l.showCharacter) {
+        activeChars[l.showCharacter.id] = l.showCharacter;
       }
-    }
 
-    if (targetBg) {
-      const optimizedBg = this._getOptimizedBgPath(targetBg);
-      this.ui.updateBackground(optimizedBg, 0);
-      if (window.unlockCG) window.unlockCG(targetBg);
-    }
+      if (l.showCharacters) {
+        l.showCharacters.forEach((character) => {
+          activeChars[character.id] = character;
 
-    if (Object.keys(targetFx).length > 0) {
-      targetFx.duration = 0;
-      this.ui.handleFx(targetFx);
+          if (character.name) {
+            this.inlineSpeakerNames.set(character.id, character.name);
+          }
+        });
+      }
     }
 
     let currentBGM = null;
@@ -962,8 +964,8 @@ export class SceneManager {
     currentSFXList.forEach((sfx) => this.am.handleAudio(sfx));
 
     // Восстанавливаем персонажей мгновенно
-    if (this.cm?.showMany && Object.keys(activeChars).length > 0) {
-      await this.cm.showMany(
+    if (Object.keys(activeChars).length > 0) {
+      await this.cm.show(
         Object.values(activeChars).map((char) => ({
           ...char,
           animFunc: () => {},
@@ -1391,7 +1393,73 @@ export class SceneManager {
 
       // Не дублируем логи в истории
       if (!isRestoredLine) {
-        this.hm.addToHistory(line.speaker, displayText);
+        const inlineSpeakerName = line.showCharacters?.find(
+          (character) => character.id === line.speaker,
+        )?.name;
+
+        const displaySpeaker =
+          line.speakerName ??
+          inlineSpeakerName ??
+          this.inlineSpeakerNames.get(line.speaker) ??
+          line.speaker;
+
+        // Не дублируем логи в истории
+        if (!isRestoredLine) {
+          this.hm.addToHistory(displaySpeaker, displayText);
+        }
+
+        this.ui.updateNameTag(displaySpeaker);
+
+        // Сначала скрываем старые спрайты
+        if (line.hideCharacter) {
+          const animFunc = animations[line.anim] || animations.fadeOut;
+
+          await this.cm.hide(
+            line.hideCharacter,
+            isRestoredLine ? () => {} : animFunc,
+          );
+
+          this.inlineSpeakerNames.delete(line.hideCharacter);
+        }
+
+        if (line.hideCharacters === "all") {
+          const animFunc = animations[line.anim] || animations.fadeOut;
+
+          await this.cm.hideAll(isRestoredLine ? () => {} : animFunc);
+
+          this.inlineSpeakerNames.clear();
+        } else if (Array.isArray(line.hideCharacters)) {
+          const animFunc = animations[line.anim] || animations.fadeOut;
+
+          await Promise.all(
+            line.hideCharacters.map((id) =>
+              this.cm.hide(id, isRestoredLine ? () => {} : animFunc),
+            ),
+          );
+
+          line.hideCharacters.forEach((id) => {
+            this.inlineSpeakerNames.delete(id);
+          });
+        }
+
+        // Затем показываем новых
+        if (line.showCharacters) {
+          line.showCharacters.forEach((character) => {
+            if (character.name) {
+              this.inlineSpeakerNames.set(character.id, character.name);
+            }
+          });
+
+          const entries = line.showCharacters.map((character) => ({
+            ...character,
+
+            animFunc: isRestoredLine
+              ? () => {}
+              : animations[character.anim] || animations.fadeInUp,
+          }));
+
+          await this.cm.show(entries);
+        }
       }
       this.ui.updateNameTag(line.speaker);
       if (line.showCharacters) {

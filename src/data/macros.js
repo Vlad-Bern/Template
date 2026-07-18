@@ -287,9 +287,7 @@ export const m = {
       // Если это персонаж (а не Рен), то дополнительно заставляем вибрировать его спрайт
       if (id && id !== "ren" && typeof window.anime === "function") {
         // Ищем элемент спрайта по ID или дата-атрибутам новеллы
-        const spriteElement = document.querySelector(
-          `[data-id="${id}"], .char-${id}, #${id}`,
-        );
+        const spriteElement = document.querySelector(`[data-char-id="${id}"]`);
         if (spriteElement) {
           window.anime({
             targets: spriteElement,
@@ -308,8 +306,7 @@ export const m = {
   }),
 
   enter: (id, emotion, position, anim, statEffects = {}) => ({
-    showCharacter: { id, emotion, position },
-    anim,
+    ...m.show(id, emotion, position, anim),
     effects: statEffects,
   }),
 
