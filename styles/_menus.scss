@@ -441,9 +441,10 @@
 }
 
 @media (max-width: 1024px) and (max-height: 550px) and (orientation: landscape) {
-  .version-watermark {
-    left: auto;
-    right: 70px;
+  body #app #main-menu-screen #open-patch-notes.version-watermark {
+    left: auto !important;
+    right: 70px !important;
+    bottom: 20px !important;
   }
 }
 

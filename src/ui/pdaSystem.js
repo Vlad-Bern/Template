@@ -613,21 +613,18 @@ export class PDASystem {
 
   _setTriggerText(element) {
     if (!element) return;
+
+    const isJapanese = this._getLanguage() === "ja";
     const [initial = "", ...rest] = Array.from(this._t("phone_trigger"));
-    element.innerHTML = `<span class="initial">${initial}</span><span class="rest">${rest.join("")}</span>`;
+
+    element.classList.toggle("pda-japanese-font", isJapanese);
+
+    element.innerHTML = `
+    <span class="initial">${initial}</span>
+    <span class="rest">${rest.join("")}</span>
+  `;
+
     requestAnimationFrame(() => this._syncTriggerBridge(element));
-  }
-
-  _syncTriggerBridge(trigger) {
-    const bridge = document.getElementById("pda-cursor-bridge");
-    if (!bridge || !trigger || this.isVisible) return;
-
-    const rect = trigger.getBoundingClientRect();
-    if (rect.width <= 0) return;
-    bridge.style.left = `${rect.left}px`;
-    bridge.style.top = `${rect.top}px`;
-    bridge.style.width = `${rect.width}px`;
-    bridge.style.height = `${rect.height}px`;
   }
 
   applyTranslations() {
