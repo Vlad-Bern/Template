@@ -10,6 +10,7 @@ export const characters = {
     photo: "/chars/ren/pda.webp",
     rank: "D",
     room: "2-B",
+    locker: 34,
   },
 
   celeste: {
@@ -83,10 +84,10 @@ export const characters = {
       ja: "体育",
     },
     sprites: {
-      neutral: "/chars/kagami/neutral.webp",
-      neutral2: "/chars/kagami/neutral2.webp",
-      angry: "/chars/kagami/angry.webp",
-      tired: "/chars/kagami/tired.webp",
+      neutral: "/chars/shiroko/neutral.webp",
+      shocking: "/chars/shiroko/shocking.webp",
+      angry: "/chars/shiroko/angry.webp",
+      mockery: "/chars/shiroko/mockery.webp",
     },
     role: "teacher",
   },
@@ -135,7 +136,7 @@ export const characters = {
     photo: "/chars/akane/pda.webp",
     sprites: {
       neutral: "assets/chars/akane/neutral.webp",
-      angry: "assets/chars/akane/angry.webp",
+      angry: "/chars/akane/angry.webp",
       crazy: "assets/chars/akane/crazy.webp",
     },
     role: "student",

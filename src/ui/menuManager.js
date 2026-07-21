@@ -1,64 +1,44 @@
-// === МАЙ: ПОЯВЛЕНИЕ СЛУЧАЙНОГО ПЕРСОНАЖА ===
+const MENU_CHARACTER_PATHS = [
+  "/chars/mMenu/akane_menu.webp",
+  "/chars/mMenu/celeste_menu.webp",
+  "/chars/mMenu/kagami_menu.webp",
+  "/chars/mMenu/kaira_menu.webp",
+  "/chars/mMenu/yukino_menu.webp",
+  "/chars/mMenu/shiroko_menu.webp",
+  "/chars/mMenu/livia_menu.webp",
+  "/chars/mMenu/death_menu.webp",
+];
+
+// Показывает одного случайного персонажа на весь текущий запуск игры.
 window.showRandomMenuCharacter = async function () {
   const container = document.getElementById("main-menu-character-container");
   if (!container) return;
 
-  const { loadAsset } = await import("../core/assetLoader.js");
+  let selectedPath = window.sotaCurrentMenuChar;
 
-  if (window.sotaCurrentMenuChar) {
-    container.innerHTML = "";
-    container.classList.remove("char-celeste", "char-kagami", "char-kaira");
+  if (!selectedPath) {
+    const hasSeenMenu = localStorage.getItem("sota_has_seen_menu");
 
-    if (window.sotaCurrentMenuChar.includes("celeste"))
-      container.classList.add("char-celeste");
-    else if (window.sotaCurrentMenuChar.includes("kagami"))
-      container.classList.add("char-kagami");
-    else if (window.sotaCurrentMenuChar.includes("kaira"))
-      container.classList.add("char-kaira");
+    selectedPath = hasSeenMenu
+      ? MENU_CHARACTER_PATHS[
+          Math.floor(Math.random() * MENU_CHARACTER_PATHS.length)
+        ]
+      : MENU_CHARACTER_PATHS[0];
 
-    const path1 =
-      window.sm && window.sm._getOptimizedSpritePath
-        ? window.sm._getOptimizedSpritePath(window.sotaCurrentMenuChar)
-        : window.sotaCurrentMenuChar;
-    const blobUrl1 = await loadAsset(path1);
-    const img1 = document.createElement("img");
-    img1.src = blobUrl1;
-    container.appendChild(img1);
-
-    setTimeout(() => img1.classList.add("visible"), 50);
-    return;
-  }
-
-  // Наши пути к спрайтам
-  const characters = [
-    "/chars/mMenu/celeste_menu.webp",
-    "/chars/mMenu/kagami_menu.webp",
-    "/chars/mMenu/kaira_menu.webp",
-  ];
-
-  let selectedChar = "";
-  const hasSeenMenu = localStorage.getItem("sota_has_seen_menu");
-
-  if (!hasSeenMenu) {
-    selectedChar = characters[0];
+    window.sotaCurrentMenuChar = selectedPath;
     localStorage.setItem("sota_has_seen_menu", "true");
-  } else {
-    selectedChar = characters[Math.floor(Math.random() * characters.length)];
   }
 
-  window.sotaCurrentMenuChar = selectedChar;
+  const { loadAsset } = await import("../core/assetLoader.js");
+  const blobUrl = await loadAsset(selectedPath);
+  const image = document.createElement("img");
 
-  container.innerHTML = "";
-  const path2 =
-    window.sm && window.sm._getOptimizedSpritePath
-      ? window.sm._getOptimizedSpritePath(selectedChar)
-      : selectedChar;
-  const blobUrl2 = await loadAsset(path2);
-  const img2 = document.createElement("img");
-  img2.src = blobUrl2;
-  container.appendChild(img2);
+  image.src = blobUrl;
+  image.alt = "";
+  image.draggable = false;
 
-  setTimeout(() => img2.classList.add("visible"), 100);
+  container.replaceChildren(image);
+  setTimeout(() => image.classList.add("visible"), 50);
 };
 
 // === АБСОЛЮТНАЯ БРОНЯ: Вызываем её при ЛЮБОМ скипе или окончании анимации ===
@@ -152,13 +132,13 @@ window.applySotaFinalState = function () {
             <span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: NNN</span>
             <span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: lorenzo</span>
             <span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: Random Orange</span>
-             <span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: Andrea Montoya</span>
+             <span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: Andrea</span>
           </div>
           <div class="ticker-track" aria-hidden="true">
             <span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: NNN</span>
             <span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: lorenzo</span>
             <span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: Random Orange</span>
-             <span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: Andrea Montoya</span>
+             <span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: Andrea</span>
           </div>
         </div>
       `;
@@ -180,7 +160,7 @@ window.applySotaFinalState = function () {
     if (!document.getElementById("main-menu-copyright")) {
       const copyrightDiv = document.createElement("div");
       copyrightDiv.id = "main-menu-copyright";
-      copyrightDiv.innerHTML = "© 2026 V&Mai studio. All rights reserved.";
+      copyrightDiv.innerHTML = "© 2026 V&Mai Studio. All rights reserved.";
       mainMenu.appendChild(copyrightDiv);
     }
   }

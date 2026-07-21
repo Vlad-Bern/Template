@@ -4,6 +4,8 @@ import { state } from "./state.js";
 export class UIManager {
   constructor() {
     this.app = document.getElementById("app");
+    this.backgroundUpdateId = 0;
+
     window.addEventListener("stressUpdated", (e) => {
       this.updateStressVisuals(e.detail.sanity);
     });
@@ -136,6 +138,7 @@ export class UIManager {
   }
 
   async updateBackground(newImg, duration = 400) {
+    const updateId = ++this.backgroundUpdateId;
     const sharpLayers = [
       document.getElementById("bg-1"),
       document.getElementById("bg-2"),
@@ -156,6 +159,9 @@ export class UIManager {
     // Расшифровываем картинку
     const { loadAsset } = await import("./assetLoader.js");
     const blobUrl = await loadAsset(newImg);
+    if (updateId !== this.backgroundUpdateId) {
+      return;
+    }
 
     anime.remove([activeS, activeB, inactiveS, inactiveB]);
 

@@ -603,20 +603,6 @@
         transform-origin: top center;
       }
 
-      &.char-celeste img {
-        transform: scale(1.15);
-        object-position: top 0% right 25% !important;
-      }
-
-      &.char-kagami img {
-        transform: scale(1.08);
-        object-position: top center;
-      }
-
-      &.char-kaira img {
-        transform: scale(1.1);
-        object-position: top center;
-      }
     }
   }
 
@@ -652,25 +638,18 @@
   }
 
   @media (max-height: 550px) {
-    #main-menu-socials {
-      position: absolute !important;
-      bottom: 45px !important;
-      right: 70px !important;
-      left: auto !important;
-      display: flex !important;
-      gap: 14px !important;
-      z-index: 10;
+    #main-menu-screen #main-menu-character-container {
+      // Чуть уводим спрайт под ленту спонсоров, чтобы предметы в руках
+      // не пересекались с текстом кнопок слева.
+      right: 0 !important;
 
-      .menu-social-btn {
-        width: 44px !important;
-        height: 44px !important;
-
-        img {
-          width: 20px !important;
-          height: 20px !important;
-        }
+      img {
+        object-fit: contain;
+        object-position: bottom right;
+        transform: none;
       }
     }
+
   }
 
   // Текст кнопок оставлен на верхнем уровне, как и просили
@@ -727,20 +706,20 @@
       z-index: 100 !important;
     }
 
-    // Сдвигаем соцсети левее надписи (на 80px) и принудительно укрощаем их до 38px
+    // На сенсорных устройствах соцсети имеют единый размер с планшетной версией.
     #main-menu-socials {
       position: absolute !important;
       bottom: 45px !important;
       right: 70px !important;
       left: auto !important;
       display: flex !important;
-      gap: 12px !important;
+      gap: $touch-social-gap !important;
       z-index: 10 !important;
 
       .menu-social-btn,
       a {
-        width: 38px !important;
-        height: 38px !important;
+        width: $touch-social-button-size !important;
+        height: $touch-social-button-size !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
@@ -751,8 +730,8 @@
 
         img,
         svg {
-          width: 18px !important;
-          height: 18px !important;
+          width: $touch-social-icon-size !important;
+          height: $touch-social-icon-size !important;
           display: block !important;
         }
       }

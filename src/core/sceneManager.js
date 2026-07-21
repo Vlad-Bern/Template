@@ -851,6 +851,21 @@ export class SceneManager {
       }
     }
 
+    if (targetBg) {
+      const optimizedBg = this._getOptimizedBgPath(targetBg);
+
+      await this.ui.updateBackground(optimizedBg, 0);
+
+      if (window.unlockCG) {
+        window.unlockCG(targetBg);
+      }
+    }
+
+    if (Object.keys(targetFx).length > 0) {
+      targetFx.duration = 0;
+      this.ui.handleFx(targetFx);
+    }
+
     let currentBGM = null;
     let currentSFXList = [];
     let hasRootStopCommand = false;
@@ -1381,9 +1396,15 @@ export class SceneManager {
       // Фон обрабатываем как обычно
       if (line.bg) {
         const optimizedLineBg = this._getOptimizedBgPath(line.bg);
-        const speed = line.bgSpeed !== undefined ? line.bgSpeed : 400;
-        this.ui.updateBackground(optimizedLineBg, isRestoredLine ? 0 : speed);
-        if (window.unlockCG) window.unlockCG(line.bg);
+
+        const speed =
+          this.isFastForwarding || isRestoredLine ? 0 : (line.bgSpeed ?? 400);
+
+        void this.ui.updateBackground(optimizedLineBg, speed);
+
+        if (window.unlockCG) {
+          window.unlockCG(line.bg);
+        }
       }
 
       let displayText = line.text || "";

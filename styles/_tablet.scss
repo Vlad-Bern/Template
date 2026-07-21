@@ -273,17 +273,17 @@
     left: 7.6% !important;
     right: auto !important;
     bottom: 45px !important;
-    gap: 15px !important;
+    gap: $touch-social-gap !important;
 
     a.menu-social-btn {
-      width: 70px !important;
-      height: 70px !important;
+      width: $touch-social-button-size !important;
+      height: $touch-social-button-size !important;
       margin: 0 !important;
       transform: none;
 
       img {
-        width: 34px !important;
-        height: 34px !important;
+        width: $touch-social-icon-size !important;
+        height: $touch-social-icon-size !important;
       }
     }
   }

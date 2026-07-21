@@ -581,6 +581,7 @@ export class PDASystem {
 
     const rank = this._formatRank(ren.rank);
     const room = ren.room || "?";
+    const locker = ren.locker || "?";
 
     const photoClass = ren.photo
       ? "profile-photo has-webp"
@@ -604,11 +605,39 @@ export class PDASystem {
           <strong>${this._t("class")}:</strong> ${room}
         </div>
 
+        <div class="profile-detail">
+          <strong>${this._t("locker")}:</strong> ${locker}
+        </div>
+
         <div class="profile-bio-sync">
           ${this._t("bio_sync")}
         </div>
       </div>
     `;
+  }
+
+  _syncTriggerBridge(element = document.getElementById("pda-text-trigger")) {
+    const bridge = document.getElementById("pda-cursor-bridge");
+
+    if (!bridge || !element) return;
+
+    if (this.isVisible) {
+      bridge.style.display = "none";
+      return;
+    }
+
+    const rect = element.getBoundingClientRect();
+
+    if (rect.width <= 0 || rect.height <= 0) {
+      bridge.style.display = "none";
+      return;
+    }
+
+    bridge.style.display = "block";
+    bridge.style.left = `${rect.left}px`;
+    bridge.style.top = `${rect.top}px`;
+    bridge.style.width = `${rect.width}px`;
+    bridge.style.height = `${rect.height}px`;
   }
 
   _setTriggerText(element) {
@@ -799,10 +828,27 @@ export class PDASystem {
 
     const rank = isLocked ? hidden : this._formatRank(char.rank);
     const room = isLocked ? hidden : char.room || "?";
+
+    const lockerDetail = Object.hasOwn(char, "locker")
+      ? `
+      <div class="char-detail">
+        <strong>${this._t("locker")}:</strong>
+        ${isLocked ? hidden : char.locker || "?"}
+      </div>
+    `
+      : "";
+
     return `
-      <div class="char-detail"><strong>${this._t("rank")}:</strong> ${rank}</div>
-      <div class="char-detail"><strong>${this._t("class")}:</strong> ${room}</div>
-    `;
+  <div class="char-detail">
+    <strong>${this._t("rank")}:</strong> ${rank}
+  </div>
+
+  <div class="char-detail">
+    <strong>${this._t("class")}:</strong> ${room}
+  </div>
+
+  ${lockerDetail}
+`;
   }
 
   _formatRank(rank) {

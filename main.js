@@ -35,6 +35,7 @@ window.isAnyModalOpen = () => {
   if (window.saveManager?.modalOpen) return true;
   if (window.settingsManager?.modalOpen) return true;
   if (window.patchNotesManager?.modalOpen) return true;
+  if (window.supporterWelcomeManager?.modalOpen) return true;
 
   // 4. Главное меню
   const mainMenu = document.getElementById("main-menu-screen");
@@ -55,263 +56,376 @@ const app = document.getElementById("app");
 
 // 1. СТРОИМ ДОМ (Генерация всей структуры игры)
 app.innerHTML = `
-<div id="game-container">
-  <div id="global-bg-layers">
-    <div id="gbg-1" class="bg-layer active blurred"></div>
-    <div id="gbg-2" class="bg-layer blurred"></div>
-  </div>
-
-  <div id="disclaimer-screen">
-    <div class="disclaimer-content">
-      <h1 id="disclaimer-title" class="glitch-text" data-text="ВНИМАНИЕ!">
-        <span class="typewriter-burst" data-i18n="disclaimer_title">ВНИМАНИЕ!</span>
-      </h1>
-      <div id="disclaimer-body" data-i18n-html="disclaimer_body"></div>
+  <div id="game-container">
+    <div id="global-bg-layers">
+      <div id="gbg-1" class="bg-layer active blurred"></div>
+      <div id="gbg-2" class="bg-layer blurred"></div>
     </div>
-  </div>
 
-  <div id="splash-screen">
-    <h1>V&MAI STUDIO PRESENTS</h1>
-  </div>
+    <div id="disclaimer-screen">
+      <div class="disclaimer-content">
+        <h1 id="disclaimer-title" class="glitch-text" data-text="ВНИМАНИЕ!">
+          <span class="typewriter-burst" data-i18n="disclaimer_title"
+            >ВНИМАНИЕ!</span
+          >
+        </h1>
+        <div id="disclaimer-body" data-i18n-html="disclaimer_body"></div>
+      </div>
+    </div>
 
- <div id="credits-screen" style="display: none; position: fixed; inset: 0; background: #000; z-index: 99999; flex-direction: column; justify-content: center; align-items: center; gap: 2rem; color: #fff; text-align: center; user-select: none;">
+    <div id="splash-screen">
+      <h1>V&Mai Studio PRESENTS</h1>
+    </div>
 
-  <div id="credits-logo" style="font-size: 3rem; letter-spacing: 15px; color: #00ffff; text-shadow: 0 0 15px rgba(0,255,255,0.8); opacity: 0; transition: opacity 1s ease; font-family: 'Courier New', monospace; pointer-events: none;">
-    S O T A
-  </div>
+    <div
+      id="credits-screen"
+      style="display: none; position: fixed; inset: 0; background: #000; z-index: 99999; flex-direction: column; justify-content: center; align-items: center; gap: 2rem; color: #fff; text-align: center; user-select: none;"
+    >
+      <div
+        id="credits-logo"
+        style="font-size: 3rem; letter-spacing: 15px; color: #00ffff; text-shadow: 0 0 15px rgba(0,255,255,0.8); opacity: 0; transition: opacity 1s ease; font-family: 'Courier New', monospace; pointer-events: none;"
+      >
+        S O T A
+      </div>
 
-  <div id="credits-text" style="font-family: 'Courier New', monospace; font-size: 1.5rem; max-width: 800px; line-height: 1.5; opacity: 0; transition: opacity 0.5s ease; padding: 20px;">
-  </div>
+      <div
+        id="credits-text"
+        style="font-family: 'Courier New', monospace; font-size: 1.5rem; max-width: 800px; line-height: 1.5; opacity: 0; transition: opacity 0.5s ease; padding: 20px;"
+      ></div>
+    </div>
 
-</div>
+    <div id="main-menu-screen" style="display: none;">
+      <div id="menu-black-overlay"></div>
 
-  <div id="main-menu-screen" style="display: none;">
-  
-    <div id="menu-black-overlay"></div>
+      <div id="main-menu-title">
+        <div class="word">
+          <span class="initial">S</span><span class="rest">chool</span>
+        </div>
+        <div class="word">
+          <span class="initial">O</span><span class="rest">f</span>
+        </div>
+        <div class="word">
+          <span class="initial">T</span><span class="rest">he</span>
+        </div>
+        <div class="word">
+          <span class="initial">A</span><span class="rest">bnormal</span>
+        </div>
+      </div>
 
-  <div id="main-menu-title">
-    <div class="word"><span class="initial">S</span><span class="rest">chool</span></div>
-    <div class="word"><span class="initial">O</span><span class="rest">f</span></div>
-    <div class="word"><span class="initial">T</span><span class="rest">he</span></div>
-    <div class="word"><span class="initial">A</span><span class="rest">bnormal</span></div>
-  </div>
+      <video class="menu-bg-video" autoplay loop muted playsinline>
+        <source
+          media="(max-width: 1024px)"
+          src="/bg_mobile/common/menu_bg.webm"
+          type="video/webm"
+        />
+        <source src="/bg/common/menu_bg.webm" type="video/webm" />
+      </video>
 
-<video class="menu-bg-video" autoplay loop muted playsinline>
-    <source media="(max-width: 1024px)" src="/bg_mobile/common/menu_bg.webm" type="video/webm">
-    <source src="/bg/common/menu_bg.webm" type="video/webm">
-</video>
-  
-  <div id="main-menu-character-container" class="sota-menu-character"></div>
+      <div id="main-menu-character-container" class="sota-menu-character"></div>
 
-<div class="menu-buttons-container">
-  <button id="btn-new-game"><span class="visual" data-i18n="menu_new_game">Новая игра</span></button>
-  <button id="btn-load-game"><span class="visual" data-i18n="menu_load_game">Загрузить</span></button>
-  <button id="btn-settings-menu"><span class="visual" data-i18n="menu_settings">Настройки</span></button>
-  <button id="btn-gallery"><span class="visual" data-i18n="menu_gallery">Галерея</span></button>
-  <button id="btn-exit"><span class="visual" data-i18n="menu_exit">Выход</span></button>
-</div>
+      <div class="menu-buttons-container">
+        <button id="btn-new-game">
+          <span class="visual" data-i18n="menu_new_game">Новая игра</span>
+        </button>
+        <button id="btn-load-game">
+          <span class="visual" data-i18n="menu_load_game">Загрузить</span>
+        </button>
+        <button id="btn-settings-menu">
+          <span class="visual" data-i18n="menu_settings">Настройки</span>
+        </button>
+        <button id="btn-gallery">
+          <span class="visual" data-i18n="menu_gallery">Галерея</span>
+        </button>
+        <button id="btn-exit">
+          <span class="visual" data-i18n="menu_exit">Выход</span>
+        </button>
+      </div>
 
-<div id="main-menu-socials">
-  <a href="https://www.patreon.com/c/VMaistudio" target="_blank" class="menu-social-btn patreon">
-    <img src="icons/patreon.svg" alt="Patreon">
-  </a>
-    <a href="https://boosty.to/vmaistudio" target="_blank" class="menu-social-btn boosty">
-    <img src="icons/boosty.svg" alt="Boosty">
-  </a>
-</div>
+      <div id="main-menu-socials">
+        <a
+          href="https://www.patreon.com/c/VMaistudio"
+          target="_blank"
+          class="menu-social-btn patreon"
+        >
+          <img src="icons/patreon.svg" alt="Patreon" />
+        </a>
+        <a
+          href="https://boosty.to/vmaistudio"
+          target="_blank"
+          class="menu-social-btn boosty"
+        >
+          <img src="icons/boosty.svg" alt="Boosty" />
+        </a>
+      </div>
 
-<button
-  id="open-patch-notes"
-  class="version-watermark"
-  type="button"
-  data-patch-version="2.0"
-  data-i18n-title="patch_notes_open"
-  aria-haspopup="dialog"
-  aria-controls="patch-notes-modal"
->
-  <span>SOTA: Prologue (2.0)</span>
+      <button
+        id="open-patch-notes"
+        class="version-watermark"
+        type="button"
+        data-patch-version="2.0"
+        data-i18n-title="patch_notes_open"
+        aria-haspopup="dialog"
+        aria-controls="patch-notes-modal"
+      >
+        <span>SOTA: Prologue (2.0)</span>
 
-  <span
-    class="version-patch-hint"
-    data-i18n="patch_notes_hint"
-  >
-    [ ОБНОВЛЕНИЯ ]
-  </span>
-</button>
+        <span class="version-patch-hint" data-i18n="patch_notes_hint">
+          [ ОБНОВЛЕНИЯ ]
+        </span>
+      </button>
+    </div>
 
-</div>
+    <div
+      id="patch-notes-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="patch-notes-title"
+      aria-hidden="true"
+      hidden
+    >
+      <div id="patch-notes-content">
+        <header>
+          <h2 id="patch-notes-title" data-i18n="patch_notes_title">
+            ОБНОВЛЕНИЯ
+          </h2>
+
+          <button
+            id="close-patch-notes"
+            type="button"
+            data-i18n-aria-label="patch_notes_close"
+            aria-label="Закрыть список изменений"
+          >
+            ✕
+          </button>
+        </header>
+
+        <div class="patch-notes-list">
+          <details class="patch-note" open>
+            <summary>Prologue 2.0</summary>
+
+            <div class="patch-note-body">
+              <h3 data-i18n="patch_notes_new">Новое</h3>
+
+              <ul>
+                <li data-i18n="patch_notes_2_new_1">
+                  Вторая часть пролога теперь доступна!
+                </li>
+
+                <li data-i18n="patch_notes_2_new_2">
+                  Улучшенное главное меню и добавлена лента спонсоров.
+                </li>
+
+                <li data-i18n="patch_notes_2_new_3">Новый курсор.</li>
+              </ul>
+
+              <h3 data-i18n="patch_notes_fixes">Фиксы</h3>
+
+              <ul>
+                <li data-i18n="patch_notes_2_fix_1">
+                  Текст первой части пролога был значительно улучшен. Особенно
+                  перевод на Японский.
+                </li>
+
+                <li data-i18n="patch_notes_2_fix_2">
+                  И прочие мелочи, бла-бла-бла.
+                </li>
+              </ul>
+            </div>
+          </details>
+
+          <details class="patch-note">
+            <summary>Prologue 1.0</summary>
+
+            <div class="patch-note-body">
+              <h3 data-i18n="patch_notes_first_release">Первый выпуск</h3>
+
+              <ul>
+                <li data-i18n="patch_notes_1_release">
+                  Релиз игры. Отсюда всё началось. Тут нет изменений. Есть лишь
+                  начало.
+                </li>
+              </ul>
+            </div>
+          </details>
+        </div>
+      </div>
+    </div>
 
 <div
-  id="patch-notes-modal"
+  id="supporter-welcome-modal"
   role="dialog"
   aria-modal="true"
-  aria-labelledby="patch-notes-title"
+  aria-labelledby="supporter-welcome-title"
   aria-hidden="true"
+  data-card-version="2.0"
   hidden
 >
-<div id="patch-notes-content">
-  <header>
-    <h2
-      id="patch-notes-title"
-      data-i18n="patch_notes_title"
-    >
-      ОБНОВЛЕНИЯ
-    </h2>
-
-    <button
-      id="close-patch-notes"
-      type="button"
-      data-i18n-aria-label="patch_notes_close"
-      aria-label="Закрыть список изменений"
-    >
-      ✕
-    </button>
-  </header>
-
-  <div class="patch-notes-list">
-    <details class="patch-note" open>
-      <summary>Prologue 2.0</summary>
-
-      <div class="patch-note-body">
-        <h3 data-i18n="patch_notes_new">
-          Новое
-        </h3>
-
-        <ul>
-          <li data-i18n="patch_notes_2_new_1">
-            Вторая часть пролога теперь доступна!
-          </li>
-
-          <li data-i18n="patch_notes_2_new_2">
-            Улучшенное главное меню и добавлена лента спонсоров.
-          </li>
-
-          <li data-i18n="patch_notes_2_new_3">
-            Новый курсор.
-          </li>
-        </ul>
-
-        <h3 data-i18n="patch_notes_fixes">
-          Фиксы
-        </h3>
-
-        <ul>
-          <li data-i18n="patch_notes_2_fix_1">
-            Текст первой части пролога был значительно улучшен. Особенно перевод на Японский.
-          </li>
-
-          <li data-i18n="patch_notes_2_fix_2">
-            И прочие мелочи, бла-бла-бла.
-          </li>
-        </ul>
+  <article id="supporter-welcome-content">
+    <header class="supporter-welcome-header">
+      <div class="supporter-rank-emblem" aria-hidden="true">
+        D
       </div>
-    </details>
 
-    <details class="patch-note">
-      <summary>Prologue 1.0</summary>
+      <div class="supporter-welcome-heading">
+        <span
+          class="supporter-welcome-kicker"
+          data-i18n="supporter_welcome_kicker"
+        >
+          РАННИЙ ДОСТУП
+        </span>
 
-      <div class="patch-note-body">
-        <h3 data-i18n="patch_notes_first_release">
-          Первый выпуск
-        </h3>
-
-        <ul>
-          <li data-i18n="patch_notes_1_release">
-            Релиз игры. Отсюда всё началось. Тут нет изменений. Есть лишь начало.
-          </li>
-        </ul>
+        <h2
+          id="supporter-welcome-title"
+          data-i18n="supporter_welcome_title"
+        >
+          ПОСВЯЩАЕТСЯ D-РАНГУ!
+        </h2>
       </div>
-    </details>
-  </div>
-</div>
 
-</div>
+    </header>
 
-<div id="gallery-modal" class="sota-gallery-modal">
-  <div id="gallery-content" class="sota-gallery-content">
-    <div class="sota-gallery-header">
-           <h2 data-i18n="gallery_title">ГАЛЕРЕЯ</h2>
-      <button id="close-gallery-btn" class="sota-close-btn">✖</button>
+    <div class="supporter-welcome-body">
+      <p
+        class="supporter-welcome-greeting"
+        data-i18n="supporter_welcome_greeting"
+      >
+        Доброго времени суток! Обновление наконец-то вышло!!
+      </p>
+
+      <p data-i18n="supporter_welcome_apology">
+        Ох, сорян, что пришлось так долго ждать. Каюсь: обнова могла
+        выйти знатно пораньше. Но ничего страшного — главное, что ты
+        наконец скачал апдейт!
+      </p>
+
+      <p data-i18n="supporter_welcome_prologue">
+        Здесь продолжается пролог. Именно пролог: игра всё ещё только
+        плавно подбирается к своему основному геймплею и продолжает
+        собирать аудиторию.
+      </p>
+
+      <p data-i18n="supporter_welcome_sponsors">
+        Справа в главном меню ты можешь увидеть золотистую ленту
+        спонсоров! Если ты поддерживал меня на уровне D-ранга, там
+        будет и твой ник!
+      </p>
+
+      <p
+        class="supporter-welcome-pirate"
+        data-i18n="supporter_welcome_pirate"
+      >
+        Ну а если ты пират... своего ника не увидишь. Увы :(
+      </p>
+
+      <p data-i18n="supporter_welcome_farewell">
+        Всё, до скорого. Приятной игры!
+      </p>
+
+      <p
+        class="supporter-welcome-signature"
+        data-i18n="supporter_welcome_signature"
+      >
+        — V&amp;Mai Studio
+      </p>
     </div>
-    <div id="gallery-grid" class="sota-gallery-grid"></div>
-  </div>
+
+    <footer class="supporter-welcome-footer">
+      <button
+        id="continue-supporter-welcome"
+        type="button"
+        data-i18n="supporter_welcome_continue"
+      >
+        [ ПРОДОЛЖИТЬ ]
+      </button>
+    </footer>
+  </article>
 </div>
 
-  <div id="game-viewport" style="display: none">
-    <div id="sharp-background-layers" class="viewport-bg">
-      <div id="bg-1" class="bg-layer active sharp-effect"></div>
-      <div id="bg-2" class="bg-layer sharp-effect"></div>
-      <div id="vignette-layer"></div>
+    <div id="gallery-modal" class="sota-gallery-modal">
+      <div id="gallery-content" class="sota-gallery-content">
+        <div class="sota-gallery-header">
+          <h2 data-i18n="gallery_title">ГАЛЕРЕЯ</h2>
+          <button id="close-gallery-btn" class="sota-close-btn">✖</button>
+        </div>
+        <div id="gallery-grid" class="sota-gallery-grid"></div>
+      </div>
     </div>
-    <div id="character-layer"></div>
-    <div id="interaction-layer"></div>
-    <div id="overlay-layer"></div>
-  </div>
-  <div id="darkness-layer"></div>
-  <div id="noise-layer"></div>
 
-  <div id="modal-backdrop"></div>
-  <div id="history-panel">
-    <div id="history-header">
-      <h3 data-i18n="history_title">История</h3>
-      <button id="close-history">✕</button>
+    <div id="game-viewport" style="display: none">
+      <div id="sharp-background-layers" class="viewport-bg">
+        <div id="bg-1" class="bg-layer active sharp-effect"></div>
+        <div id="bg-2" class="bg-layer sharp-effect"></div>
+        <div id="vignette-layer"></div>
+      </div>
+      <div id="character-layer"></div>
+      <div id="interaction-layer"></div>
+      <div id="overlay-layer"></div>
     </div>
-    <div id="history-content"></div>
-  </div>
+    <div id="darkness-layer"></div>
+    <div id="noise-layer"></div>
 
-  <div id="game-ui">
-    <div id="notification-container"></div>
-    <div id="choice-container"></div>
-    <div id="skip-indicator" class="skip-hidden">
-  <span class="initial">S</span><span class="rest">KIP</span>
-</div>
-    <div id="dialog-wrapper">
-      <div id="dialog-bg-color"></div>
-      <div id="name-tag"></div>
-      <div id="dialog-box-container">
-        <button id="dialog-hide-btn" aria-label="Скрыть окно">✕</button>
-        <div id="dialog-box"></div>
-        <div id="dialog-footer">
-          <button
-            id="open-save-btn"
-            class="dialog-footer-btn"
-            data-i18n="btn_save"
-          >
-            [ СОХРАНИТЬ ]
-          </button>
-          <button
-            id="open-load-btn"
-            class="dialog-footer-btn"
-            data-i18n="btn_load"
-          >
-            [ ЗАГРУЗИТЬ ]
-          </button>
-          <button
-            id="open-history-btn"
-            class="dialog-footer-btn"
-            data-i18n="btn_history"
-          >
-            [ ИСТОРИЯ ]
-          </button>
-          <button
-            id="open-settings-btn"
-            class="dialog-footer-btn"
-            data-i18n="btn_settings"
-          >
-            [ НАСТРОЙКИ ]
-          </button>
-          <button
-            id="open-mainmenu-btn"
-            class="dialog-footer-btn"
-            data-i18n="btn_menu"
-          >
-            [ В МЕНЮ ]
-          </button>
+    <div id="modal-backdrop"></div>
+    <div id="history-panel">
+      <div id="history-header">
+        <h3 data-i18n="history_title">История</h3>
+        <button id="close-history">✕</button>
+      </div>
+      <div id="history-content"></div>
+    </div>
+
+    <div id="game-ui">
+      <div id="notification-container"></div>
+      <div id="choice-container"></div>
+      <div id="skip-indicator" class="skip-hidden">
+        <span class="initial">S</span><span class="rest">KIP</span>
+      </div>
+      <div id="dialog-wrapper">
+        <div id="dialog-bg-color"></div>
+        <div id="name-tag"></div>
+        <div id="dialog-box-container">
+          <button id="dialog-hide-btn" aria-label="Скрыть окно">✕</button>
+          <div id="dialog-box"></div>
+          <div id="dialog-footer">
+            <button
+              id="open-save-btn"
+              class="dialog-footer-btn"
+              data-i18n="btn_save"
+            >
+              [ СОХРАНИТЬ ]
+            </button>
+            <button
+              id="open-load-btn"
+              class="dialog-footer-btn"
+              data-i18n="btn_load"
+            >
+              [ ЗАГРУЗИТЬ ]
+            </button>
+            <button
+              id="open-history-btn"
+              class="dialog-footer-btn"
+              data-i18n="btn_history"
+            >
+              [ ИСТОРИЯ ]
+            </button>
+            <button
+              id="open-settings-btn"
+              class="dialog-footer-btn"
+              data-i18n="btn_settings"
+            >
+              [ НАСТРОЙКИ ]
+            </button>
+            <button
+              id="open-mainmenu-btn"
+              class="dialog-footer-btn"
+              data-i18n="btn_menu"
+            >
+              [ В МЕНЮ ]
+            </button>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 `;
 
 // Инициализируем элементы окон
@@ -444,6 +558,7 @@ Promise.resolve().then(() => {
   import("./src/ui/menuButtons.js");
   import("./src/ui/parallaxSystem.js");
   import("./src/ui/patchNotesManager.js");
+  import("./src/ui/supporterWelcomeManager.js");
 });
 
 // ========================================================

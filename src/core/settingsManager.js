@@ -105,6 +105,21 @@ export class SettingsManager {
 
         patch_notes_1_release:
           "Релиз игры. Отсюда всё началось. Тут нет изменений. Есть лишь начало.",
+        supporter_welcome_kicker: "РАННИЙ ДОСТУП",
+        supporter_welcome_title: "ПОСВЯЩАЕТСЯ D-РАНГУ!",
+        supporter_welcome_greeting:
+          "Доброго времени суток! Обновление наконец-то вышло!!",
+        supporter_welcome_apology:
+          "Ох, сорян, что пришлось так долго ждать. Каюсь, обнова могла выйти знатно пораньше. Но ничего страшного. Главное, что ты наконец скачал апдейт!",
+        supporter_welcome_prologue:
+          "Здесь продолжается пролог. Да, всё ещё пролог. Игра только плавно подбирается к своему основному геймплею и продолжает собирать аудиторию.",
+        supporter_welcome_sponsors:
+          "Справа в главном меню ты можешь увидеть золотистую ленту спонсоров! Если ты поддерживал меня на уровне D-ранга, там будет и твой ник!",
+        supporter_welcome_pirate:
+          "Ну а если ты пират... своего ника не увидишь. Увы :(",
+        supporter_welcome_farewell: "Всё, до скорого. Приятной игры!",
+        supporter_welcome_signature: "— V&Mai Studio",
+        supporter_welcome_continue: "[ ПРОДОЛЖИТЬ ]",
         gallery_title: "ГАЛЕРЕЯ",
         exit_wait: "Я БУДУ ЖДАТЬ ТВОЕГО ВОЗВРАЩЕНИЯ...",
         confirm_reset: "ВОССТАНОВИТЬ НАСТРОЙКИ ПО УМОЛЧАНИЮ?",
@@ -130,6 +145,7 @@ export class SettingsManager {
         pda_sp_balance: "СП-Счёт",
         pda_rank: "Ранг",
         pda_class: "Класс",
+        pda_locker: "Шкафчик",
         pda_profile_rank: "D-Ранг",
         pda_profile_class: "2-B",
         pda_bio_sync: "Идёт синхронизация биометрии...",
@@ -240,6 +256,30 @@ export class SettingsManager {
 
         patch_notes_1_release:
           "The game's initial release. This is where it all began. There are no changes here—only a beginning.",
+        supporter_welcome_kicker: "EARLY ACCESS",
+
+        supporter_welcome_title: "THIS ONE'S FOR D-RANK!",
+
+        supporter_welcome_greeting: "Hey! The update is finally out!!",
+
+        supporter_welcome_apology:
+          "Oh man, sorry for making you wait so long. My bad. I definitely could've released this update much sooner. But hey, you're finally here and you've got the update!",
+
+        supporter_welcome_prologue:
+          "This update continues the prologue. Yep, still the prologue. The game is slowly getting closer to its main gameplay while I keep building an audience for it.",
+
+        supporter_welcome_sponsors:
+          "Check out the golden sponsor roll on the right side of the main menu! If you supported me at D-Rank, your name should be there!",
+
+        supporter_welcome_pirate:
+          "And if you're playing a pirated copy... you won't find your name there. Too bad :(",
+
+        supporter_welcome_farewell:
+          "That's it for now. See you soon, and enjoy the game!",
+
+        supporter_welcome_signature: "— V&Mai Studio",
+
+        supporter_welcome_continue: "[ CONTINUE ]",
         gallery_title: "GALLERY",
         exit_wait: "I WILL WAIT FOR YOUR RETURN...",
         confirm_reset: "RESTORE DEFAULT SETTINGS?",
@@ -265,6 +305,7 @@ export class SettingsManager {
         pda_sp_balance: "SP Balance",
         pda_rank: "Rank",
         pda_class: "Class",
+        pda_locker: "Locker",
         pda_profile_rank: "D-Rank",
         pda_bio_sync: "Syncing biometric data...",
         pda_people: "People",
@@ -373,6 +414,21 @@ export class SettingsManager {
 
         patch_notes_1_release:
           "ゲームの初回リリース。すべてはここから始まりました。ここに変更点はありません。あるのは、始まりだけです。",
+        supporter_welcome_kicker: "アーリーアクセス",
+        supporter_welcome_title: "Dランクのみんなへ！",
+        supporter_welcome_greeting:
+          "どうも！ついにアップデートをリリースできたよ！！",
+        supporter_welcome_apology:
+          "いやー、ずいぶん待たせちゃってごめん。正直、もっと早く出せたんだよね。まあでも、無事にアップデートをダウンロードしてくれた。それが一番大事！",
+        supporter_welcome_prologue:
+          "今回はプロローグの続きです。そう、まだプロローグ。ゲームは本編のゲームプレイに少しずつ近づきながら、プレイヤーもじわじわ増えているところです。",
+        supporter_welcome_sponsors:
+          "メインメニューの右側に、金色のスポンサーロールが見えるはず！Dランクで支援してくれていたなら、君の名前もそこに載ってるよ！",
+        supporter_welcome_pirate:
+          "まあ、海賊版で遊んでるなら……自分の名前は見つからないけどね。残念だったね :(",
+        supporter_welcome_farewell: "じゃ、また近いうちに。楽しんで！",
+        supporter_welcome_signature: "— V&Mai Studio",
+        supporter_welcome_continue: "[ 続ける ]",
         gallery_title: "ギャラリー",
         exit_wait: "あなたが戻るのを待っています...",
         confirm_reset: "設定を初期化しますか？",
@@ -399,6 +455,7 @@ export class SettingsManager {
         pda_sp_balance: "SP残高",
         pda_rank: "ランク",
         pda_class: "クラス",
+        pda_locker: "ロッカー",
         pda_profile_rank: "Dランク",
         pda_profile_class: "2-B",
         pda_bio_sync: "生体情報を同期中...",

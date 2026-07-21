@@ -11,6 +11,12 @@ $history-cyan: #66b2ff;
 $history-red: #ff4d4d;
 $glass-dark: rgba(10, 12, 18, 0.95);
 
+// Единая адаптивная шкала соцсетей в главном меню.
+// На ПК и планшетах достигает 70px, на низких телефонах мягко уменьшается.
+$touch-social-button-size: clamp(48px, 12vh, 70px);
+$touch-social-icon-size: clamp(24px, 6vh, 34px);
+$touch-social-gap: clamp(12px, 2.5vh, 15px);
+
 // --- MIXINS ---
 @mixin glass {
   background: $glass-bg;

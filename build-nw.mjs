@@ -66,7 +66,7 @@ await nwbuild({
     name: "SOTA",
     icon: "./public/icons/icon.icns",
     LSApplicationCategoryType: "public.app-category.games",
-      NSHumanReadableCopyright: "© 2026 V&Mai studio. All rights reserved.",
+      NSHumanReadableCopyright: "© 2026 V&Mai Studio. All rights reserved.",
   },
 });
 console.log("✅ Билд готов → output/");
