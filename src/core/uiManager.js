@@ -5,6 +5,8 @@ export class UIManager {
   constructor() {
     this.app = document.getElementById("app");
     this.backgroundUpdateId = 0;
+    this.runningCameraAnimation = null;
+    this.runningCameraMotion = null;
 
     window.addEventListener("stressUpdated", (e) => {
       this.updateStressVisuals(e.detail.sanity);
@@ -123,6 +125,161 @@ export class UIManager {
         easing: "easeOutSine",
       });
     }
+  }
+
+  setOrgasmWhite(active, duration = active ? 100 : 1200) {
+    const layer = document.getElementById("orgasm-white-layer");
+    if (!layer) return;
+
+    const targetOpacity = active ? 1 : 0;
+    state.uiState.orgasmWhite = active === true;
+
+    if (window.anime) {
+      anime.remove(layer);
+      anime({
+        targets: layer,
+        opacity: targetOpacity,
+        duration: Math.max(0, duration),
+        easing: active ? "easeOutExpo" : "easeInOutSine",
+      });
+    } else {
+      layer.style.opacity = String(targetOpacity);
+    }
+  }
+
+  ensureRunningSpeedLines() {
+    const layer = document.getElementById("running-speed-layer");
+    if (!layer || layer.childElementCount > 0) return layer;
+
+    const fragment = document.createDocumentFragment();
+    const lineCountPerSide = 24;
+
+    ["left", "right"].forEach((side, sideIndex) => {
+      for (let i = 0; i < lineCountPerSide; i += 1) {
+        const line = document.createElement("span");
+        const seed = i + sideIndex * lineCountPerSide;
+        const lineY = 1 + ((seed * 37) % 98);
+        const vanishingY = 42 + ((seed * 19) % 17);
+        const perspectiveAngle =
+          (Math.atan2(vanishingY - lineY, 54) * 180) / Math.PI;
+        const angleJitter = -2.5 + ((seed * 7) % 6);
+        line.className = `running-speed-line ${side}`;
+        line.style.setProperty("--line-y", `${lineY}%`);
+        line.style.setProperty("--line-width", `${12 + ((seed * 17) % 24)}%`);
+        line.style.setProperty("--line-height", `${2 + ((seed * 5) % 8)}px`);
+        line.style.setProperty(
+          "--line-angle",
+          `${side === "right" ? -perspectiveAngle - angleJitter : perspectiveAngle + angleJitter}deg`,
+        );
+        line.style.setProperty("--line-duration", `${250 + ((seed * 41) % 310)}ms`);
+        line.style.setProperty("--line-delay", `${-((seed * 89) % 560)}ms`);
+        line.style.setProperty(
+          "--line-shift-start",
+          side === "right" ? "10px" : "-10px",
+        );
+        line.style.setProperty(
+          "--line-shift-end",
+          side === "right" ? "-18px" : "18px",
+        );
+        line.style.setProperty(
+          "--line-opacity",
+          String(0.28 + ((seed * 13) % 52) / 100),
+        );
+        fragment.appendChild(line);
+      }
+    });
+
+    layer.appendChild(fragment);
+    return layer;
+  }
+
+  stopRunningCamera() {
+    if (this.runningCameraAnimation) {
+      this.runningCameraAnimation.pause();
+      this.runningCameraAnimation = null;
+    }
+
+    const targets = [
+      document.getElementById("sharp-background-layers"),
+      document.getElementById("character-layer"),
+      document.getElementById("interaction-layer"),
+      document.getElementById("overlay-layer"),
+    ].filter(Boolean);
+
+    targets.forEach((target) => {
+      target.style.translate = "";
+    });
+    this.runningCameraMotion = null;
+  }
+
+  startRunningCamera() {
+    this.stopRunningCamera();
+
+    const targets = [
+      document.getElementById("sharp-background-layers"),
+      document.getElementById("character-layer"),
+      document.getElementById("interaction-layer"),
+      document.getElementById("overlay-layer"),
+    ].filter(Boolean);
+    if (targets.length === 0 || typeof window.anime !== "function") return;
+
+    const motion = { x: 0, y: 0 };
+    this.runningCameraMotion = motion;
+    this.runningCameraAnimation = window.anime({
+      targets: motion,
+      keyframes: [
+        { x: -1.4, y: 0.7, duration: 70 },
+        { x: 1.1, y: -0.8, duration: 75 },
+        { x: -0.6, y: -0.2, duration: 65 },
+        { x: 1.3, y: 0.9, duration: 80 },
+        { x: 0, y: 0, duration: 70 },
+      ],
+      easing: "linear",
+      loop: true,
+      update: () => {
+        const translate = `${motion.x.toFixed(2)}px ${motion.y.toFixed(2)}px`;
+        targets.forEach((target) => {
+          target.style.translate = translate;
+        });
+      },
+    });
+  }
+
+  setRunningFx(active, duration = active ? 180 : 280) {
+    const layer = this.ensureRunningSpeedLines();
+    const viewport = document.getElementById("game-viewport");
+    if (!layer || !viewport) return;
+
+    const enabled = active === true;
+    state.uiState.runningFx = enabled;
+    viewport.classList.toggle("running-fx-active", enabled);
+
+    if (window.anime) {
+      anime.remove(layer);
+      anime({
+        targets: layer,
+        opacity: enabled ? 1 : 0,
+        duration: Math.max(0, duration),
+        easing: enabled ? "easeOutQuad" : "easeInQuad",
+      });
+    } else {
+      layer.style.opacity = enabled ? "1" : "0";
+    }
+
+    if (enabled) this.startRunningCamera();
+    else this.stopRunningCamera();
+  }
+
+  restorePersistentFx() {
+    const orgasmLayer = document.getElementById("orgasm-white-layer");
+
+    if (orgasmLayer) {
+      if (window.anime) anime.remove(orgasmLayer);
+      orgasmLayer.style.opacity =
+        state.uiState?.orgasmWhite === true ? "1" : "0";
+    }
+
+    this.setRunningFx(state.uiState?.runningFx === true, 0);
   }
 
   shakeScreen(intensity = "medium") {

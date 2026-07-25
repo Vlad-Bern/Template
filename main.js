@@ -6,12 +6,32 @@ import { initTitleBar } from "./src/ui/titleBar.js";
 import { Typewriter } from "./src/core/typewriter.js";
 import { SceneManager } from "./src/core/sceneManager.js";
 import { PDASystem } from "./src/ui/pdaSystem.js";
-import { state } from "./src/core/state.js";
+import {
+  state,
+  getStat,
+  setStat,
+  updateStat,
+} from "./src/core/state.js";
 import { SaveManager } from "./src/core/saveManager.js";
 import { SettingsManager } from "./src/core/settingsManager.js";
 import { PausableTimeout } from "./src/core/pausableTimeout.js";
 window.PausableTimeout = PausableTimeout;
 import { inputManager, INPUT_PRIORITY } from "./src/core/inputManager.js";
+
+// Команды для ручной отладки характеристик через DevTools.
+window.stat = (name, value) => setStat(name, value);
+window.addStat = (name, amount) => updateStat(name, amount);
+window.getStat = (name) => getStat(name);
+window.stats = () => {
+  const values = {
+    ...state.hero.stats,
+    rank_score: state.hero.rank_score,
+    rank_letter: state.hero.rank_letter,
+    sp: state.hero.sp,
+  };
+  console.table(values);
+  return values;
+};
 
 initTitleBar();
 
@@ -310,13 +330,6 @@ app.innerHTML = `
         будет и твой ник!
       </p>
 
-      <p
-        class="supporter-welcome-pirate"
-        data-i18n="supporter_welcome_pirate"
-      >
-        Ну а если ты пират... своего ника не увидишь. Увы :(
-      </p>
-
       <p data-i18n="supporter_welcome_farewell">
         Всё, до скорого. Приятной игры!
       </p>
@@ -360,9 +373,11 @@ app.innerHTML = `
       <div id="character-layer"></div>
       <div id="interaction-layer"></div>
       <div id="overlay-layer"></div>
+      <div id="running-speed-layer" aria-hidden="true"></div>
     </div>
     <div id="darkness-layer"></div>
     <div id="noise-layer"></div>
+    <div id="orgasm-white-layer"></div>
 
     <div id="modal-backdrop"></div>
     <div id="history-panel">
@@ -557,85 +572,7 @@ Promise.resolve().then(() => {
   import("./src/ui/menuManager.js");
   import("./src/ui/menuButtons.js");
   import("./src/ui/parallaxSystem.js");
+  import("./src/ui/cursorManager.js");
   import("./src/ui/patchNotesManager.js");
   import("./src/ui/supporterWelcomeManager.js");
 });
-
-// ========================================================
-// 🦾 СИСТЕМА ВИРТУАЛЬНОГО ИГРОВОГО КУРСОРА
-// ========================================================
-if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
-  const virtualCursor = document.createElement("div");
-  virtualCursor.id = "virtual-cursor";
-  document.body.appendChild(virtualCursor);
-
-  const interactiveSelector =
-    'button, a, [role="button"], .sota-gallery-item, ' +
-    ".sl-slot-btn, .delete-save-btn, .choice-btn, " +
-    "#dialog-hide-btn, .dialog-footer-btn, #pda-text-trigger";
-
-  let lastCursorX = window.innerWidth / 2;
-  let lastCursorY = window.innerHeight / 2;
-
-  const moveVirtualCursor = (event) => {
-    // Chromium может объединять несколько движений мыши.
-    // Берём самое свежее из них.
-    const coalescedEvents = event.getCoalescedEvents?.();
-
-    const latestEvent = coalescedEvents?.length
-      ? coalescedEvents[coalescedEvents.length - 1]
-      : event;
-
-    lastCursorX = latestEvent.clientX;
-    lastCursorY = latestEvent.clientY;
-
-    virtualCursor.style.transform = `translate3d(${lastCursorX}px, ${lastCursorY}px, 0)`;
-
-    virtualCursor.classList.add("activated");
-  };
-
-  // В Chromium raw-событие приходит немного раньше обычного pointermove.
-  const cursorMoveEvent =
-    "onpointerrawupdate" in window ? "pointerrawupdate" : "pointermove";
-
-  document.addEventListener(cursorMoveEvent, moveVirtualCursor, {
-    passive: true,
-  });
-
-  // Свечение проверяем только при смене элемента под курсором,
-  // а не на каждом физическом движении мыши.
-  document.addEventListener(
-    "pointerover",
-    (event) => {
-      const target =
-        event.target instanceof Element
-          ? event.target
-          : event.target?.parentElement;
-
-      const isInteractive = Boolean(target?.closest(interactiveSelector));
-
-      virtualCursor.classList.toggle("pointer-mode", isInteractive);
-    },
-    { passive: true },
-  );
-
-  document.addEventListener("mouseleave", () => {
-    virtualCursor.style.opacity = "0";
-  });
-
-  document.addEventListener("mouseenter", () => {
-    virtualCursor.style.opacity = "1";
-  });
-
-  // После переключения fullscreen сохраняем последние реальные
-  // координаты. Старый код оставлял left: 50vw и top: 50vh,
-  // из-за чего курсор получал дополнительное смещение.
-  document.addEventListener("fullscreenchange", () => {
-    requestAnimationFrame(() => {
-      virtualCursor.style.left = "0";
-      virtualCursor.style.top = "0";
-
-      virtualCursor.style.transform = `translate3d(${lastCursorX}px, ${lastCursorY}px, 0)`;
-    });
-  });
-}

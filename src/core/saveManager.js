@@ -350,7 +350,11 @@ export class SaveManager {
             const delTextBase = dict
               ? dict.confirm_delete_save
               : "БЕЗВОЗВРАТНО УДАЛИТЬ ДАННЫЕ В СЛОТЕ ";
-            window.showConfirm(`${delTextBase}${slotIndex + 1}?`, () => {
+            const delText =
+              lang === "ja"
+                ? delTextBase.replace("{slot}", slotIndex + 1)
+                : `${delTextBase}${slotIndex + 1}?`;
+            window.showConfirm(delText, () => {
               this._deleteSave(slotIndex);
               this.renderSlots();
             });
@@ -398,8 +402,12 @@ export class SaveManager {
       const overwTextBase = dict
         ? dict.confirm_overwrite_save
         : "ПЕРЕЗАПИСАТЬ ДАННЫЕ В СЛОТЕ ";
+      const overwriteText =
+        lang === "ja"
+          ? overwTextBase.replace("{slot}", slotIndex + 1)
+          : `${overwTextBase}${slotIndex + 1}?`;
 
-      window.showConfirm(`${overwTextBase}${slotIndex + 1}?`, () => {
+      window.showConfirm(overwriteText, () => {
         // Вызываем снова, но уже с флагом перезаписи
         this.saveGame(slotIndex, true);
       });
@@ -444,6 +452,9 @@ export class SaveManager {
       pdaUnlockHintShown:
         saveVersion >= SAVE_SCHEMA_VERSION &&
         savedUiState.pdaUnlockHintShown === true,
+
+      orgasmWhite: savedUiState.orgasmWhite === true,
+      runningFx: savedUiState.runningFx === true,
     };
 
     // Очищаем и заново собираем героя

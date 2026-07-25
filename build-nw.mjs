@@ -1,42 +1,64 @@
 import nwbuild from "nw-builder";
 import {
   copyFileSync,
-  mkdirSync,
-  readdirSync,
-  readFileSync,
-  writeFileSync,
-  rmSync,
   existsSync,
-} from "fs";
-import { join } from "path";
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { execFileSync } from "node:child_process";
+import { join } from "node:path";
 import JavaScriptObfuscator from "javascript-obfuscator";
-import { execSync } from "child_process";
+import { create as createTar } from "tar";
 
-// 0. Чистим output перед билдом
-if (existsSync("./output"))
-  rmSync("./output", { recursive: true, force: true });
-console.log("🧹 output/ очищен");
+const DIST_DIR = "./dist";
+const OUTPUT_ROOT = "./output";
+const ICON_PNG = "./public/icons/icon.png";
+const ICON_ICO = "./public/icons/icon.ico";
+const platform = process.argv[2] || "win";
 
-// 1. Копируем и патчим package.json для dist
+if (!["win", "linux"].includes(platform)) {
+  throw new Error(`Неподдерживаемая платформа: ${platform}`);
+}
+
+const platformName = platform === "win" ? "windows-x64" : "linux-x64";
+const OUTPUT_DIR = join(OUTPUT_ROOT, platformName);
+
+// Удаляем старую плоскую Windows-сборку, созданную прежней версией скрипта.
+if (existsSync(join(OUTPUT_ROOT, "SOTA.exe"))) {
+  rmSync(OUTPUT_ROOT, { recursive: true, force: true });
+}
+
+for (const path of [DIST_DIR, OUTPUT_DIR]) {
+  if (existsSync(path)) rmSync(path, { recursive: true, force: true });
+}
+console.log(`🧹 dist/ и ${OUTPUT_DIR}/ очищены`);
+
+// Vite должен встроить зашифрованный загрузчик до шифрования самих ассетов.
+process.env.VITE_ENCRYPTED = "true";
+const { build } = await import("vite");
+await build({ mode: "production" });
+console.log("✅ Production-сборка Vite готова");
+
+// NW.js читает собственный manifest из корня упакованного приложения.
 const pkg = JSON.parse(readFileSync("./package.json", "utf8"));
-pkg.window.icon = "icons/icon.icns";
+pkg.window.icon = platform === "win" ? "icons/icon.ico" : "icons/icon.png";
 pkg.window.fullscreen = false;
-writeFileSync("./dist/package.json", JSON.stringify(pkg, null, 2));
+writeFileSync(
+  join(DIST_DIR, "package.json"),
+  `${JSON.stringify(pkg, null, 2)}\n`,
+);
 
-// Иконки копируем в dist/icons/
-mkdirSync("./dist/icons", { recursive: true });
-copyFileSync("./public/icons/icon.png", "./dist/icons/icon.png");
-copyFileSync("./public/icons/icon.icns", "./dist/icons/icon.icns"); // ← ДОБАВЛЕНО
+mkdirSync(join(DIST_DIR, "icons"), { recursive: true });
+copyFileSync(ICON_PNG, join(DIST_DIR, "icons", "icon.png"));
+copyFileSync(ICON_ICO, join(DIST_DIR, "icons", "icon.ico"));
 
-// 2. Копируем иконку в корень (rcedit ищет здесь)
-mkdirSync("./icons", { recursive: true });
-copyFileSync("./public/icons/icon.png", "./icons/icon.png");
-copyFileSync("./public/icons/icon.icns", "./icons/icon.icns"); // ← ДОБАВЛЕНО
-
-// 3. Обфускация JS
-const assetsDir = "./dist/assets";
+const assetsDir = join(DIST_DIR, "assets");
 for (const file of readdirSync(assetsDir)) {
   if (!file.endsWith(".js")) continue;
+
   const filePath = join(assetsDir, file);
   const code = readFileSync(filePath, "utf8");
   const obfuscated = JavaScriptObfuscator.obfuscate(code, {
@@ -49,33 +71,67 @@ for (const file of readdirSync(assetsDir)) {
 }
 console.log("✅ JS обфускация готова");
 
-// 3.5 Шифрование ассетов
-execSync("node encrypt-assets.mjs", { stdio: "inherit" });
+execFileSync(process.execPath, ["encrypt-assets.mjs"], { stdio: "inherit" });
 
-// 4. NW.js билд
+const windowsApp = {
+  name: "SOTA",
+  version: pkg.version,
+  icon: ICON_ICO,
+  company: "V&Mai Studio",
+  fileDescription: "SOTA",
+  fileVersion: pkg.version,
+  internalName: "SOTA",
+  legalCopyright: "© 2026 V&Mai Studio. All rights reserved.",
+  originalFilename: "SOTA.exe",
+  productName: "SOTA",
+  productVersion: pkg.version,
+};
+
+const linuxApp = {
+  name: "SOTA",
+  genericName: "SOTA",
+  comment: "SOTA visual novel",
+  icon: ICON_PNG,
+  terminal: false,
+  categories: ["Game"],
+};
+
 await nwbuild({
   mode: "build",
-  srcDir: "./dist",
+  srcDir: DIST_DIR,
   glob: false,
-  version: "latest",
+  version: "stable",
   flavor: "normal",
-  platform: "osx",
+  platform,
   arch: "x64",
-  outDir: "./output",
-  app: {
-    name: "SOTA",
-    icon: "./public/icons/icon.icns",
-    LSApplicationCategoryType: "public.app-category.games",
-      NSHumanReadableCopyright: "© 2026 V&Mai Studio. All rights reserved.",
-  },
+  outDir: OUTPUT_DIR,
+  app: platform === "win" ? windowsApp : linuxApp,
 });
-console.log("✅ Билд готов → output/");
 
-mkdirSync("./output/icons", { recursive: true });
-copyFileSync("./public/icons/icon.png", "./output/icons/icon.png");
-console.log("✅ Иконка скопирована рядом с .exe");
+if (platform === "linux") {
+  const archivePath = join(OUTPUT_ROOT, "SOTA-linux-x64.tar.gz");
+  if (existsSync(archivePath)) rmSync(archivePath, { force: true });
 
-import { fileURLToPath } from "url";
-import { dirname, resolve } from "path";
+  createTar(
+    {
+      cwd: OUTPUT_DIR,
+      file: archivePath,
+      gzip: true,
+      portable: true,
+      sync: true,
+      prefix: "SOTA-linux-x64",
+      filter(path, stat) {
+        const normalized = path.replaceAll("\\", "/").replace(/^\.\//, "");
+        if (normalized === "SOTA" || normalized === "chrome_crashpad_handler") {
+          stat.mode = (stat.mode & ~0o777) | 0o755;
+        }
+        return true;
+      },
+    },
+    ["."],
+  );
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+  console.log(`✅ Linux tar.gz с правами запуска готов → ${archivePath}`);
+}
+
+console.log(`✅ ${platformName} билд готов → ${OUTPUT_DIR}/`);

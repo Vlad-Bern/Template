@@ -15,7 +15,13 @@ function xorEncrypt(buffer) {
   return result;
 }
 
-const SKIP_FILES = ["noise.webp"];
+// Эти файлы браузер загружает напрямую через HTML/CSS или inline-стили,
+// поэтому они не проходят через assetLoader и должны остаться незашифрованными.
+const SKIP_FILES = new Set(["noise.webp", "cursor.png", "shinshu.webp", "pda.webp"]);
+
+function shouldSkip(name) {
+  return SKIP_FILES.has(name) || /^icon-[A-Za-z0-9_-]+\.png$/i.test(name);
+}
 
 function processDir(dir) {
   for (const name of readdirSync(dir)) {
@@ -25,7 +31,7 @@ function processDir(dir) {
       processDir(fullPath);
       continue;
     }
-    if (SKIP_FILES.includes(name)) continue;
+    if (shouldSkip(name)) continue;
     if (!ENCRYPT_EXTS.includes(extname(name).toLowerCase())) continue;
 
     const raw = readFileSync(fullPath);

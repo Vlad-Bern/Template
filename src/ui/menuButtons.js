@@ -48,7 +48,10 @@ if (btnNewGame) {
       state.uiState = {
         dialogStyle: "normal",
         pdaUnlocked: false,
+        orgasmWhite: false,
+        runningFx: false,
       };
+      window.sm?.ui?.restorePersistentFx();
 
       window.dispatchEvent(
         new CustomEvent("stressUpdated", { detail: { sanity: 80 } }),
@@ -222,6 +225,7 @@ window.returnToMenuLogic = (skipConfirm = false) => {
       if (dl) dl.style.opacity = "0";
       if (nl) nl.style.opacity = "0";
       if (vl) vl.style.opacity = "0";
+      window.sm?.ui?.setOrgasmWhite(false, 0);
 
       // Сбрасываем фоны
       ["bg-1", "bg-2", "gbg-1", "gbg-2"].forEach((id) => {
@@ -298,7 +302,9 @@ window.returnToMenuLogic = (skipConfirm = false) => {
             window.audioManager.stopBGM(1000);
           }
 
-          if (typeof window.audioManager.fadeOutSFX === "function") {
+          if (typeof window.audioManager.stopAllSFX === "function") {
+            window.audioManager.stopAllSFX(1000);
+          } else if (typeof window.audioManager.fadeOutSFX === "function") {
             window.audioManager.fadeOutSFX(1);
           } else if (window.audioManager.activeLoops) {
             Object.keys(window.audioManager.activeLoops).forEach((key) => {

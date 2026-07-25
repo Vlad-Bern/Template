@@ -5,7 +5,7 @@ const btnGallery = document.getElementById("btn-gallery");
 const closeGalleryBtn = document.getElementById("close-gallery-btn");
 const galleryModal = document.getElementById("gallery-modal");
 
-// 🔥 ХОЗЯИН: ПОЛНЫЙ И ТОЧНЫЙ РЕЕСТР ВСЕХ 24 СЮЖЕТНЫХ CG ИЗ ПЕРВОЙ ЧАСТИ ПРОЛОГА
+// Полный реестр сюжетных CG из пролога в порядке их появления.
 const ALL_CG_LIST = [
   "/bg/cg/prologue/ren_kagami_walk.webp",
   "/bg/cg/prologue/punished_girl_main.webp",
@@ -31,6 +31,44 @@ const ALL_CG_LIST = [
   "/bg/cg/prologue/dorm_kagami_noSocks.webp",
   "/bg/cg/prologue/dorm_kagami_withSocks.webp",
   "/bg/cg/prologue/dorm_kagami_phone.webp",
+  "/bg/cg/prologue/shiroko_kabedo.webp",
+  "/bg/cg/prologue/2B_kairaMain.webp",
+  "/bg/cg/prologue/2B_kairaSneakers.webp",
+  "/bg/cg/prologue/2B_kairaCloseUp.webp",
+  "/bg/cg/prologue/2B_kairaSide.webp",
+  "/bg/cg/prologue/2B_kaira_underDesk.webp",
+  "/bg/cg/prologue/2B_kairaSmile.webp",
+  "/bg/cg/prologue/2B_kairasFeet_tight.webp",
+  "/bg/cg/prologue/2B_kairaArmpit.webp",
+  "/bg/cg/prologue/2B_kairaGuilt.webp",
+  "/bg/cg/prologue/2B_kairaWet.webp",
+  "/bg/cg/prologue/2B_kairasFeet_grab.webp",
+  "/bg/cg/prologue/2B_kairasFeet_groin.webp",
+  "/bg/cg/prologue/2B_kairaSerious.webp",
+  "/bg/cg/prologue/2B_kairaEmbressed.webp",
+  "/bg/cg/prologue/2B_kairaSmirk.webp",
+  "/bg/cg/prologue/2B_kairaPanties.webp",
+  "/bg/cg/prologue/2B_kairaMasturbate.webp",
+  "/bg/cg/prologue/2B_collage.webp",
+  "/bg/cg/prologue/2B_kairaCum.webp",
+  "/bg/cg/prologue/kaira_ren.webp",
+  "/bg/cg/prologue/death_open.webp",
+  "/bg/cg/prologue/death_greeting.webp",
+  "/bg/cg/prologue/death_like.webp",
+  "/bg/cg/prologue/death_speaking.webp",
+  "/bg/cg/prologue/death_warning.webp",
+  "/bg/cg/prologue/death_think.webp",
+  "/bg/cg/prologue/death_closeNeutral.webp",
+  "/bg/cg/prologue/death_closeSmile.webp",
+  "/bg/cg/prologue/death_closeCreepy.webp",
+  "/bg/cg/prologue/death_fullHeight.webp",
+  "/bg/cg/prologue/death_breast.webp",
+  "/bg/cg/prologue/death_feet.webp",
+  "/bg/cg/prologue/death_pussy.webp",
+  "/bg/cg/prologue/death_pussy_closeup.webp",
+  "/bg/cg/prologue/death_wipe.webp",
+  "/bg/cg/prologue/death_letter.webp",
+  "/bg/cg/prologue/death_phone.webp",
 ];
 
 // --- ОБЩАЯ ФУНКЦИЯ ЗАКРЫТИЯ ---
@@ -186,6 +224,15 @@ if (btnGallery) {
             const previewPath = path
               .replace("/bg/", "/bg_mobile/")
               .replace("./bg/", "./bg_mobile/");
+
+            let usesOriginal = false;
+            img.onerror = () => {
+              if (usesOriginal) return;
+              usesOriginal = true;
+              loadAsset(path).then((blobUrl) => {
+                img.src = blobUrl;
+              });
+            };
 
             loadAsset(previewPath).then((blobUrl) => {
               img.src = blobUrl;

@@ -29,11 +29,7 @@ export const characters = {
     rank: "S",
     room: "2-D",
     photo: "/chars/celeste/pda.webp",
-    sprites: {
-      neutral: "assets/chars/celeste/neutral.png",
-      cold: "assets/chars/celeste/cold.png",
-      dominant: "assets/chars/celeste/dominant.png",
-    },
+    sprites: {},
     role: "student",
   },
 
@@ -109,11 +105,9 @@ export const characters = {
     room: "2-B",
     photo: "/chars/kaira/pda.webp",
     sprites: {
-      neutral: "assets/chars/kaira/neutral.webp",
-      smug: "assets/chars/kaira/smug.webp",
-      blush: "assets/chars/kaira/blush.webp",
-      shocked: "assets/chars/kaira/shocked.webp",
-      messy: "assets/chars/kaira/messy.webp",
+      neutral: "/chars/kaira/neutral.webp",
+      intresting: "/chars/kaira/intresting.webp",
+      laugh: "/chars/kaira/laugh.webp",
     },
     role: "student",
   },
@@ -135,9 +129,9 @@ export const characters = {
     room: "2-B",
     photo: "/chars/akane/pda.webp",
     sprites: {
-      neutral: "assets/chars/akane/neutral.webp",
+      humble: "/chars/akane/humble.webp",
       angry: "/chars/akane/angry.webp",
-      crazy: "assets/chars/akane/crazy.webp",
+      suspect: "/chars/akane/suspect.webp",
     },
     role: "student",
   },
@@ -159,8 +153,8 @@ export const characters = {
     room: "2-B",
     photo: "/chars/yukino/pda.webp",
     sprites: {
-      neutral: "assets/chars/rin/neutral.webp",
-      strict: "assets/chars/rin/strict.webp",
+      objection: "/chars/yukino/objection.webp",
+      think: "/chars/yukino/think.webp",
     },
     role: "student",
   },
@@ -182,8 +176,8 @@ export const characters = {
     room: "2-B",
     photo: "/chars/livia/pda.webp",
     sprites: {
-      neutral: "assets/chars/livia/neutral.webp",
-      concerned: "assets/chars/livia/concerned.webp",
+      angry: "/chars/livia/angry.webp",
+      palm: "/chars/livia/palm.webp",
     },
     role: "student",
   },
@@ -204,9 +198,7 @@ export const characters = {
     rank: "A",
     room: "2-B",
     photo: "/chars/aiden/pda.webp",
-    sprites: {
-      neutral: "assets/chars/aiden/neutral.webp",
-    },
+    sprites: {},
     role: "student",
   },
 
@@ -226,37 +218,27 @@ export const characters = {
     rank: "C",
     room: "2-B",
     photo: "/chars/mia/pda.webp",
-    sprites: {
-      shaking: "assets/chars/pink_girl/shaking.webp",
-    },
+    sprites: {},
     role: "student",
   },
 
   death: {
     name: {
-      ru: "Смертница ли Смерть",
-      en: "Doomed Girl or Death",
-      ja: "死にゆく少女か、死そのものか",
+      ru: "Смертница",
+      en: "Death",
+      ja: "死に娘",
     },
     fullName: {
-      ru: "???",
-      en: "???",
-      ja: "???",
+      ru: "Смертница ли Смерть",
+      en: "Doomed Girl or Death",
+      ja: "死に娘か、死か",
     },
     color: "#ff3366",
     requiresFlag: "knowsDeath",
     rank: "A",
     room: "2-T",
     photo: "/chars/death/pda.webp",
-    sprites: {
-      neutral: "assets/chars/death/neutral.webp",
-      happy: "assets/chars/death/happy.webp",
-      crazy: "assets/chars/death/crazy.webp",
-      angry: "assets/chars/death/angry.webp",
-      smirk: "assets/chars/death/smirk.webp",
-      lewd: "assets/chars/death/lewd.webp",
-      smug: "assets/chars/death/smug.webp",
-    },
+    sprites: {},
     role: "student",
   },
 
@@ -268,5 +250,14 @@ export const characters = {
   driver: {
     name: { ru: "Водитель", en: "Driver", ja: "運転手" },
     color: "#aaaaaa",
+  },
+
+  mat_teacher: {
+    name: {
+      ru: "Учитель математики",
+      en: "Math Teacher",
+      ja: "数学教師",
+    },
+    color: "#cccccc",
   },
 };

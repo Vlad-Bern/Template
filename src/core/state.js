@@ -17,6 +17,8 @@ export const state = {
   uiState: {
     dialogStyle: "normal",
     pdaUnlocked: false,
+    orgasmWhite: false,
+    runningFx: false,
   },
 };
 
@@ -27,8 +29,38 @@ const STAT_LIMITS = {
   rank_score: { min: 0, max: 100 },
 };
 
+const STAT_ALIASES = {
+  rank: "rank_score",
+  strength: "physique",
+  money: "sp",
+};
+
+function resolveStatName(stat) {
+  return STAT_ALIASES[stat] || stat;
+}
+
+export function getStat(stat) {
+  const resolvedStat = resolveStatName(stat);
+
+  if (
+    state.hero.stats &&
+    Object.hasOwn(state.hero.stats, resolvedStat)
+  ) {
+    return state.hero.stats[resolvedStat];
+  }
+
+  if (Object.hasOwn(state.hero, resolvedStat)) {
+    return state.hero[resolvedStat];
+  }
+
+  console.warn(`[Статы] Характеристика "${stat}" не найдена.`);
+  return undefined;
+}
+
 export function updateStat(stat, value) {
-  if (typeof value !== "number") {
+  stat = resolveStatName(stat);
+
+  if (typeof value !== "number" || !Number.isFinite(value)) {
     console.error(`Хозяин, значение для ${stat} должно быть числом!`);
     return;
   }
@@ -84,6 +116,19 @@ export function updateStat(stat, value) {
   }
 
   window.dispatchEvent(new CustomEvent("statsUpdated"));
+  return newValue;
+}
+
+export function setStat(stat, value) {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    console.error(`[Статы] Новое значение должно быть конечным числом.`);
+    return;
+  }
+
+  const currentValue = getStat(stat);
+  if (typeof currentValue !== "number") return;
+
+  return updateStat(stat, value - currentValue);
 }
 
 export function updateRankLetter() {

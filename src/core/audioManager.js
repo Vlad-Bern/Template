@@ -33,13 +33,19 @@ export class AudioManager {
     if (this.stems && Object.keys(this.stems).length > 0) {
       Object.keys(this.stems).forEach((layerName) => {
         const howl = this.stems[layerName];
-        const vol = howl._maiTargetVol ?? 0;
+        const baseVolume = howl._maiBaseTargetVol ?? 0;
+        const vol = baseVolume * this.bgmMaster;
+        howl._maiTargetVol = vol;
         howl.volume(vol);
       });
     }
 
     // 3. Обновляем SFX
-    this.activeSfx.forEach((sound) => {
+    const activeSounds = new Set([
+      ...this.activeSfx,
+      ...Object.values(this.activeLoops),
+    ]);
+    activeSounds.forEach((sound) => {
       if (typeof sound._baseVolume === "number") {
         sound.volume(sound._baseVolume * this.sfxMaster);
       }
@@ -226,7 +232,6 @@ export class AudioManager {
     this.activeStem = initialLayer;
 
     const masterVol = typeof this.bgmMaster === "number" ? this.bgmMaster : 1;
-    const targetVol = volume * masterVol;
     const isSkipping = window.sm && window.sm.isFastForwarding;
 
     Object.keys(stemTracks).forEach((layerName) => {
@@ -241,7 +246,9 @@ export class AudioManager {
       });
       const howl = this.stems[layerName];
 
-      howl._maiTargetVol = layerName === initialLayer ? targetVol : 0;
+      howl._maiBaseTargetVol =
+        layerName === initialLayer ? this.currentBgmBaseVolume : 0;
+      howl._maiTargetVol = howl._maiBaseTargetVol * masterVol;
       howl.play();
 
       if (howl.state() !== "loaded") {
@@ -276,14 +283,16 @@ export class AudioManager {
     }
 
     const masterVol = typeof this.bgmMaster === "number" ? this.bgmMaster : 1;
-    const targetVol = this.currentBgmBaseVolume * masterVol;
     const isSkipping = window.sm && window.sm.isFastForwarding;
     const actualDuration = isSkipping ? 0 : duration;
 
     Object.keys(this.stems).forEach((layerName) => {
       const howl = this.stems[layerName];
-      const neededVol = layerName === targetLayer ? targetVol : 0;
+      const baseTargetVol =
+        layerName === targetLayer ? this.currentBgmBaseVolume : 0;
+      const neededVol = baseTargetVol * masterVol;
 
+      howl._maiBaseTargetVol = baseTargetVol;
       howl._maiTargetVol = neededVol;
 
       if (howl.state() === "loaded") {
@@ -303,6 +312,11 @@ export class AudioManager {
   }
 
   playSFX(trackId, volume = 1.0, loop = false) {
+    if (typeof volume === "boolean") {
+      loop = volume;
+      volume = 1.0;
+    }
+
     const srcPath = `${this.basePaths.sfx}${trackId}.ogg`;
     if (loop && this.activeLoops[trackId]) return;
 
@@ -314,12 +328,14 @@ export class AudioManager {
       html5: false,
       loop: loop,
       onend: () => {
+        if (loop) return;
         this.activeSfx.delete(sound);
-        if (!loop) sound.unload();
+        sound.unload();
       },
     });
 
     sound._baseVolume = volume;
+    sound._trackId = trackId;
     this.activeSfx.add(sound);
 
     sound.play();
@@ -327,16 +343,42 @@ export class AudioManager {
   }
 
   stopSFX(trackId, fade = 500) {
-    if (this.activeLoops && this.activeLoops[trackId]) {
-      const soundToStop = this.activeLoops[trackId];
+    const soundsToStop = new Set();
+    if (this.activeLoops?.[trackId]) {
+      soundsToStop.add(this.activeLoops[trackId]);
+    }
+    this.activeSfx.forEach((sound) => {
+      if (sound._trackId === trackId) soundsToStop.add(sound);
+    });
+
+    delete this.activeLoops[trackId];
+
+    soundsToStop.forEach((soundToStop) => {
+      this.activeSfx.delete(soundToStop);
       soundToStop.fade(soundToStop.volume(), 0, fade);
       setTimeout(() => {
-        this.activeSfx.delete(soundToStop);
         soundToStop.stop();
         soundToStop.unload();
       }, fade + 100);
-      delete this.activeLoops[trackId];
-    }
+    });
+  }
+
+  stopAllSFX(fade = 0) {
+    const soundsToStop = new Set([
+      ...this.activeSfx,
+      ...Object.values(this.activeLoops),
+    ]);
+
+    this.activeSfx.clear();
+    this.activeLoops = {};
+
+    soundsToStop.forEach((sound) => {
+      sound.fade(sound.volume(), 0, fade);
+      setTimeout(() => {
+        sound.stop();
+        sound.unload();
+      }, fade + 100);
+    });
   }
 
   handleAudio(audio) {
@@ -377,6 +419,11 @@ export class AudioManager {
 
   getSaveState() {
     const stemTracks = {};
+    const loops = Object.entries(this.activeLoops).map(([id, sound]) => ({
+      id,
+      volume:
+        typeof sound?._baseVolume === "number" ? sound._baseVolume : 1.0,
+    }));
 
     if (this.stems && Object.keys(this.stems).length > 0) {
       Object.keys(this.stems).forEach((layerName) => {
@@ -400,11 +447,18 @@ export class AudioManager {
         typeof this.currentBgmBaseVolume === "number"
           ? this.currentBgmBaseVolume
           : 0.5,
+      loops,
     };
   }
 
   restoreSaveState(audioState) {
     if (!audioState) return;
+
+    if (Array.isArray(audioState.loops)) {
+      audioState.loops.forEach(({ id, volume = 1.0 }) => {
+        if (id) this.playSFX(id, volume, true);
+      });
+    }
 
     if (audioState.stems && Object.keys(audioState.stems).length > 0) {
       const firstLayer = Object.keys(audioState.stems)[0];

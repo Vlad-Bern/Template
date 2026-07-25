@@ -167,19 +167,35 @@ export const m = {
     choices: choices.flat(),
   }),
 
-  // Эффекты на статы (ОБЕРНУТО В EFFECTS ДЛЯ СОВМЕСТИМОСТИ)
-  sanity: (val) => ({ effects: { sanity: val } }),
+  // Изменить любую характеристику из state.hero / state.hero.stats.
+  // Пример: m.stat("dominance", 5), m.stat("sp", -10)
+  stat: (name, amount) => ({ effects: { [name]: amount } }),
 
-  rank: (amount = 5) => ({ effects: { rank: amount } }),
+  // Изменить несколько характеристик одной командой.
+  // Пример: m.stats({ dominance: 2, sanity: -5, sp: -10 })
+  stats: (changes) => ({ effects: { ...changes } }),
+
+  sanity: (amount) => ({ effects: { sanity: amount } }),
+  dominance: (amount) => ({ effects: { dominance: amount } }),
+  physique: (amount) => ({ effects: { physique: amount } }),
+  sp: (amount) => ({ effects: { sp: amount } }),
+  rank: (amount = 5) => ({ effects: { rank_score: amount } }),
 
   // --- АУДИО МАКРОСЫ ---
   bgm: (trackId, volume = 0.5) => ({
     audio: { type: "bgm", id: trackId, volume },
   }),
 
-  sfx: (sfxId, volume = 1.0, loop = false) => ({
-    audio: { type: "sfx", id: sfxId, volume: volume, loop: loop },
-  }),
+  sfx: (sfxId, volume = 1.0, loop = false) => {
+    // Короткая запись m.sfx("rain", true) означает loop с громкостью 1.
+    if (typeof volume === "boolean") {
+      loop = volume;
+      volume = 1.0;
+    }
+    return {
+      audio: { type: "sfx", id: sfxId, volume, loop },
+    };
+  },
 
   stopBgm: (fade = 1000) => ({
     audio: { type: "stop", fade: fade },
@@ -188,6 +204,15 @@ export const m = {
   // 🔥 Выключить один зацикленный звук по id
   stopSfx: (id, fade = 500) => ({
     audio: { type: "stop_sfx", id, fade },
+  }),
+
+  // Объединить несколько аудиомакросов в одной реплике:
+  // m.audioMix(m.stopBgm(500), m.sfx("room_ambience", 1, true))
+  audioMix: (...audioMacros) => ({
+    audio: audioMacros.flatMap((macro) => {
+      if (!macro?.audio) return [];
+      return Array.isArray(macro.audio) ? macro.audio : [macro.audio];
+    }),
   }),
 
   // Запустить несколько SFX одновременно: m.sfxMix(["rain", 0.8, true], ["walking"])
@@ -321,6 +346,25 @@ export const m = {
   // Универсальный вызов: m.fx({ darkness: 1, noise: 0.2, duration: 2000 })
   fx: ({ darkness, noise, vignette, duration = 1000 }) => ({
     fx: { darkness, noise, vignette, duration },
+  }),
+
+  // Резкая белая вспышка с фиксацией экрана до явного orgasmRelease().
+  orgasmFlash: (duration = 100) => ({
+    orgasmFx: { active: true, duration },
+  }),
+
+  // Явно отпустить белый экран после orgasmFlash().
+  orgasmRelease: (duration = 1200) => ({
+    orgasmFx: { active: false, duration },
+  }),
+
+  // Постоянный эффект бега. Сохраняется до явного runningStop().
+  runningStart: (duration = 180) => ({
+    runningFx: { active: true, duration },
+  }),
+
+  runningStop: (duration = 280) => ({
+    runningFx: { active: false, duration },
   }),
 
   // 🔥 УМНЫЙ МЕТОД ДЛЯ КИНЕМАТОГРАФИЧНЫХ ОГЛАВЛЕНИЙ (С полной блокировкой управления)

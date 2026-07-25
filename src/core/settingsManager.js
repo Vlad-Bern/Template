@@ -94,7 +94,7 @@ export class SettingsManager {
         patch_notes_2_new_1: "Вторая часть пролога теперь доступна!",
 
         patch_notes_2_new_2:
-          "Улучшенное главное меню и добавлена лента спонсоров.",
+          "Улучшенно главное меню и добавлена лента спонсоров.",
 
         patch_notes_2_new_3: "Новый курсор.",
 
@@ -115,8 +115,6 @@ export class SettingsManager {
           "Здесь продолжается пролог. Да, всё ещё пролог. Игра только плавно подбирается к своему основному геймплею и продолжает собирать аудиторию.",
         supporter_welcome_sponsors:
           "Справа в главном меню ты можешь увидеть золотистую ленту спонсоров! Если ты поддерживал меня на уровне D-ранга, там будет и твой ник!",
-        supporter_welcome_pirate:
-          "Ну а если ты пират... своего ника не увидишь. Увы :(",
         supporter_welcome_farewell: "Всё, до скорого. Приятной игры!",
         supporter_welcome_signature: "— V&Mai Studio",
         supporter_welcome_continue: "[ ПРОДОЛЖИТЬ ]",
@@ -142,12 +140,11 @@ export class SettingsManager {
         pda_sanity: "Психика",
         pda_dominance: "Доминация",
         pda_strength: "Сила",
-        pda_sp_balance: "СП-Счёт",
+        pda_sp_balance: "СП",
         pda_rank: "Ранг",
         pda_class: "Класс",
-        pda_locker: "Шкафчик",
+        pda_locker: "Шкаф",
         pda_profile_rank: "D-Ранг",
-        pda_profile_class: "2-B",
         pda_bio_sync: "Идёт синхронизация биометрии...",
         pda_people: "Люди",
         pda_rules: "Правила",
@@ -271,9 +268,6 @@ export class SettingsManager {
         supporter_welcome_sponsors:
           "Check out the golden sponsor roll on the right side of the main menu! If you supported me at D-Rank, your name should be there!",
 
-        supporter_welcome_pirate:
-          "And if you're playing a pirated copy... you won't find your name there. Too bad :(",
-
         supporter_welcome_farewell:
           "That's it for now. See you soon, and enjoy the game!",
 
@@ -291,7 +285,7 @@ export class SettingsManager {
         confirm_overwrite_save: "OVERWRITE DATA IN SLOT ",
         sl_title_save: "[ SAVE DATA ]",
         sl_title_load: "[ LOAD DATA ]",
-        btn_delete_all: "[ DEL ALL ]",
+        btn_delete_all: "[ DELETE ALL ]",
         sl_page: "Page",
         sl_autosave: "AUTOSAVE",
         sl_slot: "SLOT",
@@ -302,7 +296,7 @@ export class SettingsManager {
         pda_sanity: "Sanity",
         pda_dominance: "Dominance",
         pda_strength: "Strength",
-        pda_sp_balance: "SP Balance",
+        pda_sp_balance: "SP",
         pda_rank: "Rank",
         pda_class: "Class",
         pda_locker: "Locker",
@@ -323,7 +317,7 @@ export class SettingsManager {
           "Shinsu Points (SP) are the only legal means of payment on Academy grounds. Students may transfer SP to one another. SP may only be held electronically.",
         pda_rule_2_title: "Rule No. 2",
         pda_rule_2:
-          "The rank system reflects a student's status and usefulness to the school. Lower-ranked students must yield the way, cafeteria seats, and places in recreation areas to higher-ranked students without question.",
+          "The rank system reflects a student's status and usefulness to the school. Lower-ranked students must give way and yield cafeteria seats and place in recreation areas to higher-ranked students without question.",
         pda_rule_3_title: "Rule No. 3",
         pda_rule_3:
           "Students may leave the dormitory after 10:00 PM only for a valid reason. Every student must sleep in their assigned room, except when ordered otherwise or under special circumstances.",
@@ -380,7 +374,7 @@ export class SettingsManager {
         // --- ГЛАВНОЕ МЕНЮ И ДИСКЛЕЙМЕР ---
         disclaimer_title: "警告！",
         disclaimer_body: `
-          <p>本作には、暴力的なシーン、過激な性描写、および強い性的興奮を引き起こす可能性のある様々なフェティッシュ要素が含まれています。</p>
+          <p>本作には、残酷な暴力や裸体の描写、および強い性的興奮を引き起こす可能性のある様々なフェティッシュ要素が含まれています。</p>
           <p>本作は早期デモ版であり、バグや未完成の部分が含まれる場合があります。</p>
           <p>登場する全キャラクターは18歳以上です。プレイヤーの皆様も同様に18歳以上である必要があります！もしそうでなければ、神の裁きを受けるでしょう。</p>
           <p class="click-to-continue">
@@ -424,8 +418,6 @@ export class SettingsManager {
           "今回はプロローグの続きです。そう、まだプロローグ。ゲームは本編のゲームプレイに少しずつ近づきながら、プレイヤーもじわじわ増えているところです。",
         supporter_welcome_sponsors:
           "メインメニューの右側に、金色のスポンサーロールが見えるはず！Dランクで支援してくれていたなら、君の名前もそこに載ってるよ！",
-        supporter_welcome_pirate:
-          "まあ、海賊版で遊んでるなら……自分の名前は見つからないけどね。残念だったね :(",
         supporter_welcome_farewell: "じゃ、また近いうちに。楽しんで！",
         supporter_welcome_signature: "— V&Mai Studio",
         supporter_welcome_continue: "[ 続ける ]",
@@ -437,8 +429,8 @@ export class SettingsManager {
         confirm_no: "[ キャンセル ]",
         confirm_exit_menu:
           "メインメニューに戻りますか？ セーブを忘れないでください。",
-        confirm_delete_save: "スロットのデータを完全に削除しますか: スロット ",
-        confirm_overwrite_save: "スロットのデータを上書きしますか: スロット ",
+        confirm_delete_save: "スロット{slot}のデータを完全に削除しますか？",
+        confirm_overwrite_save: "スロット{slot}のデータを上書きしますか？",
         sl_title_save: "[ データをセーブ ]",
         sl_title_load: "[ データをロード ]",
         btn_delete_all: "[ 全削除 ]",
@@ -452,12 +444,11 @@ export class SettingsManager {
         pda_sanity: "正気度",
         pda_dominance: "支配力",
         pda_strength: "筋力",
-        pda_sp_balance: "SP残高",
+        pda_sp_balance: "SP",
         pda_rank: "ランク",
         pda_class: "クラス",
         pda_locker: "ロッカー",
         pda_profile_rank: "Dランク",
-        pda_profile_class: "2-B",
         pda_bio_sync: "生体情報を同期中...",
         pda_people: "人物",
         pda_rules: "規則",

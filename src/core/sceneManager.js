@@ -586,8 +586,6 @@ export class SceneManager {
             if (skipIndicator) skipIndicator.classList.add("skip-hidden");
           }
 
-          if (window.playUISound)
-            window.playUISound(window.pdaSystem.isVisible ? "open" : "close");
         }
         e.preventDefault();
         e.stopImmediatePropagation();
@@ -751,6 +749,7 @@ export class SceneManager {
     if (!scene) return console.error(`[SM] Scene not found: ${sceneId}`);
 
     this.ui.handleFx({ darkness: 0, noise: 0, vignette: 0, duration: 0 });
+    this.ui.restorePersistentFx();
 
     const interLayer = document.getElementById("interaction-layer");
     const dialogWrapper = document.getElementById("dialog-wrapper");
@@ -942,9 +941,12 @@ export class SceneManager {
 
     if (isNewMusicTriggered || this.isRestoringSave) {
       this.am.stopBGM(0);
-      Object.keys(this.am.activeLoops).forEach((key) =>
-        this.am.stopSFX(key, 0),
-      );
+    }
+
+    // При обычной смене сцены зацикленные SFX продолжают играть.
+    // Полностью пересобираем их только при загрузке сохранения.
+    if (this.isRestoringSave) {
+      this.am.stopAllSFX(0);
     }
 
     // Запускаем корневой экшен сцены
@@ -1344,6 +1346,18 @@ export class SceneManager {
           ? { ...line.fx, duration: 0 }
           : line.fx;
         this.ui.handleFx(fxToPlay);
+      }
+      if (line.orgasmFx) {
+        const orgasmFx = this.isFastForwarding
+          ? { ...line.orgasmFx, duration: 0 }
+          : line.orgasmFx;
+        this.ui.setOrgasmWhite(orgasmFx.active, orgasmFx.duration);
+      }
+      if (line.runningFx) {
+        const runningFx = this.isFastForwarding
+          ? { ...line.runningFx, duration: 0 }
+          : line.runningFx;
+        this.ui.setRunningFx(runningFx.active, runningFx.duration);
       }
 
       const dialogWrapper = document.getElementById("dialog-wrapper");

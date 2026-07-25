@@ -9,6 +9,47 @@
 @use "styles/titlebar";
 @use "styles/pda";
 
+// Единственный курсор для всей игры. Это нативная замена системного курсора:
+// никаких DOM-слоёв, слежения за мышью или покадровой синхронизации.
+@media (hover: hover) and (pointer: fine) {
+  html:root,
+  html:root body,
+  html:root body :is(*, #sota-custom-cursor-lock),
+  html:root body :is(*, #sota-custom-cursor-lock)::before,
+  html:root body :is(*, #sota-custom-cursor-lock)::after,
+  html:root body *::-webkit-scrollbar,
+  html:root body *::-webkit-scrollbar-track,
+  html:root body *::-webkit-scrollbar-thumb,
+  html:root body input[type="range"],
+  html:root body input[type="range"]::-webkit-slider-runnable-track,
+  html:root body input[type="range"]::-webkit-slider-thumb {
+    // PNG имеет размер 34×34. Плотность 17/12 отображает его как 24×24,
+    // не создавая отдельную копию ассета и не размывая DOM-масштабированием.
+    cursor: -webkit-image-set(url("/ui/cursor.png") 1.4166667x) 0 0,
+      none !important;
+    cursor: image-set(url("/ui/cursor.png") 1.4166667x) 0 0,
+      none !important;
+  }
+
+  // Нативный кастомный курсор нельзя скрыть удалением старого DOM-элемента.
+  // После бездействия перебиваем cursor на всех поверхностях игры.
+  html:root.sota-cursor-idle,
+  html:root.sota-cursor-idle body,
+  html:root.sota-cursor-idle body *,
+  html:root.sota-cursor-idle body *::before,
+  html:root.sota-cursor-idle body *::after,
+  html:root.sota-cursor-idle body *::-webkit-scrollbar,
+  html:root.sota-cursor-idle body *::-webkit-scrollbar-track,
+  html:root.sota-cursor-idle body *::-webkit-scrollbar-thumb,
+  html:root.sota-cursor-idle body input[type="range"],
+  html:root.sota-cursor-idle
+    body
+    input[type="range"]::-webkit-slider-runnable-track,
+  html:root.sota-cursor-idle body input[type="range"]::-webkit-slider-thumb {
+    cursor: none !important;
+  }
+}
+
 // Запрещаем выделение текста везде
 * {
   -webkit-user-select: none; /* Chrome/Safari/Opera */
@@ -302,11 +343,121 @@ body.ui-hidden .interact-point {
     left: -50%;
     width: 200%;
     height: 200%;
-    background-image: url("/bg/common/noise.webp");
+    background-image: url("/bg_mobile/common/noise.webp");
     background-repeat: repeat;
     background-size: 128px;
     opacity: 0.15;
     animation: normal-grain 0.2s steps(4) infinite;
+  }
+}
+
+#orgasm-white-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 52;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity;
+}
+
+#running-speed-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 101;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.25;
+    background: linear-gradient(
+      90deg,
+      rgba(190, 225, 245, 0.3) 0%,
+      rgba(190, 225, 245, 0.08) 8%,
+      transparent 24%,
+      transparent 76%,
+      rgba(190, 225, 245, 0.08) 92%,
+      rgba(190, 225, 245, 0.3) 100%
+    );
+    animation: running-edge-pulse 360ms ease-in-out infinite alternate;
+    will-change: opacity;
+  }
+
+  .running-speed-line {
+    position: absolute;
+    top: var(--line-y);
+    width: var(--line-width);
+    height: var(--line-height);
+    opacity: 0;
+    filter: drop-shadow(0 0 3px rgba(210, 242, 255, 0.58));
+    animation: running-speed-streak var(--line-duration) linear infinite;
+    animation-delay: var(--line-delay);
+    will-change: translate, scale, opacity;
+  }
+
+  .running-speed-line.left {
+    left: -4%;
+    transform-origin: left center;
+    rotate: var(--line-angle);
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.18) 0%,
+      rgba(255, 255, 255, 0.95) 10%,
+      rgba(210, 240, 255, 0.58) 48%,
+      transparent 100%
+    );
+    clip-path: polygon(0 0, 100% 47%, 100% 53%, 0 100%);
+  }
+
+  .running-speed-line.right {
+    right: -4%;
+    transform-origin: right center;
+    rotate: var(--line-angle);
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(210, 240, 255, 0.58) 52%,
+      rgba(255, 255, 255, 0.95) 90%,
+      rgba(255, 255, 255, 0.18) 100%
+    );
+    clip-path: polygon(0 47%, 100% 0, 100% 100%, 0 53%);
+  }
+}
+
+#game-viewport.running-fx-active #sharp-background-layers {
+  inset: -4px;
+}
+
+@keyframes running-speed-streak {
+  0% {
+    opacity: 0;
+    translate: var(--line-shift-start) 0;
+    scale: 0.06 0.55;
+  }
+  14% {
+    opacity: var(--line-opacity);
+  }
+  62% {
+    opacity: var(--line-opacity);
+  }
+  100% {
+    opacity: 0;
+    translate: var(--line-shift-end) 0;
+    scale: 1.18 1;
+  }
+}
+
+@keyframes running-edge-pulse {
+  from {
+    opacity: 0.12;
+  }
+  to {
+    opacity: 0.3;
   }
 }
 
@@ -1055,116 +1206,5 @@ body.ui-hidden .interact-point {
   }
   .desktop-hint {
     display: none !important;
-  }
-}
-
-/* ========================================================
-   🎯 СИСТЕМА ИГРОВОГО ВИРТУАЛЬНОГО КУРСОРA СИНСЮ
-   ======================================================== */
-@media (hover: hover) and (pointer: fine) {
-  // На ПК полностью скрываем стандартный курсор Windows для ВСЕХ элементов игры, включая ползунки и их скрытые части
-  html,
-  body,
-  #app,
-  #game-viewport,
-  *,
-  button,
-  a,
-  [role="button"],
-  .sota-gallery-item,
-  .sl-slot-btn,
-  .delete-save-btn,
-  #choice-container button,
-  .choice-btn,
-  #dialog-hide-btn,
-  .dialog-footer-btn,
-  #pda-text-trigger,
-  input[type="range"],
-  input[type="range"]::-webkit-slider-thumb,
-  input[type="range"]::-webkit-slider-runnable-track {
-    cursor: none !important;
-  }
-
-  // 🔥 ХОЗЯИН: ВОЗВРАЩАЕМ ИГРОВЫМ КНОПКАМ ИХ КРАСИВУЮ АНИМАЦИЮ И НЕОНОВОЕ СВЕЧЕНИЕ
-  button,
-  a,
-  [role="button"],
-  .sota-gallery-item,
-  .sl-slot-btn,
-  .delete-save-btn,
-  #choice-container button,
-  .choice-btn,
-  #dialog-hide-btn,
-  .dialog-footer-btn,
-  #pda-text-trigger {
-    transition:
-      filter 0.25s cubic-bezier(0.25, 1, 0.5, 1),
-      transform 0.2s ease,
-      box-shadow 0.2s ease,
-      color 0.2s ease !important;
-
-    &:hover {
-      filter: drop-shadow(0 0 5px rgba(0, 255, 255, 0.65)) !important;
-    }
-  }
-
-  // Оформляем наш собственный игровой виртуальный курсор
-  #virtual-cursor {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 24px;
-    height: 24px;
-    background-image: url("/ui/cursor.png?v=2");
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: top left;
-    opacity: 0;
-
-    pointer-events: none !important;
-    z-index: 2147483647 !important;
-
-    contain: layout style paint;
-    will-change: transform, opacity, filter;
-    backface-visibility: hidden;
-    transform-origin: top left;
-    transform: translate3d(0, 0, 0);
-
-    transition:
-      opacity 0.3s ease,
-      filter 0.2s ease;
-
-    @media (pointer: coarse) {
-      display: none !important;
-    }
-
-    // 🔥 ХОЗЯИН: Полная изоляция при загрузке. Курсора физически нет на экране
-    display: none !important;
-
-    // Когда мышь сдвинется, JS добавит этот класс и курсор плавно оживёт
-    &.activated {
-      display: block !important;
-    }
-
-    &.pointer-mode {
-      filter: drop-shadow(0 0 5px rgba(0, 255, 255, 0.85)) !important;
-    }
-  }
-}
-
-// Замок для мобильных платформ (Оставляем тачскрины нетронутыми)
-@media (hover: none), (pointer: coarse) {
-  #virtual-cursor {
-    display: none !important;
-  }
-  html,
-  body,
-  #app,
-  #game-viewport,
-  *,
-  input[type="range"],
-  input[type="range"]::-webkit-slider-thumb,
-  input[type="range"]::-webkit-slider-runnable-track {
-    cursor: auto !important;
   }
 }

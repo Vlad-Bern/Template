@@ -31,8 +31,9 @@
     "dev": "vite",
     "build": "vite build --mode production",
     "preview": "vite preview",
-    "build:nw": "VITE_ENCRYPTED=true node build-nw.mjs",
-    "build:android": "vite build && npx cap sync android && npx cap open android",
+    "build:nw": "node build-nw.mjs win",
+    "build:linux": "node build-nw.mjs linux",
+    "build:android": "node build-android.mjs",
     "compress:video": "ffmpeg -i public/bg/common/menu_bg.webm -vf scale=-1:720 -c:v libvpx-vp9 -crf 30 -b:v 0 -an public/bg_mobile/common/menu_bg.webm",
     "sync-mai": "node sync-mai.mjs"
   },

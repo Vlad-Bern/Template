@@ -85,15 +85,6 @@ import { state } from "../core/state.js";
     const stress = 100 - safeSanity;
     const idleTime = (Date.now() - lastMouseMove) / 1000;
 
-    const wantOpacity = idleTime > 3 ? "0" : "1";
-    if (renderFrame._lastCursorOpacity !== wantOpacity) {
-      const vCursor = document.getElementById("virtual-cursor");
-      if (vCursor) {
-        vCursor.style.opacity = wantOpacity;
-      }
-      renderFrame._lastCursorOpacity = wantOpacity;
-    }
-
     const targetBlurAmount =
       idleTime > 3 && stress > 50 ? (stress / 100 - 0.5) * 15 : 0;
     currentBlur += (targetBlurAmount - currentBlur) * 0.05;
