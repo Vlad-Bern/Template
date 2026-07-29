@@ -2607,7 +2607,7 @@ export const story = {
         text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
       "
           >
-            Thank you so much for playing, D-rank!❤<br />
+            Thank you so much for playing, F-rank!❤<br />
             And that was Part Two.<br />
             And yes, there will be a third—the final part of the prologue.
           </span>`,

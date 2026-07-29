@@ -1,3 +1,5 @@
+import { inputManager, INPUT_PRIORITY } from "../core/inputManager.js";
+
 const MENU_CHARACTER_PATHS = [
   "/chars/mMenu/akane_menu.webp",
   "/chars/mMenu/celeste_menu.webp",
@@ -8,6 +10,288 @@ const MENU_CHARACTER_PATHS = [
   "/chars/mMenu/livia_menu.webp",
   "/chars/mMenu/death_menu.webp",
 ];
+
+const D_RANK_SUPPORTERS = [
+  "NNN",
+  "lorenzo",
+  "Random Orange",
+  "Andrea",
+  "ExtraB",
+  "Ya Yeet",
+  "Deri",
+  "Shameful life",
+  "Maverick Rosa",
+  "Yaris",
+];
+
+const SPONSORS_TICKER_PIXELS_PER_SECOND = 45;
+
+function syncSponsorsTickerSpeed(ticker) {
+  if (!ticker) return;
+
+  const track = ticker.querySelector(".ticker-track");
+  if (!track) return;
+
+  const updateDuration = () => {
+    const distance = track.scrollHeight;
+    if (!distance) return;
+
+    const duration = Math.max(
+      35,
+      distance / SPONSORS_TICKER_PIXELS_PER_SECOND,
+    );
+    ticker.style.setProperty("--sponsors-ticker-duration", `${duration}s`);
+  };
+
+  if (!ticker._sotaTickerResizeObserver) {
+    const resizeObserver = new ResizeObserver(updateDuration);
+    resizeObserver.observe(track);
+    ticker._sotaTickerResizeObserver = resizeObserver;
+    document.fonts?.ready.then(updateDuration);
+  }
+
+  requestAnimationFrame(updateDuration);
+}
+
+class SponsorsModalManager {
+  constructor() {
+    this.modalOpen = false;
+    this.modal = null;
+    this.content = null;
+    this.closeButton = null;
+    this.returnFocusTo = null;
+    this.touchStartX = null;
+    this.touchStartY = null;
+
+    this._registerInputHandlers();
+  }
+
+  _registerInputHandlers() {
+    inputManager.on(
+      "keydown",
+      (event) => {
+        if (!this.modalOpen) return false;
+
+        if (event.code === "Escape") {
+          event.preventDefault();
+          this.close();
+        }
+
+        return true;
+      },
+      {
+        priority: INPUT_PRIORITY.MODAL,
+        owner: this,
+      },
+    );
+
+    inputManager.on(
+      "contextmenu",
+      (event) => {
+        if (!this.modalOpen) return false;
+
+        event.preventDefault();
+        this.close();
+        return true;
+      },
+      {
+        priority: INPUT_PRIORITY.MODAL,
+        owner: this,
+      },
+    );
+
+    inputManager.on(
+      "wheel",
+      (event) => {
+        if (!this.modalOpen) return false;
+        return !event.target.closest("#sponsors-modal-content");
+      },
+      {
+        priority: INPUT_PRIORITY.MODAL,
+        owner: this,
+      },
+    );
+  }
+
+  _translation(key, fallback) {
+    const language = window.settingsManager?.settings?.language || "ru";
+    return (
+      window.settingsManager?.uiTranslations?.[language]?.[key] || fallback
+    );
+  }
+
+  ensureCreated() {
+    if (this.modal?.isConnected) {
+      this.updateTranslations();
+      return;
+    }
+
+    const modal = document.createElement("div");
+    modal.id = "sponsors-modal";
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
+    modal.setAttribute("aria-labelledby", "sponsors-modal-title");
+    modal.setAttribute("aria-hidden", "true");
+    modal.hidden = true;
+
+    modal.innerHTML = `
+      <article id="sponsors-modal-content">
+        <header class="sponsors-modal-header">
+          <div class="sponsors-modal-emblem" aria-hidden="true">D</div>
+          <h2 id="sponsors-modal-title" data-i18n="sponsors_modal_title"></h2>
+        </header>
+        <div class="sponsors-modal-list" role="list">
+          ${D_RANK_SUPPORTERS.map(
+            (supporter) =>
+              `<div class="sponsors-modal-name" role="listitem">${supporter}</div>`,
+          ).join("")}
+        </div>
+        <footer class="sponsors-modal-footer">
+          <button
+            id="close-sponsors-modal"
+            type="button"
+            data-i18n="sponsors_modal_close"
+          ></button>
+        </footer>
+      </article>
+    `;
+
+    document.body.appendChild(modal);
+
+    this.modal = modal;
+    this.content = modal.querySelector("#sponsors-modal-content");
+    this.closeButton = modal.querySelector("#close-sponsors-modal");
+
+    this.closeButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      this.close();
+    });
+
+    modal.addEventListener("click", (event) => {
+      if (!this.modalOpen) return;
+
+      if (!event.target.closest("#sponsors-modal-content")) {
+        event.preventDefault();
+        event.stopPropagation();
+        this.close();
+      }
+    });
+
+    modal.addEventListener(
+      "touchstart",
+      (event) => {
+        if (!this.modalOpen || event.touches.length !== 1) {
+          this._resetTouch();
+          return;
+        }
+
+        const touch = event.touches[0];
+        this.touchStartX = touch.clientX;
+        this.touchStartY = touch.clientY;
+      },
+      { passive: true },
+    );
+
+    modal.addEventListener(
+      "touchend",
+      (event) => {
+        if (
+          !this.modalOpen ||
+          this.touchStartX === null ||
+          this.touchStartY === null ||
+          event.changedTouches.length !== 1
+        ) {
+          this._resetTouch();
+          return;
+        }
+
+        const touch = event.changedTouches[0];
+        const distanceX = touch.clientX - this.touchStartX;
+        const distanceY = touch.clientY - this.touchStartY;
+
+        this._resetTouch();
+
+        if (
+          Math.abs(distanceX) >= 80 &&
+          Math.abs(distanceX) > Math.abs(distanceY)
+        ) {
+          this.close();
+        }
+      },
+      { passive: true },
+    );
+
+    modal.addEventListener(
+      "touchcancel",
+      () => this._resetTouch(),
+      { passive: true },
+    );
+
+    this.updateTranslations();
+  }
+
+  updateTranslations() {
+    if (!this.modal) return;
+
+    const title = this._translation("sponsors_modal_title", "D-РАНГИ");
+    const close = this._translation("sponsors_modal_close", "[ ЗАКРЫТЬ ]");
+
+    const titleElement = this.modal.querySelector("#sponsors-modal-title");
+    if (titleElement) titleElement.textContent = title;
+    if (this.closeButton) this.closeButton.textContent = close;
+
+    const ticker = document.getElementById("main-menu-sponsors");
+    if (ticker) {
+      ticker.setAttribute(
+        "aria-label",
+        this._translation(
+          "sponsors_modal_open",
+          "Открыть полный список спонсоров",
+        ),
+      );
+    }
+  }
+
+  _resetTouch() {
+    this.touchStartX = null;
+    this.touchStartY = null;
+  }
+
+  open(trigger) {
+    this.ensureCreated();
+    if (this.modalOpen || !this.modal) return;
+
+    this.returnFocusTo = trigger || document.activeElement;
+    this.modalOpen = true;
+    this.modal.hidden = false;
+    this.modal.setAttribute("aria-hidden", "false");
+
+    window.playUISound?.("open");
+
+    requestAnimationFrame(() => {
+      this.closeButton?.focus();
+    });
+  }
+
+  close() {
+    if (!this.modalOpen || !this.modal) return;
+
+    window.playUISound?.("close");
+
+    this.modalOpen = false;
+    this.modal.hidden = true;
+    this.modal.setAttribute("aria-hidden", "true");
+    this._resetTouch();
+
+    const focusTarget = this.returnFocusTo;
+    this.returnFocusTo = null;
+    requestAnimationFrame(() => focusTarget?.focus?.());
+  }
+}
+
+const sponsorsModalManager = new SponsorsModalManager();
+window.sponsorsModalManager = sponsorsModalManager;
 
 // Показывает одного случайного персонажа на весь текущий запуск игры.
 window.showRandomMenuCharacter = async function () {
@@ -117,8 +401,11 @@ window.applySotaFinalState = function () {
 
     // 1. Рендерим пилон с тегом strong для инстант-перевода слова Ранг
     if (!document.getElementById("main-menu-sponsors")) {
-      const sponsorsDiv = document.createElement("div");
+      const sponsorsDiv = document.createElement("button");
+      sponsorsDiv.type = "button";
       sponsorsDiv.id = "main-menu-sponsors";
+      sponsorsDiv.setAttribute("aria-haspopup", "dialog");
+      sponsorsDiv.setAttribute("aria-controls", "sponsors-modal");
       sponsorsDiv.innerHTML = `
         <div class="sponsors-glow-top"></div>
         <div class="sponsors-sparkles">
@@ -129,30 +416,45 @@ window.applySotaFinalState = function () {
         </div>
         <div class="sponsors-ticker">
           <div class="ticker-track">
-            <span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: NNN</span>
-            <span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: lorenzo</span>
-            <span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: Random Orange</span>
-             <span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: Andrea</span>
+            ${D_RANK_SUPPORTERS.map(
+              (supporter) =>
+                `<span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: ${supporter}</span>`,
+            ).join("")}
           </div>
           <div class="ticker-track" aria-hidden="true">
-            <span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: NNN</span>
-            <span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: lorenzo</span>
-            <span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: Random Orange</span>
-             <span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: Andrea</span>
+            ${D_RANK_SUPPORTERS.map(
+              (supporter) =>
+                `<span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: ${supporter}</span>`,
+            ).join("")}
           </div>
         </div>
       `;
+      sponsorsDiv.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        sponsorsModalManager.open(sponsorsDiv);
+      });
       mainMenu.appendChild(sponsorsDiv);
     }
+
+    syncSponsorsTickerSpeed(
+      document.getElementById("main-menu-sponsors"),
+    );
+    sponsorsModalManager.ensureCreated();
+    sponsorsModalManager.updateTranslations();
 
     // 2. Создаем вертикальный лог
     if (!document.getElementById("main-menu-sponsors-notice")) {
       const noticeDiv = document.createElement("div");
       noticeDiv.id = "main-menu-sponsors-notice";
-      noticeDiv.setAttribute("data-i18n", "sponsors_rank_notice");
-      noticeDiv.innerHTML =
+      const noticeText =
         window.settingsManager?.uiTranslations?.[currentLang]
-          ?.sponsors_rank_notice || "Спонсоры только D-ранга и выше.";
+          ?.sponsors_rank_notice ||
+        "Спонсоры D-Ранга и выше · Открыть список";
+      noticeDiv.innerHTML = `
+        <span data-i18n="sponsors_rank_notice">${noticeText}</span>
+        <span class="sponsors-notice-arrow" aria-hidden="true">↑</span>
+      `;
       mainMenu.appendChild(noticeDiv);
     }
 

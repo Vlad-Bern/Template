@@ -53,17 +53,6 @@ export class SceneManager {
   }
 
   initGlobalEvents() {
-    // Полноэкранный режим по двойному клику
-    document.addEventListener("dblclick", (e) => {
-      if (e.target.closest("#game-ui")) {
-        if (!document.fullscreenElement) {
-          document.documentElement.requestFullscreen().catch(() => {});
-        } else {
-          document.exitFullscreen();
-        }
-      }
-    });
-
     // Скролл мыши для продвижения текста
     let isScrolling = false;
     inputManager.on(

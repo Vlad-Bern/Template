@@ -277,13 +277,13 @@ app.innerHTML = `
   aria-modal="true"
   aria-labelledby="supporter-welcome-title"
   aria-hidden="true"
-  data-card-version="2.0"
+  data-card-version="2.1-f-rank"
   hidden
 >
   <article id="supporter-welcome-content">
     <header class="supporter-welcome-header">
       <div class="supporter-rank-emblem" aria-hidden="true">
-        D
+        F
       </div>
 
       <div class="supporter-welcome-heading">
@@ -298,7 +298,7 @@ app.innerHTML = `
           id="supporter-welcome-title"
           data-i18n="supporter_welcome_title"
         >
-          ПОСВЯЩАЕТСЯ D-РАНГУ!
+          ПОСВЯЩАЕТСЯ F-РАНГУ!
         </h2>
       </div>
 
@@ -309,29 +309,28 @@ app.innerHTML = `
         class="supporter-welcome-greeting"
         data-i18n="supporter_welcome_greeting"
       >
-        Доброго времени суток! Обновление наконец-то вышло!!
+        Прииииииветствую! А вот и ранний доступ для тебя!
       </p>
 
       <p data-i18n="supporter_welcome_apology">
-        Ох, сорян, что пришлось так долго ждать. Каюсь: обнова могла
-        выйти знатно пораньше. Но ничего страшного — главное, что ты
-        наконец скачал апдейт!
+        Конечно, D-Ранги увидели апдейт раньше тебя, но зато эта версия
+        чуть более доработанная.
       </p>
 
       <p data-i18n="supporter_welcome_prologue">
-        Здесь продолжается пролог. Именно пролог: игра всё ещё только
-        плавно подбирается к своему основному геймплею и продолжает
-        собирать аудиторию.
+        Здесь продолжается пролог. Да, всё ещё пролог. Игра только плавно
+        подбирается к своему основному геймплею и продолжает собирать
+        аудиторию.
       </p>
 
       <p data-i18n="supporter_welcome_sponsors">
         Справа в главном меню ты можешь увидеть золотистую ленту
-        спонсоров! Если ты поддерживал меня на уровне D-ранга, там
-        будет и твой ник!
+        спонсоров! Сейчас там только D-Ранги. Но тебе всё равно спасибо
+        за поддержку игры, я рад каждому подписчику.
       </p>
 
       <p data-i18n="supporter_welcome_farewell">
-        Всё, до скорого. Приятной игры!
+        Ну всё, приятной игры!
       </p>
 
       <p

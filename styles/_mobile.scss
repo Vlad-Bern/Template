@@ -626,9 +626,11 @@
     }
 
     .ticker-track {
-      gap: 90px !important;
-      padding-top: 45px !important;
-      padding-bottom: 45px !important;
+      --sponsors-ticker-gap: 50px;
+
+      gap: var(--sponsors-ticker-gap) !important;
+      padding-top: calc(var(--sponsors-ticker-gap) / 2) !important;
+      padding-bottom: calc(var(--sponsors-ticker-gap) / 2) !important;
 
       span {
         font-size: 28px !important;

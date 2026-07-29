@@ -202,15 +202,25 @@
   .stat-info {
     display: flex;
     justify-content: space-between;
-    align-items: baseline;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
     font-family: "Courier New", Courier, monospace;
     font-size: 11px;
     text-transform: uppercase;
     color: #888;
+
+    .stat-label {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 
   .stat-val {
     min-width: 28px;
+    flex-shrink: 0;
     color: #fff;
     font-weight: bold;
     font-family: "Courier New", Courier, monospace;
@@ -230,6 +240,7 @@
   .stat-bar {
     display: flex;
     flex-grow: 1;
+    min-width: 0;
     gap: 2px;
     height: 8px;
 
@@ -257,11 +268,133 @@
     }
   }
 
+  .stat-icon-slot {
+    position: relative;
+
+    width: 22px;
+    height: 22px;
+    flex: 0 0 22px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-sizing: border-box;
+    overflow: hidden;
+
+    background:
+      linear-gradient(rgba(0, 255, 255, 0.025), rgba(0, 255, 255, 0.06)),
+      rgba(0, 0, 0, 0.48);
+    border: 1px solid rgba(0, 255, 255, 0.25);
+    border-radius: 3px;
+
+    box-shadow:
+      inset 0 0 7px rgba(0, 255, 255, 0.05),
+      0 0 5px rgba(0, 255, 255, 0.04);
+
+    &::before,
+    &::after {
+      content: "";
+      position: absolute;
+      width: 4px;
+      height: 1px;
+      background: rgba(0, 255, 255, 0.3);
+    }
+
+    &::before {
+      transform: rotate(90deg);
+    }
+
+    img,
+    canvas,
+    svg {
+      position: relative;
+      z-index: 1;
+      display: block;
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+    }
+
+    &:has(img, canvas, svg) {
+      &::before,
+      &::after {
+        display: none;
+      }
+    }
+  }
+
   &.money-card {
     border-color: rgba(255, 215, 0, 0.2);
+
     .sp-visual {
-      justify-content: flex-end;
+      min-height: 22px;
+      justify-content: space-between;
+      gap: 7px;
+
+      .sp-token {
+        width: 22px;
+        height: 22px;
+        flex: 0 0 22px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        box-sizing: border-box;
+
+        color: #171306;
+        font-family: "Courier New", Courier, monospace;
+        font-size: 8px;
+        font-weight: 900;
+        letter-spacing: -0.5px;
+
+        background: linear-gradient(
+          135deg,
+          #8f6d08,
+          #ffe87b 45%,
+          #d4af37 68%,
+          #6f5105
+        );
+        border: 1px solid rgba(255, 239, 159, 0.6);
+        border-radius: 3px;
+
+        box-shadow:
+          0 0 7px rgba(255, 215, 0, 0.2),
+          inset 0 0 4px rgba(255, 255, 255, 0.28);
+      }
+
+      .sp-balance-line {
+        position: relative;
+
+        height: 1px;
+        min-width: 8px;
+        flex: 1;
+
+        background: linear-gradient(
+          90deg,
+          rgba(255, 215, 0, 0.48),
+          rgba(255, 215, 0, 0.08)
+        );
+
+        &::after {
+          content: "";
+          position: absolute;
+          top: 50%;
+          right: 0;
+
+          width: 3px;
+          height: 3px;
+
+          background: #ffd700;
+          border-radius: 50%;
+          box-shadow: 0 0 5px rgba(255, 215, 0, 0.65);
+          transform: translateY(-50%);
+        }
+      }
+
       .sp-val {
+        min-width: 0;
         font-size: 16px;
         color: #ffd700;
         text-shadow: 0 0 5px rgba(255, 215, 0, 0.3);

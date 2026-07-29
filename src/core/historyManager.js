@@ -1,6 +1,7 @@
 import { characters } from "../data/characters.js";
 import { state } from "./state.js"; // Важно: импортируем state для проверки флагов!
 import { inputManager, INPUT_PRIORITY } from "./inputManager.js";
+import { attachCustomScrollbar } from "../ui/customScrollbar.js";
 
 export class HistoryManager {
   constructor() {
@@ -9,6 +10,7 @@ export class HistoryManager {
     this.panel = document.getElementById("history-panel");
     this.content = document.getElementById("history-content");
     this.backdrop = document.getElementById("modal-backdrop"); // Никакого создания элементов!
+    this.customScrollbar = attachCustomScrollbar(this.content, "history");
     this.initEvents();
   }
 
@@ -167,6 +169,7 @@ export class HistoryManager {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         this.content.scrollTop = this.content.scrollHeight;
+        this.customScrollbar?.refresh();
       });
     });
   }

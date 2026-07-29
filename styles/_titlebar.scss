@@ -10,7 +10,9 @@ body.nw-app #game-container {
   left: 0;
   width: 100%;
   height: 36px;
-  z-index: 99999;
+  // Рамка NW.js живёт вне #app и всегда остаётся поверх игровых эффектов,
+  // переходных затемнений, галереи и прочих внутриигровых слоёв.
+  z-index: 2147483647;
   display: flex;
   align-items: stretch;
   background: rgba(6, 6, 8, 0.97);

@@ -220,7 +220,8 @@ class SupporterWelcomeManager {
       window.patchNotesManager?.modalOpen ||
       window.saveManager?.modalOpen ||
       window.settingsManager?.modalOpen ||
-      window.sm?.hm?.modalOpen,
+      window.sm?.hm?.modalOpen ||
+      window.sponsorsModalManager?.modalOpen,
     );
   }
 

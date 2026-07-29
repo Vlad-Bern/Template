@@ -106,16 +106,16 @@ export class SettingsManager {
         patch_notes_1_release:
           "Релиз игры. Отсюда всё началось. Тут нет изменений. Есть лишь начало.",
         supporter_welcome_kicker: "РАННИЙ ДОСТУП",
-        supporter_welcome_title: "ПОСВЯЩАЕТСЯ D-РАНГУ!",
+        supporter_welcome_title: "ПОСВЯЩАЕТСЯ F-РАНГУ!",
         supporter_welcome_greeting:
-          "Доброго времени суток! Обновление наконец-то вышло!!",
+          "Прииииииветствую! А вот и ранний доступ для тебя!",
         supporter_welcome_apology:
-          "Ох, сорян, что пришлось так долго ждать. Каюсь, обнова могла выйти знатно пораньше. Но ничего страшного. Главное, что ты наконец скачал апдейт!",
+          "Конечно, D-Ранги увидели апдейт раньше тебя, но зато эта версия чуть более доработанная.",
         supporter_welcome_prologue:
           "Здесь продолжается пролог. Да, всё ещё пролог. Игра только плавно подбирается к своему основному геймплею и продолжает собирать аудиторию.",
         supporter_welcome_sponsors:
-          "Справа в главном меню ты можешь увидеть золотистую ленту спонсоров! Если ты поддерживал меня на уровне D-ранга, там будет и твой ник!",
-        supporter_welcome_farewell: "Всё, до скорого. Приятной игры!",
+          "Справа в главном меню ты можешь увидеть золотистую ленту спонсоров! Сейчас там только D-Ранги. Но тебе всё равно спасибо за поддержку игры, я рад каждому подписчику.",
+        supporter_welcome_farewell: "Ну всё, приятной игры!",
         supporter_welcome_signature: "— V&Mai Studio",
         supporter_welcome_continue: "[ ПРОДОЛЖИТЬ ]",
         gallery_title: "ГАЛЕРЕЯ",
@@ -135,8 +135,12 @@ export class SettingsManager {
         sl_slot: "СЛОТ",
         sl_empty: "Пусто",
         sl_delete_title: "Удалить слот",
-        sponsors_rank_notice: "Спонсоры только D-Ранга и выше.",
+        sponsors_rank_notice:
+          "Спонсоры D-Ранга и выше · Открыть список",
         sponsors_rank_label: "D-РАНГ",
+        sponsors_modal_title: "D-РАНГИ",
+        sponsors_modal_open: "Открыть полный список спонсоров",
+        sponsors_modal_close: "[ ЗАКРЫТЬ ]",
         pda_sanity: "Психика",
         pda_dominance: "Доминация",
         pda_strength: "Сила",
@@ -255,21 +259,21 @@ export class SettingsManager {
           "The game's initial release. This is where it all began. There are no changes here—only a beginning.",
         supporter_welcome_kicker: "EARLY ACCESS",
 
-        supporter_welcome_title: "THIS ONE'S FOR D-RANK!",
+        supporter_welcome_title: "THIS ONE'S FOR F-RANK!",
 
-        supporter_welcome_greeting: "Hey! The update is finally out!!",
+        supporter_welcome_greeting:
+          "Heeeeey! Your early access build is here!",
 
         supporter_welcome_apology:
-          "Oh man, sorry for making you wait so long. My bad. I definitely could've released this update much sooner. But hey, you're finally here and you've got the update!",
+          "Sure, the D-Ranks got the update before you did, but hey—this version is a little more polished.",
 
         supporter_welcome_prologue:
-          "This update continues the prologue. Yep, still the prologue. The game is slowly getting closer to its main gameplay while I keep building an audience for it.",
+          "The prologue continues here. Yep, still the prologue. The game is only just easing into its core gameplay while continuing to build an audience.",
 
         supporter_welcome_sponsors:
-          "Check out the golden sponsor roll on the right side of the main menu! If you supported me at D-Rank, your name should be there!",
+          "Check out the golden sponsor roll on the right side of the main menu! For now, it only features D-Ranks. Still, thank you for supporting the game—I'm happy to have every single subscriber.",
 
-        supporter_welcome_farewell:
-          "That's it for now. See you soon, and enjoy the game!",
+        supporter_welcome_farewell: "Alright, that's it. Enjoy the game!",
 
         supporter_welcome_signature: "— V&Mai Studio",
 
@@ -291,8 +295,12 @@ export class SettingsManager {
         sl_slot: "SLOT",
         sl_empty: "Empty",
         sl_delete_title: "Delete slot",
-        sponsors_rank_notice: "D-Rank sponsors and higher only.",
+        sponsors_rank_notice:
+          "D-Rank sponsors and above · Open list",
         sponsors_rank_label: "D-RANK",
+        sponsors_modal_title: "D-RANKS",
+        sponsors_modal_open: "Open the full sponsor list",
+        sponsors_modal_close: "[ CLOSE ]",
         pda_sanity: "Sanity",
         pda_dominance: "Dominance",
         pda_strength: "Strength",
@@ -409,16 +417,16 @@ export class SettingsManager {
         patch_notes_1_release:
           "ゲームの初回リリース。すべてはここから始まりました。ここに変更点はありません。あるのは、始まりだけです。",
         supporter_welcome_kicker: "アーリーアクセス",
-        supporter_welcome_title: "Dランクのみんなへ！",
+        supporter_welcome_title: "Fランクのみんなへ！",
         supporter_welcome_greeting:
-          "どうも！ついにアップデートをリリースできたよ！！",
+          "こーーーんにちは！君のためのアーリーアクセス版が来たよ！",
         supporter_welcome_apology:
-          "いやー、ずいぶん待たせちゃってごめん。正直、もっと早く出せたんだよね。まあでも、無事にアップデートをダウンロードしてくれた。それが一番大事！",
+          "もちろんDランクのみんなは君より一足先にアップデート版を遊んでる。でも、そのぶん今回のバージョンは少しだけ完成度が上がってるよ。",
         supporter_welcome_prologue:
-          "今回はプロローグの続きです。そう、まだプロローグ。ゲームは本編のゲームプレイに少しずつ近づきながら、プレイヤーもじわじわ増えているところです。",
+          "ここからはプロローグの続き。そう、まだプロローグ。ゲームは本編のゲームプレイへ少しずつ近づきながら、プレイヤーもじわじわ増えているところです。",
         supporter_welcome_sponsors:
-          "メインメニューの右側に、金色のスポンサーロールが見えるはず！Dランクで支援してくれていたなら、君の名前もそこに載ってるよ！",
-        supporter_welcome_farewell: "じゃ、また近いうちに。楽しんで！",
+          "メインメニューの右側には、金色のスポンサーロールが流れてるよ！今載っているのはDランクだけ。でも、ゲームを応援してくれて本当にありがとう。支援してくれる一人ひとりに感謝してるよ。",
+        supporter_welcome_farewell: "それじゃ、楽しんで！",
         supporter_welcome_signature: "— V&Mai Studio",
         supporter_welcome_continue: "[ 続ける ]",
         gallery_title: "ギャラリー",
@@ -439,8 +447,11 @@ export class SettingsManager {
         sl_slot: "スロット",
         sl_empty: "空",
         sl_delete_title: "スロットを削除",
-        sponsors_rank_notice: "Dランク以上のスポンサーのみ。",
+        sponsors_rank_notice: "Dランク以上のスポンサー · リストを開く",
         sponsors_rank_label: "Dランク",
+        sponsors_modal_title: "Dランク",
+        sponsors_modal_open: "スポンサー一覧を開く",
+        sponsors_modal_close: "[ 閉じる ]",
         pda_sanity: "正気度",
         pda_dominance: "支配力",
         pda_strength: "筋力",
@@ -964,5 +975,6 @@ export class SettingsManager {
     });
 
     window.pdaSystem?.applyTranslations?.();
+    window.sponsorsModalManager?.updateTranslations?.();
   }
 }

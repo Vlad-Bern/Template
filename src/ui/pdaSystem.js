@@ -1,5 +1,6 @@
 import { state } from "../core/state.js";
 import { characters } from "../data/characters.js";
+import { attachCustomScrollbar } from "./customScrollbar.js";
 
 export class PDASystem {
   constructor() {
@@ -8,6 +9,7 @@ export class PDASystem {
     this.isAnimating = false; // Защита от спама кнопкой
     this.mainMenuScrollTop = 0;
     this.currentPeopleRole = null;
+    this.peopleScrollbar = null;
   }
 
   _getLanguage() {
@@ -126,30 +128,48 @@ export class PDASystem {
       <div class="stat-card">
         <div class="stat-info">
           <span class="stat-label" data-pda-i18n="sanity">Психика</span>
+          <span class="stat-val" id="pda-stat-sanity">100</span>
         </div>
         <div class="stat-visual">
           <div class="stat-bar">${renderSegments()}</div>
-          <span class="stat-val" id="pda-stat-sanity">100</span>
+          <div
+            class="stat-icon-slot"
+            id="pda-stat-icon-sanity"
+            data-stat="sanity"
+            aria-hidden="true"
+          ></div>
         </div>
       </div>
 
       <div class="stat-card">
         <div class="stat-info">
           <span class="stat-label" data-pda-i18n="dominance">Доминация</span>
+          <span class="stat-val" id="pda-stat-dominance">0</span>
         </div>
         <div class="stat-visual">
           <div class="stat-bar">${renderSegments()}</div>
-          <span class="stat-val" id="pda-stat-dominance">0</span>
+          <div
+            class="stat-icon-slot"
+            id="pda-stat-icon-dominance"
+            data-stat="dominance"
+            aria-hidden="true"
+          ></div>
         </div>
       </div>
 
       <div class="stat-card">
         <div class="stat-info">
           <span class="stat-label" data-pda-i18n="strength">Сила</span>
+          <span class="stat-val" id="pda-stat-physique">10</span>
         </div>
         <div class="stat-visual">
           <div class="stat-bar">${renderSegments()}</div>
-          <span class="stat-val" id="pda-stat-physique">10</span>
+          <div
+            class="stat-icon-slot"
+            id="pda-stat-icon-physique"
+            data-stat="physique"
+            aria-hidden="true"
+          ></div>
         </div>
       </div>
 
@@ -158,6 +178,8 @@ export class PDASystem {
           <span class="stat-label" data-pda-i18n="sp_balance">СП-Счёт</span>
         </div>
         <div class="stat-visual sp-visual">
+          <span class="sp-token" aria-hidden="true">SP</span>
+          <span class="sp-balance-line" aria-hidden="true"></span>
           <span class="stat-val sp-val" id="pda-stat-money">0</span>
         </div>
       </div>
@@ -296,6 +318,8 @@ export class PDASystem {
       const walk = (y - listStartY) * 1.5;
       listContainer.scrollTop = listScrollTop - walk;
     });
+
+    this.peopleScrollbar = attachCustomScrollbar(listContainer, "pda");
 
     // === ЛОГИКА СЛАЙДЕРА ПРАВИЛ ===
     let currentRuleSlide = 0;
@@ -715,6 +739,8 @@ export class PDASystem {
         }
       }
     }
+
+    requestAnimationFrame(() => this.peopleScrollbar?.refresh());
   }
 
   _getLocalizedValue(value) {
