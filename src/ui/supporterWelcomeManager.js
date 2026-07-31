@@ -1,6 +1,9 @@
 import { inputManager, INPUT_PRIORITY } from "../core/inputManager.js";
 
 const SUPPORTER_CARD_STORAGE_KEY = "sota_seen_supporter_card_version";
+// Публичная версия: открытка сохранена для будущих обновлений и ручного теста,
+// но никогда не показывается автоматически.
+const SUPPORTER_CARD_AUTO_SHOW = false;
 
 class SupporterWelcomeManager {
   constructor() {
@@ -226,6 +229,12 @@ class SupporterWelcomeManager {
   }
 
   tryAutoOpen() {
+    if (!SUPPORTER_CARD_AUTO_SHOW) {
+      this.autoShowHandled = true;
+      clearTimeout(this.autoShowTimer);
+      return;
+    }
+
     if (this.autoShowHandled || this.modalOpen || !this.currentVersion) {
       return;
     }

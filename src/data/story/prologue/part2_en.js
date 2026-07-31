@@ -122,7 +122,7 @@ export const story = {
         pdaUnlocked: true,
       }),
       n("I can take a look at that too."),
-      n("The room has everything I need for the bare essentials."),
+      n("The room is relatively decent for basic living."),
       nfx("I left my room and walked to the elevator."),
       nfx(
         "...",
@@ -598,7 +598,7 @@ export const story = {
       n("I give Kaira a quick once-over."),
       n("Long earrings, a black T-shirt with red lettering."),
       nfx(
-        "Under the desk, I can see her black-stockinged legs in sneakers...",
+        "Under the desk, I can see her pretty legs in cute black stockings and sneakers...",
         {
           bg: "./bg/cg/prologue/2B_kairaSneakers.webp",
         },
@@ -702,7 +702,7 @@ export const story = {
       ),
       n("Just moving it up and down."),
       n(
-        "Now that I'm getting a proper look at her... She really is wearing black nylon tights...",
+        "Now that I'm getting a proper look at her... She really is wearing snug black nylon tights...",
       ),
       nfx(
         "Above the tights is a plaid skirt, with her black T-shirt tucked into it rather messily.",
@@ -716,7 +716,7 @@ export const story = {
       }),
       n("Kaira whispers close to my ear."),
 
-      say("kaira", "Do you like feet, newbie?"),
+      say("kaira", "Like pretty feet, newbie?"),
       say("ren", "What are you doing?"),
       say("kaira", "Testing your fetishes, dummy!"),
       n("Right in the middle of class? Am I supposed to be happy about this?"),
@@ -725,7 +725,7 @@ export const story = {
       ),
       nfx(
         "",
-        "Her foot travels higher until she rests it on my thigh.",
+        "Her pretty little foot travels higher until she rests it on my thigh.",
         m.sfx("fabric_rustle"),
         { bg: "./bg/cg/prologue/2B_kairasFeet_tight.webp" },
       ),
@@ -746,7 +746,7 @@ export const story = {
         "Why do I have to drag every little thing out of you? If you don't want to talk, there's something much more honest.",
       ),
       nfx(
-        "Kaira turns fully toward me and lifts her foot even higher. Now she's literally touching my dick!",
+        "Kaira turns fully toward me and lifts that little foot even higher. Now she's literally touching my dick!",
         m.psychoShake("ren"),
       ),
       say("ren", "Kaira, stop it!"),
@@ -769,7 +769,7 @@ export const story = {
         m.stopBgm(),
       ),
       n(
-        "Kaira sighs and reluctantly turns away a little, but leaves her foot on my crotch.",
+        "Kaira sighs and reluctantly turns away a little, but leaves her little foot on my crotch.",
       ),
       sf("kaira", "My bad.", m.hide("kagami")),
       sf("kaira", "But fate itself put him in the seat next to mine.", {
@@ -848,25 +848,25 @@ export const story = {
         m.stats({ dominance: 1, sanity: -2 }),
       ),
       nfx(
-        "I grab Kaira's foot and press it tighter against my hard dick.",
+        "I grab Kaira's little foot and press it tighter against my hard dick.",
         {
           bg: "./bg/cg/prologue/2B_kairasFeet_grab.webp",
         },
         m.sfx("fabric_rustle"),
       ),
-      n("I feel her teasing me with her toes."),
+      n("I feel her teasing me with her dainty toes."),
       n("Kaira is already breathing hard, her face flushed red."),
       say("kaira", "So you do have some balls after all, huh? Enjoy it."),
       n(
         "It dawns on me that I might spend the entire lesson sitting here with a hard-on. What the hell do I do now?",
       ),
       n(
-        "My desire keeps growing. Fuck, of course I want to fuck that foot already.",
+        "My desire keeps growing. Fuck, of course I want to fuck that pretty little foot already.",
       ),
       n(
         "But I'm in a classroom. And I'm not enough of a degenerate to do that right here.",
       ),
-      nfx("In the end, I let go of her foot, and she pulls it away.", {
+      nfx("In the end, I let go of her little foot, and she pulls it away.", {
         bg: "./bg/locations/2B_classKagami2Desks.webp",
       }),
       say("kaira", "All talk?"),
@@ -882,7 +882,7 @@ export const story = {
       nfx("Fine... I'll just watch.", m.stats({ dominance: -1, sanity: -2 })),
       n("I do nothing."),
       nfx(
-        "Time passes. Her foot stays on me, her face stays calm, and my dick stays at full attention.",
+        "Time passes. Her little foot stays on me, her face stays calm, and my dick stays at full attention.",
         {
           bg: "./bg/cg/prologue/2B_kairasFeet_groin.webp",
         },
@@ -983,7 +983,7 @@ export const story = {
       ),
       n("The words are loud, yet calm."),
       n("They came from a white-haired boy."),
-      n("But damn, he's so... pretty."),
+      n("But damn... he's got such a pretty-boy face."),
       n(
         "He doesn't silence them completely, but at least the bespectacled girl stops shouting.",
       ),
@@ -1221,7 +1221,10 @@ export const story = {
         "kaira",
         "I bet you dream about putting them over your dick and jerking off with them, huh?",
       ),
-      say("kaira", "Right after a girl's feet have been inside them, right?"),
+      say(
+        "kaira",
+        "Right after they've hugged a girl's pretty little feet, right?",
+      ),
       n("I'm not telling you about my fantasies, you pervert."),
     ],
     next: "class_kaira_phone",
@@ -1240,7 +1243,10 @@ export const story = {
         "kaira",
         "I bet you dream about putting them over your dick and jerking off with them, huh?",
       ),
-      say("kaira", "Right after a girl's feet have been inside them, right?"),
+      say(
+        "kaira",
+        "Right after they've hugged a girl's pretty little feet, right?",
+      ),
       n("I'm not telling you about my fantasies, you pervert."),
     ],
     next: "class_kaira_phone",
@@ -1260,7 +1266,10 @@ export const story = {
         "kaira",
         "I bet you dream about putting them over your dick and jerking off with them, huh?",
       ),
-      say("kaira", "Right after a girl's feet have been inside them, right?"),
+      say(
+        "kaira",
+        "Right after they've hugged a girl's pretty little feet, right?",
+      ),
       n("I'm not telling you about my fantasies, you pervert."),
     ],
     next: "class_kaira_phone",
@@ -1280,7 +1289,10 @@ export const story = {
         "kaira",
         "I bet you dream about putting them over your dick and jerking off with them, huh?",
       ),
-      say("kaira", "Right after a girl's feet have been inside them, right?"),
+      say(
+        "kaira",
+        "Right after they've hugged a girl's pretty little feet, right?",
+      ),
       n("I'm not telling you about my fantasies, you pervert."),
     ],
     next: "class_kaira_phone",
@@ -1671,7 +1683,7 @@ export const story = {
           bg: "./bg/cg/prologue/death_greeting.webp",
           bgSpeed: 50,
         },
-        m.bgm("Ima Death li DEATH!!!!", 0.7),
+        m.bgm("Ima Doomed Girl or DEATH!!!!", 0.7),
       ),
       say("death", "How are you doing??"),
       sf(
@@ -1868,7 +1880,7 @@ export const story = {
       n("Kaira pushes away from the wall and slowly starts walking off."),
       sf("kaira", "All right, time for class.", m.hideAll()),
 
-      n("Just as I begin to turn away, Doomed Girl speaks again."),
+      n("Just as I begin to turn away, Death speaks again."),
 
       sf("death", "Not so fast!", {
         bg: "./bg/cg/prologue/death_think.webp",
@@ -2020,7 +2032,7 @@ export const story = {
 
       say("death", "Something special, just for you..."),
       nfx(
-        "Doomed Girl steps away from the window so I can see her entire body.",
+        "Death steps away from the window so I can see her entire body.",
         {
           bg: "./bg/cg/prologue/death_fullHeight.webp",
           bgSpeed: 50,
@@ -2030,14 +2042,14 @@ export const story = {
       say("death", "Look, Ren! This is what you'll get!"),
 
       nfx(
-        "Firm D-cup breasts, their nipples already hard!",
+        "Firm D-cup breasts, those cute little nipples already hard!",
         {
           bg: "./bg/cg/prologue/death_breast.webp",
           bgSpeed: 50,
         },
         m.sfx("fabric_rustle"),
       ),
-      sf("death", "My beautiful feet.", {
+      sf("death", "My pretty little feet.", {
         bg: "./bg/cg/prologue/death_feet.webp",
         bgSpeed: 50,
       }),
@@ -2071,7 +2083,7 @@ export const story = {
 
       say("death", "Oh, you need a demonstration!"),
       nfx(
-        "Doomed Girl starts pushing her fingers straight into her slit!",
+        "Death starts pushing her fingers straight into her slit!",
         {
           bg: "./bg/cg/prologue/death_pussy_closeup.webp",
           bgSpeed: 50,
@@ -2132,7 +2144,7 @@ export const story = {
       ),
       say(
         "death",
-        "That's enough. Easy now, let go of my finger. You've already licked it clean, greedy boy.",
+        "That's enough. Easy now—give me my poor little finger back. You've already licked it clean, greedy boy.",
       ),
 
       n("She's right. I've already licked off and swallowed everything."),
@@ -2157,7 +2169,7 @@ export const story = {
       say("ren", "... Yes."),
 
       nfx(
-        "Doomed Girl closes the little window.",
+        "Death closes the little window.",
         {
           bg: "./bg/locations/death_enterance.webp",
           bgSpeed: 50,
@@ -2174,7 +2186,7 @@ export const story = {
       ),
       n("She holds out a folded piece of paper."),
       nfx(
-        "I reach for it, but Doomed Girl catches me with her other hand and pulls me closer.",
+        "I reach for it, but Death catches me with her other hand and pulls me closer.",
         {
           bg: "./bg/cg/prologue/death_closeCreepy.webp",
           bgSpeed: 50,
@@ -2218,7 +2230,7 @@ export const story = {
         "Then, once you're sure nobody is nearby, use this to get into the girls' changing room.",
       ),
 
-      nfx("Doomed Girl holds out something else.", {
+      nfx("Death holds out something else.", {
         bg: "./bg/cg/prologue/death_phone.webp",
         bgSpeed: 50,
       }),
@@ -2282,12 +2294,12 @@ export const story = {
       n("I've never done anything like this."),
       n("My heart is already pounding like crazy."),
       n("But something is giving me strength..."),
-      n("A naked Doomed Girl and the memory of the taste on her finger."),
+      n("A naked Death and the memory of the taste on her finger."),
       n("If I want sex, I obviously need to man up."),
       n("Let's do this!"),
 
       nfx(
-        "I look around. Nobody is there. I hold Doomed Girl's phone against the terminal beside the door.",
+        "I look around. Nobody is there. I hold Death's phone against the terminal beside the door.",
         m.sfx("locker_open"),
       ),
       n("The door opens."),
@@ -2321,7 +2333,7 @@ export const story = {
         m.sfx("letter_take"),
       ),
       n(
-        "That's it, job done! Now I'll go back to Doomed Girl, then return to class.",
+        "That's it, job done! Now I'll go back to Death, then return to class.",
       ),
       nfx(
         "I reach for the exit and start opening it when I hear girls' voices on the other side!",
@@ -2417,7 +2429,7 @@ export const story = {
         "mystery",
         "AAAAH, there's a pervert in our changing room, girls!!!!",
       ),
-      say("mystery", "He stole someone's panties!!"),
+      say("mystery", "He took someone's panties!!"),
       n("Adrenaline surges through me, and my body acts on instinct."),
       nfx(
         "I stuff the panties into my pocket and bolt from the changing room before they can surround me.",
@@ -2508,8 +2520,8 @@ export const story = {
       n(
         "Once we're outside, they start falling behind. It's cold, we're on rough asphalt, and they're only wearing swimsuits.",
       ),
-      say("mystery", "Stop, asshole!!!"),
-      say("ren", "You stop, asshole!!!"),
+      say("mystery", "Stop, bitch!!!"),
+      say("ren", "You stop, bitch!!!"),
       nfx(
         "I keep running for another two minutes without looking back...",
         m.stopBgm(),
@@ -2607,9 +2619,9 @@ export const story = {
         text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
       "
           >
-            Thank you so much for playing, F-rank!❤<br />
-            And that was Part Two.<br />
-            And yes, there will be a third—the final part of the prologue.
+            Thank you so much for playing!❤<br />
+            That was two-thirds of the prologue. The story is still laying its groundwork.<br />
+            And yes, there will be a third part—the final part of the prologue.
           </span>`,
         `Created by V&Mai Studio
         with assistance from various AIs`,

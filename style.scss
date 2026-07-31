@@ -390,6 +390,14 @@ body.ui-hidden .interact-point {
   pointer-events: none;
 }
 
+:root {
+  --noise-texture: url("/bg/common/noise.webp");
+}
+
+:root[data-platform="mobile"] {
+  --noise-texture: url("/bg_mobile/common/noise.webp");
+}
+
 #noise-layer {
   position: absolute;
   inset: 0;
@@ -404,7 +412,7 @@ body.ui-hidden .interact-point {
     left: -50%;
     width: 200%;
     height: 200%;
-    background-image: url("/bg_mobile/common/noise.webp");
+    background-image: var(--noise-texture);
     background-repeat: repeat;
     background-size: 128px;
     opacity: 0.15;

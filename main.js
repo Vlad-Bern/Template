@@ -18,6 +18,8 @@ import { PausableTimeout } from "./src/core/pausableTimeout.js";
 window.PausableTimeout = PausableTimeout;
 import { inputManager, INPUT_PRIORITY } from "./src/core/inputManager.js";
 
+document.documentElement.dataset.platform = __BUILD_TARGET__;
+
 // Команды для ручной отладки характеристик через DevTools.
 window.stat = (name, value) => setStat(name, value);
 window.addStat = (name, amount) => updateStat(name, amount);
@@ -192,6 +194,8 @@ app.innerHTML = `
         <span class="version-patch-hint" data-i18n="patch_notes_hint">
           [ ОБНОВЛЕНИЯ ]
         </span>
+
+        <span class="version-new-badge" aria-hidden="true" hidden>NEW</span>
       </button>
     </div>
 

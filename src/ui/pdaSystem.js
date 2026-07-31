@@ -132,12 +132,6 @@ export class PDASystem {
         </div>
         <div class="stat-visual">
           <div class="stat-bar">${renderSegments()}</div>
-          <div
-            class="stat-icon-slot"
-            id="pda-stat-icon-sanity"
-            data-stat="sanity"
-            aria-hidden="true"
-          ></div>
         </div>
       </div>
 
@@ -148,12 +142,6 @@ export class PDASystem {
         </div>
         <div class="stat-visual">
           <div class="stat-bar">${renderSegments()}</div>
-          <div
-            class="stat-icon-slot"
-            id="pda-stat-icon-dominance"
-            data-stat="dominance"
-            aria-hidden="true"
-          ></div>
         </div>
       </div>
 
@@ -164,18 +152,12 @@ export class PDASystem {
         </div>
         <div class="stat-visual">
           <div class="stat-bar">${renderSegments()}</div>
-          <div
-            class="stat-icon-slot"
-            id="pda-stat-icon-physique"
-            data-stat="physique"
-            aria-hidden="true"
-          ></div>
         </div>
       </div>
 
       <div class="stat-card money-card">
         <div class="stat-info">
-          <span class="stat-label" data-pda-i18n="sp_balance">СП-Счёт</span>
+          <span class="stat-label" data-pda-i18n="sp_balance">Баланс</span>
         </div>
         <div class="stat-visual sp-visual">
           <span class="sp-token" aria-hidden="true">SP</span>

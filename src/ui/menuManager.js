@@ -24,7 +24,7 @@ const D_RANK_SUPPORTERS = [
   "Yaris",
 ];
 
-const SPONSORS_TICKER_PIXELS_PER_SECOND = 45;
+const SPONSORS_TICKER_PIXELS_PER_SECOND = 100;
 
 function syncSponsorsTickerSpeed(ticker) {
   if (!ticker) return;

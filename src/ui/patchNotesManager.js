@@ -1,5 +1,7 @@
 import { inputManager, INPUT_PRIORITY } from "../core/inputManager.js";
 
+const PATCH_NOTES_STORAGE_KEY = "sota_seen_patch_notes_version";
+
 class PatchNotesManager {
   constructor() {
     this.modalOpen = false;
@@ -8,6 +10,7 @@ class PatchNotesManager {
     this.modal = document.getElementById("patch-notes-modal");
     this.content = document.getElementById("patch-notes-content");
     this.closeButton = document.getElementById("close-patch-notes");
+    this.newBadge = this.opener?.querySelector(".version-new-badge") || null;
 
     this.currentVersion = this.opener?.dataset.patchVersion || null;
 
@@ -15,6 +18,49 @@ class PatchNotesManager {
     this.touchStartY = null;
 
     this.initEvents();
+    this.syncNewBadge();
+  }
+
+  getSeenVersion() {
+    try {
+      return localStorage.getItem(PATCH_NOTES_STORAGE_KEY);
+    } catch (error) {
+      console.warn("Не удалось прочитать состояние патчноута:", error);
+      return null;
+    }
+  }
+
+  markCurrentVersionAsSeen() {
+    if (!this.currentVersion) return;
+
+    try {
+      localStorage.setItem(PATCH_NOTES_STORAGE_KEY, this.currentVersion);
+    } catch (error) {
+      console.warn("Не удалось сохранить состояние патчноута:", error);
+    }
+
+    this.syncNewBadge();
+  }
+
+  syncNewBadge() {
+    if (!this.newBadge) return;
+
+    const shouldShow =
+      Boolean(this.currentVersion) &&
+      this.getSeenVersion() !== this.currentVersion;
+
+    this.newBadge.hidden = !shouldShow;
+    this.opener?.classList.toggle("has-new-patch-notes", shouldShow);
+  }
+
+  showNewBadge() {
+    try {
+      localStorage.removeItem(PATCH_NOTES_STORAGE_KEY);
+    } catch (error) {
+      console.warn("Не удалось сбросить состояние патчноута:", error);
+    }
+
+    this.syncNewBadge();
   }
 
   initEvents() {
@@ -168,6 +214,8 @@ class PatchNotesManager {
 
   open() {
     if (this.modalOpen || !this.modal) return;
+
+    this.markCurrentVersionAsSeen();
 
     if (window.playUISound) {
       window.playUISound("open");

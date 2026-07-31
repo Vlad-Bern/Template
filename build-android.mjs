@@ -18,6 +18,7 @@ if (existsSync(DIST_DIR)) {
 }
 
 process.env.VITE_ENCRYPTED = "true";
+process.env.VITE_BUILD_TARGET = "mobile";
 const { build } = await import("vite");
 await build({ mode: "production" });
 console.log("✅ Android production-сборка Vite готова");

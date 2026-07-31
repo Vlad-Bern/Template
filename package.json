@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@electron/asar": "^4.2.0",
+    "archiver": "^7.0.1",
     "javascript-obfuscator": "^5.4.2",
     "nw-builder": "^4.11.0",
     "sass": "^1.97.3",
@@ -33,7 +34,10 @@
     "preview": "vite preview",
     "build:nw": "node build-nw.mjs win",
     "build:linux": "node build-nw.mjs linux",
+    "build:mac": "node build-nw.mjs mac",
     "build:android": "node build-android.mjs",
+    "generate:icons": "node generate-platform-icons.mjs",
+    "package:linux-mac": "node package-existing-builds.mjs",
     "compress:video": "ffmpeg -i public/bg/common/menu_bg.webm -vf scale=-1:720 -c:v libvpx-vp9 -crf 30 -b:v 0 -an public/bg_mobile/common/menu_bg.webm",
     "sync-mai": "node sync-mai.mjs"
   },
