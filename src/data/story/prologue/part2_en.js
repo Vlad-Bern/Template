@@ -2625,7 +2625,7 @@ export const story = {
           </span>`,
         `Created by V&Mai Studio
         with assistance from various AIs`,
-        `Feel free to share your thoughts in the comments.<br />I'd love to read them!<br />
+        `Support development to get teasers and early access to updates!<br />You can also chat with the developer!<br />
     <div class="credits-support-buttons">
       <a
         href="https://www.patreon.com/c/VMaistudio"
@@ -2637,7 +2637,7 @@ export const story = {
           alt="Patreon"
           style="width: 24px; height: 24px; filter: brightness(0) invert(1)"
         />
-        Visit Patreon
+        Support on Patreon
       </a>
       <a href="https://boosty.to/vmaistudio" target="_blank" class="support-btn boosty">
         <img
@@ -2645,8 +2645,18 @@ export const story = {
           alt="Boosty"
           style="width: 24px; height: 24px; filter: brightness(0) invert(1)"
         />
-        Visit Boosty
+        Support on Boosty
       </a>
+      <div class="credits-support-x-row">
+        <a href="https://x.com/VMaiStudio" target="_blank" class="support-btn x-social">
+          <img
+            src="icons/x.svg"
+            alt="X"
+            style="width: 24px; height: 24px; filter: brightness(0) invert(1)"
+          />
+          Follow on X
+        </a>
+      </div>
     </div>
     `,
       ]);

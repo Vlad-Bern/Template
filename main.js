@@ -178,6 +178,14 @@ app.innerHTML = `
         >
           <img src="icons/boosty.svg" alt="Boosty" />
         </a>
+        <a
+          href="https://x.com/VMaiStudio"
+          target="_blank"
+          class="menu-social-btn x-social"
+          aria-label="X"
+        >
+          <img src="icons/x.svg" alt="X" />
+        </a>
       </div>
 
       <button

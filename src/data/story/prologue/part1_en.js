@@ -118,7 +118,7 @@ export const story = {
       ),
       sf(
         "mystery",
-        "Especially my d@u№ht%r. B:!#! №$r.",
+        "Especially m% d@u№ht%r, b:!#%.",
         m.sanity(-80),
         { anim: "psychoShake" },
         m.fx({ darkness: 0.3, noise: 0.9, duration: 500 }),

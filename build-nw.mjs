@@ -152,11 +152,6 @@ for (const [index, arch] of architectures.entries()) {
       ? finalizeMacBundle({ outputDir, app: macApp })
       : null;
 
-  if (platform === "win") {
-    console.log(`✅ ${platformName} билд готов → ${outputDir}/`);
-    continue;
-  }
-
   const archivePath = join(OUTPUT_ROOT, `SOTA-${platformName}.zip`);
   const legacyArchivePath = join(
     OUTPUT_ROOT,
@@ -210,6 +205,6 @@ for (const [index, arch] of architectures.entries()) {
   console.log(
     `✅ ${platformName} ZIP с сохранёнными правами готов → ${archivePath}`,
   );
-
-  console.log(`✅ ${platformName} билд готов → ${outputDir}/`);
+  rmSync(outputDir, { recursive: true, force: true });
+  console.log(`🧹 Временная папка ${outputDir}/ удалена`);
 }

@@ -2494,8 +2494,8 @@ export const story = {
             そしてもちろん、第三部もあります。プロローグの完結編です。
           </span>`,
         `制作：V&Mai Studio
-        各種AIの協力を得て制作`,
-        `感想はぜひコメントで聞かせてください。<br />楽しみにしています！<br />
+        協力：いろいろなAI`,
+        `開発を支援すると、ティザーやアップデートの先行アクセスを受け取れます！<br />さらに、開発者と直接交流することもできます！<br />
     <div class="credits-support-buttons">
       <a
         href="https://www.patreon.com/c/VMaistudio"
@@ -2507,7 +2507,7 @@ export const story = {
           alt="Patreon"
           style="width: 24px; height: 24px; filter: brightness(0) invert(1)"
         />
-        Patreonを見る
+        Patreonで支援する
       </a>
       <a href="https://boosty.to/vmaistudio" target="_blank" class="support-btn boosty">
         <img
@@ -2515,8 +2515,18 @@ export const story = {
           alt="Boosty"
           style="width: 24px; height: 24px; filter: brightness(0) invert(1)"
         />
-        Boostyを見る
+        Boostyで支援する
       </a>
+      <div class="credits-support-x-row">
+        <a href="https://x.com/VMaiStudio" target="_blank" class="support-btn x-social">
+          <img
+            src="icons/x.svg"
+            alt="X"
+            style="width: 24px; height: 24px; filter: brightness(0) invert(1)"
+          />
+          Xをフォロー
+        </a>
+      </div>
     </div>
      `,
       ]);

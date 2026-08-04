@@ -11,7 +11,7 @@ const MENU_CHARACTER_PATHS = [
   "/chars/mMenu/death_menu.webp",
 ];
 
-const D_RANK_SUPPORTERS = [
+const C_RANK_SUPPORTERS = [
   "NNN",
   "lorenzo",
   "Random Orange",
@@ -137,11 +137,11 @@ class SponsorsModalManager {
     modal.innerHTML = `
       <article id="sponsors-modal-content">
         <header class="sponsors-modal-header">
-          <div class="sponsors-modal-emblem" aria-hidden="true">D</div>
+          <div class="sponsors-modal-emblem" aria-hidden="true">C</div>
           <h2 id="sponsors-modal-title" data-i18n="sponsors_modal_title"></h2>
         </header>
         <div class="sponsors-modal-list" role="list">
-          ${D_RANK_SUPPORTERS.map(
+          ${C_RANK_SUPPORTERS.map(
             (supporter) =>
               `<div class="sponsors-modal-name" role="listitem">${supporter}</div>`,
           ).join("")}
@@ -234,7 +234,7 @@ class SponsorsModalManager {
   updateTranslations() {
     if (!this.modal) return;
 
-    const title = this._translation("sponsors_modal_title", "D-РАНГИ");
+    const title = this._translation("sponsors_modal_title", "C-РАНГИ");
     const close = this._translation("sponsors_modal_close", "[ ЗАКРЫТЬ ]");
 
     const titleElement = this.modal.querySelector("#sponsors-modal-title");
@@ -397,7 +397,7 @@ window.applySotaFinalState = function () {
     const currentLang = window.settingsManager?.settings?.language || "ru";
     const rankLabel =
       window.settingsManager?.uiTranslations?.[currentLang]
-        ?.sponsors_rank_label || "D-RANK";
+        ?.sponsors_rank_label || "C-RANK";
 
     // 1. Рендерим пилон с тегом strong для инстант-перевода слова Ранг
     if (!document.getElementById("main-menu-sponsors")) {
@@ -416,13 +416,13 @@ window.applySotaFinalState = function () {
         </div>
         <div class="sponsors-ticker">
           <div class="ticker-track">
-            ${D_RANK_SUPPORTERS.map(
+            ${C_RANK_SUPPORTERS.map(
               (supporter) =>
                 `<span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: ${supporter}</span>`,
             ).join("")}
           </div>
           <div class="ticker-track" aria-hidden="true">
-            ${D_RANK_SUPPORTERS.map(
+            ${C_RANK_SUPPORTERS.map(
               (supporter) =>
                 `<span><strong class="sponsor-rank-label" data-i18n="sponsors_rank_label">${rankLabel}</strong>: ${supporter}</span>`,
             ).join("")}
@@ -450,7 +450,7 @@ window.applySotaFinalState = function () {
       const noticeText =
         window.settingsManager?.uiTranslations?.[currentLang]
           ?.sponsors_rank_notice ||
-        "Спонсоры D-Ранга и выше · Открыть список";
+        "Спонсоры C-Ранга и выше · Открыть список";
       noticeDiv.innerHTML = `
         <span data-i18n="sponsors_rank_notice">${noticeText}</span>
         <span class="sponsors-notice-arrow" aria-hidden="true">↑</span>

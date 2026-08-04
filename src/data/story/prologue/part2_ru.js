@@ -2502,7 +2502,7 @@ export const story = {
           </span>`,
         `Создано V&Mai Studio
         при поддержке всяких ИИ`,
-        `Можешь поделиться своими впечатлениями в комментариях.<br />Я буду рад почитать!<br />
+        `Можешь поддержать разработку, получать тизеры и ранний доступ к обновлениям!<br />А также общаться с разработчиком!<br />
     <div class="credits-support-buttons">
       <a
         href="https://www.patreon.com/c/VMaistudio"
@@ -2514,7 +2514,7 @@ export const story = {
           alt="Patreon"
           style="width: 24px; height: 24px; filter: brightness(0) invert(1)"
         />
-        Зайти на Patreon
+        Поддержать на Patreon
       </a>
       <a href="https://boosty.to/vmaistudio" target="_blank" class="support-btn boosty">
         <img
@@ -2522,8 +2522,18 @@ export const story = {
           alt="Boosty"
           style="width: 24px; height: 24px; filter: brightness(0) invert(1)"
         />
-        Зайти на Boosty
+        Поддержать на Boosty
       </a>
+      <div class="credits-support-x-row">
+        <a href="https://x.com/VMaiStudio" target="_blank" class="support-btn x-social">
+          <img
+            src="icons/x.svg"
+            alt="X"
+            style="width: 24px; height: 24px; filter: brightness(0) invert(1)"
+          />
+          Подписаться в X
+        </a>
+      </div>
     </div>
     `,
       ]);

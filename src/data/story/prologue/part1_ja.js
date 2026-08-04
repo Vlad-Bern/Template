@@ -111,7 +111,7 @@ export const story = {
       ),
       sf(
         "mystery",
-        "特に私%娘を。セ#ス$を。",
+        "特に私%む#めはな、このク$%;。",
         m.sanity(-80),
         { anim: "psychoShake" },
         m.fx({ darkness: 0.3, noise: 0.9, duration: 500 }),
