@@ -13,7 +13,11 @@ export const story = {
       nfx(
         "Good morning to me.",
         m.fx({ darkness: 0, duration: 2000 }),
-        m.audioMix(m.stopBgm(500), m.sfx("dorm_ambience", 0.5, true)),
+        m.audioMix(
+          m.stopBgm(500),
+          m.stopSfx("muffled_rain"),
+          m.sfx("dorm_ambience", 0.5, true),
+        ),
         { dialogStyle: "normal" },
       ),
       n("Hope it really is good."),
@@ -2031,13 +2035,10 @@ export const story = {
       say("ren", "... And what do I get in return?"),
 
       say("death", "Something special, just for you..."),
-      nfx(
-        "Death steps away from the window so I can see her entire body.",
-        {
-          bg: "./bg/cg/prologue/death_fullHeight.webp",
-          bgSpeed: 50,
-        },
-      ),
+      nfx("Death steps away from the window so I can see her entire body.", {
+        bg: "./bg/cg/prologue/death_fullHeight.webp",
+        bgSpeed: 50,
+      }),
       n("She begins running a hand over her intimate areas."),
       say("death", "Look, Ren! This is what you'll get!"),
 

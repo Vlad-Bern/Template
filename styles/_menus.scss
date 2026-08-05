@@ -684,8 +684,7 @@
     outline-offset: -3px;
   }
 
-  @media (hover: hover) and (pointer: fine) {
-    &:hover {
+  @at-root html.sota-fine-pointer-active &.sota-sponsors-pointer-hover {
       background: linear-gradient(
         to bottom,
         rgba(212, 175, 55, 0.16) 0%,
@@ -693,9 +692,8 @@
       );
       border-left-color: rgba(255, 244, 204, 0.72);
       box-shadow: inset 8px 0 24px rgba(212, 175, 55, 0.09);
-    }
 
-    &:hover .ticker-track {
+    .ticker-track {
       animation-play-state: paused;
     }
   }
@@ -883,8 +881,9 @@
   }
 }
 
-@media (hover: hover) and (pointer: fine) {
-  #main-menu-sponsors:hover ~ #main-menu-sponsors-notice {
+html.sota-fine-pointer-active {
+  #main-menu-sponsors.sota-sponsors-pointer-hover
+    ~ #main-menu-sponsors-notice {
     color: rgba(255, 244, 204, 0.92);
     text-shadow:
       0 0 7px rgba(212, 175, 55, 0.6),
@@ -897,33 +896,6 @@
   }
 }
 
-// На гибридных устройствах наличие мыши не должно позволять тачу
-// оставить ленту в псевдосостоянии :hover.
-@media (any-pointer: coarse) {
-  #main-menu-sponsors:hover {
-    background: linear-gradient(
-      to bottom,
-      rgba(212, 175, 55, 0.08) 0%,
-      rgba(0, 0, 0, 0.45) 100%
-    );
-    border-left-color: rgba(212, 175, 55, 0.35);
-    box-shadow: none;
-
-    .ticker-track {
-      animation-play-state: running !important;
-    }
-  }
-
-  #main-menu-sponsors:hover ~ #main-menu-sponsors-notice {
-    color: rgba(212, 175, 55, 0.52);
-    text-shadow: none;
-
-    .sponsors-notice-arrow {
-      color: rgba(255, 244, 204, 0.82);
-      animation-duration: 1.8s;
-    }
-  }
-}
 
 @keyframes sponsorsNoticeArrowHint {
   0%,

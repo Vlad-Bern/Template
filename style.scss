@@ -50,6 +50,24 @@
   }
 }
 
+// Таймер реального ввода управляет скрытием независимо от того, как Chromium
+// классифицировал основной указатель устройства.
+html:root.sota-cursor-idle,
+html:root.sota-cursor-idle body,
+html:root.sota-cursor-idle body :is(*, #sota-custom-cursor-lock),
+html:root.sota-cursor-idle body :is(*, #sota-custom-cursor-lock)::before,
+html:root.sota-cursor-idle body :is(*, #sota-custom-cursor-lock)::after,
+html:root.sota-cursor-idle body *::-webkit-scrollbar,
+html:root.sota-cursor-idle body *::-webkit-scrollbar-track,
+html:root.sota-cursor-idle body *::-webkit-scrollbar-thumb,
+html:root.sota-cursor-idle body input[type="range"],
+html:root.sota-cursor-idle
+  body
+  input[type="range"]::-webkit-slider-runnable-track,
+html:root.sota-cursor-idle body input[type="range"]::-webkit-slider-thumb {
+  cursor: none !important;
+}
+
 // Запрещаем выделение текста везде
 * {
   -webkit-user-select: none; /* Chrome/Safari/Opera */

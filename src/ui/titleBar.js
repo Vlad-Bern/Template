@@ -2,6 +2,24 @@ export function initTitleBar() {
   if (typeof nw === "undefined") return;
 
   const win = nw.Window.get();
+  const needsWindowsFullscreenResizeLock =
+    typeof process !== "undefined" && process.platform === "win32";
+  let fullscreenResizeLockTimer = null;
+
+  const lockResizeAfterFullscreenSettles = () => {
+    if (!needsWindowsFullscreenResizeLock) return;
+
+    if (fullscreenResizeLockTimer !== null) {
+      window.clearTimeout(fullscreenResizeLockTimer);
+    }
+
+    // На Windows setResizable(false) до завершения enterFullscreen()
+    // блокирует растягивание нативного окна. Даём NW.js закончить переход.
+    fullscreenResizeLockTimer = window.setTimeout(() => {
+      fullscreenResizeLockTimer = null;
+      if (win.isFullscreen) win.setResizable(false);
+    }, 250);
+  };
 
   document.body.classList.add("nw-app");
 
@@ -36,7 +54,12 @@ export function initTitleBar() {
   // Рамка видна сразу — CSS уже показывает её через display:flex
   // Прячем только при реальных событиях
   win.on("restore", () => {
+    if (fullscreenResizeLockTimer !== null) {
+      window.clearTimeout(fullscreenResizeLockTimer);
+      fullscreenResizeLockTimer = null;
+    }
     bar.style.display = "flex";
+    win.setResizable(true);
     win.setAlwaysOnTop(false);
   });
   win.on("maximize", () => {
@@ -47,8 +70,14 @@ export function initTitleBar() {
   });
   win.on("enter-fullscreen", () => {
     bar.style.display = "none";
+    lockResizeAfterFullscreenSettles();
   });
   win.on("leave-fullscreen", () => {
+    if (fullscreenResizeLockTimer !== null) {
+      window.clearTimeout(fullscreenResizeLockTimer);
+      fullscreenResizeLockTimer = null;
+    }
+    win.setResizable(true);
     bar.style.display = "flex";
   });
 

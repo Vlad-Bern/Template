@@ -1,8 +1,16 @@
 const CURSOR_IDLE_DELAY = 3000;
 const root = document.documentElement;
-const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
+const finePointer = window.matchMedia(
+  "(any-hover: hover) and (any-pointer: fine)",
+);
 
 let idleTimer = null;
+let finePointerActive = finePointer.matches;
+
+const setFinePointerActive = (active) => {
+  finePointerActive = active;
+  root.classList.toggle("sota-fine-pointer-active", active);
+};
 
 const clearIdleTimer = () => {
   if (idleTimer !== null) {
@@ -15,7 +23,7 @@ const showCursor = () => {
   root.classList.remove("sota-cursor-idle");
   clearIdleTimer();
 
-  if (!finePointer.matches || document.hidden) return;
+  if (!finePointerActive || document.hidden) return;
 
   idleTimer = window.setTimeout(() => {
     root.classList.add("sota-cursor-idle");
@@ -30,13 +38,23 @@ const disableIdleHiding = () => {
 
 window.addEventListener("pointermove", (event) => {
   if (event.pointerType === "touch") return;
+  setFinePointerActive(true);
   showCursor();
 });
 window.addEventListener("pointerdown", (event) => {
-  if (event.pointerType === "touch") return;
+  if (event.pointerType === "touch") {
+    setFinePointerActive(false);
+    disableIdleHiding();
+    return;
+  }
+  setFinePointerActive(true);
   showCursor();
 });
-window.addEventListener("pointerenter", showCursor);
+window.addEventListener("pointerenter", (event) => {
+  if (event.pointerType === "touch") return;
+  setFinePointerActive(true);
+  showCursor();
+});
 window.addEventListener("blur", disableIdleHiding);
 
 document.addEventListener("visibilitychange", () => {
@@ -45,9 +63,10 @@ document.addEventListener("visibilitychange", () => {
 });
 
 finePointer.addEventListener?.("change", () => {
-  if (finePointer.matches) showCursor();
+  setFinePointerActive(finePointer.matches);
+  if (finePointerActive) showCursor();
   else disableIdleHiding();
 });
 
+setFinePointerActive(finePointer.matches);
 showCursor();
-

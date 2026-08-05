@@ -434,6 +434,23 @@ window.applySotaFinalState = function () {
         event.stopPropagation();
         sponsorsModalManager.open(sponsorsDiv);
       });
+      sponsorsDiv.addEventListener("pointermove", (event) => {
+        sponsorsDiv.classList.toggle(
+          "sota-sponsors-pointer-hover",
+          event.pointerType !== "touch",
+        );
+      });
+      sponsorsDiv.addEventListener("pointerleave", () => {
+        sponsorsDiv.classList.remove("sota-sponsors-pointer-hover");
+      });
+      sponsorsDiv.addEventListener("pointerdown", (event) => {
+        if (event.pointerType === "touch") {
+          sponsorsDiv.classList.remove("sota-sponsors-pointer-hover");
+        }
+      });
+      sponsorsDiv.addEventListener("pointercancel", () => {
+        sponsorsDiv.classList.remove("sota-sponsors-pointer-hover");
+      });
       mainMenu.appendChild(sponsorsDiv);
     }
 

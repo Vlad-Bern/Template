@@ -13,7 +13,11 @@ export const story = {
       nfx(
         "Доброе утро, я",
         m.fx({ darkness: 0, duration: 2000 }),
-        m.audioMix(m.stopBgm(500), m.sfx("dorm_ambience", 0.5, true)),
+        m.audioMix(
+          m.stopBgm(500),
+          m.stopSfx("muffled_rain"),
+          m.sfx("dorm_ambience", 0.5, true),
+        ),
         { dialogStyle: "normal" },
       ),
       n("Надеюсь, что оно доброе."),

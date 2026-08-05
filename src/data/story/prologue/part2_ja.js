@@ -13,7 +13,11 @@ export const story = {
       nfx(
         "おはよう、俺。",
         m.fx({ darkness: 0, duration: 2000 }),
-        m.audioMix(m.stopBgm(500), m.sfx("dorm_ambience", 0.5, true)),
+        m.audioMix(
+          m.stopBgm(500),
+          m.stopSfx("muffled_rain"),
+          m.sfx("dorm_ambience", 0.5, true),
+        ),
         { dialogStyle: "normal" },
       ),
       n("本当にいい朝だといいけど。"),
@@ -561,9 +565,12 @@ export const story = {
       nfx("自分の席へ向かう。もう誰も俺を見ていない。", m.sfx("walking")),
       n("カイラをさっと眺めた。"),
       n("長いイヤリングに、赤い文字の入った黒いTシャツ。"),
-      nfx("机の下には、黒いストッキングに包まれた綺麗な脚が、スニーカーを履いて覗いている……", {
-        bg: "./bg/cg/prologue/2B_kairaSneakers.webp",
-      }),
+      nfx(
+        "机の下には、黒いストッキングに包まれた綺麗な脚が、スニーカーを履いて覗いている……",
+        {
+          bg: "./bg/cg/prologue/2B_kairaSneakers.webp",
+        },
+      ),
       n("いや、タイツか？"),
       nfx("視線をカイラの顔まで上げる。うわ、くそっ……", {
         bg: "./bg/cg/prologue/2B_kairaCloseUp.webp",

@@ -551,8 +551,10 @@ export class SettingsManager {
     if (typeof nw !== "undefined") {
       const win = nw.Window.get();
       if (this.settings.fullscreen === "full") {
+        win.setResizable(true);
         win.enterFullscreen();
       } else {
+        win.setResizable(true);
         win.leaveFullscreen();
         const targetW = Math.max(1280, Math.floor(screen.width * 0.9));
         const targetH = Math.max(720, Math.floor(screen.height * 0.9));
@@ -727,9 +729,12 @@ export class SettingsManager {
 
         if (typeof nw !== "undefined") {
           if (val === "full") {
-            nw.Window.get().enterFullscreen();
+            const win = nw.Window.get();
+            win.setResizable(true);
+            win.enterFullscreen();
           } else {
             const win = nw.Window.get();
+            win.setResizable(true);
             win.leaveFullscreen();
             const targetW = Math.max(1280, Math.floor(screen.width * 0.9));
             const targetH = Math.max(720, Math.floor(screen.height * 0.9));
